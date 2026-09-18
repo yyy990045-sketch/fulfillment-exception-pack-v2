@@ -1,0 +1,12 @@
+{
+  "id": "production-readiness",
+  "title": "补齐认证、持久化、降级、CSV、OpenAPI 与能力写入",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "backend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务并交付验证结果",
+  "createdAt": "2026-09-07T15:35:00Z",
+  "branch": "working-tree"
+}

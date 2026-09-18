@@ -1,0 +1,12 @@
+{
+  "id": "complete-workbench-interaction",
+  "title": "按 WALOVI 参考完善履约异常工作台的页面与交互状态",
+  "status": "completed",
+  "complexity": "L+",
+  "risk": "high",
+  "domain": "frontend-backend",
+  "currentPhase": "completed",
+  "nextAction": "已完成能力模块、动态关系图、推演反馈与线上核验",
+  "createdAt": "2026-09-07T16:00:00+08:00",
+  "branch": "working-tree"
+}

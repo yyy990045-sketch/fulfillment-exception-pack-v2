@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <rect width="1440" height="900" fill="#f4f6f2"/>
+  <style>
+    .ink{fill:#17231f;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    .muted{fill:#6a7770;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    .tiny{font-size:12px}.small{font-size:14px}.body{font-size:16px}.title{font-size:24px;font-weight:700}.head{font-size:18px;font-weight:700}.label{font-size:13px;font-weight:700;letter-spacing:1px}
+    .card{fill:#fff;stroke:#dbe3dd;stroke-width:1}.green{fill:#e4f3ed;stroke:#a9d8c5}.amber{fill:#fff5de;stroke:#ead39c}.red{fill:#fff0ed;stroke:#efc3ba}
+  </style>
+  <rect width="1440" height="68" fill="#17231f"/>
+  <text x="36" y="31" class="ink" fill="#fff" font-size="20" font-weight="700">销售履约异常处理台</text>
+  <text x="36" y="52" fill="#b9c9c0" class="tiny">案件队列　核对证据　处理与结案　　每一步都有记录</text>
+  <rect x="0" y="68" width="288" height="832" fill="#eef2ee"/>
+  <text x="28" y="104" class="ink head">销售履约待处理</text><rect x="214" y="86" width="50" height="26" rx="13" class="green"/><text x="226" y="104" class="ink tiny">29 件</text>
+  <rect x="20" y="124" width="248" height="38" rx="9" class="card"/><text x="34" y="148" class="muted small">搜索编号或主题…</text>
+  <rect x="16" y="178" width="256" height="86" rx="12" class="green"/><text x="30" y="202" class="ink label">FX-001　待核对</text><text x="30" y="227" class="ink body">报价与订单数量不一致</text><text x="30" y="249" class="muted tiny">品质负责人 · 高风险</text>
+  <text x="30" y="304" class="ink label">FX-002　待核对</text><text x="30" y="329" class="ink body">报价与订单单价不一致</text><text x="30" y="351" class="muted tiny">品质负责人 · 中风险</text>
+  <text x="30" y="405" class="ink label">FX-003　待补材料</text><text x="30" y="430" class="ink body">客诉缺订单号</text><text x="30" y="452" class="muted tiny">品质负责人 · 逾期 2 天</text>
+
+  <rect x="288" y="68" width="1152" height="832" fill="#f4f6f2"/>
+  <text x="332" y="118" class="muted tiny">FX-001 · 销售履约</text><text x="332" y="151" class="ink title">报价 100 件与订单 80 件</text><rect x="1270" y="106" width="76" height="30" rx="15" class="amber"/><text x="1287" y="126" class="ink tiny">待核对</text>
+  <text x="332" y="178" class="muted small">负责人：品质负责人　·　当前阶段：核对证据</text>
+  <rect x="328" y="202" width="1068" height="58" rx="14" fill="#e9efeb" stroke="#dbe3dd"/><rect x="336" y="210" width="340" height="42" rx="10" class="card"/><text x="356" y="230" class="ink small" font-weight="700">① 异常概览</text><text x="356" y="246" class="muted tiny">已完成</text><text x="730" y="230" class="ink small" font-weight="700">② 核对证据</text><text x="730" y="246" class="muted tiny">当前</text><text x="1084" y="230" class="muted small" font-weight="700">③ 处理与结案</text><text x="1084" y="246" class="muted tiny">完成核对后开放</text>
+  <text x="332" y="302" class="ink head">待确认差异</text><text x="1250" y="302" class="muted small">7 项</text>
+  <rect x="328" y="322" width="1068" height="116" rx="14" class="card"/><text x="348" y="350" class="ink body" font-weight="700">1. 数量不一致</text><rect x="1302" y="335" width="60" height="24" rx="12" class="red"/><text x="1318" y="352" class="ink tiny">高风险</text><text x="348" y="377" class="muted small">报价单：100 件　　对比　　订单：80 件</text><text x="348" y="402" class="ink tiny">判断：请确认哪份材料作为处理依据，并说明理由。</text><text x="348" y="424" fill="#0e7654" class="tiny" font-weight="700">查看依据　›</text>
+  <rect x="328" y="452" width="1068" height="116" rx="14" class="card"/><text x="348" y="480" class="ink body" font-weight="700">2. 金额不一致</text><rect x="1302" y="465" width="60" height="24" rx="12" class="red"/><text x="1318" y="482" class="ink tiny">高风险</text><text x="348" y="507" class="muted small">报价单：12,000　　对比　　回款记录：9,600</text><text x="348" y="532" class="ink tiny">判断：请确认差异是否由有效变更引起。</text><text x="348" y="554" fill="#0e7654" class="tiny" font-weight="700">查看依据　›</text>
+  <rect x="328" y="584" width="520" height="48" rx="10" fill="#fff" stroke="#dbe3dd"/><text x="348" y="614" fill="#0e7654" class="small" font-weight="700">查看全部材料（27 条）　⌄</text>
+  <rect x="866" y="584" width="530" height="48" rx="10" fill="#fff" stroke="#dbe3dd"/><text x="886" y="614" fill="#0e7654" class="small" font-weight="700">查看核对小结　⌄</text>
+  <rect x="328" y="666" width="1068" height="78" rx="12" class="green"/><text x="350" y="697" class="ink body" font-weight="700">核对完成后，开始拟定处理方案</text><text x="350" y="721" class="muted tiny">方案将包含动作、负责人、完成条件和依据</text><rect x="1230" y="686" width="142" height="38" rx="9" fill="#0e7654"/><text x="1251" y="710" fill="#fff" class="small" font-weight="700">开始拟定方案</text>
+
+  <rect x="1120" y="290" width="290" height="390" rx="16" fill="#fff" stroke="#dbe3dd" opacity=".96"/><text x="1144" y="326" class="ink head">证据抽屉</text><text x="1368" y="326" class="muted head">×</text><text x="1144" y="356" class="muted tiny">数量不一致 · 1 / 7</text><line x1="1144" y1="370" x2="1386" y2="370" stroke="#dbe3dd"/><text x="1144" y="404" class="ink small" font-weight="700">报价单</text><text x="1144" y="427" class="ink body">100 件</text><text x="1144" y="450" class="muted tiny">报价单 · 第 2 行 · 原文</text><text x="1144" y="475" class="muted tiny">“数量=100”</text><text x="1144" y="522" class="ink small" font-weight="700">订单</text><text x="1144" y="545" class="ink body">80 件</text><text x="1144" y="568" class="muted tiny">订单 · 第 2 行 · 原文</text><text x="1144" y="593" class="muted tiny">“数量=80”</text><rect x="1144" y="620" width="142" height="36" rx="9" fill="#0e7654"/><text x="1166" y="643" fill="#fff" class="small" font-weight="700">标记已核对</text>
+
+  <text x="30" y="858" class="muted tiny">桌面：队列固定　·　正文独立滚动</text>
+</svg>

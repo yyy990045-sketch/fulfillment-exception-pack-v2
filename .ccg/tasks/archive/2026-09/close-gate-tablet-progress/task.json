@@ -1,0 +1,1 @@
+{"id":"close-gate-tablet-progress","title":"执行外部 AI 的工作台 UI 与流程建议","status":"completed","complexity":"M","risk":"medium","domain":"frontend","currentPhase":"completed","nextAction":"本地与浏览器验收已完成；公网重新部署等待 SSH 恢复后执行","createdAt":"2026-09-07T09:20:00Z","branch":"working-tree"}

@@ -1,0 +1,12 @@
+{
+  "id": "workbench-palette",
+  "title": "让履约异常工作台配色贴近暖白深红参考风格",
+  "status": "completed",
+  "complexity": "S",
+  "risk": "low",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T08:35:00Z",
+  "branch": "working-tree"
+}

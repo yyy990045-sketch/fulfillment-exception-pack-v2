@@ -1,0 +1,12 @@
+{
+  "id": "plain-language-hardening",
+  "title": "把工作台技术表达改为业务用户可理解的逻辑并完成对抗验证",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "branch": "working-tree"
+}

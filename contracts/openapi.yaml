@@ -1,0 +1,403 @@
+openapi: 3.0.3
+info:
+  title: Fulfillment Exception Pack API
+  version: 2.0.0
+  description: Local deterministic case/evidence API. Production uses a verified bearer token; demo headers are development-only.
+servers:
+  - url: http://127.0.0.1:3410
+security:
+  - bearerAuth: []
+paths:
+  /api/health:
+    get:
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/HealthResponse' } }
+  /api/cases:
+    parameters:
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Case list
+          content:
+            application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CaseSummary' } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/cases/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Case detail
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/CaseDetail' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/cases/{id}/report:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Traceable case report
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Report' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/cases/{id}/receipts:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Durable external capability receipts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [caseId, receipts]
+                properties:
+                  caseId: { type: string }
+                  receipts: { type: array, items: { $ref: '#/components/schemas/CapabilityReceipt' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/cases/{id}/refresh:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: Refreshed case and endpoint attempts
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RefreshResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+  /api/cases/{id}/review:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { reviews: { type: array, items: { $ref: '#/components/schemas/ConflictReviewInput' } }, conflictIds: { type: array, items: { type: string } } } }
+      responses:
+        '200':
+          description: Updated case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RuntimeCase' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/cases/{id}/propose:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      responses:
+        '200':
+          description: Proposed case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RuntimeCase' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/cases/{id}/approve:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      responses:
+        '200':
+          description: Approved case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RuntimeCase' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/cases/{id}/execute:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { type: object, properties: { idempotencyKey: { type: string } } }
+      responses:
+        '200':
+          description: Executed case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RuntimeCase' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/cases/{id}/close:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      responses:
+        '200':
+          description: Closed case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RuntimeCase' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/cases/{id}/capabilities/{module}:
+    parameters:
+      - { $ref: '#/components/parameters/CaseId' }
+      - { $ref: '#/components/parameters/CapabilityModule' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Capability snapshot
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/CapabilitySnapshot' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - { $ref: '#/components/schemas/AdjudicationRequest' }
+                - { $ref: '#/components/schemas/SandboxRequest' }
+                - { $ref: '#/components/schemas/MoreCapabilityRequest' }
+      responses:
+        '200':
+          description: Capability result
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/CapabilityResponse' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/eval:
+    get:
+      responses:
+        '200':
+          description: Synthetic evaluation result
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/EvalResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    CaseId: { name: id, in: path, required: true, schema: { type: string } }
+    CapabilityModule: { name: module, in: path, required: true, schema: { type: string, enum: [workbench, monitor, ontology, adjudication, sandbox, actions, more] } }
+    DemoTenantHeader:
+      name: x-tenant-id
+      in: header
+      required: false
+      description: Development-only tenant selector. Ignored when a bearer token supplies tenant_id.
+      schema: { type: string, example: demo-tenant }
+    DemoActorHeader:
+      name: x-actor
+      in: header
+      required: false
+      description: Development-only actor selector for demo writes. Production uses the bearer subject.
+      schema: { type: string, example: demo-operator }
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Forbidden:
+      description: Tenant, scope, or role is not authorized
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    BadRequest:
+      description: Invalid request
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: State transition or review gate rejected
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unprocessable:
+      description: Invalid business data
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    BadGateway:
+      description: All evidence endpoints unavailable
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorWithAttempts' } } }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+    ErrorWithAttempts:
+      allOf:
+        - { $ref: '#/components/schemas/Error' }
+        - type: object
+          properties:
+            attempts: { type: array, items: { $ref: '#/components/schemas/EvidenceSourceAttempt' } }
+    HealthResponse:
+      type: object
+      required: [ok]
+      properties: { ok: { type: boolean } }
+    CaseSummary:
+      type: object
+      required: [id, title, pack, ownerRole, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        pack: { type: string, enum: [fulfillment, it-ops] }
+        ownerRole: { type: string }
+        status: { type: string }
+    CaseDetail:
+      type: object
+      required: [gold, runtime]
+      properties:
+        gold: { type: object, additionalProperties: true }
+        runtime: { $ref: '#/components/schemas/RuntimeCase' }
+    RuntimeCase:
+      type: object
+      required: [id, tenantId, status, events, findings, actions]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        status: { type: string }
+        paused: { type: boolean }
+        pack: { type: object, additionalProperties: true }
+        findings: { type: array, items: { type: object, additionalProperties: true } }
+        actions: { type: array, items: { type: object, additionalProperties: true } }
+        events: { type: array, items: { type: object, additionalProperties: true } }
+        capabilityRecords: { type: array, items: { $ref: '#/components/schemas/CapabilityRecord' } }
+    Report:
+      type: object
+      additionalProperties: true
+    RefreshResponse:
+      type: object
+      required: [ok, selectedSourceId, attempts, runtime]
+      properties:
+        ok: { type: boolean }
+        selectedSourceId: { type: string }
+        attempts: { type: array, items: { $ref: '#/components/schemas/EvidenceSourceAttempt' } }
+        runtime: { $ref: '#/components/schemas/RuntimeCase' }
+    EvidenceSourceAttempt:
+      type: object
+      required: [endpointId, outcome, durationMs]
+      properties:
+        endpointId: { type: string }
+        status: { type: integer }
+        outcome: { type: string, enum: [selected, fallback, failed] }
+        errorCode: { type: string, enum: [timeout, network, http, invalid_csv, invalid_payload, empty] }
+        durationMs: { type: integer, minimum: 0 }
+        contentHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+    CapabilityRecord:
+      type: object
+      required: [action, status, actor, at]
+      properties:
+        action: { type: string, enum: [versions, review, outcome, audit] }
+        status: { type: string, enum: [recorded, pending] }
+        result: { type: string }
+        rationale: { type: string }
+        actor: { type: string }
+        at: { type: string, format: date-time }
+        receipt: { type: string }
+        externalRequestId: { type: string }
+        receiptSource: { type: string, enum: [local-ledger] }
+    CapabilityReceipt:
+      type: object
+      required: [tenantId, caseId, actionId, operationKey, externalRequestId, receipt, receiptSource, status, payloadHash, createdAt]
+      properties:
+        tenantId: { type: string }
+        caseId: { type: string }
+        actionId: { type: string }
+        operationKey: { type: string }
+        externalRequestId: { type: string }
+        receipt: { type: string }
+        receiptSource: { type: string, enum: [local-ledger] }
+        status: { type: string, enum: [succeeded, failed] }
+        payloadHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        createdAt: { type: string, format: date-time }
+    CapabilitySnapshot:
+      type: object
+      required: [module, caseId]
+      properties:
+        module: { type: string }
+        caseId: { type: string }
+        records: { type: array, items: { $ref: '#/components/schemas/CapabilityRecord' } }
+        report: { type: object, additionalProperties: true }
+        actions: { type: array, items: { type: object, additionalProperties: true } }
+        scenarios: { type: array, items: { type: object, additionalProperties: true } }
+    CapabilityResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        ok: { type: boolean }
+        action: { type: string }
+        scenario: { type: string }
+        record: { $ref: '#/components/schemas/CapabilityRecord' }
+        runtime: { $ref: '#/components/schemas/RuntimeCase' }
+    EvalResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        contestCases: { type: integer }
+        fxCases: { type: integer }
+        failures: { type: array, items: { type: object, additionalProperties: true } }
+    RefreshRequest:
+      type: object
+      required: [endpoints]
+      properties:
+        endpoints: { type: array, minItems: 1, items: { type: object, required: [id, url], properties: { id: { type: string }, url: { type: string, format: uri } } } }
+        kind: { type: string, enum: [quote, order, payment, complaint, email, alert] }
+        format: { type: string, enum: [csv, markdown], default: csv }
+        sourceId: { type: string }
+        version: { type: string }
+    ConflictReviewInput:
+      type: object
+      required: [conflictId, decision, rationale]
+      properties:
+        conflictId: { type: string }
+        decision: { type: string, enum: [acknowledge, accept_left, accept_right, needs_evidence] }
+        selectedEvidenceId: { type: string }
+        rationale: { type: string, minLength: 1 }
+    AdjudicationRequest:
+      type: object
+      required: [decision, rationale]
+      properties: { decision: { type: string, enum: [accept, supplement, reject] }, rationale: { type: string, minLength: 1 } }
+    SandboxRequest:
+      type: object
+      required: [scenario]
+      properties: { scenario: { type: string, enum: [evidence, claim, hold] } }
+    MoreCapabilityRequest:
+      type: object
+      required: [action]
+      properties: { action: { type: string, enum: [versions, review, outcome, audit] }, result: { type: string }, rationale: { type: string } }

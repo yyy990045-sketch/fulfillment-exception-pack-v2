@@ -1,0 +1,6 @@
+node_modules
+data/pack-cases
+tests
+submission
+.ccg
+*.log

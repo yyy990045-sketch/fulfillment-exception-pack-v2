@@ -1,0 +1,12 @@
+{
+  "id": "external-ai-ui-optimization",
+  "title": "落实外部 AI 对履约异常工作台的流程与文案优化",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T15:25:00+08:00",
+  "branch": "working-tree"
+}

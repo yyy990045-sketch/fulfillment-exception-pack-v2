@@ -1,0 +1,12 @@
+{
+  "id": "align-workbench-columns",
+  "title": "修复工作台左右栏高度与边框对齐",
+  "status": "completed",
+  "complexity": "S",
+  "risk": "low",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "已完成本地与公网布局回归，待归档",
+  "createdAt": "2026-09-07T06:49:15.122Z",
+  "branch": "working-tree"
+}

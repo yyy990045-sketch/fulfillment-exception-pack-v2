@@ -1,0 +1,12 @@
+{
+  "id": "smoke-test-all-cases",
+  "title": "模拟用户点击覆盖全部案件、页面区块和前后端动作链",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "qa",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "branch": "working-tree"
+}

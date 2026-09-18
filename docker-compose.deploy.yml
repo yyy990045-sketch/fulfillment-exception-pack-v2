@@ -1,0 +1,21 @@
+services:
+  fulfillment-exception-pack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fulfillment-exception-pack
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3410
+      NODE_ENV: production
+      DEMO_MODE: "false"
+      # Inject AUTH_SECRET from the deployment secret manager; never commit it here.
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in the deployment environment}
+      PACK_STORE_DIR: /app/data/pack-cases
+      PACK_STORE_BACKEND: sqlite
+      PACK_STORE_DB: /app/data/pack-cases.sqlite
+    ports:
+      - "3410:3410"
+    volumes:
+      - ./shared/data:/app/data

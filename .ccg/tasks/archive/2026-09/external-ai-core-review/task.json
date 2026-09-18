@@ -1,0 +1,12 @@
+{
+  "id": "external-ai-core-review",
+  "title": "整理前后端核心代码供外部 AI 审查",
+  "status": "completed",
+  "complexity": "S",
+  "risk": "medium",
+  "domain": "documentation",
+  "currentPhase": "completed",
+  "nextAction": "压缩包已生成并完成独立测试校验",
+  "createdAt": "2026-09-07T13:10:00Z",
+  "branch": "working-tree"
+}

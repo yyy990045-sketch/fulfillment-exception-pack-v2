@@ -1,0 +1,12 @@
+{
+  "id": "workbench-ui-polish",
+  "title": "打磨扣子比赛项目履约例外工作台 UI 并完成本地验收",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "branch": "working-tree"
+}

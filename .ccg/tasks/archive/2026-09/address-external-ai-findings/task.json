@@ -1,0 +1,12 @@
+{
+  "id": "address-external-ai-findings",
+  "title": "处理外部 AI 前后端逻辑审查发现",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "backend",
+  "currentPhase": "completed",
+  "nextAction": "已完成已选修复；架构级遗留项见 review.md",
+  "createdAt": "2026-09-07T13:30:00Z",
+  "branch": "working-tree"
+}

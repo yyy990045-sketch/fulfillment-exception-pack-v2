@@ -1,0 +1,12 @@
+{
+  "id": "default-user-coverage",
+  "title": "按默认用户路径覆盖全部后端接口与工作台功能",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "quality",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T09:05:00Z",
+  "branch": "working-tree"
+}

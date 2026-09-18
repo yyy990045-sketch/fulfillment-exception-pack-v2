@@ -1,0 +1,12 @@
+{
+  "id": "separate-workbench-levels",
+  "title": "拆分一级二级三级工作台视图并修复二三级返回",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "已完成本地与公网回归，待归档",
+  "createdAt": "2026-09-07T06:37:24.458Z",
+  "branch": "working-tree"
+}

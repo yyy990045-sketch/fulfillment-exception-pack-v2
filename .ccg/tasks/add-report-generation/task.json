@@ -1,0 +1,12 @@
+{
+  "id": "add-report-generation",
+  "title": "补齐行业报告终稿与引用溯源展示",
+  "status": "in_progress",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "product",
+  "currentPhase": "analysis",
+  "nextAction": "设计报告输出契约并接入工作台",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "branch": "working-tree"
+}

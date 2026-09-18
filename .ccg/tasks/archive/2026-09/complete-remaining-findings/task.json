@@ -1,0 +1,12 @@
+{
+  "id": "complete-remaining-findings",
+  "title": "完成外部 AI 审查剩余主流程门禁",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "backend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务",
+  "createdAt": "2026-09-07T14:40:00Z",
+  "branch": "working-tree"
+}

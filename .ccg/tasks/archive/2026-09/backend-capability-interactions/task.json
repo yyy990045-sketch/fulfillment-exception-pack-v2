@@ -1,0 +1,12 @@
+{
+  "id": "backend-capability-interactions",
+  "title": "为工作台能力模块补齐后端读取与裁决持久化",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend-backend",
+  "currentPhase": "completed",
+  "nextAction": "已完成能力级 API、裁决 POST 与线上验证",
+  "createdAt": "2026-09-07T16:28:00+08:00",
+  "branch": "working-tree"
+}

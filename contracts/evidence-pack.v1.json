@@ -1,0 +1,24 @@
+{
+  "$id": "evidence-pack-v1",
+  "type": "object",
+  "required": ["schemaVersion", "tenantId", "caseId", "evidence", "conflicts", "gaps", "traceId"],
+  "properties": {
+    "schemaVersion": { "const": "evidence-pack-v1" },
+    "tenantId": { "type": "string", "minLength": 1 },
+    "caseId": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "claim", "sourceId", "sourceVersion", "locator", "quote", "support", "tenantId", "scope"],
+        "properties": {
+          "support": { "enum": ["supported", "partial", "unsupported"] },
+          "locator": { "type": "object" }
+        }
+      }
+    },
+    "conflicts": { "type": "array" },
+    "gaps": { "type": "array", "items": { "type": "string" } },
+    "traceId": { "type": "string" }
+  }
+}

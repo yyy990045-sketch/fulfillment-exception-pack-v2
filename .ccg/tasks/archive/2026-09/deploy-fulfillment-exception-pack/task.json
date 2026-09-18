@@ -1,0 +1,12 @@
+{
+  "id": "deploy-fulfillment-exception-pack",
+  "title": "部署履约例外 Solution Pack 并完善官方提交材料",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "deployment",
+  "currentPhase": "completed",
+  "nextAction": "等待 Tencent Cloud 安全组放行 3410/tcp 后复测公网入口",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "branch": "working-tree"
+}
