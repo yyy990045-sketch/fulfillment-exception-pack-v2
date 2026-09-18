@@ -271,6 +271,19 @@ JSON 只用于开放字段：
 
 身份、关系、时间和关键索引是正式列，不能继续塞进 Case JSON blob。
 
+Repository 边界：
+
+```text
+FulfillmentContextRepository
+BusinessEntityRepository
+EntityReferenceRepository
+SourceSystemRepository
+SourceDocumentRepository
+FulfillmentEventRepository
+```
+
+这些 Repository 由 `createV2Repositories()` 组装。调用方不需要知道 SQLite SQL；后续 HTTP/Application Service 只依赖 Repository 或领域 Service。
+
 # 11. Strangler Migration
 
 V1 不删除。
