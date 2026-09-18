@@ -214,12 +214,26 @@ paths:
           content:
             application/json: { schema: { $ref: '#/components/schemas/EvalResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/contexts/{contextId}/replay:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Replayable V2 fulfillment context
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2ReplayResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
   parameters:
     CaseId: { name: id, in: path, required: true, schema: { type: string } }
     CapabilityModule: { name: module, in: path, required: true, schema: { type: string, enum: [workbench, monitor, ontology, adjudication, sandbox, actions, more] } }
+    V2ContextId: { name: contextId, in: path, required: true, schema: { type: string } }
     DemoTenantHeader:
       name: x-tenant-id
       in: header
@@ -372,6 +386,17 @@ components:
         contestCases: { type: integer }
         fxCases: { type: integer }
         failures: { type: array, items: { type: object, additionalProperties: true } }
+    V2ReplayResponse:
+      type: object
+      required: [context, entities, entityReferences, sourceSystems, documents, events, evidence]
+      properties:
+        context: { type: object, additionalProperties: true }
+        entities: { type: array, items: { type: object, additionalProperties: true } }
+        entityReferences: { type: array, items: { type: object, additionalProperties: true } }
+        sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
+        documents: { type: array, items: { type: object, additionalProperties: true } }
+        events: { type: array, items: { type: object, additionalProperties: true } }
+        evidence: { type: array, items: { type: object, additionalProperties: true } }
     RefreshRequest:
       type: object
       required: [endpoints]

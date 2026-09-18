@@ -36,6 +36,15 @@ function parseJson<T>(value: string): T {
   return JSON.parse(value) as T;
 }
 
+function stableJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
 function optional<T>(value: T | null | undefined): T | undefined {
   return value == null ? undefined : value;
 }
@@ -99,6 +108,13 @@ export class V2SqliteStore {
 
   saveSourceDocument(input: SourceDocument): SourceDocument {
     const document = createSourceDocument(input);
+    const existing = this.getSourceDocumentByIdentity(document.tenantId, document.sourceSystemId, document.externalDocumentId, document.version);
+    if (existing) {
+      if (existing.contentHash !== document.contentHash || existing.documentType !== document.documentType) {
+        throw new DomainError("DOMAIN_SOURCE_DOCUMENT_IDEMPOTENCY_CONFLICT", document.id);
+      }
+      return existing;
+    }
     const sourceSystem = this.getSourceSystem(document.tenantId, document.sourceSystemId);
     if (!sourceSystem) throw new DomainError("DOMAIN_SOURCE_SYSTEM_NOT_FOUND", document.sourceSystemId);
     if (document.contextId) {
@@ -115,8 +131,6 @@ export class V2SqliteStore {
         assertContextEntityRelation(context, entity);
       }
     }
-    const existing = this.getSourceDocumentByIdentity(document.tenantId, document.sourceSystemId, document.externalDocumentId, document.version);
-    if (existing) return existing;
     this.db.prepare(`
       INSERT OR IGNORE INTO source_documents
         (tenant_id, id, source_system_id, external_document_id, document_type, content_hash, received_at, effective_at, version, context_id, entity_id, file_name, mime_type, metadata_json)
@@ -164,6 +178,18 @@ export class V2SqliteStore {
 
   appendEvent(input: FulfillmentEvent): FulfillmentEvent {
     const event = createFulfillmentEvent(input);
+    const existing = this.getEventByIdempotency(event.tenantId, event.sourceSystemId, event.idempotencyKey);
+    if (existing) {
+      const unchanged =
+        existing.eventType === event.eventType &&
+        existing.entityId === event.entityId &&
+        existing.contextId === event.contextId &&
+        existing.occurredAt === event.occurredAt &&
+        existing.sourceDocumentId === event.sourceDocumentId &&
+        stableJson(existing.payload) === stableJson(event.payload);
+      if (!unchanged) throw new DomainError("DOMAIN_EVENT_IDEMPOTENCY_CONFLICT", event.idempotencyKey);
+      return existing;
+    }
     const context = this.getContext(event.tenantId, event.contextId);
     if (!context) throw new DomainError("DOMAIN_CONTEXT_NOT_FOUND", event.contextId);
     const entity = this.getBusinessEntity(event.tenantId, event.entityId);
@@ -176,8 +202,6 @@ export class V2SqliteStore {
       if (!document) throw new DomainError("DOMAIN_SOURCE_DOCUMENT_NOT_FOUND", event.sourceDocumentId);
       assertEventDocumentRelation(event, document);
     }
-    const existing = this.getEventByIdempotency(event.tenantId, event.sourceSystemId, event.idempotencyKey);
-    if (existing) return existing;
     this.db.prepare(`
       INSERT OR IGNORE INTO fulfillment_events
         (tenant_id, id, context_id, entity_id, event_type, occurred_at, recorded_at, source_system_id, source_document_id, payload_json, idempotency_key)
@@ -457,10 +481,56 @@ export class V2SqliteStore {
     }));
   }
 
+  listEntityReferences(tenantId: string, contextId: string): EntityReference[] {
+    const rows = this.db.prepare(`
+      SELECT r.tenant_id as tenantId, r.id, r.entity_id as entityId,
+             r.source_system_id as sourceSystemId, r.external_id as externalId,
+             r.external_type as externalType, r.created_at as createdAt
+      FROM entity_references r
+      JOIN business_entities e
+        ON e.tenant_id = r.tenant_id AND e.id = r.entity_id
+      WHERE r.tenant_id = ? AND e.context_id = ?
+      ORDER BY r.external_type, r.external_id, r.id
+    `).all(tenantId, contextId) as EntityReference[];
+    return rows;
+  }
+
+  listInvolvedSourceSystems(tenantId: string, contextId: string): SourceSystem[] {
+    const rows = this.db.prepare(`
+      SELECT DISTINCT s.tenant_id as tenantId, s.id, s.name, s.system_type as systemType,
+             s.authority_level as authorityLevel, s.status, s.metadata_json as metadataJson
+      FROM source_systems s
+      WHERE s.tenant_id = ? AND s.id IN (
+        SELECT source_system_id FROM source_documents WHERE tenant_id = ? AND context_id = ?
+        UNION
+        SELECT source_system_id FROM fulfillment_events WHERE tenant_id = ? AND context_id = ?
+        UNION
+        SELECT source_system_id FROM v2_evidence WHERE tenant_id = ? AND context_id = ?
+        UNION
+        SELECT r.source_system_id
+        FROM entity_references r
+        JOIN business_entities e ON e.tenant_id = r.tenant_id AND e.id = r.entity_id
+        WHERE r.tenant_id = ? AND e.context_id = ?
+      )
+      ORDER BY s.id
+    `).all(tenantId, tenantId, contextId, tenantId, contextId, tenantId, contextId, tenantId, contextId) as Array<Omit<SourceSystem, "metadata"> & { metadataJson: string }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      name: row.name,
+      systemType: row.systemType,
+      authorityLevel: row.authorityLevel,
+      status: row.status,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    }));
+  }
+
   replayContext(tenantId: string, contextId: string) {
     return {
       context: this.getContext(tenantId, contextId),
       entities: this.listEntities(tenantId, contextId),
+      entityReferences: this.listEntityReferences(tenantId, contextId),
+      sourceSystems: this.listInvolvedSourceSystems(tenantId, contextId),
       documents: this.listDocuments(tenantId, contextId),
       events: this.listEvents(tenantId, contextId),
       evidence: this.listEvidence(tenantId, contextId),

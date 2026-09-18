@@ -101,6 +101,27 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(propose.json).toMatchObject({ error: "NO_SCOPE" });
   });
 
+  it("replays the V2 SO-DEMO-001 fulfillment chain through an isolated API", async () => {
+    const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/replay", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(response.status).toBe(200);
+    const replay = response.json as {
+      context?: { businessKey?: string };
+      entities?: unknown[];
+      sourceSystems?: unknown[];
+      documents?: unknown[];
+      events?: unknown[];
+      evidence?: unknown[];
+    };
+    expect(replay.context?.businessKey).toBe("SO-DEMO-001");
+    expect(replay.entities).toHaveLength(5);
+    expect(replay.sourceSystems).toHaveLength(5);
+    expect(replay.documents).toHaveLength(5);
+    expect(replay.events).toHaveLength(5);
+    expect(replay.evidence).toHaveLength(6);
+  });
+
   it("closes an aligned case with no actions at approve instead of dead-ending", async () => {
     const proposed = await driveToProposed("FX-029");
     expect(proposed.status).toBe("proposed");

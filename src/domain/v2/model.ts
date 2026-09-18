@@ -39,6 +39,7 @@ export type DomainErrorCode =
   | "DOMAIN_EVIDENCE_CONFIDENCE_INVALID"
   | "DOMAIN_EVIDENCE_SUPPORT_INVALID"
   | "DOMAIN_SOURCE_DOCUMENT_CONFLICT"
+  | "DOMAIN_SOURCE_DOCUMENT_IDEMPOTENCY_CONFLICT"
   | "DOMAIN_ENTITY_REFERENCE_CONFLICT"
   | "DOMAIN_EVENT_IDEMPOTENCY_CONFLICT"
   | "DOMAIN_CONTEXT_NOT_FOUND"
@@ -55,10 +56,14 @@ export type DomainErrorCode =
   | "DOMAIN_EVIDENCE_DOCUMENT_TENANT_MISMATCH"
   | "DOMAIN_EVIDENCE_DOCUMENT_SOURCE_MISMATCH"
   | "DOMAIN_EVIDENCE_DOCUMENT_CONTEXT_MISMATCH"
+  | "DOMAIN_EVIDENCE_DOCUMENT_VERSION_MISMATCH"
   | "DOMAIN_EVIDENCE_ENTITY_TENANT_MISMATCH"
   | "DOMAIN_EVIDENCE_ENTITY_CONTEXT_MISMATCH"
   | "DOMAIN_EVIDENCE_EVENT_TENANT_MISMATCH"
   | "DOMAIN_EVIDENCE_EVENT_CONTEXT_MISMATCH"
+  | "DOMAIN_EVIDENCE_EVENT_ENTITY_MISMATCH"
+  | "DOMAIN_EVIDENCE_EVENT_DOCUMENT_MISMATCH"
+  | "DOMAIN_EVIDENCE_EVENT_SOURCE_SYSTEM_MISMATCH"
   | "DOMAIN_EVENT_DOCUMENT_TENANT_MISMATCH"
   | "DOMAIN_EVENT_DOCUMENT_SOURCE_MISMATCH"
   | "DOMAIN_EVENT_DOCUMENT_CONTEXT_MISMATCH";
@@ -235,6 +240,7 @@ export function assertEvidenceDocumentRelation(evidence: V2Evidence, document: S
   if (evidence.tenantId !== document.tenantId) throw new DomainError("DOMAIN_EVIDENCE_DOCUMENT_TENANT_MISMATCH", evidence.id);
   if (evidence.sourceDocumentId !== document.id || evidence.sourceSystemId !== document.sourceSystemId) throw new DomainError("DOMAIN_EVIDENCE_DOCUMENT_SOURCE_MISMATCH", evidence.id);
   if (document.contextId && evidence.contextId !== document.contextId) throw new DomainError("DOMAIN_EVIDENCE_DOCUMENT_CONTEXT_MISMATCH", evidence.id);
+  if (evidence.sourceVersion !== document.version) throw new DomainError("DOMAIN_EVIDENCE_DOCUMENT_VERSION_MISMATCH", evidence.id);
 }
 
 export function assertEvidenceEntityRelation(evidence: V2Evidence, entity: BusinessEntity) {
@@ -247,6 +253,9 @@ export function assertEvidenceEventRelation(evidence: V2Evidence, event: Fulfill
   if (evidence.tenantId !== event.tenantId) throw new DomainError("DOMAIN_EVIDENCE_EVENT_TENANT_MISMATCH", evidence.id);
   if (evidence.eventId !== event.id) throw new DomainError("DOMAIN_EVIDENCE_EVENT_CONTEXT_MISMATCH", evidence.id);
   if (evidence.contextId !== event.contextId) throw new DomainError("DOMAIN_EVIDENCE_EVENT_CONTEXT_MISMATCH", evidence.id);
+  if (evidence.entityId && evidence.entityId !== event.entityId) throw new DomainError("DOMAIN_EVIDENCE_EVENT_ENTITY_MISMATCH", evidence.id);
+  if (event.sourceDocumentId && evidence.sourceDocumentId !== event.sourceDocumentId) throw new DomainError("DOMAIN_EVIDENCE_EVENT_DOCUMENT_MISMATCH", evidence.id);
+  if (evidence.sourceSystemId !== event.sourceSystemId) throw new DomainError("DOMAIN_EVIDENCE_EVENT_SOURCE_SYSTEM_MISMATCH", evidence.id);
 }
 
 export function assertEventDocumentRelation(event: FulfillmentEvent, document: SourceDocument) {

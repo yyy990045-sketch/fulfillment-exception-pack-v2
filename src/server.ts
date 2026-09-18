@@ -13,10 +13,17 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
+import { openV2SqliteStore, seedSoDemo001, type V2SqliteStore } from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const caseMutationQueues = new Map<string, Promise<void>>();
+let v2Store: V2SqliteStore | undefined;
+
+function getV2Store() {
+  v2Store ??= openV2SqliteStore();
+  return v2Store;
+}
 
 class HttpError extends Error {
   constructor(public readonly status: number, public readonly code: string) {
@@ -173,6 +180,16 @@ const server = createServer(async (req, res) => {
           .filter((c) => c.tenantId === tenantId && (auth.scopes.includes("*") || auth.scopes.includes(c.scope)))
           .map((c) => ({ id: c.id, title: c.title, pack: c.pack, ownerRole: c.ownerRole, status: getCase(tenantId, c.id)?.status ?? "new" })),
       );
+    }
+    const v2ReplayMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/replay$/);
+    if (req.method === "GET" && v2ReplayMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ReplayMatch[1] ?? "");
+      const store = getV2Store();
+      if (tenantId === "demo-industrial" && contextId === "ctx-so-demo-001") seedSoDemo001(store);
+      const replay = store.replayContext(tenantId, contextId);
+      if (!replay.context) return json(res, 404, { error: "not_found" });
+      return json(res, 200, replay);
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);
     if (capabilityMatch) {
