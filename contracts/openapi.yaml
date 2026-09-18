@@ -498,7 +498,7 @@ components:
       description: State transition or review gate rejected
       content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
     Unprocessable:
-      description: Invalid business data
+      description: Invalid business data, grounding validation failure, or AI_PROVIDER_REFUSAL
       content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
     BadGateway:
       description: All evidence endpoints unavailable

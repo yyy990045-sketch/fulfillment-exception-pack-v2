@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "grounded-ai-real-provider/v1",
+  "realLlmVerified": false,
+  "provider": "openai",
+  "model": null,
+  "structuredOutputs": true,
+  "store": false,
+  "toolsEnabled": false,
+  "cases": {
+    "customerClaim": {
+      "generated": false,
+      "validationValid": false,
+      "status": "blocked",
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    },
+    "quality": {
+      "generated": false,
+      "validationValid": false,
+      "status": "blocked",
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    },
+    "promptInjection": {
+      "firewallHeld": false,
+      "status": "blocked",
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    }
+  },
+  "blocker": "OPENAI_API_KEY_NOT_CONFIGURED"
+}

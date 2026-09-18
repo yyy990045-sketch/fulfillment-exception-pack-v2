@@ -12,6 +12,7 @@
     "seed:v2-manufacturing": "tsx src/domain/v2/provision-manufacturing.ts",
     "open-supos:inbound": "tsx src/integrations/open-supos/run-inbound.ts",
     "open-supos:verify": "tsx src/integrations/open-supos/runtime-verify.ts",
+    "grounded-ai:verify": "tsx src/ai/grounded/verify-real-provider.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -24,6 +25,7 @@
     "vitest": "^2.1.9"
   },
   "dependencies": {
-    "mqtt": "^5.16.0"
+    "mqtt": "^5.16.0",
+    "openai": "7.18.0"
   }
 }

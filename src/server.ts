@@ -29,32 +29,22 @@ import {
   type V2SqliteStore,
 } from "./domain/v2/index.js";
 import {
-  DeterministicGroundedAiProvider,
   GroundedAiError,
   generateGroundedExplanation,
   getGroundedExplanation,
   groundingValidationErrorCode,
   listGroundedExplanations,
-  type GroundedAiProvider,
+  resolveGroundedAiProvider,
 } from "./ai/grounded/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
-const deterministicGroundedProvider = new DeterministicGroundedAiProvider();
 
 function getV2Store() {
   v2Store ??= openV2SqliteStore();
   return v2Store;
-}
-
-function getGroundedAiProvider(): GroundedAiProvider {
-  const configured = process.env.GROUNDING_AI_PROVIDER?.trim();
-  if (!configured) throw new HttpError(503, "GROUNDING_AI_PROVIDER_REQUIRED");
-  if (configured !== "deterministic") throw new HttpError(503, "AI_PROVIDER_NOT_CONFIGURED");
-  if (!isDemoMode() || process.env.DEMO_MODE !== "true") throw new HttpError(503, "GROUNDING_AI_PROVIDER_REQUIRED");
-  return deterministicGroundedProvider;
 }
 
 function exceptionListItem(store: V2SqliteStore, tenantId: string, exception: V2Exception) {
@@ -315,7 +305,7 @@ const server = createServer(async (req, res) => {
       if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
       const explanation = await generateGroundedExplanation(
         store,
-        getGroundedAiProvider(),
+        resolveGroundedAiProvider(),
         tenantId,
         contextId,
         exceptionId,

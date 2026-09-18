@@ -5,6 +5,7 @@ dist/
 .env.*
 !.env.production.example
 !.env.open-supos.example
+!.env.grounded-ai.example
 .preview
 data/
 .data/

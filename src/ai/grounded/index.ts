@@ -2,5 +2,8 @@ export * from "./types.js";
 export * from "./context-builder.js";
 export * from "./prompt.js";
 export * from "./provider.js";
+export * from "./schema.js";
+export * from "./openai-provider.js";
+export * from "./registry.js";
 export * from "./validator.js";
 export * from "./service.js";

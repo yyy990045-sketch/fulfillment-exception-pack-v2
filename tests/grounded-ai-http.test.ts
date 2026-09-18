@@ -70,6 +70,9 @@ async function spawnGateServer(input: { port: number; demoMode: boolean; provide
   };
   if (input.provider === undefined) delete env.GROUNDING_AI_PROVIDER;
   else env.GROUNDING_AI_PROVIDER = input.provider;
+  delete env.OPENAI_API_KEY;
+  delete env.OPENAI_GROUNDED_MODEL;
+  delete env.REAL_LLM_VERIFICATION;
   const gateChild = spawn(join(process.cwd(), "node_modules", ".bin", "tsx"), ["src/server.ts"], {
     cwd: process.cwd(),
     env,
@@ -184,6 +187,15 @@ describe("grounded AI explanation HTTP boundary", () => {
   it("rejects unknown provider names", async () => {
     const targetPort = gatePort + 1;
     await spawnGateServer({ port: targetPort, demoMode: true, provider: "unknown-provider" });
+    const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
+    const response = await callAt(targetPort, "POST", path, {});
+    expect(response.status).toBe(503);
+    expect(response.json).toEqual({ error: "AI_PROVIDER_NOT_CONFIGURED" });
+  });
+
+  it("rejects OpenAI without an explicit API key", async () => {
+    const targetPort = gatePort + 4;
+    await spawnGateServer({ port: targetPort, demoMode: true, provider: "openai" });
     const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
     const response = await callAt(targetPort, "POST", path, {});
     expect(response.status).toBe(503);

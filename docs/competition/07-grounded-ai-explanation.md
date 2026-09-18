@@ -139,6 +139,8 @@ It generates fixed structured output from the current deterministic input. It is
 
 It is not presented as a real LLM.
 
+Phase 6B adds an optional explicit `openai` provider for real-provider verification. It is not a fallback for the deterministic provider.
+
 The HTTP route requires explicit demo configuration:
 
 ```text
