@@ -288,6 +288,34 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON exceptions (tenant_id, context_id, rule_id, match_key);
     `,
   },
+  {
+    version: "004_resolution_bridge",
+    sql: `
+      CREATE TABLE IF NOT EXISTS resolution_cases (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        owner_role TEXT NOT NULL,
+        origin_json TEXT NOT NULL,
+        review_json TEXT,
+        proposed_by TEXT,
+        runtime_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, exception_id),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS resolution_cases_context_idx
+        ON resolution_cases (tenant_id, context_id, updated_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

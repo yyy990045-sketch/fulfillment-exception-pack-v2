@@ -280,6 +280,70 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ExceptionEvidenceBundle' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/resolution-case:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResolutionAcceptanceRequest' }
+      responses:
+        '200':
+          description: Human-accepted Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/v2/resolution-cases/{caseId}/review:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/ResolutionReviewRequest' } }
+      responses:
+        '200':
+          description: Reviewed Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/resolution-cases/{caseId}/propose:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/ResolutionProposalRequest' } }
+      responses:
+        '200':
+          description: Proposed Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/resolution-cases/{caseId}/submit:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Submitted Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -288,6 +352,7 @@ components:
     CapabilityModule: { name: module, in: path, required: true, schema: { type: string, enum: [workbench, monitor, ontology, adjudication, sandbox, actions, more] } }
     V2ContextId: { name: contextId, in: path, required: true, schema: { type: string } }
     V2ExceptionId: { name: exceptionId, in: path, required: true, schema: { type: string } }
+    ResolutionCaseId: { name: caseId, in: path, required: true, schema: { type: string } }
     DemoTenantHeader:
       name: x-tenant-id
       in: header
@@ -483,6 +548,35 @@ components:
         evidence: { type: array, items: { type: object, additionalProperties: true } }
         sourceDocuments: { type: array, items: { type: object, additionalProperties: true } }
         sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
+    ResolutionAcceptanceRequest:
+      type: object
+      required: [ownerRole, rationale]
+      properties:
+        ownerRole: { type: string, minLength: 1 }
+        rationale: { type: string, minLength: 1 }
+    ResolutionReviewRequest:
+      type: object
+      required: [decision, rationale]
+      properties:
+        decision: { type: string, enum: [confirm, needs_evidence, reject] }
+        rationale: { type: string, minLength: 1 }
+    ResolutionProposalRequest:
+      type: object
+      required: [actions]
+      properties:
+        actions:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [type, summary]
+            properties:
+              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+              summary: { type: string, minLength: 1 }
+    ResolutionCase:
+      type: object
+      additionalProperties: true
+      required: [id, tenantId, contextId, exceptionId, status, ownerRole, origin, runtime]
     RefreshRequest:
       type: object
       required: [endpoints]

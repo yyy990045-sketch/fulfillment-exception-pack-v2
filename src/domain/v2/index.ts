@@ -4,6 +4,7 @@ export * from "./sqlite-migrations.js";
 export * from "./sqlite-store.js";
 export * from "./repositories.js";
 export * from "./application.js";
+export * from "./resolution/index.js";
 export * from "./runtime-store.js";
 export * from "./provision.js";
 export * from "./fixtures/so-demo-001.js";

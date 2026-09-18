@@ -34,6 +34,7 @@ import type {
   V2Exception,
 } from "./rule-types.js";
 import { ruleVersionContentHash } from "./rule-engine.js";
+import type { ResolutionCase } from "./resolution/types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -553,6 +554,95 @@ export class V2SqliteStore {
       sourceDocuments: this.listDocuments(tenantId, exception.contextId).filter((item) => sourceDocumentIds.has(item.id)),
       sourceSystems: this.listInvolvedSourceSystems(tenantId, exception.contextId).filter((item) => sourceSystemIds.has(item.id)),
     };
+  }
+
+  saveResolutionCase(resolution: ResolutionCase): ResolutionCase {
+    const exception = this.listExceptions(resolution.tenantId, resolution.contextId).find((item) => item.id === resolution.exceptionId);
+    if (!exception) throw new DomainError("DOMAIN_EXCEPTION_NOT_FOUND", resolution.exceptionId);
+    const existing = this.getResolutionCaseByException(resolution.tenantId, resolution.exceptionId);
+    if (existing && existing.id !== resolution.id) throw new Error("resolution_case_identity_conflict");
+    this.db.prepare(`
+      INSERT INTO resolution_cases
+        (tenant_id, id, context_id, exception_id, status, owner_role, origin_json, review_json, proposed_by, runtime_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, id) DO UPDATE SET
+        status = excluded.status,
+        owner_role = excluded.owner_role,
+        origin_json = excluded.origin_json,
+        review_json = excluded.review_json,
+        proposed_by = excluded.proposed_by,
+        runtime_json = excluded.runtime_json,
+        updated_at = excluded.updated_at
+    `).run(
+      resolution.tenantId,
+      resolution.id,
+      resolution.contextId,
+      resolution.exceptionId,
+      resolution.status,
+      resolution.ownerRole,
+      json(resolution.origin),
+      resolution.review ? json(resolution.review) : null,
+      resolution.proposedBy ?? null,
+      json(resolution.runtime),
+      resolution.createdAt,
+      resolution.updatedAt,
+    );
+    return this.getResolutionCase(resolution.tenantId, resolution.id) ?? resolution;
+  }
+
+  getResolutionCase(tenantId: string, caseId: string): ResolutionCase | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             status, owner_role as ownerRole, origin_json as originJson, review_json as reviewJson,
+             proposed_by as proposedBy, runtime_json as runtimeJson,
+             created_at as createdAt, updated_at as updatedAt
+      FROM resolution_cases WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, caseId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      status: ResolutionCase["status"];
+      ownerRole: string;
+      originJson: string;
+      reviewJson: string | null;
+      proposedBy: string | null;
+      runtimeJson: string;
+      createdAt: string;
+      updatedAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      status: row.status,
+      ownerRole: row.ownerRole,
+      origin: parseJson<ResolutionCase["origin"]>(row.originJson),
+      ...(row.reviewJson ? { review: parseJson<ResolutionCase["review"]>(row.reviewJson) } : {}),
+      ...(row.proposedBy ? { proposedBy: row.proposedBy } : {}),
+      runtime: parseJson<ResolutionCase["runtime"]>(row.runtimeJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  getResolutionCaseByException(tenantId: string, exceptionId: string): ResolutionCase | undefined {
+    const row = this.db.prepare("SELECT id FROM resolution_cases WHERE tenant_id = ? AND exception_id = ?").get(tenantId, exceptionId) as { id: string } | undefined;
+    return row ? this.getResolutionCase(tenantId, row.id) : undefined;
+  }
+
+  listResolutionCases(tenantId: string, contextId: string): ResolutionCase[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM resolution_cases
+      WHERE tenant_id = ? AND context_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, contextId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const resolution = this.getResolutionCase(tenantId, row.id);
+      return resolution ? [resolution] : [];
+    });
   }
 
   getContext(tenantId: string, contextId: string): FulfillmentContext | undefined {

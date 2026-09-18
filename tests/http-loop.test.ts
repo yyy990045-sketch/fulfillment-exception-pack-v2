@@ -233,6 +233,45 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(response.json).toEqual({ error: "tenant_from_auth_required" });
   });
 
+  it("bridges one human-accepted V2 exception into a Resolution Case", async () => {
+    await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
+    const exceptionsResponse = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, { "x-tenant-id": "demo-industrial" });
+    const exception = (exceptionsResponse.json as { exceptions: Array<{ id: string; code: string }> }).exceptions
+      .find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+
+    const accepted = await call(
+      "POST",
+      `/api/v2/contexts/ctx-so-demo-001/exceptions/${exception.id}/resolution-case`,
+      { ownerRole: "品质负责人", rationale: "确认进入人工处置" },
+      { "x-tenant-id": "demo-industrial" },
+    );
+    expect(accepted.status).toBe(200);
+    expect(accepted.json).toMatchObject({ status: "triaged", exceptionId: exception.id });
+    const caseId = (accepted.json as { id: string }).id;
+
+    const duplicate = await call(
+      "POST",
+      `/api/v2/contexts/ctx-so-demo-001/exceptions/${exception.id}/resolution-case`,
+      { ownerRole: "品质负责人", rationale: "重复提交" },
+      { "x-tenant-id": "demo-industrial" },
+    );
+    expect((duplicate.json as { id: string }).id).toBe(caseId);
+
+    const confirmed = await call("POST", `/api/v2/resolution-cases/${caseId}/review`, {
+      decision: "confirm",
+      rationale: "证据足够，进入处置",
+    }, { "x-tenant-id": "demo-industrial" });
+    expect((confirmed.json as { status: string }).status).toBe("confirmed");
+
+    const proposed = await call("POST", `/api/v2/resolution-cases/${caseId}/propose`, {
+      actions: [{ type: "supplement_evidence", summary: "核对订单、发货及后续签收材料，确认数量差异原因。" }],
+    }, { "x-tenant-id": "demo-industrial" });
+    expect((proposed.json as { status: string }).status).toBe("proposed");
+
+    const submitted = await call("POST", `/api/v2/resolution-cases/${caseId}/submit`, {}, { "x-tenant-id": "demo-industrial" });
+    expect((submitted.json as { runtime: { actions: Array<{ status: string }> } }).runtime.actions[0]?.status).toBe("pending_approval");
+  });
+
   it("hides another tenant's V2 exception candidates with a 404", async () => {
     const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, {
       "x-tenant-id": "another-tenant",
