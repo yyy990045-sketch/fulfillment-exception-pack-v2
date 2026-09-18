@@ -71,13 +71,14 @@ describe("V2 rule persistence", () => {
     const exceptions = store.listExceptions("demo-industrial", "ctx-so-demo-001");
     expect(evaluations).toHaveLength(4);
     expect(exceptions).toHaveLength(3);
-    expect(exceptions.map((item) => item.code)).toEqual([
+    expect(exceptions.map((item) => item.code)).toEqual(expect.arrayContaining([
       "SHIPMENT_QUANTITY_SHORTFALL",
       "PAYMENT_BALANCE_OUTSTANDING",
       "CUSTOMER_RECEIPT_CLAIM_MISMATCH",
-    ]);
+    ]));
 
-    const bundle = store.getExceptionEvidenceBundle("demo-industrial", exceptions[0]!.id);
+    const shipmentException = exceptions.find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+    const bundle = store.getExceptionEvidenceBundle("demo-industrial", shipmentException.id);
     expect(bundle?.evidence.map((item) => item.id)).toEqual(expect.arrayContaining(["evidence-order-qty", "evidence-shipment-qty"]));
     expect(bundle?.sourceDocuments.length).toBeGreaterThanOrEqual(2);
     expect(bundle?.sourceSystems.length).toBeGreaterThanOrEqual(2);

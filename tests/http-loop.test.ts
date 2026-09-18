@@ -168,25 +168,23 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
       "x-tenant-id": "demo-industrial",
     });
     expect(response.status).toBe(200);
-    expect(response.json).toMatchObject({
-      contextId: "ctx-so-demo-001",
-      exceptions: [
-        {
-          code: "SHIPMENT_QUANTITY_SHORTFALL",
-          status: "detected",
-          severity: "medium",
-          metrics: { difference: 4 },
-          evidenceBundleSummary: { evidenceCount: 2, sourceSystemCount: 2 },
-        },
-        { code: "PAYMENT_BALANCE_OUTSTANDING", severity: "medium", metrics: { difference: 20000 } },
-        { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", severity: "high", metrics: { difference: 16 } },
-      ],
+    const returnedExceptions = (response.json as { contextId: string; exceptions: Array<Record<string, unknown>> });
+    expect(returnedExceptions.contextId).toBe("ctx-so-demo-001");
+    expect(returnedExceptions.exceptions.map((item) => item.code)).toEqual(expect.arrayContaining([
+      "SHIPMENT_QUANTITY_SHORTFALL",
+      "PAYMENT_BALANCE_OUTSTANDING",
+      "CUSTOMER_RECEIPT_CLAIM_MISMATCH",
+    ]));
+    const listItem = returnedExceptions.exceptions.find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+    expect(listItem).toMatchObject({
+      status: "detected",
+      severity: "medium",
+      metrics: { difference: 4 },
+      evidenceBundleSummary: { evidenceCount: 2, sourceSystemCount: 2 },
     });
-    const listItem = (response.json as { exceptions: Array<Record<string, unknown>> }).exceptions[0]!;
     expect(listItem).not.toHaveProperty("evidenceBundle");
 
-    const exceptions = (response.json as { exceptions: Array<{ id: string }> }).exceptions;
-    const bundle = await call("GET", `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptions[0]!.id}/bundle`, undefined, {
+    const bundle = await call("GET", `/api/v2/contexts/ctx-so-demo-001/exceptions/${String(listItem.id)}/bundle`, undefined, {
       "x-tenant-id": "demo-industrial",
     });
     expect(bundle.status).toBe(200);

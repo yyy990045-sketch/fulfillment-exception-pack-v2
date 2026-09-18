@@ -96,9 +96,28 @@ describe("SO-MFG-001 manufacturing digital thread", () => {
     expect(store.listExceptions("demo-manufacturing", "ctx-so-mfg-001")).toHaveLength(0);
 
     const evaluated = evaluateContextRules(store, "demo-manufacturing", "ctx-so-mfg-001")!;
-    expect(evaluated.evaluations).toHaveLength(4);
-    expect(evaluated.evaluations.filter((item) => item.status === "matched")).toHaveLength(3);
-    expect(evaluated.evaluations.filter((item) => item.status === "not_matched")).toHaveLength(1);
-    expect(evaluated.exceptions).toHaveLength(3);
+    expect(evaluated.evaluations).toHaveLength(7);
+    expect(evaluated.evaluations.filter((item) => item.status === "matched")).toHaveLength(4);
+    expect(evaluated.evaluations.filter((item) => item.status === "not_matched")).toHaveLength(3);
+    expect(evaluated.exceptions).toHaveLength(4);
+    expect(evaluated.exceptions.map((item) => item.code)).toEqual(expect.arrayContaining([
+      "SHIPMENT_QUANTITY_SHORTFALL",
+      "PAYMENT_BALANCE_OUTSTANDING",
+      "CUSTOMER_RECEIPT_CLAIM_MISMATCH",
+      "QUALITY_NONCONFORMING_QUANTITY_DETECTED",
+    ]));
+
+    const quality = evaluated.exceptions.find((item) => item.code === "QUALITY_NONCONFORMING_QUANTITY_DETECTED")!;
+    expect(quality.metrics).toMatchObject({
+      difference: 4,
+      nonconformingQty: 4,
+      passRatio: 0.96,
+    });
+    expect(quality.summary).toBe("质检数量 100 件，合格 96 件，存在 4 件未通过数量。");
+    const qualityBundle = store.getExceptionEvidenceBundle("demo-manufacturing", quality.id)!;
+    expect(qualityBundle.evidence.map((item) => [item.evidenceId, item.role, item.value])).toEqual([
+      ["evidence-quality-mfg-inspected", "expected", 100],
+      ["evidence-quality-mfg-passed", "actual", 96],
+    ]);
   });
 });

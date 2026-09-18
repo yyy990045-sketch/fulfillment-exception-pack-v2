@@ -517,7 +517,6 @@ export class V2SqliteStore {
       WHERE e.tenant_id = ? AND e.context_id = ?
       ORDER BY e.created_at, e.id
     `).all(tenantId, contextId) as Array<Omit<V2Exception, "entityIds" | "evidenceIds" | "metadata" | "metrics"> & { metricsJson: string; metadataJson: string }>;
-    const order = ["SHIPMENT_QUANTITY_SHORTFALL", "PAYMENT_BALANCE_OUTSTANDING", "CUSTOMER_RECEIPT_CLAIM_MISMATCH", "QUOTE_ORDER_QUANTITY_MISMATCH"];
     return rows.map((row) => ({
       tenantId: row.tenantId,
       id: row.id,
@@ -538,7 +537,7 @@ export class V2SqliteStore {
       createdAt: row.createdAt,
       lastDetectedAt: row.lastDetectedAt,
       metadata: parseJson<JsonRecord>(row.metadataJson),
-    })).sort((left, right) => order.indexOf(left.code) - order.indexOf(right.code) || left.id.localeCompare(right.id));
+    }));
   }
 
   getExceptionEvidenceBundle(tenantId: string, exceptionId: string): ExceptionEvidenceBundle | undefined {
