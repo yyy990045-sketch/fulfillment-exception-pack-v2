@@ -6,3 +6,6 @@ export * from "./domain-plan.js";
 export * from "./transport.js";
 export * from "./adapter.js";
 export * from "./inbound.js";
+export * from "./outbound.js";
+export * from "./runtime.js";
+export * from "./manifests/so-mfg-001.js";

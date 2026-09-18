@@ -10,6 +10,7 @@
     "demo": "tsx src/server.ts",
     "seed:v2-demo": "tsx src/domain/v2/provision-demo.ts",
     "seed:v2-manufacturing": "tsx src/domain/v2/provision-manufacturing.ts",
+    "open-supos:inbound": "tsx src/integrations/open-supos/run-inbound.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
