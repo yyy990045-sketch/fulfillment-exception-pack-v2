@@ -43,17 +43,44 @@ export class OpenSupOSMqttTransport implements UnsTransport {
     username?: string;
     password?: string;
     clientId?: string;
+    connectionTimeoutMs?: number;
   } = {}) {}
 
   async connect() {
     const url = this.config.url ?? process.env.OPEN_SUPOS_MQTT_URL;
     if (!url) throw new OpenSupOSIntegrationError("UNS_TRANSPORT_NOT_CONFIGURED", "OPEN_SUPOS_MQTT_URL");
     const { connect } = await import("mqtt");
-    this.client = connect(url, {
+    const client = connect(url, {
       username: this.config.username ?? process.env.OPEN_SUPOS_MQTT_USERNAME,
       password: this.config.password ?? process.env.OPEN_SUPOS_MQTT_PASSWORD,
       clientId: this.config.clientId ?? process.env.OPEN_SUPOS_MQTT_CLIENT_ID,
       reconnectPeriod: 0,
+    });
+    this.client = client;
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        client.removeListener("connect", onConnect);
+        client.removeListener("error", onError);
+        client.end(true, {}, () => reject(new OpenSupOSIntegrationError("UNS_TRANSPORT_CONNECTION_TIMEOUT")));
+      }, this.config.connectionTimeoutMs ?? 15_000);
+      const onConnect = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve();
+      };
+      const onError = (error: Error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        client.removeListener("connect", onConnect);
+        client.end(true, {}, () => reject(new OpenSupOSIntegrationError("UNS_TRANSPORT_CONNECTION_FAILED", error.name)));
+      };
+      client.once("connect", onConnect);
+      client.on("error", onError);
     });
   }
 

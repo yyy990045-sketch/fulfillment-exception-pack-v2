@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "open-supos-runtime-verification/v1",
+  "upstreamCommit": "9272ef5f124f317f902a7a6d2302a22a8c2467e3",
+  "runtimeVerified": false,
+  "mqttConnected": false,
+  "mqttSubscribed": false,
+  "brokerProbeRoundTrip": false,
+  "messagesPublished": 0,
+  "messagesIngested": 0,
+  "duplicateBatchStable": false,
+  "domain": {
+    "sourceSystems": 0,
+    "entities": 0,
+    "references": 0,
+    "documents": 0,
+    "events": 0,
+    "evidence": 0
+  },
+  "rules": {
+    "evaluations": 0,
+    "matched": 0,
+    "notMatched": 0,
+    "exceptions": 0
+  },
+  "resolutionCases": 0,
+  "unsVisibility": "not_verified",
+  "openApiGateway": "not_verified",
+  "upstreamPatchRequired": false,
+  "blocker": "OPEN_SUPOS_RUNTIME_BLOCKED: INSUFFICIENT_RUNTIME_RESOURCES"
+}

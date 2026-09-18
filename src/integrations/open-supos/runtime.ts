@@ -1,6 +1,7 @@
 import type { OpenSupOSAdapter } from "./adapter.js";
 import { OpenSupOSMqttTransport, type UnsTransport } from "./transport.js";
 import { startOpenSupOSInbound } from "./inbound.js";
+import type { OpenSupOSInboundResult } from "./types.js";
 
 export type OpenSupOSRuntimeResult =
   | { status: "disabled" }
@@ -12,6 +13,7 @@ export async function startConfiguredOpenSupOSInbound(
     env?: Record<string, string | undefined>;
     transportFactory?: () => UnsTransport;
     topicPattern?: string;
+    onIngest?: (topic: string, payload: string, result: OpenSupOSInboundResult) => void | Promise<void>;
   } = {},
 ): Promise<OpenSupOSRuntimeResult> {
   const env = options.env ?? process.env;
@@ -23,6 +25,6 @@ export async function startConfiguredOpenSupOSInbound(
     clientId: env.OPEN_SUPOS_MQTT_CLIENT_ID,
   });
   await transport.connect();
-  await startOpenSupOSInbound(adapter, transport, options.topicPattern);
+  await startOpenSupOSInbound(adapter, transport, options.topicPattern, options.onIngest);
   return { status: "started", transport };
 }

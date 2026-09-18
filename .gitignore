@@ -4,6 +4,7 @@ dist/
 .env
 .env.*
 !.env.production.example
+!.env.open-supos.example
 .preview
 data/
 .data/
