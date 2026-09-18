@@ -13,7 +13,17 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
-import { evaluateContextRules, openV2SqliteStore, type V2Exception, type V2SqliteStore } from "./domain/v2/index.js";
+import {
+  acceptExceptionForResolution,
+  evaluateContextRules,
+  openV2SqliteStore,
+  proposeResolutionCase,
+  reviewResolution,
+  submitResolutionCase,
+  type ResolutionActionInput,
+  type V2Exception,
+  type V2SqliteStore,
+} from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -262,6 +272,51 @@ const server = createServer(async (req, res) => {
       const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
       if (!bundle || bundle.contextId !== contextId) return json(res, 404, { error: "not_found" });
       return json(res, 200, bundle);
+    }
+    const v2ResolutionCreateMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-case$/);
+    if (req.method === "POST" && v2ResolutionCreateMatch) {
+      const actor = requireActor(req);
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ResolutionCreateMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(v2ResolutionCreateMatch[2] ?? "");
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
+      const ownerRole = typeof input.ownerRole === "string" ? input.ownerRole.trim() : "";
+      const rationale = typeof input.rationale === "string" ? input.rationale.trim() : "";
+      if (!ownerRole) return json(res, 422, { error: "resolution_owner_role_required" });
+      if (!rationale) return json(res, 422, { error: "resolution_acceptance_rationale_required" });
+      const resolution = acceptExceptionForResolution(getV2Store(), tenantId, contextId, exceptionId, { ownerRole, rationale, actor });
+      return json(res, 200, resolution);
+    }
+    const v2ResolutionActionMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)\/(review|propose|submit)$/);
+    if (req.method === "POST" && v2ResolutionActionMatch) {
+      const actor = requireActor(req);
+      const tenantId = authOf(req).tenantId;
+      const caseId = decodeURIComponent(v2ResolutionActionMatch[1] ?? "");
+      const action = v2ResolutionActionMatch[2];
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
+      if (action === "review") {
+        const decision = String(input.decision || "");
+        const rationale = typeof input.rationale === "string" ? input.rationale.trim() : "";
+        if (!["confirm", "needs_evidence", "reject"].includes(decision)) return json(res, 422, { error: "invalid_resolution_review_decision" });
+        if (!rationale) return json(res, 422, { error: "resolution_review_rationale_required" });
+        const resolution = reviewResolution(getV2Store(), tenantId, caseId, { decision: decision as "confirm" | "needs_evidence" | "reject", rationale, actor });
+        if (!resolution) return json(res, 404, { error: "not_found" });
+        return json(res, 200, resolution);
+      }
+      if (action === "propose") {
+        if (!Array.isArray(input.actions) || !input.actions.length) return json(res, 422, { error: "resolution_actions_required" });
+        const actions: ResolutionActionInput[] = input.actions
+          .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+          .map((item) => ({ type: String(item.type || "") as ResolutionActionInput["type"], summary: String(item.summary || "") }));
+        const resolution = proposeResolutionCase(getV2Store(), tenantId, caseId, { actions, actor });
+        if (!resolution) return json(res, 404, { error: "not_found" });
+        return json(res, 200, resolution);
+      }
+      const resolution = submitResolutionCase(getV2Store(), tenantId, caseId, actor);
+      if (!resolution) return json(res, 404, { error: "not_found" });
+      return json(res, 200, resolution);
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);
     if (capabilityMatch) {
