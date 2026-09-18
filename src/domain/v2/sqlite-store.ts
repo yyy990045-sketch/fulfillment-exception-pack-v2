@@ -65,6 +65,18 @@ export class V2SqliteStore {
     runV2Migrations(db);
   }
 
+  transaction<T>(fn: () => T): T {
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      const result = fn();
+      this.db.exec("COMMIT");
+      return result;
+    } catch (error) {
+      try { this.db.exec("ROLLBACK"); } catch { /* preserve original failure */ }
+      throw error;
+    }
+  }
+
   saveContext(input: FulfillmentContext): FulfillmentContext {
     const context = createFulfillmentContext(input);
     this.db.prepare(`
@@ -1120,7 +1132,7 @@ export class V2SqliteStore {
     };
   }
 
-  private getEventByIdempotency(tenantId: string, sourceSystemId: string, idempotencyKey: string): FulfillmentEvent | undefined {
+  getEventByIdempotency(tenantId: string, sourceSystemId: string, idempotencyKey: string): FulfillmentEvent | undefined {
     const row = this.db.prepare(`
       SELECT tenant_id as tenantId, id, context_id as contextId, entity_id as entityId,
              event_type as eventType, occurred_at as occurredAt, recorded_at as recordedAt,
