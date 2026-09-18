@@ -15,9 +15,13 @@ import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
 import {
   acceptExceptionForResolution,
+  approveResolutionCase,
+  closeResolutionCase,
   evaluateContextRules,
+  executeResolutionCase,
   openV2SqliteStore,
   proposeResolutionCase,
+  queryResolutionCase,
   reviewResolution,
   submitResolutionCase,
   type ResolutionActionInput,
@@ -288,7 +292,15 @@ const server = createServer(async (req, res) => {
       const resolution = acceptExceptionForResolution(getV2Store(), tenantId, contextId, exceptionId, { ownerRole, rationale, actor });
       return json(res, 200, resolution);
     }
-    const v2ResolutionActionMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)\/(review|propose|submit)$/);
+    const v2ResolutionQueryMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)$/);
+    if (req.method === "GET" && v2ResolutionQueryMatch) {
+      const tenantId = authOf(req).tenantId;
+      const caseId = decodeURIComponent(v2ResolutionQueryMatch[1] ?? "");
+      const result = queryResolutionCase(getV2Store(), tenantId, caseId);
+      if (!result) return json(res, 404, { error: "not_found" });
+      return json(res, 200, result);
+    }
+    const v2ResolutionActionMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)\/(review|propose|submit|approve|execute|close)$/);
     if (req.method === "POST" && v2ResolutionActionMatch) {
       const actor = requireActor(req);
       const tenantId = authOf(req).tenantId;
@@ -314,7 +326,28 @@ const server = createServer(async (req, res) => {
         if (!resolution) return json(res, 404, { error: "not_found" });
         return json(res, 200, resolution);
       }
-      const resolution = submitResolutionCase(getV2Store(), tenantId, caseId, actor);
+      if (action === "submit") {
+        const resolution = submitResolutionCase(getV2Store(), tenantId, caseId, actor);
+        if (!resolution) return json(res, 404, { error: "not_found" });
+        return json(res, 200, resolution);
+      }
+      if (action === "approve") {
+        if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
+        assertRole(authOf(req), ["总经理", "管理员", "销售总监", "财务", "工程师"]);
+        const resolution = approveResolutionCase(getV2Store(), tenantId, caseId, actor, authOf(req).roles);
+        if (!resolution) return json(res, 404, { error: "not_found" });
+        return json(res, 200, resolution);
+      }
+      if (action === "execute") {
+        if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
+        assertRole(authOf(req), ["总经理", "管理员", "销售总监", "财务", "工程师"]);
+        const idempotencyKey = typeof input.idempotencyKey === "string" && input.idempotencyKey.trim() ? input.idempotencyKey.trim() : undefined;
+        const resolution = executeResolutionCase(getV2Store(), tenantId, caseId, actor, authOf(req).roles, idempotencyKey);
+        if (!resolution) return json(res, 404, { error: "not_found" });
+        return json(res, 200, resolution);
+      }
+      assertRole(authOf(req), ["总经理", "管理员", "销售总监", "财务", "工程师"]);
+      const resolution = closeResolutionCase(getV2Store(), tenantId, caseId, actor, authOf(req).roles);
       if (!resolution) return json(res, 404, { error: "not_found" });
       return json(res, 200, resolution);
     }
@@ -460,7 +493,19 @@ const server = createServer(async (req, res) => {
       return json(res, status, { error: error.code });
     }
     const message = error instanceof Error ? error.message : String(error);
-    const status = message === "not_found" ? 404 : message.startsWith("invalid_risk_case_transition") || message.endsWith("_required") || message === "proposal_not_allowed" || message === "approval_not_pending" || message === "actions_not_ready" || message === "forbidden_approver" ? 409 : 400;
+    const conflictCodes = new Set([
+      "proposal_not_allowed",
+      "approval_not_pending",
+      "actions_not_ready",
+      "forbidden_approver",
+      "resolution_approval_not_allowed",
+      "resolution_approval_not_submitted",
+      "resolution_execution_not_allowed",
+      "resolution_close_not_allowed",
+      "SEGREGATION_OF_DUTIES_VIOLATION",
+      "RESOLUTION_EXECUTION_IDEMPOTENCY_CONFLICT",
+    ]);
+    const status = message === "not_found" ? 404 : message.startsWith("invalid_risk_case_transition") || message.endsWith("_required") || conflictCodes.has(message) ? 409 : 400;
     json(res, status, { error: message });
   }
 });

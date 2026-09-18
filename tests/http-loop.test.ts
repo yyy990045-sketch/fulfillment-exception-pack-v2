@@ -270,6 +270,34 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
 
     const submitted = await call("POST", `/api/v2/resolution-cases/${caseId}/submit`, {}, { "x-tenant-id": "demo-industrial" });
     expect((submitted.json as { runtime: { actions: Array<{ status: string }> } }).runtime.actions[0]?.status).toBe("pending_approval");
+
+    const selfApproval = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, { "x-tenant-id": "demo-industrial" });
+    expect(selfApproval.status).toBe(409);
+    expect(selfApproval.json).toEqual({ error: "SEGREGATION_OF_DUTIES_VIOLATION" });
+
+    const approverHeaders = { "x-tenant-id": "demo-industrial", "x-actor": "sales-director" };
+    const approved = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, approverHeaders);
+    expect((approved.json as { status: string }).status).toBe("approved");
+    const executed = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, { idempotencyKey: "http-resolution-execute" }, approverHeaders);
+    const executedAgain = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, { idempotencyKey: "http-resolution-execute" }, approverHeaders);
+    expect((executed.json as { status: string }).status).toBe("executed");
+    expect((executedAgain.json as { runtime: { actions: Array<{ receipt?: string }> } }).runtime.actions[0]?.receipt)
+      .toBe((executed.json as { runtime: { actions: Array<{ receipt?: string }> } }).runtime.actions[0]?.receipt);
+
+    const query = await call("GET", `/api/v2/resolution-cases/${caseId}`, undefined, { "x-tenant-id": "demo-industrial" });
+    expect(query.status).toBe(200);
+    expect(query.json).toMatchObject({
+      sourceChanged: false,
+      intakeEvaluationId: (accepted.json as { origin: { sourceRuleEvaluationId: string } }).origin.sourceRuleEvaluationId,
+      receipts: [{ receiptSource: "local-ledger", operationKey: "http-resolution-execute" }],
+    });
+
+    const closed = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, approverHeaders);
+    const closedAgain = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, approverHeaders);
+    expect((closed.json as { status: string }).status).toBe("closed");
+    expect((closedAgain.json as { status: string }).status).toBe("closed");
+    expect((closedAgain.json as { runtime: { events: unknown[] } }).runtime.events.length)
+      .toBe((closed.json as { runtime: { events: unknown[] } }).runtime.events.length);
   });
 
   it("hides another tenant's V2 exception candidates with a 404", async () => {

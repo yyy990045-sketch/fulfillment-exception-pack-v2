@@ -34,7 +34,7 @@ import type {
   V2Exception,
 } from "./rule-types.js";
 import { ruleVersionContentHash } from "./rule-engine.js";
-import type { ResolutionCase } from "./resolution/types.js";
+import type { ResolutionCase, ResolutionReceipt } from "./resolution/types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -643,6 +643,65 @@ export class V2SqliteStore {
       const resolution = this.getResolutionCase(tenantId, row.id);
       return resolution ? [resolution] : [];
     });
+  }
+
+  recordResolutionReceipt(input: Omit<ResolutionReceipt, "externalRequestId" | "receipt" | "receiptSource" | "status" | "createdAt">) {
+    const existing = this.getResolutionReceiptByOperation(input.tenantId, input.resolutionCaseId, input.actionId, input.operationKey);
+    if (existing) {
+      if (existing.payloadHash !== input.payloadHash) throw new DomainError("RESOLUTION_EXECUTION_IDEMPOTENCY_CONFLICT", input.actionId);
+      return existing;
+    }
+    const createdAt = new Date().toISOString();
+    const externalRequestId = `resolution-${input.actionId}-${input.operationKey}`;
+    const receipt: ResolutionReceipt = {
+      ...input,
+      externalRequestId,
+      receipt: `local-ledger:${externalRequestId}`,
+      receiptSource: "local-ledger",
+      status: "succeeded",
+      createdAt,
+    };
+    this.db.prepare(`
+      INSERT OR IGNORE INTO resolution_action_receipts
+        (tenant_id, resolution_case_id, action_id, operation_key, external_request_id, receipt, receipt_source, status, payload_hash, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      receipt.tenantId,
+      receipt.resolutionCaseId,
+      receipt.actionId,
+      receipt.operationKey,
+      receipt.externalRequestId,
+      receipt.receipt,
+      receipt.receiptSource,
+      receipt.status,
+      receipt.payloadHash,
+      receipt.createdAt,
+    );
+    return this.getResolutionReceiptByOperation(input.tenantId, input.resolutionCaseId, input.actionId, input.operationKey) ?? receipt;
+  }
+
+  listResolutionReceipts(tenantId: string, resolutionCaseId: string): ResolutionReceipt[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, resolution_case_id as resolutionCaseId, action_id as actionId,
+             operation_key as operationKey, external_request_id as externalRequestId,
+             receipt, receipt_source as receiptSource, status, payload_hash as payloadHash,
+             created_at as createdAt
+      FROM resolution_action_receipts
+      WHERE tenant_id = ? AND resolution_case_id = ?
+      ORDER BY created_at, action_id
+    `).all(tenantId, resolutionCaseId) as ResolutionReceipt[];
+    return rows;
+  }
+
+  getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, resolution_case_id as resolutionCaseId, action_id as actionId,
+             operation_key as operationKey, external_request_id as externalRequestId,
+             receipt, receipt_source as receiptSource, status, payload_hash as payloadHash,
+             created_at as createdAt
+      FROM resolution_action_receipts
+      WHERE tenant_id = ? AND resolution_case_id = ? AND action_id = ? AND operation_key = ?
+    `).get(tenantId, resolutionCaseId, actionId, operationKey) as ResolutionReceipt | undefined;
   }
 
   getContext(tenantId: string, contextId: string): FulfillmentContext | undefined {

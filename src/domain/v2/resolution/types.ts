@@ -49,3 +49,16 @@ export type ResolutionActionInput = {
 };
 
 export type ResolutionAction = Pick<ActionRecord, "id" | "type" | "summary" | "status" | "requiresApproval" | "idempotencyKey">;
+
+export type ResolutionReceipt = {
+  tenantId: string;
+  resolutionCaseId: string;
+  actionId: string;
+  operationKey: string;
+  externalRequestId: string;
+  receipt: string;
+  receiptSource: "local-ledger";
+  status: "succeeded" | "failed";
+  payloadHash: string;
+  createdAt: string;
+};

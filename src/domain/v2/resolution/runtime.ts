@@ -1,5 +1,6 @@
 import type { ActionRecord } from "../../../types.js";
-import { assertTransition, submitForApproval } from "../../../case/runtime.js";
+import { createHash } from "node:crypto";
+import { approve, assertTransition, execute, submitForApproval, verifyAndClose } from "../../../case/runtime.js";
 import type { V2Exception, ExceptionEvidenceBundle } from "../rule-types.js";
 import type {
   ResolutionActionInput,
@@ -8,6 +9,20 @@ import type {
 } from "./types.js";
 
 const nowIso = () => new Date().toISOString();
+
+function withResolutionRuntime(current: ResolutionCase, runtime: ResolutionCase["runtime"], updatedAt: string): ResolutionCase {
+  return {
+    ...current,
+    status: runtime.status,
+    runtime,
+    updatedAt,
+  };
+}
+
+function assertStatusSync(resolution: ResolutionCase) {
+  if (resolution.status !== resolution.runtime.status) throw new Error("resolution_status_desync");
+  return resolution;
+}
 
 function assertHumanText(value: string, code: string) {
   if (!value.trim()) throw new Error(code);
@@ -147,12 +162,76 @@ export function proposeResolution(
 export function submitResolution(current: ResolutionCase, actor: string, submittedAt = nowIso()): ResolutionCase {
   if (current.status !== "proposed") throw new Error("resolution_submit_not_allowed");
   const submitted = submitForApproval(current.runtime, actor);
-  return {
-    ...current,
-    updatedAt: submittedAt,
-    runtime: {
-      ...submitted,
-      events: [...submitted.events.slice(0, -1), { ...submitted.events.at(-1)!, at: submittedAt }],
-    },
-  };
+  return assertStatusSync(withResolutionRuntime(current, {
+    ...submitted,
+    events: [...submitted.events.slice(0, -1), { ...submitted.events.at(-1)!, at: submittedAt }],
+  }, submittedAt));
+}
+
+export function approveResolution(
+  current: ResolutionCase,
+  actor: string,
+  actorRoles: string[],
+  approvedAt = nowIso(),
+) {
+  if (current.status !== "proposed") throw new Error("resolution_approval_not_allowed");
+  if (!current.runtime.actions.length || current.runtime.actions.some((action) => action.status !== "pending_approval")) {
+    throw new Error("resolution_approval_not_submitted");
+  }
+  if (current.review?.actor === actor || current.proposedBy === actor) {
+    throw new Error("SEGREGATION_OF_DUTIES_VIOLATION");
+  }
+  const approved = approve(current.runtime, actor, undefined, actorRoles);
+  return assertStatusSync(withResolutionRuntime(current, approved, approvedAt));
+}
+
+export function resolutionExecutionPayloadHash(input: {
+  resolutionCaseId: string;
+  action: Pick<ActionRecord, "id" | "type" | "summary">;
+  operationKey: string;
+}) {
+  return createHash("sha256").update(JSON.stringify(input)).digest("hex");
+}
+
+type ResolutionReceiptResult = {
+  receipt: string;
+  externalRequestId: string;
+  receiptSource: "local-ledger";
+  receiptAt: string;
+};
+
+export function executeResolution(
+  current: ResolutionCase,
+  actor: string,
+  actorRoles: string[],
+  operationKey: string,
+  receiptFactory: (action: ActionRecord, operationKey: string, payloadHash: string) => ResolutionReceiptResult,
+  executedAt = nowIso(),
+) {
+  if (
+    ["executed", "verified", "closed"].includes(current.status) &&
+    current.runtime.actions.length > 0 &&
+    current.runtime.actions.every((action) => action.receipt && ["succeeded", "verified"].includes(action.status))
+  ) return current;
+  if (current.status !== "approved") throw new Error("resolution_execution_not_allowed");
+  if (!actorRoles.some((role) => ["总经理", "管理员", "销售总监", "财务", "工程师"].includes(role)) && !["总经理", "管理员", "销售总监", "财务", "工程师"].includes(actor)) {
+    throw new Error("forbidden_approver");
+  }
+  const executed = execute(current.runtime, actor, operationKey, (action, operation) =>
+    receiptFactory(action, operation, resolutionExecutionPayloadHash({
+      resolutionCaseId: current.id,
+      action,
+      operationKey: operation,
+    })));
+  return assertStatusSync(withResolutionRuntime(current, executed, executedAt));
+}
+
+export function closeResolution(current: ResolutionCase, actor: string, actorRoles: string[], closedAt = nowIso()) {
+  if (current.status === "closed" && current.runtime.status === "closed") return current;
+  if (current.status !== "executed") throw new Error("resolution_close_not_allowed");
+  if (!actorRoles.some((role) => ["总经理", "管理员", "销售总监", "财务", "工程师"].includes(role)) && !["总经理", "管理员", "销售总监", "财务", "工程师"].includes(actor)) {
+    throw new Error("forbidden_approver");
+  }
+  const closed = verifyAndClose(current.runtime, actor);
+  return assertStatusSync(withResolutionRuntime(current, closed, closedAt));
 }

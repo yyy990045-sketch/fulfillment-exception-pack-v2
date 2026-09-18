@@ -344,6 +344,64 @@ paths:
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/resolution-cases/{caseId}:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Resolution Case query with source drift and receipts
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCaseQuery' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/resolution-cases/{caseId}/approve:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Approved Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/resolution-cases/{caseId}/execute:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { idempotencyKey: { type: string } }
+      responses:
+        '200':
+          description: Executed Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/resolution-cases/{caseId}/close:
+    post:
+      parameters:
+        - { $ref: '#/components/parameters/ResolutionCaseId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Closed Resolution Case
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -577,6 +635,10 @@ components:
       type: object
       additionalProperties: true
       required: [id, tenantId, contextId, exceptionId, status, ownerRole, origin, runtime]
+    ResolutionCaseQuery:
+      type: object
+      additionalProperties: true
+      required: [resolutionCase, sourceException, sourceChanged, intakeEvaluationId, currentEvaluationId, evidenceBundle, receipts]
     RefreshRequest:
       type: object
       required: [endpoints]

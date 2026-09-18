@@ -71,7 +71,8 @@ export type DomainErrorCode =
   | "DOMAIN_RULE_VERSION_IMMUTABILITY_CONFLICT"
   | "DOMAIN_RULE_VERSION_CONTENT_HASH_MISMATCH"
   | "DOMAIN_RULE_TENANT_MISMATCH"
-  | "DOMAIN_RULE_VERSION_NOT_ACTIVE";
+  | "DOMAIN_RULE_VERSION_NOT_ACTIVE"
+  | "RESOLUTION_EXECUTION_IDEMPOTENCY_CONFLICT";
 
 export class DomainError extends Error {
   constructor(public readonly code: DomainErrorCode, detail?: string) {

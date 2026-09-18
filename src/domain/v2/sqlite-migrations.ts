@@ -316,6 +316,29 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON resolution_cases (tenant_id, context_id, updated_at, id);
     `,
   },
+  {
+    version: "005_resolution_execution",
+    sql: `
+      CREATE TABLE IF NOT EXISTS resolution_action_receipts (
+        tenant_id TEXT NOT NULL,
+        resolution_case_id TEXT NOT NULL,
+        action_id TEXT NOT NULL,
+        operation_key TEXT NOT NULL,
+        external_request_id TEXT NOT NULL,
+        receipt TEXT NOT NULL,
+        receipt_source TEXT NOT NULL,
+        status TEXT NOT NULL,
+        payload_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, resolution_case_id, action_id, operation_key),
+        FOREIGN KEY (tenant_id, resolution_case_id)
+          REFERENCES resolution_cases (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS resolution_action_receipts_case_idx
+        ON resolution_action_receipts (tenant_id, resolution_case_id, created_at, action_id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

@@ -7,6 +7,7 @@ import type {
   SourceSystem,
 } from "./types.js";
 import type { V2SqliteStore } from "./sqlite-store.js";
+import type { ResolutionReceipt } from "./resolution/types.js";
 
 export interface FulfillmentContextRepository {
   get(tenantId: string, contextId: string): FulfillmentContext | undefined;
@@ -42,6 +43,12 @@ export interface FulfillmentEventRepository {
   append(event: FulfillmentEvent): FulfillmentEvent;
 }
 
+export interface ResolutionReceiptRepository {
+  record(input: Omit<ResolutionReceipt, "externalRequestId" | "receipt" | "receiptSource" | "status" | "createdAt">): ResolutionReceipt;
+  listByCase(tenantId: string, resolutionCaseId: string): ResolutionReceipt[];
+  getByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined;
+}
+
 export function createV2Repositories(store: V2SqliteStore) {
   return {
     contexts: {
@@ -72,5 +79,11 @@ export function createV2Repositories(store: V2SqliteStore) {
       list: (tenantId: string, contextId: string) => store.listEvents(tenantId, contextId),
       append: (event: FulfillmentEvent) => store.appendEvent(event),
     } satisfies FulfillmentEventRepository,
+    resolutionReceipts: {
+      record: (input) => store.recordResolutionReceipt(input),
+      listByCase: (tenantId: string, resolutionCaseId: string) => store.listResolutionReceipts(tenantId, resolutionCaseId),
+      getByOperation: (tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string) =>
+        store.getResolutionReceiptByOperation(tenantId, resolutionCaseId, actionId, operationKey),
+    } satisfies ResolutionReceiptRepository,
   };
 }

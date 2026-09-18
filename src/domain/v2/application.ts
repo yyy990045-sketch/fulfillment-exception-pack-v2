@@ -1,6 +1,14 @@
 import { evaluateActiveRules } from "./rule-engine.js";
 import type { V2SqliteStore } from "./sqlite-store.js";
-import { acceptExceptionCase, proposeResolution, reviewResolutionCase, submitResolution } from "./resolution/runtime.js";
+import {
+  acceptExceptionCase,
+  approveResolution,
+  closeResolution,
+  executeResolution,
+  proposeResolution,
+  reviewResolutionCase,
+  submitResolution,
+} from "./resolution/runtime.js";
 import type { ResolutionActionInput, ResolutionReview } from "./resolution/types.js";
 
 export function evaluateContextRules(store: V2SqliteStore, tenantId: string, contextId: string) {
@@ -62,4 +70,61 @@ export function submitResolutionCase(store: V2SqliteStore, tenantId: string, cas
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
   return store.saveResolutionCase(submitResolution(current, actor));
+}
+
+export function approveResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[]) {
+  const current = store.getResolutionCase(tenantId, caseId);
+  if (!current) return undefined;
+  return store.saveResolutionCase(approveResolution(current, actor, actorRoles));
+}
+
+export function executeResolutionCase(
+  store: V2SqliteStore,
+  tenantId: string,
+  caseId: string,
+  actor: string,
+  actorRoles: string[],
+  idempotencyKey?: string,
+) {
+  const current = store.getResolutionCase(tenantId, caseId);
+  if (!current) return undefined;
+  const operationKey = idempotencyKey || `${tenantId}:${caseId}:execute`;
+  return store.saveResolutionCase(executeResolution(current, actor, actorRoles, operationKey, (action, operation, payloadHash) => {
+    const receipt = store.recordResolutionReceipt({
+      tenantId,
+      resolutionCaseId: caseId,
+      actionId: action.id,
+      operationKey: operation,
+      payloadHash,
+    });
+    return {
+      receipt: receipt.receipt,
+      externalRequestId: receipt.externalRequestId,
+      receiptSource: receipt.receiptSource,
+      receiptAt: receipt.createdAt,
+    };
+  }));
+}
+
+export function closeResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[]) {
+  const current = store.getResolutionCase(tenantId, caseId);
+  if (!current) return undefined;
+  return store.saveResolutionCase(closeResolution(current, actor, actorRoles));
+}
+
+export function queryResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string) {
+  const resolutionCase = store.getResolutionCase(tenantId, caseId);
+  if (!resolutionCase) return undefined;
+  const sourceException = store.listExceptions(tenantId, resolutionCase.contextId)
+    .find((item) => item.id === resolutionCase.exceptionId);
+  if (!sourceException) return undefined;
+  return {
+    resolutionCase,
+    sourceException,
+    sourceChanged: sourceException.latestRuleEvaluationId !== resolutionCase.origin.sourceRuleEvaluationId,
+    intakeEvaluationId: resolutionCase.origin.sourceRuleEvaluationId,
+    currentEvaluationId: sourceException.latestRuleEvaluationId,
+    evidenceBundle: store.getExceptionEvidenceBundle(tenantId, sourceException.id),
+    receipts: store.listResolutionReceipts(tenantId, caseId),
+  };
 }
