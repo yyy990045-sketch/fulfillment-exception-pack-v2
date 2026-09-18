@@ -339,6 +339,37 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON resolution_action_receipts (tenant_id, resolution_case_id, created_at, action_id);
     `,
   },
+  {
+    version: "006_grounded_ai_explanations",
+    sql: `
+      CREATE TABLE IF NOT EXISTS grounded_ai_explanations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        rule_evaluation_id TEXT NOT NULL,
+        input_snapshot_hash TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        status TEXT NOT NULL,
+        output_json TEXT NOT NULL,
+        validation_json TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, exception_id, input_snapshot_hash, provider, model),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_evaluation_id)
+          REFERENCES rule_evaluations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS grounded_ai_explanations_exception_idx
+        ON grounded_ai_explanations (tenant_id, context_id, exception_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

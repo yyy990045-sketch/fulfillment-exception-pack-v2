@@ -35,6 +35,7 @@ import type {
 } from "./rule-types.js";
 import { ruleVersionContentHash } from "./rule-engine.js";
 import type { ResolutionCase, ResolutionReceipt } from "./resolution/types.js";
+import type { GroundedExplanationRecord } from "./grounded-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -716,6 +717,116 @@ export class V2SqliteStore {
       ORDER BY created_at, action_id
     `).all(tenantId, resolutionCaseId) as ResolutionReceipt[];
     return rows;
+  }
+
+  saveGroundedExplanation(input: GroundedExplanationRecord): GroundedExplanationRecord {
+    const existing = this.getGroundedExplanationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    );
+    if (existing) {
+      return existing;
+    }
+    this.db.prepare(`
+      INSERT INTO grounded_ai_explanations
+        (tenant_id, id, context_id, exception_id, rule_evaluation_id, input_snapshot_hash,
+         provider, model, status, output_json, validation_json, created_by, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, exception_id, input_snapshot_hash, provider, model) DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.ruleEvaluationId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+      input.status,
+      json(input.output),
+      json(input.validation),
+      input.createdBy,
+      input.createdAt,
+    );
+    return this.getGroundedExplanationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    ) ?? input;
+  }
+
+  getGroundedExplanation(tenantId: string, explanationId: string): GroundedExplanationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             rule_evaluation_id as ruleEvaluationId, input_snapshot_hash as inputSnapshotHash,
+             provider, model, status, output_json as outputJson, validation_json as validationJson,
+             created_by as createdBy, created_at as createdAt
+      FROM grounded_ai_explanations
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, explanationId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      ruleEvaluationId: string;
+      inputSnapshotHash: string;
+      provider: string;
+      model: string;
+      status: GroundedExplanationRecord["status"];
+      outputJson: string;
+      validationJson: string;
+      createdBy: string;
+      createdAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      ruleEvaluationId: row.ruleEvaluationId,
+      inputSnapshotHash: row.inputSnapshotHash,
+      provider: row.provider,
+      model: row.model,
+      status: row.status,
+      output: parseJson<unknown>(row.outputJson),
+      validation: parseJson<unknown>(row.validationJson),
+      createdBy: row.createdBy,
+      createdAt: row.createdAt,
+    };
+  }
+
+  getGroundedExplanationBySnapshot(
+    tenantId: string,
+    exceptionId: string,
+    inputSnapshotHash: string,
+    provider: string,
+    model: string,
+  ): GroundedExplanationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id
+      FROM grounded_ai_explanations
+      WHERE tenant_id = ? AND exception_id = ? AND input_snapshot_hash = ? AND provider = ? AND model = ?
+    `).get(tenantId, exceptionId, inputSnapshotHash, provider, model) as { id: string } | undefined;
+    return row ? this.getGroundedExplanation(tenantId, row.id) : undefined;
+  }
+
+  listGroundedExplanations(tenantId: string, contextId: string, exceptionId: string): GroundedExplanationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id
+      FROM grounded_ai_explanations
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const explanation = this.getGroundedExplanation(tenantId, row.id);
+      return explanation ? [explanation] : [];
+    });
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

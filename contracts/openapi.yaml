@@ -92,7 +92,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/Unprocessable' }
-        '502': { $ref: '#/components/responses/BadGateway' }
+        '502': { $ref: '#/components/responses/AIProviderFailure' }
   /api/cases/{id}/review:
     parameters:
       - { $ref: '#/components/parameters/CaseId' }
@@ -266,6 +266,51 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2EvaluationRunResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Grounded AI explanation summaries for the exception
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/GroundedExplanationListResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: false
+        content:
+          application/json: { schema: { type: object, additionalProperties: false } }
+      responses:
+        '200':
+          description: Generated or idempotently reused grounded explanation
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/GroundedExplanationResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations/{explanationId}:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/GroundedExplanationId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Grounded AI explanation detail with stale status
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/GroundedExplanationResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/bundle:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -422,6 +467,7 @@ components:
     CapabilityModule: { name: module, in: path, required: true, schema: { type: string, enum: [workbench, monitor, ontology, adjudication, sandbox, actions, more] } }
     V2ContextId: { name: contextId, in: path, required: true, schema: { type: string } }
     V2ExceptionId: { name: exceptionId, in: path, required: true, schema: { type: string } }
+    GroundedExplanationId: { name: explanationId, in: path, required: true, schema: { type: string } }
     ResolutionCaseId: { name: caseId, in: path, required: true, schema: { type: string } }
     DemoTenantHeader:
       name: x-tenant-id
@@ -457,6 +503,15 @@ components:
     BadGateway:
       description: All evidence endpoints unavailable
       content: { application/json: { schema: { $ref: '#/components/schemas/ErrorWithAttempts' } } }
+    AIProviderFailure:
+      description: Grounded AI provider failed or returned invalid structured output
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    ServiceUnavailable:
+      description: No grounded AI provider is configured for the current runtime mode
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    GatewayTimeout:
+      description: Grounded AI provider timed out
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
   schemas:
     Error:
       type: object
@@ -618,6 +673,40 @@ components:
         evidence: { type: array, items: { type: object, additionalProperties: true } }
         sourceDocuments: { type: array, items: { type: object, additionalProperties: true } }
         sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
+    GroundedExplanation:
+      type: object
+      required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, output, validation, createdBy, createdAt]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        ruleEvaluationId: { type: string }
+        inputSnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        provider: { type: string }
+        model: { type: string }
+        status: { type: string, enum: [generated, rejected] }
+        output: { type: object, additionalProperties: true }
+        validation: { type: object, additionalProperties: true }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+    GroundedExplanationSummary:
+      type: object
+      required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, createdBy, createdAt, stale]
+      additionalProperties: true
+    GroundedExplanationResponse:
+      type: object
+      required: [explanation, stale]
+      properties:
+        explanation: { $ref: '#/components/schemas/GroundedExplanation' }
+        stale: { type: boolean }
+    GroundedExplanationListResponse:
+      type: object
+      required: [contextId, exceptionId, explanations]
+      properties:
+        contextId: { type: string }
+        exceptionId: { type: string }
+        explanations: { type: array, items: { $ref: '#/components/schemas/GroundedExplanationSummary' } }
     ResolutionAcceptanceRequest:
       type: object
       required: [ownerRole, rationale]

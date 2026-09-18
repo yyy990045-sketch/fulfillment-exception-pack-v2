@@ -28,15 +28,32 @@ import {
   type V2Exception,
   type V2SqliteStore,
 } from "./domain/v2/index.js";
+import {
+  DeterministicGroundedAiProvider,
+  GroundedAiError,
+  generateGroundedExplanation,
+  getGroundedExplanation,
+  groundingValidationErrorCode,
+  listGroundedExplanations,
+  type GroundedAiProvider,
+} from "./ai/grounded/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
+const deterministicGroundedProvider = new DeterministicGroundedAiProvider();
 
 function getV2Store() {
   v2Store ??= openV2SqliteStore();
   return v2Store;
+}
+
+function getGroundedAiProvider(): GroundedAiProvider {
+  const configured = (process.env.GROUNDING_AI_PROVIDER || "deterministic").trim();
+  if (configured !== "deterministic") throw new HttpError(503, "AI_PROVIDER_NOT_CONFIGURED");
+  if (!isDemoMode() || process.env.DEMO_MODE !== "true") throw new HttpError(503, "GROUNDING_AI_PROVIDER_REQUIRED");
+  return deterministicGroundedProvider;
 }
 
 function exceptionListItem(store: V2SqliteStore, tenantId: string, exception: V2Exception) {
@@ -265,6 +282,51 @@ const server = createServer(async (req, res) => {
       const store = getV2Store();
       if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
       return json(res, 200, { contextId, evaluations: store.listRuleEvaluations(tenantId, contextId) });
+    }
+    const v2ExplanationItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/explanations\/([^/]+)$/);
+    if (req.method === "GET" && v2ExplanationItemMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ExplanationItemMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(v2ExplanationItemMatch[2] ?? "");
+      const explanationId = decodeURIComponent(v2ExplanationItemMatch[3] ?? "");
+      const store = getV2Store();
+      const explanation = getGroundedExplanation(store, tenantId, contextId, exceptionId, explanationId);
+      if (!explanation) return json(res, 404, { error: "not_found" });
+      return json(res, 200, { explanation, stale: explanation.stale });
+    }
+    const v2ExplanationCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/explanations$/);
+    if (v2ExplanationCollectionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ExplanationCollectionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(v2ExplanationCollectionMatch[2] ?? "");
+      const store = getV2Store();
+      const exception = store.listExceptions(tenantId, contextId).find((item) => item.id === exceptionId);
+      if (!exception) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") {
+        return json(res, 200, {
+          contextId,
+          exceptionId,
+          explanations: listGroundedExplanations(store, tenantId, contextId, exceptionId),
+        });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
+      const explanation = await generateGroundedExplanation(
+        store,
+        getGroundedAiProvider(),
+        tenantId,
+        contextId,
+        exceptionId,
+        actor,
+      );
+      if (explanation.status === "rejected") {
+        return json(res, 422, {
+          error: groundingValidationErrorCode(explanation.validation) ?? "AI_GROUNDING_VALIDATION_FAILED",
+          explanation,
+        });
+      }
+      return json(res, 200, { explanation, stale: explanation.stale });
     }
     const v2ExceptionBundleMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/bundle$/);
     if (req.method === "GET" && v2ExceptionBundleMatch) {
@@ -506,6 +568,7 @@ const server = createServer(async (req, res) => {
     json(res, 404, { error: "not_found" });
   } catch (error) {
     if (error instanceof HttpError) return json(res, error.status, { error: error.code });
+    if (error instanceof GroundedAiError) return json(res, error.status, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {
       const status = error.code === "CROSS_TENANT_SOURCE" ? 403 : error.code === "NO_SCOPE" ? 409 : error.code === "NO_TENANT" || error.code === "INVALID_CSV" ? 422 : 409;
