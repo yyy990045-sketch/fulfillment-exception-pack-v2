@@ -13,7 +13,7 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
-import { openV2SqliteStore, seedSoDemo001, type V2SqliteStore } from "./domain/v2/index.js";
+import { openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -186,7 +186,6 @@ const server = createServer(async (req, res) => {
       const tenantId = authOf(req).tenantId;
       const contextId = decodeURIComponent(v2ReplayMatch[1] ?? "");
       const store = getV2Store();
-      if (tenantId === "demo-industrial" && contextId === "ctx-so-demo-001") seedSoDemo001(store);
       const replay = store.replayContext(tenantId, contextId);
       if (!replay.context) return json(res, 404, { error: "not_found" });
       return json(res, 200, replay);

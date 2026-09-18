@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { openV2SqliteStore, provisionV2DemoData } from "../src/domain/v2/index.js";
 
 const port = 34190 + (process.pid % 100);
 const base = `http://127.0.0.1:${port}`;
@@ -33,6 +34,9 @@ async function waitUntilHealthy() {
 
 beforeAll(async () => {
   storeDir = mkdtempSync(join(tmpdir(), "fx-pack-test-"));
+  process.env.PACK_STORE_DIR = storeDir;
+  process.env.PACK_STORE_DB = join(storeDir, "pack-cases.sqlite");
+  provisionV2DemoData();
   child = spawn(join(process.cwd(), "node_modules", ".bin", "tsx"), ["src/server.ts"], {
     cwd: process.cwd(),
     env: { ...process.env, HOST: "127.0.0.1", PORT: String(port), NODE_ENV: "test", DEMO_MODE: "true", PACK_STORE_BACKEND: "json", PACK_STORE_DIR: storeDir },
@@ -102,6 +106,7 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
   });
 
   it("replays the V2 SO-DEMO-001 fulfillment chain through an isolated API", async () => {
+    const before = openV2SqliteStore().replayContext("demo-industrial", "ctx-so-demo-001");
     const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/replay", undefined, {
       "x-tenant-id": "demo-industrial",
     });
@@ -115,11 +120,31 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
       evidence?: unknown[];
     };
     expect(replay.context?.businessKey).toBe("SO-DEMO-001");
-    expect(replay.entities).toHaveLength(5);
+    expect(replay.entities).toHaveLength(6);
     expect(replay.sourceSystems).toHaveLength(5);
-    expect(replay.documents).toHaveLength(5);
-    expect(replay.events).toHaveLength(5);
+    expect(replay.documents).toHaveLength(6);
+    expect(replay.events).toHaveLength(6);
     expect(replay.evidence).toHaveLength(6);
+    const second = await call("GET", "/api/v2/contexts/ctx-so-demo-001/replay", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(second.status).toBe(200);
+    const after = openV2SqliteStore().replayContext("demo-industrial", "ctx-so-demo-001");
+    expect(after.entities).toHaveLength(before.entities.length);
+    expect(after.documents).toHaveLength(before.documents.length);
+    expect(after.events).toHaveLength(before.events.length);
+    expect(after.evidence).toHaveLength(before.evidence.length);
+  });
+
+  it("hides another tenant's V2 context with a 404", async () => {
+    const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/replay", undefined, {
+      "x-tenant-id": "another-tenant",
+    });
+    expect(response.status).toBe(404);
+    expect(response.json).toEqual({ error: "not_found" });
+    for (const key of ["context", "entities", "entityReferences", "sourceSystems", "documents", "events", "evidence"]) {
+      expect(response.json).not.toHaveProperty(key);
+    }
   });
 
   it("closes an aligned case with no actions at approve instead of dead-ending", async () => {

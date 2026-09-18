@@ -52,6 +52,7 @@ describe("SO-DEMO-001 V2 fixture", () => {
     });
     expect(replay.entities.map((entity) => entity.entityType)).toEqual([
       "complaint",
+      "payment",
       "quote",
       "receivable",
       "sales_order",
@@ -65,13 +66,14 @@ describe("SO-DEMO-001 V2 fixture", () => {
       "WMS-DEMO",
     ]);
     expect(replay.sourceSystems.some((system) => system.id === "UNUSED-DEMO")).toBe(false);
-    expect(replay.entityReferences).toHaveLength(5);
-    expect(replay.documents).toHaveLength(5);
+    expect(replay.entityReferences).toHaveLength(6);
+    expect(replay.documents).toHaveLength(6);
     expect(replay.events.map((event) => event.eventType)).toEqual([
       "QUOTE_CREATED",
       "ORDER_CREATED",
       "SHIPMENT_CREATED",
       "RECEIVABLE_CREATED",
+      "PAYMENT_RECEIVED",
       "COMPLAINT_OPENED",
     ]);
     expect(replay.evidence).toHaveLength(6);
@@ -79,8 +81,11 @@ describe("SO-DEMO-001 V2 fixture", () => {
       ["qty", 100],
       ["qty", 96],
       ["amount", 100000],
-      ["receivedAmount", 80000],
+      ["amount", 80000],
       ["claimedReceivedQty", 80],
     ]));
+    expect(replay.entities.find((entity) => entity.entityType === "receivable")?.attributes).toEqual({ amount: 100000 });
+    expect(replay.entities.find((entity) => entity.entityType === "payment")?.attributes).toEqual({ amount: 80000 });
+    expect(replay.evidence.some((item) => item.field === "receivedAmount")).toBe(false);
   });
 });
