@@ -1,13 +1,14 @@
 import { createHash } from "node:crypto";
 import type {
+  ExceptionEvidenceRole,
+  FactObservation,
+  FactSelector,
+  NumericComparisonOperator,
   RuleDefinition,
   RuleEvaluation,
   RuleEvaluationStatus,
   RuleExecutionResult,
   RuleVersion,
-  FactObservation,
-  FactSelector,
-  NumericComparisonOperator,
 } from "./rule-types.js";
 import type { V2SqliteStore } from "./sqlite-store.js";
 import type { V2Evidence } from "./types.js";
@@ -50,8 +51,8 @@ export function resolveFactObservation(replay: FulfillmentReplay, selector: Fact
     entityIds.has(evidence.entityId) &&
     evidence.field === selector.field,
   );
-  const supported = candidates.filter((evidence) =>
-    evidence.support === "supported" &&
+  const supported = candidates.filter((evidence) => evidence.support === "supported");
+  const valid = supported.filter((evidence) =>
     evidence.valueType === selector.valueType &&
     typeof evidence.value === "number" &&
     Number.isFinite(evidence.value),
@@ -65,7 +66,17 @@ export function resolveFactObservation(replay: FulfillmentReplay, selector: Fact
   if (!supported.length) {
     return {
       ...base,
-      status: candidates.length ? "invalid" : "missing",
+      status: "missing",
+      value: null,
+      evidenceIds: [],
+      sourceSystemIds: [],
+      observedAt: null,
+    };
+  }
+  if (!valid.length) {
+    return {
+      ...base,
+      status: "invalid",
       value: null,
       evidenceIds: [],
       sourceSystemIds: [],
@@ -74,7 +85,7 @@ export function resolveFactObservation(replay: FulfillmentReplay, selector: Fact
   }
 
   const byEntity = new Map<string, V2Evidence[]>();
-  for (const evidence of supported) {
+  for (const evidence of valid) {
     const entityId = evidence.entityId!;
     byEntity.set(entityId, [...(byEntity.get(entityId) ?? []), evidence]);
   }
@@ -83,8 +94,8 @@ export function resolveFactObservation(replay: FulfillmentReplay, selector: Fact
       ...base,
       status: "ambiguous",
       value: null,
-      evidenceIds: supported.map((item) => item.id),
-      sourceSystemIds: [...new Set(supported.map((item) => item.sourceSystemId))],
+      evidenceIds: valid.map((item) => item.id),
+      sourceSystemIds: [...new Set(valid.map((item) => item.sourceSystemId))],
       observedAt: null,
     };
   }
@@ -98,8 +109,8 @@ export function resolveFactObservation(replay: FulfillmentReplay, selector: Fact
         ...base,
         status: "ambiguous",
         value: null,
-        evidenceIds: supported.map((item) => item.id),
-        sourceSystemIds: [...new Set(supported.map((item) => item.sourceSystemId))],
+        evidenceIds: valid.map((item) => item.id),
+        sourceSystemIds: [...new Set(valid.map((item) => item.sourceSystemId))],
         observedAt: null,
       };
     }
@@ -132,6 +143,41 @@ function evaluationStatus(observations: FactObservation[]): RuleEvaluationStatus
   return "not_matched";
 }
 
+function metricValues(config: RuleVersion["config"], expected: number, actual: number) {
+  const difference = Math.abs(expected - actual);
+  const positiveDifference = Math.max(expected - actual, 0);
+  const ratio = expected === 0 ? 0 : actual / expected;
+  const differenceRatio = expected === 0 ? 0 : difference / expected;
+  const metrics: Record<string, number> = {};
+  for (const metric of config.metrics) {
+    metrics[metric.key] = metric.type === "absolute_difference"
+      ? difference
+      : metric.type === "positive_difference"
+        ? positiveDifference
+        : metric.type === "difference_ratio"
+          ? differenceRatio
+          : ratio;
+  }
+  return metrics;
+}
+
+function renderTemplate(template: string, values: Record<string, number>) {
+  return template.replace(/\{([^}]+)\}/g, (_match, key: string) => String(values[key] ?? ""));
+}
+
+function evidenceRoles(
+  expected: FactObservation,
+  actual: FactObservation,
+  config: RuleVersion["config"],
+) {
+  const roles = new Map<string, ExceptionEvidenceRole>();
+  const expectedRole = config.evidenceRoles[expected.selectorKey] ?? "context";
+  const actualRole = config.evidenceRoles[actual.selectorKey] ?? "context";
+  for (const id of expected.evidenceIds) roles.set(id, expectedRole);
+  for (const id of actual.evidenceIds) roles.set(id, actualRole);
+  return roles;
+}
+
 export function evaluateRule(
   replay: FulfillmentReplay,
   definition: RuleDefinition,
@@ -151,12 +197,11 @@ export function evaluateRule(
   const status = matched ? "matched" : baseStatus;
   const inputHash = hash({ contextId: replay.context.id, definition: definition.code, version: version.id, observations, config: version.config });
   const evaluationId = `eval-${hash({ contextId: replay.context.id, ruleVersionId: version.id, inputHash }).slice(0, 24)}`;
-  const metrics: Record<string, number> = {};
-  if (expected.value != null && actual.value != null) {
-    metrics.expected = expected.value;
-    metrics.actual = actual.value;
-    metrics.difference = Math.abs(expected.value - actual.value);
-  }
+  const entityIds = [...new Set([...expected.entityIds, ...actual.entityIds])].sort();
+  const matchKey = hash({ ruleCode: definition.code, contextId: replay.context.id, entityIds });
+  const metrics = expected.value == null || actual.value == null
+    ? {}
+    : { expected: expected.value, actual: actual.value, ...metricValues(version.config, expected.value, actual.value) };
   const evaluation: RuleEvaluation = {
     id: evaluationId,
     tenantId: replay.context.tenantId,
@@ -167,15 +212,16 @@ export function evaluateRule(
     observations,
     metrics,
     inputHash,
-    matchKey: evaluationId,
+    matchKey,
     evaluatedAt: new Date().toISOString(),
     metadata: {},
   };
   if (status !== "matched") return { evaluation };
 
-  const exceptionId = `exc-${hash({ contextId: replay.context.id, exceptionType: definition.exceptionType, inputHash }).slice(0, 24)}`;
+  const roles = evidenceRoles(expected, actual, version.config);
   const evidenceIds = [...new Set([...expected.evidenceIds, ...actual.evidenceIds])];
-  const entityIds = [...new Set([...expected.entityIds, ...actual.entityIds])];
+  const exceptionId = `exc-${matchKey.slice(0, 24)}`;
+  const summary = renderTemplate(version.config.presentation.summaryTemplate, metrics);
   const exception = {
     id: exceptionId,
     tenantId: replay.context.tenantId,
@@ -183,15 +229,23 @@ export function evaluateRule(
     ruleId: definition.id,
     ruleVersionId: version.id,
     ruleEvaluationId: evaluation.id,
+    latestRuleEvaluationId: evaluation.id,
     code: definition.exceptionType,
-    status: "open" as const,
+    status: "detected" as const,
+    severity: version.config.severity,
+    title: version.config.presentation.title,
+    summary,
+    metrics,
     entityIds,
     evidenceIds,
-    matchKey: evaluation.matchKey,
+    matchKey,
     createdAt: evaluation.evaluatedAt,
+    lastDetectedAt: evaluation.evaluatedAt,
     metadata: {},
   };
-  const evidence = replay.evidence.filter((item) => evidenceIds.includes(item.id));
+  const evidence = replay.evidence
+    .filter((item) => evidenceIds.includes(item.id))
+    .map((item) => ({ ...item, evidenceId: item.id, role: roles.get(item.id) ?? "context" }));
   const sourceDocumentIds = new Set(evidence.map((item) => item.sourceDocumentId));
   const sourceSystemIds = new Set(evidence.map((item) => item.sourceSystemId));
   return {

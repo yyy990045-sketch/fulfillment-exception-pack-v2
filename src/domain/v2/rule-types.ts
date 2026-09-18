@@ -26,12 +26,28 @@ export type FactSelector = {
 
 export type NumericComparisonOperator = "lt" | "lte" | "gt" | "gte" | "eq" | "neq";
 
+export type MetricDefinition = {
+  key: string;
+  type: "absolute_difference" | "positive_difference" | "difference_ratio" | "ratio";
+};
+
+export type ExceptionEvidenceRole = "expected" | "actual" | "claim" | "context";
+
+export type RulePresentation = {
+  title: string;
+  summaryTemplate: string;
+};
+
 export type NumericRuleConfig = {
   expected: FactSelector;
   actual: FactSelector;
   condition: {
     operator: NumericComparisonOperator;
   };
+  metrics: MetricDefinition[];
+  evidenceRoles: Record<string, ExceptionEvidenceRole>;
+  presentation: RulePresentation;
+  severity: "low" | "medium" | "high" | "critical";
 };
 
 export type RuleVersion = {
@@ -78,7 +94,8 @@ export type RuleEvaluation = {
 export type FulfillmentExceptionCode =
   | "SHIPMENT_QUANTITY_SHORTFALL"
   | "PAYMENT_BALANCE_OUTSTANDING"
-  | "CUSTOMER_RECEIPT_CLAIM_MISMATCH";
+  | "CUSTOMER_RECEIPT_CLAIM_MISMATCH"
+  | "QUOTE_ORDER_QUANTITY_MISMATCH";
 
 export type V2Exception = {
   id: string;
@@ -87,13 +104,24 @@ export type V2Exception = {
   ruleId: string;
   ruleVersionId: string;
   ruleEvaluationId: string;
+  latestRuleEvaluationId: string;
   code: FulfillmentExceptionCode;
-  status: "open";
+  status: "detected";
+  severity: "low" | "medium" | "high" | "critical";
+  title: string;
+  summary: string;
+  metrics: Record<string, number>;
   entityIds: string[];
   evidenceIds: string[];
   matchKey: string;
   createdAt: string;
+  lastDetectedAt: string;
   metadata: Record<string, unknown>;
+};
+
+export type ExceptionEvidenceItem = V2Evidence & {
+  evidenceId: string;
+  role: ExceptionEvidenceRole;
 };
 
 export type ExceptionEvidenceBundle = {
@@ -103,7 +131,7 @@ export type ExceptionEvidenceBundle = {
   exceptionId: string;
   observations: Record<string, FactObservation>;
   evidenceIds: string[];
-  evidence: V2Evidence[];
+  evidence: ExceptionEvidenceItem[];
   sourceDocuments: SourceDocument[];
   sourceSystems: SourceSystem[];
 };

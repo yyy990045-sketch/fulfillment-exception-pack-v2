@@ -6,7 +6,10 @@ import {
   DEMO_RULE_DEFINITIONS,
   DEMO_RULE_VERSIONS,
   V2SqliteStore,
+  createEvidence,
+  createSourceDocument,
   evaluateActiveRules,
+  evaluateContextRules,
   provisionV2DemoData,
   ruleVersionContentHash,
 } from "../src/domain/v2/index.js";
@@ -66,7 +69,7 @@ describe("V2 rule persistence", () => {
 
     const evaluations = store.listRuleEvaluations("demo-industrial", "ctx-so-demo-001");
     const exceptions = store.listExceptions("demo-industrial", "ctx-so-demo-001");
-    expect(evaluations).toHaveLength(3);
+    expect(evaluations).toHaveLength(4);
     expect(exceptions).toHaveLength(3);
     expect(exceptions.map((item) => item.code)).toEqual([
       "SHIPMENT_QUANTITY_SHORTFALL",
@@ -78,5 +81,56 @@ describe("V2 rule persistence", () => {
     expect(bundle?.evidence.map((item) => item.id)).toEqual(expect.arrayContaining(["evidence-order-qty", "evidence-shipment-qty"]));
     expect(bundle?.sourceDocuments.length).toBeGreaterThanOrEqual(2);
     expect(bundle?.sourceSystems.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps one stable Exception across Evidence versions while evaluations change", () => {
+    const store = openStore();
+    provisionV2DemoData(store);
+    const first = evaluateContextRules(store, "demo-industrial", "ctx-so-demo-001")!;
+    const firstException = first.exceptions.find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+
+    store.saveSourceDocument(createSourceDocument({
+      id: "doc-shipment-demo-001-v2",
+      tenantId: "demo-industrial",
+      sourceSystemId: "WMS-DEMO",
+      contextId: "ctx-so-demo-001",
+      entityId: "entity-shipment-demo-001",
+      externalDocumentId: "SH-DEMO-001",
+      documentType: "shipment",
+      contentHash: "7".repeat(64),
+      receivedAt: "2026-09-19T00:00:00.000Z",
+      effectiveAt: "2026-09-19T00:00:00.000Z",
+      version: "v2",
+      metadata: {},
+    }));
+    store.saveEvidence(createEvidence({
+      id: "evidence-shipment-qty-v2",
+      tenantId: "demo-industrial",
+      contextId: "ctx-so-demo-001",
+      sourceSystemId: "WMS-DEMO",
+      sourceDocumentId: "doc-shipment-demo-001-v2",
+      sourceVersion: "v2",
+      entityId: "entity-shipment-demo-001",
+      field: "qty",
+      value: 94,
+      valueType: "number",
+      locator: { fileName: "SH-DEMO-001.csv", row: 3 },
+      quote: "qty=94",
+      confidence: 1,
+      support: "supported",
+      observedAt: "2026-09-19T00:00:00.000Z",
+      createdAt: "2026-09-19T00:00:00.000Z",
+      metadata: {},
+    }));
+
+    const second = evaluateContextRules(store, "demo-industrial", "ctx-so-demo-001")!;
+    const secondException = second.exceptions.find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+    expect(second.evaluations).toHaveLength(6);
+    expect(secondException.id).toBe(firstException.id);
+    expect(secondException.matchKey).toBe(firstException.matchKey);
+    expect(secondException.latestRuleEvaluationId).not.toBe(firstException.latestRuleEvaluationId);
+    expect(secondException.createdAt).toBe(firstException.createdAt);
+    expect(secondException.lastDetectedAt).not.toBe(firstException.lastDetectedAt);
+    expect(second.exceptions).toHaveLength(3);
   });
 });

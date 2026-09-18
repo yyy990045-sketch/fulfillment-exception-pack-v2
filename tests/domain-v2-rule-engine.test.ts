@@ -73,7 +73,7 @@ describe("V2 constrained numeric rule engine", () => {
       aggregation: "sum_latest_per_entity",
     });
 
-    expect(observation).toMatchObject({ status: "invalid", value: null, evidenceIds: [] });
+    expect(observation).toMatchObject({ status: "missing", value: null, evidenceIds: [] });
   });
 
   it("returns AMBIGUOUS_EVIDENCE when single_latest spans multiple entities", () => {
@@ -108,18 +108,46 @@ describe("V2 constrained numeric rule engine", () => {
     const replay = replayFixture();
     const results = evaluateActiveRules(replay, DEMO_RULE_DEFINITIONS, DEMO_RULE_VERSIONS);
 
-    expect(results.map((result) => result.evaluation.status)).toEqual(["matched", "matched", "matched"]);
-    expect(results.map((result) => result.exception?.code)).toEqual([
+    expect(results.map((result) => result.evaluation.status)).toEqual(["matched", "matched", "matched", "not_matched"]);
+    expect(results.flatMap((result) => result.exception ? [result.exception.code] : [])).toEqual([
       "SHIPMENT_QUANTITY_SHORTFALL",
       "PAYMENT_BALANCE_OUTSTANDING",
       "CUSTOMER_RECEIPT_CLAIM_MISMATCH",
     ]);
-    expect(results.map((result) => result.evaluation.metrics.difference)).toEqual([4, 20000, 16]);
-    for (const result of results) {
+    expect(results.slice(0, 3).map((result) => result.evaluation.metrics.difference)).toEqual([4, 20000, 16]);
+    expect(results[0]?.exception).toMatchObject({
+      severity: "medium",
+      title: "发货数量低于订单数量",
+      summary: "订单数量 100，累计发货数量 96，差异 4。",
+      metrics: { expected: 100, actual: 96, difference: 4, shortfall: 4, shortfallRatio: 0.04 },
+    });
+    expect(results[1]?.exception).toMatchObject({
+      severity: "medium",
+      summary: "应收金额 100000，已记录回款 80000，尚有 20000 未覆盖。",
+      metrics: { outstandingAmount: 20000, paymentRatio: 0.8 },
+    });
+    expect(results[2]?.exception).toMatchObject({
+      severity: "high",
+      summary: "系统发货记录为 96 件，客户主张收到 80 件，存在 16 件差异，需进一步核验。",
+    });
+    expect(results[3]?.evaluation.status).toBe("not_matched");
+    for (const result of results.slice(0, 3)) {
       expect(result.evidenceBundle?.evidenceIds.length).toBeGreaterThanOrEqual(2);
       expect(result.evidenceBundle?.sourceDocuments.length).toBeGreaterThanOrEqual(2);
       expect(result.evidenceBundle?.sourceSystems.length).toBeGreaterThanOrEqual(1);
     }
+    expect(results[0]?.evidenceBundle?.evidence.map((item) => [item.id, item.role])).toEqual([
+      ["evidence-order-qty", "expected"],
+      ["evidence-shipment-qty", "actual"],
+    ]);
+    expect(results[1]?.evidenceBundle?.evidence.map((item) => [item.id, item.role])).toEqual([
+      ["evidence-receivable-amount", "expected"],
+      ["evidence-payment-amount", "actual"],
+    ]);
+    expect(results[2]?.evidenceBundle?.evidence.map((item) => [item.id, item.role])).toEqual([
+      ["evidence-shipment-qty", "actual"],
+      ["evidence-complaint-claimed-received", "claim"],
+    ]);
     expect(results.some((result) => result.exception?.code.includes("QUOTE") || result.exception?.code.includes("ORDER"))).toBe(false);
   });
 });

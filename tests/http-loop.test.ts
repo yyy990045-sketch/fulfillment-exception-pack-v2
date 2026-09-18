@@ -136,6 +136,19 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(after.evidence).toHaveLength(before.evidence.length);
   });
 
+  it("keeps V2 GET evaluation endpoints read-only before an explicit run", async () => {
+    const evaluations = await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    const exceptions = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(evaluations.status).toBe(200);
+    expect((evaluations.json as { evaluations: unknown[] }).evaluations).toHaveLength(0);
+    expect(exceptions.status).toBe(200);
+    expect((exceptions.json as { exceptions: unknown[] }).exceptions).toHaveLength(0);
+  });
+
   it("hides another tenant's V2 context with a 404", async () => {
     const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/replay", undefined, {
       "x-tenant-id": "another-tenant",
@@ -148,6 +161,8 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
   });
 
   it("returns deterministic V2 exception candidates from the replay facts", async () => {
+    const run = await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
+    expect(run.status).toBe(200);
     const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, {
       "x-tenant-id": "demo-industrial",
     });
@@ -155,11 +170,19 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(response.json).toMatchObject({
       contextId: "ctx-so-demo-001",
       exceptions: [
-        { code: "SHIPMENT_QUANTITY_SHORTFALL", difference: 4 },
-        { code: "PAYMENT_BALANCE_OUTSTANDING", difference: 20000 },
-        { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", difference: 16 },
+        {
+          code: "SHIPMENT_QUANTITY_SHORTFALL",
+          status: "detected",
+          severity: "medium",
+          metrics: { difference: 4 },
+          evidenceBundleSummary: { evidenceCount: 2, sourceSystemCount: 2 },
+        },
+        { code: "PAYMENT_BALANCE_OUTSTANDING", severity: "medium", metrics: { difference: 20000 } },
+        { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", severity: "high", metrics: { difference: 16 } },
       ],
     });
+    const listItem = (response.json as { exceptions: Array<Record<string, unknown>> }).exceptions[0]!;
+    expect(listItem).not.toHaveProperty("evidenceBundle");
 
     const exceptions = (response.json as { exceptions: Array<{ id: string }> }).exceptions;
     const bundle = await call("GET", `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptions[0]!.id}/bundle`, undefined, {
@@ -170,6 +193,8 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
   });
 
   it("returns persisted rule evaluations with observations and input hashes", async () => {
+    const run = await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
+    expect(run.status).toBe(200);
     const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, {
       "x-tenant-id": "demo-industrial",
     });
@@ -177,10 +202,35 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     const evaluations = (response.json as {
       evaluations: Array<{ status: string; inputHash: string; observations: Record<string, unknown> }>;
     }).evaluations;
-    expect(evaluations).toHaveLength(3);
-    expect(evaluations.every((item) => item.status === "matched")).toBe(true);
+    expect(evaluations).toHaveLength(4);
+    expect(evaluations.filter((item) => item.status === "matched")).toHaveLength(3);
+    expect(evaluations.filter((item) => item.status === "not_matched")).toHaveLength(1);
     expect(evaluations.every((item) => item.inputHash.length === 64)).toBe(true);
     expect(evaluations.every((item) => Object.keys(item.observations).length === 2)).toBe(true);
+  });
+
+  it("keeps POST evaluation idempotent and keeps GET evaluations read-only", async () => {
+    const firstRun = await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
+    const secondRun = await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
+    expect(firstRun.status).toBe(200);
+    expect(secondRun.status).toBe(200);
+    const firstEvaluations = (firstRun.json as { evaluations: unknown[] }).evaluations.length;
+    const secondEvaluations = (secondRun.json as { evaluations: unknown[] }).evaluations.length;
+    expect(secondEvaluations).toBe(firstEvaluations);
+
+    const before = await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, { "x-tenant-id": "demo-industrial" });
+    const beforeCount = (before.json as { evaluations: unknown[] }).evaluations.length;
+    await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, { "x-tenant-id": "demo-industrial" });
+    const after = await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, { "x-tenant-id": "demo-industrial" });
+    expect((after.json as { evaluations: unknown[] }).evaluations.length).toBe(beforeCount);
+  });
+
+  it("rejects tenant supplied in the V2 evaluation request body", async () => {
+    const response = await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", { tenantId: "another-tenant" }, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(response.status).toBe(400);
+    expect(response.json).toEqual({ error: "tenant_from_auth_required" });
   });
 
   it("hides another tenant's V2 exception candidates with a 404", async () => {

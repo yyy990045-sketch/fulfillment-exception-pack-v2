@@ -270,6 +270,24 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON exceptions (tenant_id, context_id, created_at, id);
     `,
   },
+  {
+    version: "003_rule_engine_seal",
+    sql: `
+      ALTER TABLE exceptions ADD COLUMN latest_rule_evaluation_id TEXT;
+      ALTER TABLE exceptions ADD COLUMN severity TEXT NOT NULL DEFAULT 'medium';
+      ALTER TABLE exceptions ADD COLUMN title TEXT NOT NULL DEFAULT '';
+      ALTER TABLE exceptions ADD COLUMN summary TEXT NOT NULL DEFAULT '';
+      ALTER TABLE exceptions ADD COLUMN metrics_json TEXT NOT NULL DEFAULT '{}';
+      ALTER TABLE exceptions ADD COLUMN last_detected_at TEXT NOT NULL DEFAULT '';
+      UPDATE exceptions SET latest_rule_evaluation_id = rule_evaluation_id WHERE latest_rule_evaluation_id IS NULL;
+      UPDATE exceptions SET last_detected_at = created_at WHERE last_detected_at = '';
+
+      ALTER TABLE exception_evidence ADD COLUMN role TEXT NOT NULL DEFAULT 'context';
+
+      CREATE UNIQUE INDEX IF NOT EXISTS exceptions_stable_identity_idx
+        ON exceptions (tenant_id, context_id, rule_id, match_key);
+    `,
+  },
 ];
 
 export function runV2Migrations(

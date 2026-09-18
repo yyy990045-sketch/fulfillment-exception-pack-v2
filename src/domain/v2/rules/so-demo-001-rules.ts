@@ -38,6 +38,17 @@ export const DEMO_RULE_DEFINITIONS: RuleDefinition[] = [
     createdAt,
     metadata: { order: 3 },
   },
+  {
+    id: "rule-quote-order-quantity-mismatch",
+    tenantId,
+    code: "FULFILLMENT.QUOTE_ORDER_QUANTITY_MISMATCH",
+    name: "报价与订单数量不一致",
+    description: "报价数量和订单数量不一致时产生异常候选。",
+    exceptionType: "QUOTE_ORDER_QUANTITY_MISMATCH",
+    enabled: true,
+    createdAt,
+    metadata: { order: 4 },
+  },
 ];
 
 function version(id: string, ruleId: string, config: RuleVersion["config"]): RuleVersion {
@@ -45,7 +56,7 @@ function version(id: string, ruleId: string, config: RuleVersion["config"]): Rul
     id,
     tenantId,
     ruleId,
-    version: "1.0.0",
+    version: "1.1.0",
     status: "active",
     config,
     contentHash: ruleVersionContentHash(config),
@@ -54,19 +65,60 @@ function version(id: string, ruleId: string, config: RuleVersion["config"]): Rul
 }
 
 export const DEMO_RULE_VERSIONS: RuleVersion[] = [
-  version("rule-version-shipment-quantity-shortfall-v1", "rule-shipment-quantity-shortfall", {
+  version("rule-version-shipment-quantity-shortfall-v1-1", "rule-shipment-quantity-shortfall", {
     expected: { key: "orderQty", entityType: "sales_order", field: "qty", valueType: "number", aggregation: "single_latest" },
     actual: { key: "shipmentQty", entityType: "shipment", field: "qty", valueType: "number", aggregation: "sum_latest_per_entity" },
     condition: { operator: "lt" },
+    metrics: [
+      { key: "difference", type: "absolute_difference" },
+      { key: "shortfall", type: "positive_difference" },
+      { key: "shortfallRatio", type: "difference_ratio" },
+    ],
+    evidenceRoles: { orderQty: "expected", shipmentQty: "actual" },
+    presentation: {
+      title: "发货数量低于订单数量",
+      summaryTemplate: "订单数量 {expected}，累计发货数量 {actual}，差异 {difference}。",
+    },
+    severity: "medium",
   }),
-  version("rule-version-payment-balance-outstanding-v1", "rule-payment-balance-outstanding", {
+  version("rule-version-payment-balance-outstanding-v1-1", "rule-payment-balance-outstanding", {
     expected: { key: "receivableAmount", entityType: "receivable", field: "amount", valueType: "currency", aggregation: "single_latest" },
     actual: { key: "paymentAmount", entityType: "payment", field: "amount", valueType: "currency", aggregation: "sum_latest_per_entity" },
     condition: { operator: "lt" },
+    metrics: [
+      { key: "difference", type: "absolute_difference" },
+      { key: "outstandingAmount", type: "positive_difference" },
+      { key: "paymentRatio", type: "ratio" },
+    ],
+    evidenceRoles: { receivableAmount: "expected", paymentAmount: "actual" },
+    presentation: {
+      title: "应收余额尚未全部覆盖",
+      summaryTemplate: "应收金额 {expected}，已记录回款 {actual}，尚有 {outstandingAmount} 未覆盖。",
+    },
+    severity: "medium",
   }),
-  version("rule-version-customer-receipt-claim-mismatch-v1", "rule-customer-receipt-claim-mismatch", {
+  version("rule-version-customer-receipt-claim-mismatch-v1-1", "rule-customer-receipt-claim-mismatch", {
     expected: { key: "shipmentQty", entityType: "shipment", field: "qty", valueType: "number", aggregation: "sum_latest_per_entity" },
     actual: { key: "claimedReceivedQty", entityType: "complaint", field: "claimedReceivedQty", valueType: "number", aggregation: "single_latest" },
     condition: { operator: "neq" },
+    metrics: [{ key: "difference", type: "absolute_difference" }],
+    evidenceRoles: { shipmentQty: "actual", claimedReceivedQty: "claim" },
+    presentation: {
+      title: "客户收货主张与系统发货记录不一致",
+      summaryTemplate: "系统发货记录为 {expected} 件，客户主张收到 {actual} 件，存在 {difference} 件差异，需进一步核验。",
+    },
+    severity: "high",
+  }),
+  version("rule-version-quote-order-quantity-mismatch-v1-1", "rule-quote-order-quantity-mismatch", {
+    expected: { key: "quoteQty", entityType: "quote", field: "qty", valueType: "number", aggregation: "single_latest" },
+    actual: { key: "orderQty", entityType: "sales_order", field: "qty", valueType: "number", aggregation: "single_latest" },
+    condition: { operator: "neq" },
+    metrics: [{ key: "difference", type: "absolute_difference" }],
+    evidenceRoles: { quoteQty: "expected", orderQty: "actual" },
+    presentation: {
+      title: "报价与订单数量不一致",
+      summaryTemplate: "报价数量 {expected}，订单数量 {actual}，差异 {difference}。",
+    },
+    severity: "medium",
   }),
 ];

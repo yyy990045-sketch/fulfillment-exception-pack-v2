@@ -26,6 +26,7 @@ import {
 } from "./model.js";
 import type {
   ExceptionEvidenceBundle,
+  ExceptionEvidenceRole,
   RuleDefinition,
   RuleEvaluation,
   RuleExecutionResult,
@@ -312,6 +313,56 @@ export class V2SqliteStore {
     return input;
   }
 
+  listEnabledRuleDefinitions(tenantId: string): RuleDefinition[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, code, name, description,
+             exception_type as exceptionType, enabled, created_at as createdAt,
+             metadata_json as metadataJson
+      FROM rule_definitions
+      WHERE tenant_id = ? AND enabled = 1
+      ORDER BY id
+    `).all(tenantId) as Array<Omit<RuleDefinition, "metadata" | "enabled"> & { enabled: number; metadataJson: string }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      description: row.description,
+      exceptionType: row.exceptionType,
+      enabled: Boolean(row.enabled),
+      createdAt: row.createdAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    }));
+  }
+
+  listActiveRuleVersions(tenantId: string): RuleVersion[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, rule_id as ruleId, version, status,
+             config_json as configJson, content_hash as contentHash, created_at as createdAt
+      FROM rule_versions
+      WHERE tenant_id = ? AND status = 'active'
+      ORDER BY rule_id, version
+    `).all(tenantId) as Array<Omit<RuleVersion, "config"> & { configJson: string }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      ruleId: row.ruleId,
+      version: row.version,
+      status: row.status,
+      config: parseJson<RuleVersion["config"]>(row.configJson),
+      contentHash: row.contentHash,
+      createdAt: row.createdAt,
+    }));
+  }
+
+  retireRuleVersionsExcept(tenantId: string, ruleId: string, activeVersionId: string) {
+    this.db.prepare(`
+      UPDATE rule_versions
+      SET status = 'retired'
+      WHERE tenant_id = ? AND rule_id = ? AND id <> ? AND status = 'active'
+    `).run(tenantId, ruleId, activeVersionId);
+  }
+
   recordRuleExecution(result: RuleExecutionResult) {
     const { evaluation, exception } = result;
     this.db.prepare(`
@@ -333,29 +384,68 @@ export class V2SqliteStore {
       json(evaluation.metadata),
     );
     if (!exception) return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
-
-    this.db.prepare(`
-      INSERT OR IGNORE INTO exceptions
-        (tenant_id, id, context_id, rule_id, rule_version_id, rule_evaluation_id, exception_type, status, match_key, created_at, metadata_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      exception.tenantId,
-      exception.id,
-      exception.contextId,
-      exception.ruleId,
-      exception.ruleVersionId,
-      exception.ruleEvaluationId,
-      exception.code,
-      exception.status,
-      exception.matchKey,
-      exception.createdAt,
-      json(exception.metadata),
-    );
+    const existing = this.getStableException(exception.tenantId, exception.contextId, exception.ruleId, exception.matchKey);
+    const exceptionId = existing?.id ?? exception.id;
+    if (!existing) {
+      this.db.prepare(`
+        INSERT INTO exceptions
+          (tenant_id, id, context_id, rule_id, rule_version_id, rule_evaluation_id, latest_rule_evaluation_id,
+           exception_type, status, severity, title, summary, metrics_json, match_key, created_at, last_detected_at, metadata_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        exception.tenantId,
+        exceptionId,
+        exception.contextId,
+        exception.ruleId,
+        exception.ruleVersionId,
+        exception.latestRuleEvaluationId,
+        exception.latestRuleEvaluationId,
+        exception.code,
+        exception.status,
+        exception.severity,
+        exception.title,
+        exception.summary,
+        json(exception.metrics),
+        exception.matchKey,
+        exception.createdAt,
+        exception.lastDetectedAt,
+        json(exception.metadata),
+      );
+    } else if (existing.latestRuleEvaluationId !== exception.latestRuleEvaluationId) {
+      this.db.prepare(`
+        UPDATE exceptions SET
+          rule_version_id = ?,
+          rule_evaluation_id = ?,
+          latest_rule_evaluation_id = ?,
+          severity = ?,
+          title = ?,
+          summary = ?,
+          metrics_json = ?,
+          last_detected_at = ?
+        WHERE tenant_id = ? AND id = ?
+      `).run(
+        exception.ruleVersionId,
+        exception.latestRuleEvaluationId,
+        exception.latestRuleEvaluationId,
+        exception.severity,
+        exception.title,
+        exception.summary,
+        json(exception.metrics),
+        exception.lastDetectedAt,
+        exception.tenantId,
+        exceptionId,
+      );
+    }
     for (const evidenceId of exception.evidenceIds) {
-      this.db.prepare("INSERT OR IGNORE INTO exception_evidence (tenant_id, exception_id, evidence_id) VALUES (?, ?, ?)").run(exception.tenantId, exception.id, evidenceId);
+      const role = result.evidenceBundle?.evidence.find((item) => item.evidenceId === evidenceId)?.role ?? "context";
+      this.db.prepare(`
+        INSERT INTO exception_evidence (tenant_id, exception_id, evidence_id, role)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (tenant_id, exception_id, evidence_id) DO UPDATE SET role = excluded.role
+      `).run(exception.tenantId, exceptionId, evidenceId, role);
     }
     for (const entityId of exception.entityIds) {
-      this.db.prepare("INSERT OR IGNORE INTO exception_entities (tenant_id, exception_id, entity_id) VALUES (?, ?, ?)").run(exception.tenantId, exception.id, entityId);
+      this.db.prepare("INSERT OR IGNORE INTO exception_entities (tenant_id, exception_id, entity_id) VALUES (?, ?, ?)").run(exception.tenantId, exceptionId, entityId);
     }
     return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
   }
@@ -403,13 +493,16 @@ export class V2SqliteStore {
     const rows = this.db.prepare(`
       SELECT e.tenant_id as tenantId, e.id, e.context_id as contextId, e.rule_id as ruleId,
              e.rule_version_id as ruleVersionId, e.rule_evaluation_id as ruleEvaluationId,
-             e.exception_type as code, e.status, e.match_key as matchKey,
-             e.created_at as createdAt, e.metadata_json as metadataJson
+             e.latest_rule_evaluation_id as latestRuleEvaluationId,
+             e.exception_type as code, e.status, e.severity, e.title, e.summary,
+             e.metrics_json as metricsJson, e.match_key as matchKey,
+             e.created_at as createdAt, e.last_detected_at as lastDetectedAt,
+             e.metadata_json as metadataJson
       FROM exceptions e
       WHERE e.tenant_id = ? AND e.context_id = ?
       ORDER BY e.created_at, e.id
-    `).all(tenantId, contextId) as Array<Omit<V2Exception, "entityIds" | "evidenceIds" | "metadata"> & { metadataJson: string }>;
-    const order = ["SHIPMENT_QUANTITY_SHORTFALL", "PAYMENT_BALANCE_OUTSTANDING", "CUSTOMER_RECEIPT_CLAIM_MISMATCH"];
+    `).all(tenantId, contextId) as Array<Omit<V2Exception, "entityIds" | "evidenceIds" | "metadata" | "metrics"> & { metricsJson: string; metadataJson: string }>;
+    const order = ["SHIPMENT_QUANTITY_SHORTFALL", "PAYMENT_BALANCE_OUTSTANDING", "CUSTOMER_RECEIPT_CLAIM_MISMATCH", "QUOTE_ORDER_QUANTITY_MISMATCH"];
     return rows.map((row) => ({
       tenantId: row.tenantId,
       id: row.id,
@@ -417,12 +510,18 @@ export class V2SqliteStore {
       ruleId: row.ruleId,
       ruleVersionId: row.ruleVersionId,
       ruleEvaluationId: row.ruleEvaluationId,
+      latestRuleEvaluationId: row.latestRuleEvaluationId,
       code: row.code,
       status: row.status,
+      severity: row.severity,
+      title: row.title,
+      summary: row.summary,
+      metrics: parseJson<V2Exception["metrics"]>(row.metricsJson),
       entityIds: (this.db.prepare("SELECT entity_id as entityId FROM exception_entities WHERE tenant_id = ? AND exception_id = ? ORDER BY entity_id").all(tenantId, row.id) as Array<{ entityId: string }>).map((item) => item.entityId),
       evidenceIds: (this.db.prepare("SELECT evidence_id as evidenceId FROM exception_evidence WHERE tenant_id = ? AND exception_id = ? ORDER BY evidence_id").all(tenantId, row.id) as Array<{ evidenceId: string }>).map((item) => item.evidenceId),
       matchKey: row.matchKey,
       createdAt: row.createdAt,
+      lastDetectedAt: row.lastDetectedAt,
       metadata: parseJson<JsonRecord>(row.metadataJson),
     })).sort((left, right) => order.indexOf(left.code) - order.indexOf(right.code) || left.id.localeCompare(right.id));
   }
@@ -434,7 +533,13 @@ export class V2SqliteStore {
     const evaluation = this.listRuleEvaluations(tenantId, exception.contextId).find((item) => item.id === exception.ruleEvaluationId);
     if (!evaluation) return undefined;
     const allEvidence = this.listEvidence(tenantId, exception.contextId);
-    const evidence = exception.evidenceIds.flatMap((id) => allEvidence.filter((item) => item.id === id));
+    const roles = new Map(
+      (this.db.prepare("SELECT evidence_id as evidenceId, role FROM exception_evidence WHERE tenant_id = ? AND exception_id = ?").all(tenantId, exceptionId) as Array<{ evidenceId: string; role: ExceptionEvidenceRole }>)
+        .map((item) => [item.evidenceId, item.role]),
+    );
+    const evidence = exception.evidenceIds.flatMap((id) => allEvidence
+      .filter((item) => item.id === id)
+      .map((item) => ({ ...item, evidenceId: item.id, role: roles.get(item.id) ?? "context" as const })));
     const sourceDocumentIds = new Set(evidence.map((item) => item.sourceDocumentId));
     const sourceSystemIds = new Set(evidence.map((item) => item.sourceSystemId));
     return {
@@ -722,7 +827,15 @@ export class V2SqliteStore {
     };
   }
 
-  private getRuleDefinition(tenantId: string, ruleId: string): RuleDefinition | undefined {
+  private getStableException(tenantId: string, contextId: string, ruleId: string, matchKey: string): V2Exception | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM exceptions
+      WHERE tenant_id = ? AND context_id = ? AND rule_id = ? AND match_key = ?
+    `).get(tenantId, contextId, ruleId, matchKey) as { id: string } | undefined;
+    return row ? this.listExceptions(tenantId, contextId).find((item) => item.id === row.id) : undefined;
+  }
+
+  getRuleDefinition(tenantId: string, ruleId: string): RuleDefinition | undefined {
     const row = this.db.prepare(`
       SELECT tenant_id as tenantId, id, code, name, description,
              exception_type as exceptionType, enabled, created_at as createdAt,
@@ -739,6 +852,24 @@ export class V2SqliteStore {
       enabled: Boolean(row.enabled),
       createdAt: row.createdAt,
       metadata: parseJson<JsonRecord>(row.metadataJson),
+    } : undefined;
+  }
+
+  getRuleVersionById(tenantId: string, ruleVersionId: string): RuleVersion | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, rule_id as ruleId, version, status,
+             config_json as configJson, content_hash as contentHash, created_at as createdAt
+      FROM rule_versions WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, ruleVersionId) as (Omit<RuleVersion, "config"> & { configJson: string }) | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      ruleId: row.ruleId,
+      version: row.version,
+      status: row.status,
+      config: parseJson<RuleVersion["config"]>(row.configJson),
+      contentHash: row.contentHash,
+      createdAt: row.createdAt,
     } : undefined;
   }
 

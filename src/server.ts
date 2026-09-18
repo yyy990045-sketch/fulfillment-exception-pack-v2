@@ -13,7 +13,7 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
-import { openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
+import { evaluateContextRules, openV2SqliteStore, type V2Exception, type V2SqliteStore } from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +23,35 @@ let v2Store: V2SqliteStore | undefined;
 function getV2Store() {
   v2Store ??= openV2SqliteStore();
   return v2Store;
+}
+
+function exceptionListItem(store: V2SqliteStore, tenantId: string, exception: V2Exception) {
+  const definition = store.getRuleDefinition(tenantId, exception.ruleId);
+  const version = store.getRuleVersionById(tenantId, exception.ruleVersionId)
+    ?? store.listActiveRuleVersions(tenantId).find((item) => item.ruleId === exception.ruleId);
+  const bundle = store.getExceptionEvidenceBundle(tenantId, exception.id);
+  return {
+    id: exception.id,
+    code: exception.code,
+    exceptionType: exception.code,
+    status: exception.status,
+    severity: exception.severity,
+    rule: {
+      id: definition?.id ?? exception.ruleId,
+      code: definition?.code ?? exception.ruleId,
+      version: version?.version ?? exception.ruleVersionId,
+    },
+    title: exception.title,
+    summary: exception.summary,
+    metrics: exception.metrics,
+    matchKey: exception.matchKey,
+    createdAt: exception.createdAt,
+    lastDetectedAt: exception.lastDetectedAt,
+    evidenceBundleSummary: {
+      evidenceCount: bundle?.evidenceIds.length ?? exception.evidenceIds.length,
+      sourceSystemCount: bundle?.sourceSystems.length ?? 0,
+    },
+  };
 }
 
 class HttpError extends Error {
@@ -197,17 +226,23 @@ const server = createServer(async (req, res) => {
       const store = getV2Store();
       const replay = store.replayContext(tenantId, contextId);
       if (!replay.context) return json(res, 404, { error: "not_found" });
-      const evaluations = store.listRuleEvaluations(tenantId, contextId);
-      const exceptions = store.listExceptions(tenantId, contextId).map((exception) => {
-        const evaluation = evaluations.find((item) => item.id === exception.ruleEvaluationId);
-        return {
-          ...exception,
-          metrics: evaluation?.metrics ?? {},
-          difference: evaluation?.metrics.difference,
-          evidenceBundle: store.getExceptionEvidenceBundle(tenantId, exception.id),
-        };
-      });
+      const exceptions = store.listExceptions(tenantId, contextId).map((exception) => exceptionListItem(store, tenantId, exception));
       return json(res, 200, { contextId, exceptions });
+    }
+    const v2EvaluationRunMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/evaluations\/run$/);
+    if (req.method === "POST" && v2EvaluationRunMatch) {
+      requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2EvaluationRunMatch[1] ?? "");
+      const result = evaluateContextRules(getV2Store(), tenantId, contextId);
+      if (!result) return json(res, 404, { error: "not_found" });
+      return json(res, 200, {
+        contextId,
+        evaluations: result.evaluations,
+        exceptions: result.exceptions.map((exception) => exceptionListItem(getV2Store(), tenantId, exception)),
+      });
     }
     const v2EvaluationsMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/rule-evaluations$/);
     if (req.method === "GET" && v2EvaluationsMatch) {

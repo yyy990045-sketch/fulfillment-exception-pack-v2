@@ -253,6 +253,19 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2RuleEvaluationsResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/evaluations/run:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      responses:
+        '200':
+          description: Evaluate active rules and upsert stable exceptions
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2EvaluationRunResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/bundle:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -450,6 +463,13 @@ components:
       properties:
         contextId: { type: string }
         evaluations: { type: array, items: { type: object, additionalProperties: true } }
+    V2EvaluationRunResponse:
+      type: object
+      required: [contextId, evaluations, exceptions]
+      properties:
+        contextId: { type: string }
+        evaluations: { type: array, items: { type: object, additionalProperties: true } }
+        exceptions: { type: array, items: { type: object, additionalProperties: true } }
     V2ExceptionEvidenceBundle:
       type: object
       required: [id, tenantId, contextId, exceptionId, observations, evidenceIds, evidence, sourceDocuments, sourceSystems]
