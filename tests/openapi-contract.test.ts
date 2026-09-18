@@ -1,0 +1,29 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+
+const openapi = readFileSync(new URL("../contracts/openapi.yaml", import.meta.url), "utf8");
+
+function pathBlock(path: string, nextPath: string) {
+  const start = openapi.indexOf(`  ${path}:`);
+  const end = openapi.indexOf(`  ${nextPath}:`, start);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  return openapi.slice(start, end);
+}
+
+describe("OpenAPI 502 ownership", () => {
+  it("keeps refresh 502 bound to Evidence BadGateway", () => {
+    const block = pathBlock("/api/cases/{id}/refresh", "/api/cases/{id}/review");
+    expect(block).toContain("'502': { $ref: '#/components/responses/BadGateway' }");
+    expect(block).not.toContain("'502': { $ref: '#/components/responses/AIProviderFailure' }");
+  });
+
+  it("binds grounded explanation POST 502 to AIProviderFailure", () => {
+    const block = pathBlock(
+      "/api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations",
+      "/api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations/{explanationId}",
+    );
+    expect(block).toContain("'502': { $ref: '#/components/responses/AIProviderFailure' }");
+    expect(block).not.toContain("'502': { $ref: '#/components/responses/BadGateway' }");
+  });
+});

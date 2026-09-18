@@ -50,7 +50,8 @@ function getV2Store() {
 }
 
 function getGroundedAiProvider(): GroundedAiProvider {
-  const configured = (process.env.GROUNDING_AI_PROVIDER || "deterministic").trim();
+  const configured = process.env.GROUNDING_AI_PROVIDER?.trim();
+  if (!configured) throw new HttpError(503, "GROUNDING_AI_PROVIDER_REQUIRED");
   if (configured !== "deterministic") throw new HttpError(503, "AI_PROVIDER_NOT_CONFIGURED");
   if (!isDemoMode() || process.env.DEMO_MODE !== "true") throw new HttpError(503, "GROUNDING_AI_PROVIDER_REQUIRED");
   return deterministicGroundedProvider;

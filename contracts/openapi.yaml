@@ -92,7 +92,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/Unprocessable' }
-        '502': { $ref: '#/components/responses/AIProviderFailure' }
+        '502': { $ref: '#/components/responses/BadGateway' }
   /api/cases/{id}/review:
     parameters:
       - { $ref: '#/components/parameters/CaseId' }
@@ -293,7 +293,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/Unprocessable' }
-        '502': { $ref: '#/components/responses/BadGateway' }
+        '502': { $ref: '#/components/responses/AIProviderFailure' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
         '504': { $ref: '#/components/responses/GatewayTimeout' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations/{explanationId}:

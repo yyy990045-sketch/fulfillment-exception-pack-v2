@@ -147,6 +147,7 @@ GROUNDING_AI_PROVIDER=deterministic
 ```
 
 Without both settings, the route returns `GROUNDING_AI_PROVIDER_REQUIRED`.
+The deterministic provider has no implicit default.
 
 # 11 Persistence / Idempotency
 
