@@ -120,4 +120,21 @@ describe("SO-MFG-001 manufacturing digital thread", () => {
       ["evidence-quality-mfg-passed", "actual", 96],
     ]);
   });
+
+  it("does not provision manufacturing rules into demo-industrial", () => {
+    const store = openStore();
+    provisionV2DemoData(store);
+    provisionV2ManufacturingDemoData(store);
+    const definitions = store.listEnabledRuleDefinitions("demo-industrial");
+    const versions = store.listActiveRuleVersions("demo-industrial");
+    const evaluated = evaluateContextRules(store, "demo-industrial", "ctx-so-demo-001")!;
+
+    expect(definitions).toHaveLength(4);
+    expect(versions).toHaveLength(4);
+    expect(definitions.some((item) => item.code.startsWith("MANUFACTURING."))).toBe(false);
+    expect(evaluated.evaluations).toHaveLength(4);
+    expect(evaluated.evaluations.filter((item) => item.status === "matched")).toHaveLength(3);
+    expect(evaluated.evaluations.filter((item) => item.status === "not_matched")).toHaveLength(1);
+    expect(evaluated.exceptions).toHaveLength(3);
+  });
 });
