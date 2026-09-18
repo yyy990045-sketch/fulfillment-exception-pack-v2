@@ -160,6 +160,27 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
         { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", difference: 16 },
       ],
     });
+
+    const exceptions = (response.json as { exceptions: Array<{ id: string }> }).exceptions;
+    const bundle = await call("GET", `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptions[0]!.id}/bundle`, undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(bundle.status).toBe(200);
+    expect((bundle.json as { evidence: unknown[] }).evidence.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("returns persisted rule evaluations with observations and input hashes", async () => {
+    const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/rule-evaluations", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(response.status).toBe(200);
+    const evaluations = (response.json as {
+      evaluations: Array<{ status: string; inputHash: string; observations: Record<string, unknown> }>;
+    }).evaluations;
+    expect(evaluations).toHaveLength(3);
+    expect(evaluations.every((item) => item.status === "matched")).toBe(true);
+    expect(evaluations.every((item) => item.inputHash.length === 64)).toBe(true);
+    expect(evaluations.every((item) => Object.keys(item.observations).length === 2)).toBe(true);
   });
 
   it("hides another tenant's V2 exception candidates with a 404", async () => {

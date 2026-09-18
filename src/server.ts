@@ -13,7 +13,7 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
-import { evaluateFulfillmentExceptions, openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
+import { openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -194,9 +194,39 @@ const server = createServer(async (req, res) => {
     if (req.method === "GET" && v2ExceptionsMatch) {
       const tenantId = authOf(req).tenantId;
       const contextId = decodeURIComponent(v2ExceptionsMatch[1] ?? "");
-      const replay = getV2Store().replayContext(tenantId, contextId);
+      const store = getV2Store();
+      const replay = store.replayContext(tenantId, contextId);
       if (!replay.context) return json(res, 404, { error: "not_found" });
-      return json(res, 200, { contextId, exceptions: evaluateFulfillmentExceptions(replay) });
+      const evaluations = store.listRuleEvaluations(tenantId, contextId);
+      const exceptions = store.listExceptions(tenantId, contextId).map((exception) => {
+        const evaluation = evaluations.find((item) => item.id === exception.ruleEvaluationId);
+        return {
+          ...exception,
+          metrics: evaluation?.metrics ?? {},
+          difference: evaluation?.metrics.difference,
+          evidenceBundle: store.getExceptionEvidenceBundle(tenantId, exception.id),
+        };
+      });
+      return json(res, 200, { contextId, exceptions });
+    }
+    const v2EvaluationsMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/rule-evaluations$/);
+    if (req.method === "GET" && v2EvaluationsMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2EvaluationsMatch[1] ?? "");
+      const store = getV2Store();
+      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
+      return json(res, 200, { contextId, evaluations: store.listRuleEvaluations(tenantId, contextId) });
+    }
+    const v2ExceptionBundleMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/bundle$/);
+    if (req.method === "GET" && v2ExceptionBundleMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ExceptionBundleMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(v2ExceptionBundleMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
+      const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
+      if (!bundle || bundle.contextId !== contextId) return json(res, 404, { error: "not_found" });
+      return json(res, 200, bundle);
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);
     if (capabilityMatch) {

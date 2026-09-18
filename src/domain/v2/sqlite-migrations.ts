@@ -163,6 +163,113 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON source_documents (tenant_id, context_id, received_at, id);
     `,
   },
+  {
+    version: "002_rule_engine",
+    sql: `
+      CREATE TABLE IF NOT EXISTS rule_definitions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        code TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        exception_type TEXT NOT NULL,
+        enabled INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, code)
+      );
+
+      CREATE TABLE IF NOT EXISTS rule_versions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        rule_id TEXT NOT NULL,
+        version TEXT NOT NULL,
+        status TEXT NOT NULL,
+        config_json TEXT NOT NULL,
+        content_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, rule_id, version),
+        FOREIGN KEY (tenant_id, rule_id)
+          REFERENCES rule_definitions (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS rule_evaluations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        rule_id TEXT NOT NULL,
+        rule_version_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        observations_json TEXT NOT NULL,
+        metrics_json TEXT NOT NULL,
+        input_hash TEXT NOT NULL,
+        match_key TEXT NOT NULL,
+        evaluated_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, context_id, rule_version_id, input_hash),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_id)
+          REFERENCES rule_definitions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_version_id)
+          REFERENCES rule_versions (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS exceptions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        rule_id TEXT NOT NULL,
+        rule_version_id TEXT NOT NULL,
+        rule_evaluation_id TEXT NOT NULL,
+        exception_type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        match_key TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, rule_evaluation_id, exception_type),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_id)
+          REFERENCES rule_definitions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_version_id)
+          REFERENCES rule_versions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_evaluation_id)
+          REFERENCES rule_evaluations (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS exception_evidence (
+        tenant_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        evidence_id TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, exception_id, evidence_id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, evidence_id)
+          REFERENCES v2_evidence (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS exception_entities (
+        tenant_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        entity_id TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, exception_id, entity_id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, entity_id)
+          REFERENCES business_entities (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS rule_evaluations_context_idx
+        ON rule_evaluations (tenant_id, context_id, evaluated_at, id);
+      CREATE INDEX IF NOT EXISTS exceptions_context_idx
+        ON exceptions (tenant_id, context_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

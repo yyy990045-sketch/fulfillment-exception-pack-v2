@@ -24,6 +24,15 @@ import {
   createSourceSystem,
   DomainError,
 } from "./model.js";
+import type {
+  ExceptionEvidenceBundle,
+  RuleDefinition,
+  RuleEvaluation,
+  RuleExecutionResult,
+  RuleVersion,
+  V2Exception,
+} from "./rule-types.js";
+import { ruleVersionContentHash } from "./rule-engine.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -263,6 +272,182 @@ export class V2SqliteStore {
       json(evidence.metadata),
     );
     return this.getEvidence(evidence.tenantId, evidence.id) ?? evidence;
+  }
+
+  saveRuleDefinition(input: RuleDefinition): RuleDefinition {
+    if (!input.id || !input.tenantId || !input.code) throw new DomainError("DOMAIN_ID_REQUIRED");
+    this.db.prepare(`
+      INSERT INTO rule_definitions
+        (tenant_id, id, code, name, description, exception_type, enabled, created_at, metadata_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, id) DO UPDATE SET
+        code = excluded.code,
+        name = excluded.name,
+        description = excluded.description,
+        exception_type = excluded.exception_type,
+        enabled = excluded.enabled,
+        created_at = excluded.created_at,
+        metadata_json = excluded.metadata_json
+    `).run(input.tenantId, input.id, input.code, input.name, input.description, input.exceptionType, input.enabled ? 1 : 0, input.createdAt, json(input.metadata));
+    return input;
+  }
+
+  saveRuleVersion(input: RuleVersion): RuleVersion {
+    const expectedHash = ruleVersionContentHash(input.config);
+    if (input.contentHash !== expectedHash) throw new DomainError("DOMAIN_RULE_VERSION_CONTENT_HASH_MISMATCH", input.id);
+    const existing = this.getRuleVersion(input.tenantId, input.ruleId, input.version);
+    if (existing) {
+      if (existing.contentHash !== input.contentHash || stableJson(existing.config) !== stableJson(input.config)) {
+        throw new DomainError("DOMAIN_RULE_VERSION_IMMUTABILITY_CONFLICT", input.id);
+      }
+      return existing;
+    }
+    const definition = this.getRuleDefinition(input.tenantId, input.ruleId);
+    if (!definition || definition.tenantId !== input.tenantId) throw new DomainError("DOMAIN_RULE_TENANT_MISMATCH", input.id);
+    this.db.prepare(`
+      INSERT INTO rule_versions
+        (tenant_id, id, rule_id, version, status, config_json, content_hash, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(input.tenantId, input.id, input.ruleId, input.version, input.status, json(input.config), input.contentHash, input.createdAt);
+    return input;
+  }
+
+  recordRuleExecution(result: RuleExecutionResult) {
+    const { evaluation, exception } = result;
+    this.db.prepare(`
+      INSERT OR IGNORE INTO rule_evaluations
+        (tenant_id, id, context_id, rule_id, rule_version_id, status, observations_json, metrics_json, input_hash, match_key, evaluated_at, metadata_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      evaluation.tenantId,
+      evaluation.id,
+      evaluation.contextId,
+      evaluation.ruleId,
+      evaluation.ruleVersionId,
+      evaluation.status,
+      json(evaluation.observations),
+      json(evaluation.metrics),
+      evaluation.inputHash,
+      evaluation.matchKey,
+      evaluation.evaluatedAt,
+      json(evaluation.metadata),
+    );
+    if (!exception) return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
+
+    this.db.prepare(`
+      INSERT OR IGNORE INTO exceptions
+        (tenant_id, id, context_id, rule_id, rule_version_id, rule_evaluation_id, exception_type, status, match_key, created_at, metadata_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      exception.tenantId,
+      exception.id,
+      exception.contextId,
+      exception.ruleId,
+      exception.ruleVersionId,
+      exception.ruleEvaluationId,
+      exception.code,
+      exception.status,
+      exception.matchKey,
+      exception.createdAt,
+      json(exception.metadata),
+    );
+    for (const evidenceId of exception.evidenceIds) {
+      this.db.prepare("INSERT OR IGNORE INTO exception_evidence (tenant_id, exception_id, evidence_id) VALUES (?, ?, ?)").run(exception.tenantId, exception.id, evidenceId);
+    }
+    for (const entityId of exception.entityIds) {
+      this.db.prepare("INSERT OR IGNORE INTO exception_entities (tenant_id, exception_id, entity_id) VALUES (?, ?, ?)").run(exception.tenantId, exception.id, entityId);
+    }
+    return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
+  }
+
+  listRuleEvaluations(tenantId: string, contextId: string): RuleEvaluation[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, rule_id as ruleId,
+             rule_version_id as ruleVersionId, status, observations_json as observationsJson,
+             metrics_json as metricsJson, input_hash as inputHash, match_key as matchKey,
+             evaluated_at as evaluatedAt, metadata_json as metadataJson
+      FROM rule_evaluations
+      WHERE tenant_id = ? AND context_id = ?
+      ORDER BY evaluated_at, id
+    `).all(tenantId, contextId) as Array<{
+      tenantId: string;
+      id: string;
+      contextId: string;
+      ruleId: string;
+      ruleVersionId: string;
+      status: RuleEvaluation["status"];
+      observationsJson: string;
+      metricsJson: string;
+      inputHash: string;
+      matchKey: string;
+      evaluatedAt: string;
+      metadataJson: string;
+    }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      ruleId: row.ruleId,
+      ruleVersionId: row.ruleVersionId,
+      status: row.status,
+      observations: parseJson<RuleEvaluation["observations"]>(row.observationsJson),
+      metrics: parseJson<RuleEvaluation["metrics"]>(row.metricsJson),
+      inputHash: row.inputHash,
+      matchKey: row.matchKey,
+      evaluatedAt: row.evaluatedAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    }));
+  }
+
+  listExceptions(tenantId: string, contextId: string): V2Exception[] {
+    const rows = this.db.prepare(`
+      SELECT e.tenant_id as tenantId, e.id, e.context_id as contextId, e.rule_id as ruleId,
+             e.rule_version_id as ruleVersionId, e.rule_evaluation_id as ruleEvaluationId,
+             e.exception_type as code, e.status, e.match_key as matchKey,
+             e.created_at as createdAt, e.metadata_json as metadataJson
+      FROM exceptions e
+      WHERE e.tenant_id = ? AND e.context_id = ?
+      ORDER BY e.created_at, e.id
+    `).all(tenantId, contextId) as Array<Omit<V2Exception, "entityIds" | "evidenceIds" | "metadata"> & { metadataJson: string }>;
+    const order = ["SHIPMENT_QUANTITY_SHORTFALL", "PAYMENT_BALANCE_OUTSTANDING", "CUSTOMER_RECEIPT_CLAIM_MISMATCH"];
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      ruleId: row.ruleId,
+      ruleVersionId: row.ruleVersionId,
+      ruleEvaluationId: row.ruleEvaluationId,
+      code: row.code,
+      status: row.status,
+      entityIds: (this.db.prepare("SELECT entity_id as entityId FROM exception_entities WHERE tenant_id = ? AND exception_id = ? ORDER BY entity_id").all(tenantId, row.id) as Array<{ entityId: string }>).map((item) => item.entityId),
+      evidenceIds: (this.db.prepare("SELECT evidence_id as evidenceId FROM exception_evidence WHERE tenant_id = ? AND exception_id = ? ORDER BY evidence_id").all(tenantId, row.id) as Array<{ evidenceId: string }>).map((item) => item.evidenceId),
+      matchKey: row.matchKey,
+      createdAt: row.createdAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    })).sort((left, right) => order.indexOf(left.code) - order.indexOf(right.code) || left.id.localeCompare(right.id));
+  }
+
+  getExceptionEvidenceBundle(tenantId: string, exceptionId: string): ExceptionEvidenceBundle | undefined {
+    const exception = this.listExceptions(tenantId, (this.db.prepare("SELECT context_id as contextId FROM exceptions WHERE tenant_id = ? AND id = ?").get(tenantId, exceptionId) as { contextId: string } | undefined)?.contextId ?? "")
+      .find((item) => item.id === exceptionId);
+    if (!exception) return undefined;
+    const evaluation = this.listRuleEvaluations(tenantId, exception.contextId).find((item) => item.id === exception.ruleEvaluationId);
+    if (!evaluation) return undefined;
+    const allEvidence = this.listEvidence(tenantId, exception.contextId);
+    const evidence = exception.evidenceIds.flatMap((id) => allEvidence.filter((item) => item.id === id));
+    const sourceDocumentIds = new Set(evidence.map((item) => item.sourceDocumentId));
+    const sourceSystemIds = new Set(evidence.map((item) => item.sourceSystemId));
+    return {
+      id: `bundle-${exception.id}`,
+      tenantId,
+      contextId: exception.contextId,
+      exceptionId,
+      observations: evaluation.observations,
+      evidenceIds: evidence.map((item) => item.id),
+      evidence,
+      sourceDocuments: this.listDocuments(tenantId, exception.contextId).filter((item) => sourceDocumentIds.has(item.id)),
+      sourceSystems: this.listInvolvedSourceSystems(tenantId, exception.contextId).filter((item) => sourceSystemIds.has(item.id)),
+    };
   }
 
   getContext(tenantId: string, contextId: string): FulfillmentContext | undefined {
@@ -535,6 +720,82 @@ export class V2SqliteStore {
       events: this.listEvents(tenantId, contextId),
       evidence: this.listEvidence(tenantId, contextId),
     };
+  }
+
+  private getRuleDefinition(tenantId: string, ruleId: string): RuleDefinition | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, code, name, description,
+             exception_type as exceptionType, enabled, created_at as createdAt,
+             metadata_json as metadataJson
+      FROM rule_definitions WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, ruleId) as (Omit<RuleDefinition, "metadata" | "enabled"> & { enabled: number; metadataJson: string }) | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      description: row.description,
+      exceptionType: row.exceptionType,
+      enabled: Boolean(row.enabled),
+      createdAt: row.createdAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    } : undefined;
+  }
+
+  private getRuleVersion(tenantId: string, ruleId: string, version: string): RuleVersion | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, rule_id as ruleId, version, status,
+             config_json as configJson, content_hash as contentHash, created_at as createdAt
+      FROM rule_versions WHERE tenant_id = ? AND rule_id = ? AND version = ?
+    `).get(tenantId, ruleId, version) as (Omit<RuleVersion, "config"> & { configJson: string }) | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      ruleId: row.ruleId,
+      version: row.version,
+      status: row.status,
+      config: parseJson<RuleVersion["config"]>(row.configJson),
+      contentHash: row.contentHash,
+      createdAt: row.createdAt,
+    } : undefined;
+  }
+
+  private getRuleEvaluationByInput(tenantId: string, contextId: string, ruleVersionId: string, inputHash: string): RuleEvaluation | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, rule_id as ruleId,
+             rule_version_id as ruleVersionId, status, observations_json as observationsJson,
+             metrics_json as metricsJson, input_hash as inputHash, match_key as matchKey,
+             evaluated_at as evaluatedAt, metadata_json as metadataJson
+      FROM rule_evaluations
+      WHERE tenant_id = ? AND context_id = ? AND rule_version_id = ? AND input_hash = ?
+    `).get(tenantId, contextId, ruleVersionId, inputHash) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      ruleId: string;
+      ruleVersionId: string;
+      status: RuleEvaluation["status"];
+      observationsJson: string;
+      metricsJson: string;
+      inputHash: string;
+      matchKey: string;
+      evaluatedAt: string;
+      metadataJson: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      ruleId: row.ruleId,
+      ruleVersionId: row.ruleVersionId,
+      status: row.status,
+      observations: parseJson<RuleEvaluation["observations"]>(row.observationsJson),
+      metrics: parseJson<RuleEvaluation["metrics"]>(row.metricsJson),
+      inputHash: row.inputHash,
+      matchKey: row.matchKey,
+      evaluatedAt: row.evaluatedAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    } : undefined;
   }
 
   private getSourceDocumentByIdentity(tenantId: string, sourceSystemId: string, externalDocumentId: string, version: string): SourceDocument | undefined {

@@ -240,6 +240,33 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ExceptionResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/rule-evaluations:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Persisted V2 rule evaluation snapshots
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2RuleEvaluationsResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/bundle:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Exception evidence bundle
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2ExceptionEvidenceBundle' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -247,6 +274,7 @@ components:
     CaseId: { name: id, in: path, required: true, schema: { type: string } }
     CapabilityModule: { name: module, in: path, required: true, schema: { type: string, enum: [workbench, monitor, ontology, adjudication, sandbox, actions, more] } }
     V2ContextId: { name: contextId, in: path, required: true, schema: { type: string } }
+    V2ExceptionId: { name: exceptionId, in: path, required: true, schema: { type: string } }
     DemoTenantHeader:
       name: x-tenant-id
       in: header
@@ -416,6 +444,25 @@ components:
       properties:
         contextId: { type: string }
         exceptions: { type: array, items: { type: object, additionalProperties: true } }
+    V2RuleEvaluationsResponse:
+      type: object
+      required: [contextId, evaluations]
+      properties:
+        contextId: { type: string }
+        evaluations: { type: array, items: { type: object, additionalProperties: true } }
+    V2ExceptionEvidenceBundle:
+      type: object
+      required: [id, tenantId, contextId, exceptionId, observations, evidenceIds, evidence, sourceDocuments, sourceSystems]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        observations: { type: object, additionalProperties: true }
+        evidenceIds: { type: array, items: { type: string } }
+        evidence: { type: array, items: { type: object, additionalProperties: true } }
+        sourceDocuments: { type: array, items: { type: object, additionalProperties: true } }
+        sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
     RefreshRequest:
       type: object
       required: [endpoints]

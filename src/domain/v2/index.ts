@@ -6,3 +6,6 @@ export * from "./runtime-store.js";
 export * from "./provision.js";
 export * from "./fixtures/so-demo-001.js";
 export * from "./exceptions.js";
+export * from "./rule-types.js";
+export * from "./rule-engine.js";
+export * from "./rules/so-demo-001-rules.js";
