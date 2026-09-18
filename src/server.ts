@@ -292,6 +292,25 @@ const server = createServer(async (req, res) => {
       const resolution = acceptExceptionForResolution(getV2Store(), tenantId, contextId, exceptionId, { ownerRole, rationale, actor });
       return json(res, 200, resolution);
     }
+    const v2ContextResolutionListMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/resolution-cases$/);
+    if (req.method === "GET" && v2ContextResolutionListMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ContextResolutionListMatch[1] ?? "");
+      const store = getV2Store();
+      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
+      return json(res, 200, {
+        contextId,
+        resolutionCases: store.listResolutionCases(tenantId, contextId).map((item) => ({
+          id: item.id,
+          exceptionId: item.exceptionId,
+          status: item.status,
+          ownerRole: item.ownerRole,
+          title: item.runtime.title,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        })),
+      });
+    }
     const v2ResolutionQueryMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)$/);
     if (req.method === "GET" && v2ResolutionQueryMatch) {
       const tenantId = authOf(req).tenantId;

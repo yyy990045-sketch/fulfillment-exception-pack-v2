@@ -155,5 +155,86 @@ describe("V2 Resolution Case lifecycle", () => {
     expect(refreshed.sourceChanged).toBe(true);
     expect(refreshed.intakeEvaluationId).toBe(resolution.origin.sourceRuleEvaluationId);
     expect(refreshed.currentEvaluationId).not.toBe(refreshed.intakeEvaluationId);
+    expect(refreshed.evidenceBundle?.evidenceIds).toContain("evidence-shipment-qty-v2");
+    expect(refreshed.evidenceBundle?.evidenceIds).not.toContain("evidence-shipment-qty");
+    expect(refreshed.resolutionCase.origin).toEqual(resolution.origin);
+    expect(refreshed.resolutionCase.status).toBe(resolution.status);
+    expect(refreshed.resolutionCase.review).toEqual(resolution.review);
+    expect(refreshed.resolutionCase.runtime.actions).toEqual(resolution.runtime.actions);
+  });
+
+  it("rejects illegal lifecycle transitions", () => {
+    const triagedStore = openStore();
+    const triagedException = triagedStore.listExceptions("demo-industrial", "ctx-so-demo-001")[0]!;
+    const triaged = acceptExceptionForResolution(triagedStore, "demo-industrial", "ctx-so-demo-001", triagedException.id, {
+      ownerRole: "品质负责人",
+      rationale: "进入处置",
+      actor: "销售总监",
+    });
+    expect(() => proposeResolutionCase(triagedStore, "demo-industrial", triaged.id, {
+      actor: "品质负责人",
+      actions: [{ type: "supplement_evidence", summary: "过早提交" }],
+    })).toThrow(/resolution_proposal_not_allowed/);
+    const rejected = reviewResolution(triagedStore, "demo-industrial", triaged.id, {
+      decision: "reject",
+      rationale: "拒绝",
+      actor: "品质负责人",
+    })!;
+    expect(() => proposeResolutionCase(triagedStore, "demo-industrial", rejected.id, {
+      actor: "品质负责人",
+      actions: [{ type: "supplement_evidence", summary: "不能复活" }],
+    })).toThrow(/resolution_proposal_not_allowed/);
+
+    const confirmedStore = openStore();
+    const confirmedException = confirmedStore.listExceptions("demo-industrial", "ctx-so-demo-001")[1]!;
+    let confirmed = acceptExceptionForResolution(confirmedStore, "demo-industrial", "ctx-so-demo-001", confirmedException.id, {
+      ownerRole: "品质负责人",
+      rationale: "进入处置",
+      actor: "销售总监",
+    });
+    confirmed = reviewResolution(confirmedStore, "demo-industrial", confirmed.id, {
+      decision: "confirm",
+      rationale: "确认",
+      actor: "品质负责人",
+    })!;
+    expect(() => approveResolutionCase(confirmedStore, "demo-industrial", confirmed.id, "销售总监", ["销售总监"]))
+      .toThrow(/resolution_approval_not_allowed/);
+
+    const draftStore = openStore();
+    let draft = caseReadyToSubmit(draftStore, "品质负责人");
+    expect(() => approveResolutionCase(draftStore, "demo-industrial", draft.id, "销售总监", ["销售总监"]))
+      .toThrow(/resolution_approval_not_submitted/);
+    draft = submitResolutionCase(draftStore, "demo-industrial", draft.id, "品质负责人")!;
+    expect(() => executeResolutionCase(draftStore, "demo-industrial", draft.id, "销售总监", ["销售总监"], "too-early"))
+      .toThrow(/resolution_execution_not_allowed/);
+    draft = approveResolutionCase(draftStore, "demo-industrial", draft.id, "销售总监", ["销售总监"])!;
+    expect(() => closeResolutionCase(draftStore, "demo-industrial", draft.id, "销售总监", ["销售总监"]))
+      .toThrow(/resolution_close_not_allowed/);
+
+    const noReceipt = {
+      ...draft,
+      status: "executed" as const,
+      runtime: {
+        ...draft.runtime,
+        status: "executed" as const,
+        actions: draft.runtime.actions.map((action) => ({ ...action, status: "authorized" as const })),
+      },
+    };
+    draftStore.saveResolutionCase(noReceipt);
+    expect(() => closeResolutionCase(draftStore, "demo-industrial", draft.id, "销售总监", ["销售总监"]))
+      .toThrow(/receipt_required/);
+
+    const closedStore = openStore();
+    let closed = caseReadyToSubmit(closedStore, "品质负责人");
+    closed = submitResolutionCase(closedStore, "demo-industrial", closed.id, "品质负责人")!;
+    closed = approveResolutionCase(closedStore, "demo-industrial", closed.id, "销售总监", ["销售总监"])!;
+    closed = executeResolutionCase(closedStore, "demo-industrial", closed.id, "销售总监", ["销售总监"], "closed-illegal")!;
+    closed = closeResolutionCase(closedStore, "demo-industrial", closed.id, "销售总监", ["销售总监"])!;
+    expect(() => executeResolutionCase(closedStore, "demo-industrial", closed.id, "销售总监", ["销售总监"], "closed-illegal"))
+      .toThrow(/resolution_execution_not_allowed/);
+    expect(() => proposeResolutionCase(closedStore, "demo-industrial", closed.id, {
+      actor: "品质负责人",
+      actions: [{ type: "supplement_evidence", summary: "不能重开" }],
+    })).toThrow(/resolution_proposal_not_allowed/);
   });
 });

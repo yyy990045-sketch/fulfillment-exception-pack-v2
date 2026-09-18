@@ -300,6 +300,18 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/v2/contexts/{contextId}/resolution-cases:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/V2ContextId' }
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Resolution Case summaries for a V2 context
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCaseListResponse' } }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/resolution-cases/{caseId}/review:
     post:
       parameters:
@@ -639,6 +651,16 @@ components:
       type: object
       additionalProperties: true
       required: [resolutionCase, sourceException, sourceChanged, intakeEvaluationId, currentEvaluationId, evidenceBundle, receipts]
+    ResolutionCaseListResponse:
+      type: object
+      required: [contextId, resolutionCases]
+      properties:
+        contextId: { type: string }
+        resolutionCases:
+          type: array
+          items:
+            type: object
+            required: [id, exceptionId, status, ownerRole, title, createdAt, updatedAt]
     RefreshRequest:
       type: object
       required: [endpoints]

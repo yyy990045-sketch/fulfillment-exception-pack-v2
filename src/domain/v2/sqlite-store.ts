@@ -366,89 +366,103 @@ export class V2SqliteStore {
 
   recordRuleExecution(result: RuleExecutionResult) {
     const { evaluation, exception } = result;
-    this.db.prepare(`
-      INSERT OR IGNORE INTO rule_evaluations
-        (tenant_id, id, context_id, rule_id, rule_version_id, status, observations_json, metrics_json, input_hash, match_key, evaluated_at, metadata_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      evaluation.tenantId,
-      evaluation.id,
-      evaluation.contextId,
-      evaluation.ruleId,
-      evaluation.ruleVersionId,
-      evaluation.status,
-      json(evaluation.observations),
-      json(evaluation.metrics),
-      evaluation.inputHash,
-      evaluation.matchKey,
-      evaluation.evaluatedAt,
-      json(evaluation.metadata),
-    );
-    if (!exception) return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
-    const existing = this.getStableException(exception.tenantId, exception.contextId, exception.ruleId, exception.matchKey);
-    const exceptionId = existing?.id ?? exception.id;
-    if (!existing) {
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
       this.db.prepare(`
-        INSERT INTO exceptions
-          (tenant_id, id, context_id, rule_id, rule_version_id, rule_evaluation_id, latest_rule_evaluation_id,
-           exception_type, status, severity, title, summary, metrics_json, match_key, created_at, last_detected_at, metadata_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT OR IGNORE INTO rule_evaluations
+          (tenant_id, id, context_id, rule_id, rule_version_id, status, observations_json, metrics_json, input_hash, match_key, evaluated_at, metadata_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
-        exception.tenantId,
-        exceptionId,
-        exception.contextId,
-        exception.ruleId,
-        exception.ruleVersionId,
-        exception.latestRuleEvaluationId,
-        exception.latestRuleEvaluationId,
-        exception.code,
-        exception.status,
-        exception.severity,
-        exception.title,
-        exception.summary,
-        json(exception.metrics),
-        exception.matchKey,
-        exception.createdAt,
-        exception.lastDetectedAt,
-        json(exception.metadata),
+        evaluation.tenantId,
+        evaluation.id,
+        evaluation.contextId,
+        evaluation.ruleId,
+        evaluation.ruleVersionId,
+        evaluation.status,
+        json(evaluation.observations),
+        json(evaluation.metrics),
+        evaluation.inputHash,
+        evaluation.matchKey,
+        evaluation.evaluatedAt,
+        json(evaluation.metadata),
       );
-    } else if (existing.latestRuleEvaluationId !== exception.latestRuleEvaluationId) {
-      this.db.prepare(`
-        UPDATE exceptions SET
-          rule_version_id = ?,
-          rule_evaluation_id = ?,
-          latest_rule_evaluation_id = ?,
-          severity = ?,
-          title = ?,
-          summary = ?,
-          metrics_json = ?,
-          last_detected_at = ?
-        WHERE tenant_id = ? AND id = ?
-      `).run(
-        exception.ruleVersionId,
-        exception.latestRuleEvaluationId,
-        exception.latestRuleEvaluationId,
-        exception.severity,
-        exception.title,
-        exception.summary,
-        json(exception.metrics),
-        exception.lastDetectedAt,
-        exception.tenantId,
-        exceptionId,
-      );
+      if (!exception) {
+        this.db.exec("COMMIT");
+        return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
+      }
+      const existing = this.getStableException(exception.tenantId, exception.contextId, exception.ruleId, exception.matchKey);
+      const exceptionId = existing?.id ?? exception.id;
+      const isNewEvaluation = !existing || existing.latestRuleEvaluationId !== exception.latestRuleEvaluationId;
+      if (!existing) {
+        this.db.prepare(`
+          INSERT INTO exceptions
+            (tenant_id, id, context_id, rule_id, rule_version_id, rule_evaluation_id, latest_rule_evaluation_id,
+             exception_type, status, severity, title, summary, metrics_json, match_key, created_at, last_detected_at, metadata_json)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          exception.tenantId,
+          exceptionId,
+          exception.contextId,
+          exception.ruleId,
+          exception.ruleVersionId,
+          exception.latestRuleEvaluationId,
+          exception.latestRuleEvaluationId,
+          exception.code,
+          exception.status,
+          exception.severity,
+          exception.title,
+          exception.summary,
+          json(exception.metrics),
+          exception.matchKey,
+          exception.createdAt,
+          exception.lastDetectedAt,
+          json(exception.metadata),
+        );
+      } else if (isNewEvaluation) {
+        this.db.prepare(`
+          UPDATE exceptions SET
+            rule_version_id = ?,
+            rule_evaluation_id = ?,
+            latest_rule_evaluation_id = ?,
+            severity = ?,
+            title = ?,
+            summary = ?,
+            metrics_json = ?,
+            last_detected_at = ?
+          WHERE tenant_id = ? AND id = ?
+        `).run(
+          exception.ruleVersionId,
+          exception.latestRuleEvaluationId,
+          exception.latestRuleEvaluationId,
+          exception.severity,
+          exception.title,
+          exception.summary,
+          json(exception.metrics),
+          exception.lastDetectedAt,
+          exception.tenantId,
+          exceptionId,
+        );
+        this.db.prepare("DELETE FROM exception_evidence WHERE tenant_id = ? AND exception_id = ?").run(exception.tenantId, exceptionId);
+        this.db.prepare("DELETE FROM exception_entities WHERE tenant_id = ? AND exception_id = ?").run(exception.tenantId, exceptionId);
+      }
+      if (isNewEvaluation) {
+        for (const evidenceId of exception.evidenceIds) {
+          const role = result.evidenceBundle?.evidence.find((item) => item.evidenceId === evidenceId)?.role ?? "context";
+          this.db.prepare(`
+            INSERT INTO exception_evidence (tenant_id, exception_id, evidence_id, role)
+            VALUES (?, ?, ?, ?)
+          `).run(exception.tenantId, exceptionId, evidenceId, role);
+        }
+        for (const entityId of exception.entityIds) {
+          this.db.prepare("INSERT INTO exception_entities (tenant_id, exception_id, entity_id) VALUES (?, ?, ?)").run(exception.tenantId, exceptionId, entityId);
+        }
+      }
+      this.db.exec("COMMIT");
+      return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
+    } catch (error) {
+      try { this.db.exec("ROLLBACK"); } catch { /* preserve original failure */ }
+      throw error;
     }
-    for (const evidenceId of exception.evidenceIds) {
-      const role = result.evidenceBundle?.evidence.find((item) => item.evidenceId === evidenceId)?.role ?? "context";
-      this.db.prepare(`
-        INSERT INTO exception_evidence (tenant_id, exception_id, evidence_id, role)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT (tenant_id, exception_id, evidence_id) DO UPDATE SET role = excluded.role
-      `).run(exception.tenantId, exceptionId, evidenceId, role);
-    }
-    for (const entityId of exception.entityIds) {
-      this.db.prepare("INSERT OR IGNORE INTO exception_entities (tenant_id, exception_id, entity_id) VALUES (?, ?, ?)").run(exception.tenantId, exceptionId, entityId);
-    }
-    return this.getRuleEvaluationByInput(evaluation.tenantId, evaluation.contextId, evaluation.ruleVersionId, evaluation.inputHash);
   }
 
   listRuleEvaluations(tenantId: string, contextId: string): RuleEvaluation[] {

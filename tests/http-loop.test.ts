@@ -11,6 +11,7 @@ const headers = { "content-type": "application/json", "x-actor": "admin", "x-ten
 
 let child: ChildProcess;
 let storeDir: string;
+let heroResolutionCaseId = "";
 
 async function call(method: string, path: string, body?: unknown, extraHeaders: Record<string, string> = {}) {
   const response = await fetch(`${base}${path}`, {
@@ -237,7 +238,7 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     await call("POST", "/api/v2/contexts/ctx-so-demo-001/evaluations/run", {}, { "x-tenant-id": "demo-industrial" });
     const exceptionsResponse = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, { "x-tenant-id": "demo-industrial" });
     const exception = (exceptionsResponse.json as { exceptions: Array<{ id: string; code: string }> }).exceptions
-      .find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!;
+      .find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")!;
 
     const accepted = await call(
       "POST",
@@ -248,6 +249,7 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(accepted.status).toBe(200);
     expect(accepted.json).toMatchObject({ status: "triaged", exceptionId: exception.id });
     const caseId = (accepted.json as { id: string }).id;
+    heroResolutionCaseId = caseId;
 
     const duplicate = await call(
       "POST",
@@ -264,7 +266,7 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect((confirmed.json as { status: string }).status).toBe("confirmed");
 
     const proposed = await call("POST", `/api/v2/resolution-cases/${caseId}/propose`, {
-      actions: [{ type: "supplement_evidence", summary: "核对订单、发货及后续签收材料，确认数量差异原因。" }],
+      actions: [{ type: "supplement_evidence", summary: "补齐物流签收、客户确认及客诉材料，核验客户主张与系统记录差异。" }],
     }, { "x-tenant-id": "demo-industrial" });
     expect((proposed.json as { status: string }).status).toBe("proposed");
 
@@ -275,7 +277,7 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect(selfApproval.status).toBe(409);
     expect(selfApproval.json).toEqual({ error: "SEGREGATION_OF_DUTIES_VIOLATION" });
 
-    const approverHeaders = { "x-tenant-id": "demo-industrial", "x-actor": "sales-director" };
+    const approverHeaders = { "x-tenant-id": "demo-industrial", "x-actor": "general-manager" };
     const approved = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, approverHeaders);
     expect((approved.json as { status: string }).status).toBe("approved");
     const executed = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, { idempotencyKey: "http-resolution-execute" }, approverHeaders);
@@ -298,6 +300,36 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     expect((closedAgain.json as { status: string }).status).toBe("closed");
     expect((closedAgain.json as { runtime: { events: unknown[] } }).runtime.events.length)
       .toBe((closed.json as { runtime: { events: unknown[] } }).runtime.events.length);
+    const audit = (closed.json as { runtime: { events: Array<{ actor?: string; at?: string; from?: string; to?: string; reason?: string }> } }).runtime.events;
+    expect(audit.map((event) => event.reason)).toEqual([
+      "v2_exception_intake",
+      "接受异常进入处置",
+      "确认异常进入处置",
+      "提交处置方案",
+      "草案提交审批",
+      "批准",
+      "外部能力回执已登记",
+      "核验",
+      "结案",
+    ]);
+    for (const event of audit) {
+      expect(event.actor).toBeTruthy();
+      expect(event.at).toBeTruthy();
+      expect(event.reason).toBeTruthy();
+    }
+
+    const list = await call("GET", "/api/v2/contexts/ctx-so-demo-001/resolution-cases", undefined, { "x-tenant-id": "demo-industrial" });
+    expect(list.status).toBe(200);
+    expect(list.json).toMatchObject({
+      contextId: "ctx-so-demo-001",
+      resolutionCases: [{ id: caseId, exceptionId: exception.id, status: "closed" }],
+    });
+    expect((list.json as { resolutionCases: Array<Record<string, unknown>> }).resolutionCases[0]).not.toHaveProperty("receipts");
+
+    const exceptionsAfter = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, { "x-tenant-id": "demo-industrial" });
+    const finalExceptions = (exceptionsAfter.json as { exceptions: Array<{ status: string }> }).exceptions;
+    expect(finalExceptions).toHaveLength(3);
+    expect(finalExceptions.every((item) => item.status === "detected")).toBe(true);
   });
 
   it("hides another tenant's V2 exception candidates with a 404", async () => {
@@ -306,6 +338,21 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     });
     expect(response.status).toBe(404);
     expect(response.json).toEqual({ error: "not_found" });
+
+    const list = await call("GET", "/api/v2/contexts/ctx-so-demo-001/resolution-cases", undefined, { "x-tenant-id": "another-tenant" });
+    expect(list.status).toBe(404);
+    expect(list.json).toEqual({ error: "not_found" });
+
+    for (const [method, path] of [
+      ["GET", `/api/v2/resolution-cases/${heroResolutionCaseId}`],
+      ["POST", `/api/v2/resolution-cases/${heroResolutionCaseId}/approve`],
+      ["POST", `/api/v2/resolution-cases/${heroResolutionCaseId}/execute`],
+      ["POST", `/api/v2/resolution-cases/${heroResolutionCaseId}/close`],
+    ] as const) {
+      const hidden = await call(method, path, method === "POST" ? {} : undefined, { "x-tenant-id": "another-tenant" });
+      expect(hidden.status).toBe(404);
+      expect(hidden.json).toEqual({ error: "not_found" });
+    }
   });
 
   it("closes an aligned case with no actions at approve instead of dead-ending", async () => {

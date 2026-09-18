@@ -209,7 +209,7 @@ export function executeResolution(
   executedAt = nowIso(),
 ) {
   if (
-    ["executed", "verified", "closed"].includes(current.status) &&
+    ["executed", "verified"].includes(current.status) &&
     current.runtime.actions.length > 0 &&
     current.runtime.actions.every((action) => action.receipt && ["succeeded", "verified"].includes(action.status))
   ) return current;
