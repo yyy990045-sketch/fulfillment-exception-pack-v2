@@ -5,3 +5,4 @@ export * from "./sqlite-store.js";
 export * from "./runtime-store.js";
 export * from "./provision.js";
 export * from "./fixtures/so-demo-001.js";
+export * from "./exceptions.js";

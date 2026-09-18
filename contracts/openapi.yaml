@@ -227,6 +227,19 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ReplayResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Deterministic V2 fulfillment exception candidates
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2ExceptionResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -397,6 +410,12 @@ components:
         documents: { type: array, items: { type: object, additionalProperties: true } }
         events: { type: array, items: { type: object, additionalProperties: true } }
         evidence: { type: array, items: { type: object, additionalProperties: true } }
+    V2ExceptionResponse:
+      type: object
+      required: [contextId, exceptions]
+      properties:
+        contextId: { type: string }
+        exceptions: { type: array, items: { type: object, additionalProperties: true } }
     RefreshRequest:
       type: object
       required: [endpoints]

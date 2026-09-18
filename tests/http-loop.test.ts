@@ -147,6 +147,29 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     }
   });
 
+  it("returns deterministic V2 exception candidates from the replay facts", async () => {
+    const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, {
+      "x-tenant-id": "demo-industrial",
+    });
+    expect(response.status).toBe(200);
+    expect(response.json).toMatchObject({
+      contextId: "ctx-so-demo-001",
+      exceptions: [
+        { code: "SHIPMENT_QUANTITY_SHORTFALL", difference: 4 },
+        { code: "PAYMENT_BALANCE_OUTSTANDING", difference: 20000 },
+        { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", difference: 16 },
+      ],
+    });
+  });
+
+  it("hides another tenant's V2 exception candidates with a 404", async () => {
+    const response = await call("GET", "/api/v2/contexts/ctx-so-demo-001/exceptions", undefined, {
+      "x-tenant-id": "another-tenant",
+    });
+    expect(response.status).toBe(404);
+    expect(response.json).toEqual({ error: "not_found" });
+  });
+
   it("closes an aligned case with no actions at approve instead of dead-ending", async () => {
     const proposed = await driveToProposed("FX-029");
     expect(proposed.status).toBe("proposed");

@@ -13,7 +13,7 @@ import { buildReport } from "./report/build.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
-import { openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
+import { evaluateFulfillmentExceptions, openV2SqliteStore, type V2SqliteStore } from "./domain/v2/index.js";
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -189,6 +189,14 @@ const server = createServer(async (req, res) => {
       const replay = store.replayContext(tenantId, contextId);
       if (!replay.context) return json(res, 404, { error: "not_found" });
       return json(res, 200, replay);
+    }
+    const v2ExceptionsMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions$/);
+    if (req.method === "GET" && v2ExceptionsMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(v2ExceptionsMatch[1] ?? "");
+      const replay = getV2Store().replayContext(tenantId, contextId);
+      if (!replay.context) return json(res, 404, { error: "not_found" });
+      return json(res, 200, { contextId, exceptions: evaluateFulfillmentExceptions(replay) });
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);
     if (capabilityMatch) {
