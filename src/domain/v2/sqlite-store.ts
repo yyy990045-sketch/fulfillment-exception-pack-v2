@@ -2104,14 +2104,15 @@ export class V2SqliteStore {
     this.db.prepare(`
       INSERT INTO connector_sync_runs
         (tenant_id, id, connector_installation_id, connector_id, record_type, status, started_at,
-         completed_at, records_read, records_accepted, records_rejected, records_duplicate,
+         completed_at, records_read, records_committed, records_accepted, records_rejected, records_duplicate,
          attempted_cursor, committed_cursor, last_error_code, error_class, retry_after_ms,
          provider_request_id, mapping_id, mapping_version)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT (tenant_id, id) DO UPDATE SET
         status = excluded.status,
         completed_at = excluded.completed_at,
         records_read = excluded.records_read,
+        records_committed = excluded.records_committed,
         records_accepted = excluded.records_accepted,
         records_rejected = excluded.records_rejected,
         records_duplicate = excluded.records_duplicate,
@@ -2133,6 +2134,7 @@ export class V2SqliteStore {
       input.startedAt,
       input.completedAt,
       input.recordsRead,
+      input.recordsCommitted,
       input.recordsAccepted,
       input.recordsRejected,
       input.recordsDuplicate,
@@ -2153,7 +2155,8 @@ export class V2SqliteStore {
       SELECT tenant_id as tenantId, id, connector_installation_id as connectorInstallationId,
              connector_id as connectorId, record_type as recordType, status,
              started_at as startedAt, completed_at as completedAt,
-             records_read as recordsRead, records_accepted as recordsAccepted,
+             records_read as recordsRead, records_committed as recordsCommitted,
+             records_accepted as recordsAccepted,
              records_rejected as recordsRejected, records_duplicate as recordsDuplicate,
              attempted_cursor as attemptedCursor, committed_cursor as committedCursor,
              last_error_code as lastErrorCode, error_class as errorClass,
@@ -2230,6 +2233,8 @@ export class V2SqliteStore {
              raw_hash as rawHash, locator_json as locatorJson, observed_at as observedAt,
              mapping_id as mappingId, mapping_version as mappingVersion,
              first_seen_at as firstSeenAt, last_seen_at as lastSeenAt,
+             canonical_committed_at as canonicalCommittedAt,
+             downstream_processed_at as downstreamProcessedAt,
              canonical_refs_json as canonicalRefsJson, evidence_refs_json as evidenceRefsJson
       FROM connector_source_records
       WHERE tenant_id = ? AND id = ?
@@ -2248,18 +2253,24 @@ export class V2SqliteStore {
       mappingVersion: string;
       firstSeenAt: string;
       lastSeenAt: string;
+      canonicalCommittedAt: string | null;
+      downstreamProcessedAt: string | null;
       canonicalRefsJson: string;
       evidenceRefsJson: string;
     } | undefined;
-    return row ? {
-      ...row,
-      locator: parseJson<Record<string, unknown>>(row.locatorJson),
-      canonicalRefs: parseJson<string[]>(row.canonicalRefsJson),
-      evidenceRefs: parseJson<string[]>(row.evidenceRefsJson),
-      locatorJson: undefined,
-      canonicalRefsJson: undefined,
-      evidenceRefsJson: undefined,
-    } as ConnectorSourceRecordRecord : undefined;
+    if (!row) return undefined;
+    const {
+      locatorJson,
+      canonicalRefsJson,
+      evidenceRefsJson,
+      ...base
+    } = row;
+    return {
+      ...base,
+      locator: parseJson<Record<string, unknown>>(locatorJson),
+      canonicalRefs: parseJson<string[]>(canonicalRefsJson),
+      evidenceRefs: parseJson<string[]>(evidenceRefsJson),
+    };
   }
 
   listConnectorSourceRecords(
@@ -2298,8 +2309,9 @@ export class V2SqliteStore {
       INSERT INTO connector_source_records
         (tenant_id, id, connector_id, connector_installation_id, record_type, external_record_id,
          source_version, raw_hash, locator_json, observed_at, mapping_id, mapping_version,
-         first_seen_at, last_seen_at, canonical_refs_json, evidence_refs_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         first_seen_at, last_seen_at, canonical_committed_at, downstream_processed_at,
+         canonical_refs_json, evidence_refs_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       input.tenantId,
       input.id,
@@ -2315,10 +2327,28 @@ export class V2SqliteStore {
       input.mappingVersion,
       input.firstSeenAt,
       input.lastSeenAt,
+      input.canonicalCommittedAt,
+      input.downstreamProcessedAt,
       json(input.canonicalRefs),
       json(input.evidenceRefs),
     );
     return input;
+  }
+
+  markConnectorSourceRecordsDownstreamProcessed(
+    tenantId: string,
+    recordIds: string[],
+    processedAt: string,
+  ) {
+    if (!recordIds.length) return;
+    this.transaction(() => {
+      const statement = this.db.prepare(`
+        UPDATE connector_source_records
+        SET downstream_processed_at = ?
+        WHERE tenant_id = ? AND id = ?
+      `);
+      for (const recordId of recordIds) statement.run(processedAt, tenantId, recordId);
+    });
   }
 
   enqueueConnectorOutbox(input: ConnectorOutboxRecord): ConnectorOutboxRecord {
@@ -3001,7 +3031,7 @@ export class V2SqliteStore {
     };
   }
 
-  private getEvidence(tenantId: string, evidenceId: string): V2Evidence | undefined {
+  getEvidence(tenantId: string, evidenceId: string): V2Evidence | undefined {
     const row = this.db.prepare(`
       SELECT tenant_id as tenantId, id, context_id as contextId, source_system_id as sourceSystemId,
              source_document_id as sourceDocumentId, source_version as sourceVersion, entity_id as entityId,

@@ -8,6 +8,7 @@ import {
   ConnectorError,
   ReferenceFulfillmentSourceAdapter,
   ReferenceInboundHttpConnector,
+  canAdvanceInboundCursor,
   installConnector,
   runInboundSync,
 } from "../src/connectors/index.js";
@@ -151,6 +152,12 @@ afterEach(async () => {
 });
 
 describe("Inbound Connector Runtime", () => {
+  it("defines a fail-closed safe cursor invariant", () => {
+    expect(canAdvanceInboundCursor({ recordsRejected: 0, downstreamPending: 0 })).toBe(true);
+    expect(canAdvanceInboundCursor({ recordsRejected: 1, downstreamPending: 0 })).toBe(false);
+    expect(canAdvanceInboundCursor({ recordsRejected: 0, downstreamPending: 1 })).toBe(false);
+  });
+
   it("reads multiple pages, persists cursor, commits Evidence, and runs rules", async () => {
     const baseUrl = await startServer((request, response) => {
       const url = new URL(request.url, "http://localhost");
@@ -164,7 +171,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const result = await runSync(store);
-    expect(result.run).toMatchObject({ status: "succeeded", recordsRead: 3, recordsAccepted: 3, recordsRejected: 0, recordsDuplicate: 0 });
+    expect(result.run).toMatchObject({ status: "succeeded", recordsRead: 3, recordsCommitted: 3, recordsAccepted: 3, recordsRejected: 0, recordsDuplicate: 0 });
     expect(result.state.lastSuccessfulCursor).toBe("3");
     expect(store.listConnectorSourceRecords("tenant-a", "inbound-installation-a")).toHaveLength(3);
     const exception = store.listExceptions("tenant-a", "ctx-inbound-001").find((item) => item.code === "QUOTE_ORDER_QUANTITY_MISMATCH");
@@ -197,14 +204,81 @@ describe("Inbound Connector Runtime", () => {
         throw new ConnectorError("CANONICAL_COMMIT_FAILED", 500, { retryable: true });
       },
     });
-    expect(failed.run.status).toBe("failed");
+    expect(failed.run).toMatchObject({
+      status: "failed",
+      recordsRead: 2,
+      recordsCommitted: 2,
+      recordsAccepted: 2,
+      recordsRejected: 0,
+      recordsDuplicate: 0,
+    });
     expect(failed.state.lastSuccessfulCursor).toBeNull();
-    expect(store.listConnectorSourceRecords("tenant-a", "inbound-installation-a")).toHaveLength(2);
+    const failedLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
+    expect(failedLedger).toHaveLength(2);
+    expect(failedLedger.every((item) => item.canonicalCommittedAt && !item.downstreamProcessedAt)).toBe(true);
+    expect(store.listExceptions("tenant-a", "ctx-inbound-001")).toHaveLength(0);
 
     const replay = await runSync(store, { runId: "run-replay" });
-    expect(replay.run).toMatchObject({ status: "succeeded", recordsDuplicate: 2, recordsAccepted: 1 });
+    expect(replay.run).toMatchObject({ status: "succeeded", recordsDuplicate: 2, recordsCommitted: 1, recordsAccepted: 1 });
     expect(replay.state.lastSuccessfulCursor).toBe("3");
-    expect(store.listConnectorSourceRecords("tenant-a", "inbound-installation-a")).toHaveLength(3);
+    const replayLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
+    expect(replayLedger).toHaveLength(3);
+    expect(replayLedger.every((item) => item.downstreamProcessedAt)).toBe(true);
+    expect(store.listExceptions("tenant-a", "ctx-inbound-001").some((item) => item.code === "QUOTE_ORDER_QUANTITY_MISMATCH")).toBe(true);
+  });
+
+  it("blocks cursor advancement on a rejected record and backfills it on replay", async () => {
+    let invalid = true;
+    const baseUrl = await startServer((_request, response) => {
+      const bad = referenceRecord({ externalRecordId: "external-order-1", entityType: "sales_order", businessKey: "SO-INBOUND-001", value: 80 });
+      if (invalid) {
+        (bad.payload as Record<string, unknown>).valueType = undefined;
+      }
+      json(response, 200, {
+        records: [pageA(), bad, pageC()],
+        nextCursor: "rejected-page",
+        hasMore: false,
+      });
+    });
+    const store = openStore();
+    await installReferenceInbound(store, baseUrl);
+    saveMapping(store, "v1");
+
+    const blocked = await runSync(store, { runId: "rejected-first" });
+    expect(blocked.run).toMatchObject({
+      status: "failed",
+      lastErrorCode: "RECORD_REJECTED",
+      recordsRead: 3,
+      recordsCommitted: 2,
+      recordsAccepted: 2,
+      recordsRejected: 1,
+      recordsDuplicate: 0,
+      attemptedCursor: "rejected-page",
+    });
+    expect(blocked.state.lastSuccessfulCursor).toBeNull();
+    expect(blocked.state.lastAttemptedCursor).toBe("rejected-page");
+    const blockedLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
+    expect(blockedLedger).toHaveLength(2);
+    expect(blockedLedger.every((item) => !item.downstreamProcessedAt)).toBe(true);
+    expect(store.listEvidence("tenant-a", "ctx-inbound-001").filter((item) => item.field === "qty")).toHaveLength(2);
+    expect(store.listExceptions("tenant-a", "ctx-inbound-001")).toHaveLength(0);
+
+    invalid = false;
+    const replay = await runSync(store, { runId: "rejected-replay" });
+    expect(replay.run).toMatchObject({
+      status: "succeeded",
+      recordsRead: 3,
+      recordsCommitted: 1,
+      recordsAccepted: 1,
+      recordsRejected: 0,
+      recordsDuplicate: 2,
+    });
+    expect(replay.state.lastSuccessfulCursor).toBe("rejected-page");
+    const replayLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
+    expect(replayLedger).toHaveLength(3);
+    expect(replayLedger.every((item) => item.downstreamProcessedAt)).toBe(true);
+    expect(store.listEvidence("tenant-a", "ctx-inbound-001").filter((item) => item.field === "qty")).toHaveLength(3);
+    expect(store.listExceptions("tenant-a", "ctx-inbound-001").some((item) => item.code === "QUOTE_ORDER_QUANTITY_MISMATCH")).toBe(true);
   });
 
   it("keeps the successful cursor unchanged on rate limit", async () => {

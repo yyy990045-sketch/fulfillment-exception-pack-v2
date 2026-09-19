@@ -76,6 +76,7 @@ export type ConnectorSyncRunRecord = {
   startedAt: string;
   completedAt: string | null;
   recordsRead: number;
+  recordsCommitted: number;
   recordsAccepted: number;
   recordsRejected: number;
   recordsDuplicate: number;
@@ -113,6 +114,8 @@ export type ConnectorSourceRecordRecord = {
   mappingVersion: string;
   firstSeenAt: string;
   lastSeenAt: string;
+  canonicalCommittedAt: string | null;
+  downstreamProcessedAt: string | null;
   canonicalRefs: string[];
   evidenceRefs: string[];
 };

@@ -917,6 +917,27 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON connector_source_records (tenant_id, connector_installation_id, record_type, raw_hash, mapping_version);
     `,
   },
+  {
+    version: "017_inbound_runtime_correctness_seal",
+    sql: `
+      ALTER TABLE connector_source_records
+        ADD COLUMN canonical_committed_at TEXT;
+
+      ALTER TABLE connector_source_records
+        ADD COLUMN downstream_processed_at TEXT;
+
+      UPDATE connector_source_records
+      SET canonical_committed_at = first_seen_at
+      WHERE canonical_committed_at IS NULL;
+
+      ALTER TABLE connector_sync_runs
+        ADD COLUMN records_committed INTEGER NOT NULL DEFAULT 0;
+
+      UPDATE connector_sync_runs
+      SET records_committed = records_accepted
+      WHERE records_committed = 0;
+    `,
+  },
 ];
 
 export function runV2Migrations(

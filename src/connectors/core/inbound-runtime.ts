@@ -55,6 +55,13 @@ export function connectorRawHash(payload: Record<string, unknown>) {
   return createHash("sha256").update(canonicalJson(payload)).digest("hex");
 }
 
+export function canAdvanceInboundCursor(input: {
+  recordsRejected: number;
+  downstreamPending: number;
+}) {
+  return input.recordsRejected === 0 && input.downstreamPending === 0;
+}
+
 function errorClassification(error: unknown): {
   code: string;
   errorClass: ConnectorSyncErrorClass;
@@ -124,6 +131,7 @@ export async function runInboundSync(
     startedAt,
     completedAt: null,
     recordsRead: 0,
+    recordsCommitted: 0,
     recordsAccepted: 0,
     recordsRejected: 0,
     recordsDuplicate: 0,
@@ -163,8 +171,9 @@ export async function runInboundSync(
       }
       const pageAccepted: AdaptedSourceRecord[] = [];
       const pageContextIds = new Set<string>();
+      const pageLedgerIds = new Set<string>();
       let pageRead = 0;
-      let pageAcceptedCount = 0;
+      let pageCommitted = 0;
       let pageRejected = 0;
       let pageDuplicate = 0;
 
@@ -187,10 +196,17 @@ export async function runInboundSync(
         });
         if (exact) {
           pageDuplicate += 1;
-          store.saveConnectorSourceRecord({
+          const updated = store.saveConnectorSourceRecord({
             ...exact,
             lastSeenAt: observedAt,
           });
+          if (!updated.downstreamProcessedAt) {
+            pageLedgerIds.add(updated.id);
+            for (const evidenceId of updated.evidenceRefs) {
+              const evidence = store.getEvidence(input.tenantId, evidenceId);
+              if (evidence) pageContextIds.add(evidence.contextId);
+            }
+          }
           continue;
         }
         const envelope: SourceRecordEnvelope = {
@@ -216,13 +232,14 @@ export async function runInboundSync(
           continue;
         }
         try {
+          let sourceRecordId = "";
           store.transaction(() => {
             for (const sourceSystem of adapted.sourceSystems) store.saveSourceSystem(sourceSystem);
             for (const entity of adapted.entities) store.saveBusinessEntity(entity);
             for (const document of adapted.sourceDocuments) store.saveSourceDocument(document);
             for (const event of adapted.events) store.appendEvent(event);
             for (const evidence of adapted.evidence) store.saveEvidence(evidence);
-            store.saveConnectorSourceRecord({
+            const sourceRecord = store.saveConnectorSourceRecord({
               tenantId: input.tenantId,
               id: `source-${installation.id}-${connectorRawHash({
                 externalRecordId: record.externalRecordId,
@@ -243,44 +260,69 @@ export async function runInboundSync(
               mappingVersion: input.mappingVersion,
               firstSeenAt: observedAt,
               lastSeenAt: observedAt,
+              canonicalCommittedAt: observedAt,
+              downstreamProcessedAt: null,
               canonicalRefs: canonicalRefs(adapted),
               evidenceRefs: adapted.evidence.map((item) => item.id),
             });
+            sourceRecordId = sourceRecord.id;
           });
+          pageLedgerIds.add(sourceRecordId);
         } catch {
           throw new ConnectorError("CANONICAL_COMMIT_FAILED", 500, { retryable: true });
         }
-        pageAcceptedCount += 1;
+        pageCommitted += 1;
         pageContextIds.add(adapted.contextId);
         pageAccepted.push(adapted);
       }
 
-      const committedCursor = nextCursor ?? currentCursor;
-      await input.afterPageCommit?.({
-        contextIds: [...pageContextIds],
-        accepted: pageAccepted,
-        committedCursor,
-      });
-      await input.beforeFinalize?.();
-
+      const attemptedCursor = nextCursor ?? currentCursor;
+      const committedCursor = state.lastSuccessfulCursor;
       run = store.saveConnectorSyncRun({
         ...run,
         recordsRead: run.recordsRead + pageRead,
-        recordsAccepted: run.recordsAccepted + pageAcceptedCount,
+        recordsCommitted: run.recordsCommitted + pageCommitted,
+        recordsAccepted: run.recordsAccepted + pageCommitted,
         recordsRejected: run.recordsRejected + pageRejected,
         recordsDuplicate: run.recordsDuplicate + pageDuplicate,
-        attemptedCursor: nextCursor ?? currentCursor,
+        attemptedCursor,
         committedCursor,
         providerRequestId: page.providerRequestId ?? run.providerRequestId,
       });
       state = store.saveConnectorSyncState({
         ...state,
-        lastSuccessfulCursor: committedCursor,
-        lastAttemptedCursor: nextCursor ?? currentCursor,
+        lastSuccessfulCursor: state.lastSuccessfulCursor,
+        lastAttemptedCursor: attemptedCursor,
         updatedAt: clock().toISOString(),
       });
+      currentCursor = attemptedCursor;
+
+      if (pageRejected > 0) {
+        throw new ConnectorError("RECORD_REJECTED", 422, { retryable: false });
+      }
+
+      await input.afterPageCommit?.({
+        contextIds: [...pageContextIds],
+        accepted: pageAccepted,
+        committedCursor: attemptedCursor,
+      });
+      await input.beforeFinalize?.();
+      store.markConnectorSourceRecordsDownstreamProcessed(
+        input.tenantId,
+        [...pageLedgerIds],
+        clock().toISOString(),
+      );
+      if (!canAdvanceInboundCursor({ recordsRejected: pageRejected, downstreamPending: 0 })) {
+        throw new ConnectorError("RECORD_REJECTED", 422, { retryable: false });
+      }
+
       accepted.push(...pageAccepted);
-      currentCursor = committedCursor;
+      state = store.saveConnectorSyncState({
+        ...state,
+        lastSuccessfulCursor: attemptedCursor,
+        lastAttemptedCursor: attemptedCursor,
+        updatedAt: clock().toISOString(),
+      });
       if (!page.hasMore) {
         run = store.saveConnectorSyncRun({
           ...run,
