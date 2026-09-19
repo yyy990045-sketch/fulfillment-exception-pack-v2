@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildContestSet, buildGoldSet } from "./gold-set/cases.js";
 import type { ActionType } from "./types.js";
@@ -92,6 +92,7 @@ import {
 
 const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
+const FRONTEND_DIST = resolve(ROOT, "..", "frontend", "dist");
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
 registerBuiltInSolutionPacks();
@@ -159,6 +160,52 @@ async function serializeCaseMutation<T>(tenantId: string, caseId: string, mutati
 function json(res: import("node:http").ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(body));
+}
+
+function contentTypeFor(filePath: string) {
+  switch (extname(filePath)) {
+    case ".html": return "text/html; charset=utf-8";
+    case ".css": return "text/css; charset=utf-8";
+    case ".js": return "text/javascript; charset=utf-8";
+    case ".json": return "application/json; charset=utf-8";
+    case ".svg": return "image/svg+xml";
+    case ".png": return "image/png";
+    case ".woff2": return "font/woff2";
+    default: return "application/octet-stream";
+  }
+}
+
+function serveFile(res: import("node:http").ServerResponse, filePath: string) {
+  res.writeHead(200, { "content-type": contentTypeFor(filePath), "cache-control": "no-store" });
+  res.end(readFileSync(filePath));
+}
+
+function serveManufacturing(res: import("node:http").ServerResponse, pathname: string) {
+  const frontendIndex = join(FRONTEND_DIST, "index.html");
+  if (existsSync(frontendIndex)) {
+    const relative = pathname === "/manufacturing" || pathname === "/manufacturing/"
+      ? "index.html"
+      : pathname.slice("/manufacturing/".length);
+    const requested = resolve(FRONTEND_DIST, relative);
+    const insideDist = requested === frontendIndex || requested.startsWith(`${FRONTEND_DIST}${sep}`);
+    if (insideDist && existsSync(requested) && statSync(requested).isFile()) {
+      serveFile(res, requested);
+      return;
+    }
+    serveFile(res, frontendIndex);
+    return;
+  }
+
+  const legacyPath = pathname === "/manufacturing" || pathname === "/manufacturing/" || pathname.startsWith("/manufacturing/")
+    ? pathname === "/manufacturing/styles.css"
+      ? "styles.css"
+      : pathname === "/manufacturing/app.js"
+        ? "app.js"
+        : "index.html"
+    : "index.html";
+  const legacy = readFileSync(join(ROOT, "workbench", "manufacturing", legacyPath), "utf8");
+  res.writeHead(200, { "content-type": legacyPath.endsWith(".css") ? "text/css; charset=utf-8" : legacyPath.endsWith(".js") ? "text/javascript; charset=utf-8" : "text/html; charset=utf-8", "cache-control": "no-store" });
+  res.end(legacy);
 }
 
 function tenantOf(req: import("node:http").IncomingMessage) {
@@ -272,13 +319,13 @@ function readJson(req: import("node:http").IncomingMessage) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://127.0.0.1");
   try {
-    const manufacturingFile = req.method === "GET"
+    const legacyManufacturingFile = req.method === "GET"
       ? (
-        url.pathname === "/manufacturing" || url.pathname === "/manufacturing/"
+        url.pathname === "/manufacturing-legacy" || url.pathname === "/manufacturing-legacy/"
           ? { path: "index.html", contentType: "text/html; charset=utf-8" }
-          : url.pathname === "/manufacturing/styles.css"
+          : url.pathname === "/manufacturing-legacy/styles.css"
             ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
-            : url.pathname === "/manufacturing/app.js"
+            : url.pathname === "/manufacturing-legacy/app.js"
               ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
               : undefined
       )
@@ -294,10 +341,19 @@ const server = createServer(async (req, res) => {
               : undefined
       )
       : undefined;
-    if (manufacturingFile) {
-      const body = readFileSync(join(ROOT, "workbench", "manufacturing", manufacturingFile.path), "utf8");
-      res.writeHead(200, { "content-type": manufacturingFile.contentType, "cache-control": "no-store" });
+    if (legacyManufacturingFile) {
+      let body = readFileSync(join(ROOT, "workbench", "manufacturing", legacyManufacturingFile.path), "utf8");
+      if (legacyManufacturingFile.path === "index.html") {
+        body = body
+          .replaceAll("/manufacturing/styles.css", "/manufacturing-legacy/styles.css")
+          .replaceAll("/manufacturing/app.js", "/manufacturing-legacy/app.js");
+      }
+      res.writeHead(200, { "content-type": legacyManufacturingFile.contentType, "cache-control": "no-store" });
       res.end(body);
+      return;
+    }
+    if (req.method === "GET" && (url.pathname === "/manufacturing" || url.pathname === "/manufacturing/" || url.pathname.startsWith("/manufacturing/"))) {
+      serveManufacturing(res, url.pathname);
       return;
     }
     if (workspaceFile) {
