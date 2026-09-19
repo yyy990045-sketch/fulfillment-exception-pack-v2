@@ -1,0 +1,12 @@
+{
+  "id": "pilot-readiness-dry-run",
+  "title": "Pilot Readiness Dry Run",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "pilot-verification",
+  "currentPhase": "completed",
+  "nextAction": "Archive after commit and push",
+  "createdAt": "2026-09-19T14:45:00Z",
+  "branch": "main"
+}
