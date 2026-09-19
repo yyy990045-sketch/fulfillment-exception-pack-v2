@@ -53,6 +53,7 @@ const state = {
   rootCauseAnalyses: [],
   rootCauseReviews: [],
   selectedRootCause: null,
+  policyEvaluations: [],
   decisionRecommendations: [],
   decisionDispositions: [],
   selectedDecision: null,
@@ -190,6 +191,8 @@ function renderTruthStrip(view) {
     manufacturingFacts: "Manufacturing Facts",
     ruleEngine: "Rule Engine",
     groundedAi: "Grounded AI",
+    rootCauseAi: "Root Cause Hypothesis",
+    decisionPolicy: "Decision Policy",
     openSupOSRuntime: "Open supOS Runtime",
     openAiApi: "OpenAI API",
   };
@@ -507,7 +510,43 @@ async function loadRootCause(exceptionId) {
   renderRootCausePanel(state.rootCauseAnalyses, state.rootCauseReviews);
 }
 
-function decisionOptionCard(option, recommended) {
+function policyBadge(evaluation) {
+  const labels = {
+    human_only: "仅人工决策",
+    approval_required: "需要人工审批",
+    auto_eligible: "符合自动化候选条件",
+  };
+  const wrap = node("div", "inline-notice");
+  wrap.append(
+    node("strong", "", "治理策略"),
+    node("span", "", labels[evaluation.decision.mode] || evaluation.decision.mode),
+    node("span", "", `责任角色：${evaluation.decision.requiredRoles.join("、") || "无"}`),
+  );
+  if (evaluation.stale) wrap.append(node("span", "provider-badge stale", "该策略评估基于旧快照，请重新评估。"));
+  if (evaluation.decision.mode === "auto_eligible") {
+    wrap.append(node("span", "", "当前系统不会自动执行；该结果仅表示符合未来自动化策略条件。"));
+  }
+  return wrap;
+}
+
+async function evaluateOptionPolicy(recommendationId, optionId) {
+  try {
+    const evaluation = await api(`/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/policy-evaluations`, {
+      method: "POST",
+      body: { recommendationId, optionId },
+    });
+    state.policyEvaluations = [
+      ...state.policyEvaluations.filter((item) => !(item.sourceRecommendationId === recommendationId && item.sourceOptionId === optionId)),
+      evaluation,
+    ];
+    showState("治理策略评估已记录；当前不会自动执行。");
+    renderDecisionPanel(state.decisionRecommendations, state.decisionDispositions);
+  } catch (error) {
+    showState(friendlyError(error), true);
+  }
+}
+
+function decisionOptionCard(option, recommended, recommendationId) {
   const card = node("article", "evidence-card");
   card.append(
     node("span", "evidence-role", recommended ? "推荐方案" : "备选方案"),
@@ -527,6 +566,11 @@ function decisionOptionCard(option, recommended) {
   if (option.assumptions?.length) card.append(node("div", "inline-notice", `前提假设：${option.assumptions.join("、")}`));
   if (option.missingEvidence?.length) card.append(node("div", "inline-notice", `缺失材料：${option.missingEvidence.join("、")}`));
   if (option.evidenceIds?.length) card.append(citationButtons(option.evidenceIds));
+  const policyEvaluation = state.policyEvaluations
+    .filter((item) => item.sourceRecommendationId === recommendationId && item.sourceOptionId === option.id)
+    .at(-1);
+  if (policyEvaluation) card.append(policyBadge(policyEvaluation));
+  card.append(button("评估治理策略", "secondary", () => evaluateOptionPolicy(recommendationId, option.id)));
   return card;
 }
 
@@ -597,7 +641,7 @@ function renderDecisionPanel(recommendations, dispositions = []) {
   note.append(node("strong", "", "历史信号"), node("span", "", "历史动作次数仅表示过去的治理记录，不代表方案有效性或成功率。"));
   panel.append(note);
   const options = node("div", "evidence-grid");
-  for (const option of recommendation.output.options) options.append(decisionOptionCard(option, option.id === recommendation.output.recommendedOptionId));
+  for (const option of recommendation.output.options) options.append(decisionOptionCard(option, option.id === recommendation.output.recommendedOptionId, recommendation.id));
   panel.append(options);
   if (recommendation.output.uncertainties?.length) {
     const uncertainty = node("section", "explanation-block");
@@ -1035,6 +1079,7 @@ async function selectException(exceptionId) {
   state.rootCauseAnalyses = [];
   state.rootCauseReviews = [];
   state.selectedRootCause = null;
+  state.policyEvaluations = [];
   state.decisionRecommendations = [];
   state.decisionDispositions = [];
   state.selectedDecision = null;
@@ -1093,6 +1138,8 @@ async function selectException(exceptionId) {
       state.decisionRecommendations = [state.selectedDecision];
       const dispositions = await api(`${base}/decision-recommendations/${encodeURIComponent(latest.id)}/dispositions`).catch(() => ({ dispositions: [] }));
       state.decisionDispositions = dispositions.dispositions || [];
+      const policyResult = await api(`${base}/policy-evaluations`).catch(() => ({ evaluations: [] }));
+      state.policyEvaluations = policyResult.evaluations || [];
       renderDecisionPanel(state.decisionRecommendations, dispositions.dispositions || []);
     }
   } else renderEmptyPanel("panel-decision", "决策建议加载失败，未自动生成。");

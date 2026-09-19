@@ -38,6 +38,7 @@ import type { ResolutionCase, ResolutionReceipt } from "./resolution/types.js";
 import type { GroundedExplanationRecord } from "./grounded-types.js";
 import type { DecisionRecommendationDisposition, DecisionRecommendationRecord } from "./decision-types.js";
 import type { RootCauseAnalysisRecord, RootCauseHypothesisReview } from "./root-cause-types.js";
+import type { PolicyDefinitionRecord, PolicyEvaluationRecord } from "./policy-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -1120,6 +1121,220 @@ export class V2SqliteStore {
       ORDER BY created_at, id
     `).all(...(hypothesisId ? [tenantId, analysisId, hypothesisId] : [tenantId, analysisId])) as RootCauseHypothesisReview[];
     return rows;
+  }
+
+  savePolicyDefinition(input: PolicyDefinitionRecord): PolicyDefinitionRecord {
+    const existing = this.getPolicyDefinition(input.tenantId, input.id, input.version);
+    if (existing) {
+      if (existing.contentHash !== input.contentHash) throw new Error("POLICY_DEFINITION_IMMUTABLE");
+      return existing;
+    }
+    this.db.prepare(`
+      INSERT INTO policy_definitions
+        (tenant_id, id, version, name, priority, enabled, conditions_json, decision_json, content_hash, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.id,
+      input.version,
+      input.name,
+      input.priority,
+      input.enabled ? 1 : 0,
+      json(input.conditions),
+      json(input.decision),
+      input.contentHash,
+      input.createdAt,
+    );
+    return this.getPolicyDefinition(input.tenantId, input.id, input.version) ?? input;
+  }
+
+  getPolicyDefinition(tenantId: string, policyId: string, version: string): PolicyDefinitionRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, version, name, priority, enabled,
+             conditions_json as conditionsJson, decision_json as decisionJson,
+             content_hash as contentHash, created_at as createdAt
+      FROM policy_definitions
+      WHERE tenant_id = ? AND id = ? AND version = ?
+    `).get(tenantId, policyId, version) as {
+      tenantId: string;
+      id: string;
+      version: string;
+      name: string;
+      priority: number;
+      enabled: number;
+      conditionsJson: string;
+      decisionJson: string;
+      contentHash: string;
+      createdAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      version: row.version,
+      name: row.name,
+      priority: row.priority,
+      enabled: row.enabled === 1,
+      conditions: parseJson<unknown>(row.conditionsJson),
+      decision: parseJson<unknown>(row.decisionJson),
+      contentHash: row.contentHash,
+      createdAt: row.createdAt,
+    };
+  }
+
+  listPolicyDefinitions(tenantId: string, enabledOnly = false): PolicyDefinitionRecord[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, version, name, priority, enabled,
+             conditions_json as conditionsJson, decision_json as decisionJson,
+             content_hash as contentHash, created_at as createdAt
+      FROM policy_definitions
+      WHERE tenant_id = ? ${enabledOnly ? "AND enabled = 1" : ""}
+      ORDER BY priority, id, version
+    `).all(tenantId) as Array<{
+      tenantId: string;
+      id: string;
+      version: string;
+      name: string;
+      priority: number;
+      enabled: number;
+      conditionsJson: string;
+      decisionJson: string;
+      contentHash: string;
+      createdAt: string;
+    }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      version: row.version,
+      name: row.name,
+      priority: row.priority,
+      enabled: row.enabled === 1,
+      conditions: parseJson<unknown>(row.conditionsJson),
+      decision: parseJson<unknown>(row.decisionJson),
+      contentHash: row.contentHash,
+      createdAt: row.createdAt,
+    }));
+  }
+
+  savePolicyEvaluation(input: PolicyEvaluationRecord): PolicyEvaluationRecord {
+    const existing = this.getPolicyEvaluationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.candidateActionType,
+      input.candidateSource,
+      input.policySnapshotHash,
+      input.sourceRecommendationId,
+      input.sourceOptionId,
+    );
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO policy_evaluations
+        (tenant_id, id, context_id, exception_id, candidate_action_type, candidate_source,
+         source_recommendation_id, source_option_id, policy_snapshot_hash, decision_json, evaluated_by, evaluated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.candidateActionType,
+      input.candidateSource,
+      input.sourceRecommendationId ?? null,
+      input.sourceOptionId ?? null,
+      input.policySnapshotHash,
+      json(input.decision),
+      input.evaluatedBy,
+      input.evaluatedAt,
+    );
+    return this.getPolicyEvaluationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.candidateActionType,
+      input.candidateSource,
+      input.policySnapshotHash,
+      input.sourceRecommendationId,
+      input.sourceOptionId,
+    ) ?? input;
+  }
+
+  getPolicyEvaluation(tenantId: string, evaluationId: string): PolicyEvaluationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             candidate_action_type as candidateActionType, candidate_source as candidateSource,
+             source_recommendation_id as sourceRecommendationId, source_option_id as sourceOptionId,
+             policy_snapshot_hash as policySnapshotHash, decision_json as decisionJson,
+             evaluated_by as evaluatedBy, evaluated_at as evaluatedAt
+      FROM policy_evaluations
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, evaluationId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      candidateActionType: PolicyEvaluationRecord["candidateActionType"];
+      candidateSource: PolicyEvaluationRecord["candidateSource"];
+      sourceRecommendationId: string | null;
+      sourceOptionId: string | null;
+      policySnapshotHash: string;
+      decisionJson: string;
+      evaluatedBy: string;
+      evaluatedAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      candidateActionType: row.candidateActionType,
+      candidateSource: row.candidateSource,
+      ...(row.sourceRecommendationId ? { sourceRecommendationId: row.sourceRecommendationId } : {}),
+      ...(row.sourceOptionId ? { sourceOptionId: row.sourceOptionId } : {}),
+      policySnapshotHash: row.policySnapshotHash,
+      decision: parseJson<unknown>(row.decisionJson),
+      evaluatedBy: row.evaluatedBy,
+      evaluatedAt: row.evaluatedAt,
+    };
+  }
+
+  getPolicyEvaluationBySnapshot(
+    tenantId: string,
+    exceptionId: string,
+    candidateActionType: PolicyEvaluationRecord["candidateActionType"],
+    candidateSource: PolicyEvaluationRecord["candidateSource"],
+    policySnapshotHash: string,
+    sourceRecommendationId?: string,
+    sourceOptionId?: string,
+  ): PolicyEvaluationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM policy_evaluations
+      WHERE tenant_id = ? AND exception_id = ? AND candidate_action_type = ? AND candidate_source = ?
+        AND policy_snapshot_hash = ?
+        AND source_recommendation_id IS ?
+        AND source_option_id IS ?
+    `).get(
+      tenantId,
+      exceptionId,
+      candidateActionType,
+      candidateSource,
+      policySnapshotHash,
+      sourceRecommendationId ?? null,
+      sourceOptionId ?? null,
+    ) as { id: string } | undefined;
+    return row ? this.getPolicyEvaluation(tenantId, row.id) : undefined;
+  }
+
+  listPolicyEvaluations(tenantId: string, contextId: string, exceptionId: string): PolicyEvaluationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM policy_evaluations
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY evaluated_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const record = this.getPolicyEvaluation(tenantId, row.id);
+      return record ? [record] : [];
+    });
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

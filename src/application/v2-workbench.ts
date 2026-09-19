@@ -247,6 +247,8 @@ export function buildV2WorkbenchView(
       manufacturingFacts: "demo_sources",
       ruleEngine: "deterministic",
       groundedAi: "provider_dependent",
+      rootCauseAi: "provider_dependent",
+      decisionPolicy: "deterministic",
       openSupOSRuntime: "not_verified",
       openAiApi: "not_verified",
     },

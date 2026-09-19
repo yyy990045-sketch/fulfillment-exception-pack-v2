@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildContestSet, buildGoldSet } from "./gold-set/cases.js";
+import type { ActionType } from "./types.js";
 import { evaluateAll } from "./eval/run.js";
 import { approve, execute, ingest, openCase, propose, reviewConflicts, submitForApproval, verifyAndClose } from "./case/runtime.js";
 import type { ConflictReviewInput } from "./case/runtime.js";
@@ -32,6 +33,7 @@ import {
   resolveRootCauseProvider,
   rootCauseValidationErrorCode,
 } from "./ai/root-cause/index.js";
+import { evaluateDecisionPolicy, listPolicyEvaluations, PolicyError, type PolicyCandidateInput } from "./policy/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -353,6 +355,27 @@ const server = createServer(async (req, res) => {
         return json(res, 422, { error: rootCauseValidationErrorCode(analysis.validation), analysis });
       }
       return json(res, 200, analysis);
+    }
+    const policyEvaluationMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations$/);
+    if (policyEvaluationMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(policyEvaluationMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(policyEvaluationMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.listExceptions(tenantId, contextId).some((item) => item.id === exceptionId)) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") {
+        return json(res, 200, { contextId, exceptionId, evaluations: listPolicyEvaluations(store, tenantId, contextId, exceptionId) });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined || input.actor !== undefined || input.roles !== undefined) {
+        return json(res, 400, { error: "actor_and_tenant_from_auth_required" });
+      }
+      const candidate: PolicyCandidateInput = typeof input.actionType === "string"
+        ? { actionType: input.actionType as ActionType }
+        : { recommendationId: String(input.recommendationId || ""), optionId: String(input.optionId || "") };
+      const evaluation = evaluateDecisionPolicy(store, tenantId, contextId, exceptionId, candidate, actor);
+      return json(res, 200, evaluation);
     }
     const decisionDispositionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)\/dispositions$/);
     if (decisionDispositionMatch && (req.method === "GET" || req.method === "POST")) {
@@ -772,6 +795,7 @@ const server = createServer(async (req, res) => {
         : error.code;
       return json(res, error.status, { error: code });
     }
+    if (error instanceof PolicyError) return json(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {

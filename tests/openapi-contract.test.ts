@@ -46,4 +46,12 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("epistemicStatus: { type: string, enum: [hypothesis] }");
     expect(openapi).toContain("analyses: { type: array, items: { $ref: '#/components/schemas/RootCauseAnalysisSummary' } }");
   });
+
+  it("defines strict deterministic policy evaluation contracts", () => {
+    expect(openapi).toContain("    PolicyEvaluation:");
+    expect(openapi).toContain("    PolicyEvaluationDecision:");
+    expect(openapi).toContain("automationAvailable: { type: boolean, enum: [false] }");
+    expect(openapi).toContain("executionPerformed: { type: boolean, enum: [false] }");
+    expect(openapi).toContain("evaluations: { type: array, items: { $ref: '#/components/schemas/PolicyEvaluation' } }");
+  });
 });

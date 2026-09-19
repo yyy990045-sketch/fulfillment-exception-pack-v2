@@ -474,6 +474,60 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON root_cause_hypothesis_reviews (tenant_id, analysis_id, hypothesis_id, created_at, id);
     `,
   },
+  {
+    version: "009_decision_policy",
+    sql: `
+      CREATE TABLE IF NOT EXISTS policy_definitions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        version TEXT NOT NULL,
+        name TEXT NOT NULL,
+        priority INTEGER NOT NULL,
+        enabled INTEGER NOT NULL,
+        conditions_json TEXT NOT NULL,
+        decision_json TEXT NOT NULL,
+        content_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS policy_definitions_enabled_idx
+        ON policy_definitions (tenant_id, enabled, priority, id, version);
+
+      CREATE TABLE IF NOT EXISTS policy_evaluations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        candidate_action_type TEXT NOT NULL,
+        candidate_source TEXT NOT NULL,
+        source_recommendation_id TEXT,
+        source_option_id TEXT,
+        policy_snapshot_hash TEXT NOT NULL,
+        decision_json TEXT NOT NULL,
+        evaluated_by TEXT NOT NULL,
+        evaluated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, source_recommendation_id)
+          REFERENCES decision_recommendations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS policy_evaluations_exception_idx
+        ON policy_evaluations (tenant_id, context_id, exception_id, evaluated_at, id);
+
+      CREATE UNIQUE INDEX IF NOT EXISTS policy_evaluations_human_unique
+        ON policy_evaluations (tenant_id, exception_id, candidate_action_type, candidate_source, policy_snapshot_hash)
+        WHERE source_recommendation_id IS NULL AND source_option_id IS NULL;
+
+      CREATE UNIQUE INDEX IF NOT EXISTS policy_evaluations_ai_unique
+        ON policy_evaluations (tenant_id, exception_id, candidate_action_type, candidate_source, policy_snapshot_hash, source_recommendation_id, source_option_id)
+        WHERE source_recommendation_id IS NOT NULL AND source_option_id IS NOT NULL;
+    `,
+  },
 ];
 
 export function runV2Migrations(

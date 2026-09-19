@@ -505,6 +505,46 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/policy-evaluations:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Existing deterministic policy evaluations
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/PolicyEvaluationList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  additionalProperties: false
+                  required: [actionType]
+                  properties:
+                    actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+                - type: object
+                  additionalProperties: false
+                  required: [recommendationId, optionId]
+                  properties:
+                    recommendationId: { type: string }
+                    optionId: { type: string }
+      responses:
+        '200':
+          description: Deterministic policy evaluation; never auto-executes
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/PolicyEvaluation' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/bundle:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1311,6 +1351,69 @@ components:
         contextId: { type: string }
         exceptionId: { type: string }
         recommendations: { type: array, items: { $ref: '#/components/schemas/DecisionRecommendationSummary' } }
+    PolicyActionMetadata:
+      type: object
+      additionalProperties: false
+      required: [actionType, effectClass, customerFacing, financialMovement, legalEffect, reversible]
+      properties:
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        effectClass: { type: string, enum: [internal_task, internal_evidence_request, external_communication, internal_review, customer_decision] }
+        customerFacing: { type: boolean }
+        financialMovement: { type: boolean }
+        legalEffect: { type: boolean }
+        reversible: { type: boolean }
+    PolicyContextFacts:
+      type: object
+      additionalProperties: false
+      required: [exceptionCode, severity, actionType, evidenceCount, sourceSystemCount, hasClaimEvidence, allEvidenceSupported, candidateSource]
+      properties:
+        exceptionCode: { type: string }
+        severity: { type: string, enum: [low, medium, high, critical] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        evidenceCount: { type: integer, minimum: 0 }
+        sourceSystemCount: { type: integer, minimum: 0 }
+        hasClaimEvidence: { type: boolean }
+        allEvidenceSupported: { type: boolean }
+        candidateSource: { type: string, enum: [human, ai_recommendation] }
+    PolicyEvaluationDecision:
+      type: object
+      additionalProperties: false
+      required: [mode, matchedPolicyIds, reasons, requiredRoles, actionMetadata, facts, policySnapshotHash, automationAvailable, executionPerformed]
+      properties:
+        mode: { type: string, enum: [human_only, approval_required, auto_eligible] }
+        matchedPolicyIds: { type: array, items: { type: string } }
+        reasons: { type: array, items: { type: string } }
+        requiredRoles: { type: array, items: { type: string } }
+        actionMetadata: { $ref: '#/components/schemas/PolicyActionMetadata' }
+        facts: { $ref: '#/components/schemas/PolicyContextFacts' }
+        policySnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        automationAvailable: { type: boolean, enum: [false] }
+        executionPerformed: { type: boolean, enum: [false] }
+    PolicyEvaluation:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, contextId, exceptionId, candidateActionType, candidateSource, policySnapshotHash, decision, evaluatedBy, evaluatedAt, stale]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        candidateSource: { type: string, enum: [human, ai_recommendation] }
+        sourceRecommendationId: { type: string }
+        sourceOptionId: { type: string }
+        policySnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        decision: { $ref: '#/components/schemas/PolicyEvaluationDecision' }
+        evaluatedBy: { type: string }
+        evaluatedAt: { type: string, format: date-time }
+        stale: { type: boolean }
+    PolicyEvaluationList:
+      type: object
+      required: [contextId, exceptionId, evaluations]
+      properties:
+        contextId: { type: string }
+        exceptionId: { type: string }
+        evaluations: { type: array, items: { $ref: '#/components/schemas/PolicyEvaluation' } }
     DecisionRecommendationDisposition:
       type: object
       additionalProperties: false
