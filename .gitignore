@@ -6,6 +6,7 @@ dist/
 !.env.production.example
 !.env.open-supos.example
 !.env.grounded-ai.example
+!.env.decision-ai.example
 .preview
 data/
 .data/

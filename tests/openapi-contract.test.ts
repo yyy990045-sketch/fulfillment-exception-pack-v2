@@ -26,4 +26,16 @@ describe("OpenAPI 502 ownership", () => {
     expect(block).toContain("'502': { $ref: '#/components/responses/AIProviderFailure' }");
     expect(block).not.toContain("'502': { $ref: '#/components/responses/BadGateway' }");
   });
+
+  it("defines a strict decision recommendation summary contract", () => {
+    const summaryStart = openapi.indexOf("    DecisionRecommendationSummary:");
+    const summaryEnd = openapi.indexOf("    DecisionRecommendationDisposition:", summaryStart);
+    expect(summaryStart).toBeGreaterThanOrEqual(0);
+    expect(summaryEnd).toBeGreaterThan(summaryStart);
+    const summary = openapi.slice(summaryStart, summaryEnd);
+    expect(summary).toContain("additionalProperties: false");
+    expect(summary).toContain("stale");
+    expect(summary).not.toContain("output: { type: object");
+    expect(openapi).toContain("items: { $ref: '#/components/schemas/DecisionRecommendationSummary' }");
+  });
 });

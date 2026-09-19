@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "decision-recommendation-real-provider/v1",
+  "realDecisionLlmVerified": false,
+  "provider": "openai",
+  "cases": {
+    "customerClaim": {
+      "generated": false,
+      "validationValid": false,
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    },
+    "quality": {
+      "generated": false,
+      "validationValid": false,
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    },
+    "payment": {
+      "generated": false,
+      "validationValid": false,
+      "error": "OPENAI_API_KEY_NOT_CONFIGURED"
+    }
+  },
+  "blocker": "OPENAI_API_KEY_NOT_CONFIGURED"
+}

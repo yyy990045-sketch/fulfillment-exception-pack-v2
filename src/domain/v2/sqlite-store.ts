@@ -36,6 +36,7 @@ import type {
 import { ruleVersionContentHash } from "./rule-engine.js";
 import type { ResolutionCase, ResolutionReceipt } from "./resolution/types.js";
 import type { GroundedExplanationRecord } from "./grounded-types.js";
+import type { DecisionRecommendationDisposition, DecisionRecommendationRecord } from "./decision-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -827,6 +828,161 @@ export class V2SqliteStore {
       const explanation = this.getGroundedExplanation(tenantId, row.id);
       return explanation ? [explanation] : [];
     });
+  }
+
+  saveDecisionRecommendation(input: DecisionRecommendationRecord): DecisionRecommendationRecord {
+    const existing = this.getDecisionRecommendationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    );
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO decision_recommendations
+        (tenant_id, id, context_id, exception_id, rule_evaluation_id, input_snapshot_hash,
+         provider, model, status, output_json, validation_json, history_snapshot_json,
+         eligibility_json, created_by, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, exception_id, input_snapshot_hash, provider, model) DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.ruleEvaluationId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+      input.status,
+      json(input.output),
+      json(input.validation),
+      json(input.historySnapshot),
+      json(input.eligibility),
+      input.createdBy,
+      input.createdAt,
+    );
+    return this.getDecisionRecommendationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    ) ?? input;
+  }
+
+  getDecisionRecommendation(tenantId: string, recommendationId: string): DecisionRecommendationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             rule_evaluation_id as ruleEvaluationId, input_snapshot_hash as inputSnapshotHash,
+             provider, model, status, output_json as outputJson, validation_json as validationJson,
+             history_snapshot_json as historySnapshotJson, eligibility_json as eligibilityJson,
+             created_by as createdBy, created_at as createdAt
+      FROM decision_recommendations
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, recommendationId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      ruleEvaluationId: string;
+      inputSnapshotHash: string;
+      provider: string;
+      model: string;
+      status: DecisionRecommendationRecord["status"];
+      outputJson: string;
+      validationJson: string;
+      historySnapshotJson: string;
+      eligibilityJson: string;
+      createdBy: string;
+      createdAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      ruleEvaluationId: row.ruleEvaluationId,
+      inputSnapshotHash: row.inputSnapshotHash,
+      provider: row.provider,
+      model: row.model,
+      status: row.status,
+      output: parseJson<unknown>(row.outputJson),
+      validation: parseJson<unknown>(row.validationJson),
+      historySnapshot: parseJson<unknown>(row.historySnapshotJson),
+      eligibility: parseJson<unknown>(row.eligibilityJson),
+      createdBy: row.createdBy,
+      createdAt: row.createdAt,
+    };
+  }
+
+  getDecisionRecommendationBySnapshot(
+    tenantId: string,
+    exceptionId: string,
+    inputSnapshotHash: string,
+    provider: string,
+    model: string,
+  ): DecisionRecommendationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM decision_recommendations
+      WHERE tenant_id = ? AND exception_id = ? AND input_snapshot_hash = ? AND provider = ? AND model = ?
+    `).get(tenantId, exceptionId, inputSnapshotHash, provider, model) as { id: string } | undefined;
+    return row ? this.getDecisionRecommendation(tenantId, row.id) : undefined;
+  }
+
+  listDecisionRecommendations(tenantId: string, contextId: string, exceptionId: string): DecisionRecommendationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM decision_recommendations
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const record = this.getDecisionRecommendation(tenantId, row.id);
+      return record ? [record] : [];
+    });
+  }
+
+  saveDecisionRecommendationDisposition(input: DecisionRecommendationDisposition): DecisionRecommendationDisposition {
+    this.db.prepare(`
+      INSERT INTO decision_recommendation_dispositions
+        (tenant_id, id, recommendation_id, exception_id, decision, selected_option_id, rationale, actor, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.id,
+      input.recommendationId,
+      input.exceptionId,
+      input.decision,
+      input.selectedOptionId ?? null,
+      input.rationale,
+      input.actor,
+      input.createdAt,
+    );
+    return input;
+  }
+
+  listDecisionRecommendationDispositions(tenantId: string, recommendationId: string): DecisionRecommendationDisposition[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, recommendation_id as recommendationId,
+             exception_id as exceptionId, decision, selected_option_id as selectedOptionId,
+             rationale, actor, created_at as createdAt
+      FROM decision_recommendation_dispositions
+      WHERE tenant_id = ? AND recommendation_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, recommendationId) as Array<Omit<DecisionRecommendationDisposition, "selectedOptionId"> & { selectedOptionId: string | null }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      recommendationId: row.recommendationId,
+      exceptionId: row.exceptionId,
+      decision: row.decision,
+      ...(row.selectedOptionId ? { selectedOptionId: row.selectedOptionId } : {}),
+      rationale: row.rationale,
+      actor: row.actor,
+      createdAt: row.createdAt,
+    }));
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

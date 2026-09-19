@@ -370,6 +370,59 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON grounded_ai_explanations (tenant_id, context_id, exception_id, created_at, id);
     `,
   },
+  {
+    version: "007_decision_recommendations",
+    sql: `
+      CREATE TABLE IF NOT EXISTS decision_recommendations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        rule_evaluation_id TEXT NOT NULL,
+        input_snapshot_hash TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        status TEXT NOT NULL,
+        output_json TEXT NOT NULL,
+        validation_json TEXT NOT NULL,
+        history_snapshot_json TEXT NOT NULL,
+        eligibility_json TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, exception_id, input_snapshot_hash, provider, model),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_evaluation_id)
+          REFERENCES rule_evaluations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS decision_recommendations_exception_idx
+        ON decision_recommendations (tenant_id, context_id, exception_id, created_at, id);
+
+      CREATE TABLE IF NOT EXISTS decision_recommendation_dispositions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        recommendation_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        decision TEXT NOT NULL,
+        selected_option_id TEXT,
+        rationale TEXT NOT NULL,
+        actor TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, recommendation_id)
+          REFERENCES decision_recommendations (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS decision_recommendation_dispositions_idx
+        ON decision_recommendation_dispositions (tenant_id, recommendation_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

@@ -3,6 +3,7 @@ export * from "./model.js";
 export * from "./sqlite-migrations.js";
 export * from "./sqlite-store.js";
 export * from "./grounded-types.js";
+export * from "./decision-types.js";
 export * from "./repositories.js";
 export * from "./application.js";
 export * from "./resolution/index.js";

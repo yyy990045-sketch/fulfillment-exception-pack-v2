@@ -1,7 +1,14 @@
 import { renderFunnel, renderHorizontalBars, renderLineChart } from "./charts.js";
 
 const state = { data: null, exceptionCode: "" };
-const demoHeaders = { accept: "application/json", "x-tenant-id": "demo-manufacturing" };
+
+function requestHeaders() {
+  const headers = { accept: "application/json" };
+  const token = window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken");
+  if (token) headers.authorization = `Bearer ${token}`;
+  else headers["x-tenant-id"] = "demo-manufacturing";
+  return headers;
+}
 
 function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -44,7 +51,7 @@ function requestQuery() {
 }
 
 async function api(path) {
-  const response = await fetch(path, { headers: demoHeaders });
+  const response = await fetch(path, { headers: requestHeaders() });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(body.error || `http_${response.status}`);

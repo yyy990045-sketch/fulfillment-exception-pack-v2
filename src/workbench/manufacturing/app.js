@@ -50,6 +50,10 @@ const state = {
   activeTab: "evidence",
   bundle: null,
   explanations: [],
+  decisionRecommendations: [],
+  decisionDispositions: [],
+  selectedDecision: null,
+  decisionDraft: null,
   resolution: null,
   resolutionMutating: false,
   demoTenantId: DEFAULT_TENANT_ID,
@@ -123,6 +127,7 @@ async function api(path, options = {}) {
   if (!response.ok) {
     const error = new Error(body.error || `http_${response.status}`);
     error.status = response.status;
+    error.payload = body;
     throw error;
   }
   return body;
@@ -259,7 +264,7 @@ function renderSelectedException() {
 }
 
 function clearPanels() {
-  for (const id of ["panel-evidence", "panel-ai", "panel-resolution"]) clear(document.getElementById(id));
+  for (const id of ["panel-evidence", "panel-ai", "panel-decision", "panel-resolution"]) clear(document.getElementById(id));
 }
 
 function renderLoadingPanel(id) {
@@ -364,6 +369,175 @@ function renderAIPanel(explanations) {
   renderExplanation(explanations[0]);
 }
 
+function decisionOptionCard(option, recommended) {
+  const card = node("article", "evidence-card");
+  card.append(
+    node("span", "evidence-role", recommended ? "推荐方案" : "备选方案"),
+    node("span", "provider-badge", ACTION_TYPES[option.actionType] || option.actionType),
+    node("strong", "exception-title", option.title),
+    node("p", "explanation-summary", option.actionSummary),
+    node("p", "evidence-quote", option.rationale),
+  );
+  const facts = node("div", "evidence-meta");
+  for (const fact of option.supportingFacts || []) facts.append(node("span", "", `${fact.key} = ${fact.value}`));
+  card.append(facts);
+  if (option.historyClaims?.length) {
+    const history = node("div", "evidence-meta");
+    for (const claim of option.historyClaims) history.append(node("span", "", claim.statement));
+    card.append(history);
+  }
+  if (option.assumptions?.length) card.append(node("div", "inline-notice", `前提假设：${option.assumptions.join("、")}`));
+  if (option.missingEvidence?.length) card.append(node("div", "inline-notice", `缺失材料：${option.missingEvidence.join("、")}`));
+  if (option.evidenceIds?.length) card.append(citationButtons(option.evidenceIds));
+  return card;
+}
+
+async function submitDecisionDisposition(recommendationId, decision, selectedOptionId, rationale) {
+  const path = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/decision-recommendations/${encodeURIComponent(recommendationId)}/dispositions`;
+  await api(path, { method: "POST", body: { decision, selectedOptionId, rationale } });
+  showState("决策建议反馈已记录。");
+  await selectException(state.selectedExceptionId);
+  switchTab("decision");
+}
+
+function renderDecisionPanel(recommendations, dispositions = []) {
+  const panel = document.getElementById("panel-decision");
+  clear(panel);
+  if (!recommendations.length) {
+    panel.append(node("div", "empty-state", "尚未基于当前证据与历史治理记录生成决策建议。"));
+    panel.append(button("生成决策建议", "", async () => {
+      showState("正在生成决策建议...");
+      try {
+        const result = await api(`/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/decision-recommendations`, { method: "POST", body: {} });
+        await selectException(state.selectedExceptionId);
+        switchTab("decision");
+        showState(result.status === "rejected" ? "决策建议已被 Grounding Guard 拒绝。" : "决策建议已生成。");
+      } catch (error) {
+        const recommendation = error.payload?.recommendation;
+        if (recommendation) {
+          state.decisionRecommendations = [recommendation];
+          renderDecisionPanel([recommendation]);
+          showState("决策建议已被 Grounding Guard 拒绝。", true);
+        } else showState(friendlyError(error), true);
+      }
+    }));
+    return;
+  }
+  const recommendation = recommendations[0];
+  state.selectedDecision = recommendation;
+  const meta = node("div", "explanation-meta");
+  meta.append(
+    node("span", "provider-badge", recommendation.provider === "decision-deterministic-demo" ? "演示决策器" : recommendation.provider),
+    node("span", "provider-badge", recommendation.model),
+    node("span", "provider-badge", recommendation.createdAt),
+    node("span", "provider-badge", recommendation.status),
+  );
+  if (recommendation.stale) meta.append(node("span", "provider-badge stale", "该建议基于旧证据或旧历史快照，请以当前事实为准。"));
+  panel.append(meta);
+  panel.append(node("p", "explanation-summary", recommendation.output.executiveSummary));
+  if (recommendation.status === "rejected") {
+    panel.append(node("div", "inline-notice error", "该建议未通过 Grounding 与 Action Eligibility 校验，仅保留审计记录，不能用于人工方案草稿。"));
+    const errors = node("section", "explanation-block");
+    errors.append(node("h4", "", "校验未通过"));
+    const list = node("ul", "explanation-list");
+    const validation = recommendation.validation || {};
+    for (const [key, items] of [
+      ["引用", validation.citationErrors || []],
+      ["数值", validation.numericErrors || []],
+      ["历史", validation.historyErrors || []],
+      ["动作边界", validation.eligibilityErrors || []],
+      ["不支持结论", validation.unsupportedClaims || []],
+      ["结构", validation.schemaErrors || []],
+    ]) {
+      if (items.length) list.append(node("li", "", `${key}：${items.join("、")}`));
+    }
+    errors.append(list);
+    panel.append(errors);
+    return;
+  }
+  const note = node("div", "inline-notice");
+  note.append(node("strong", "", "历史信号"), node("span", "", "历史动作次数仅表示过去的治理记录，不代表方案有效性或成功率。"));
+  panel.append(note);
+  const options = node("div", "evidence-grid");
+  for (const option of recommendation.output.options) options.append(decisionOptionCard(option, option.id === recommendation.output.recommendedOptionId));
+  panel.append(options);
+  if (recommendation.output.uncertainties?.length) {
+    const uncertainty = node("section", "explanation-block");
+    uncertainty.append(node("h4", "", "尚不确定"));
+    const list = node("ul", "explanation-list");
+    for (const item of recommendation.output.uncertainties) list.append(node("li", "", item));
+    uncertainty.append(list);
+    panel.append(uncertainty);
+  }
+
+  const disposition = node("form", "governance-form");
+  disposition.append(node("h4", "", "人工反馈"));
+  const optionRow = node("div", "form-row");
+  optionRow.append(node("label", "", "关注方案"));
+  const select = node("select");
+  for (const option of recommendation.output.options) {
+    const item = node("option", "", option.title);
+    item.value = option.id;
+    select.append(item);
+  }
+  select.value = recommendation.output.recommendedOptionId;
+  optionRow.append(select);
+  const rationaleRow = node("div", "form-row");
+  rationaleRow.append(node("label", "", "反馈说明"));
+  const rationale = node("textarea");
+  rationale.placeholder = "说明认可、修改或不采纳该建议的原因。";
+  rationaleRow.append(rationale);
+  disposition.append(optionRow, rationaleRow);
+  const actions = node("div", "form-actions");
+  for (const [decision, label] of [["accepted", "认可建议"], ["modified", "需要修改"], ["rejected", "不采纳"]]) {
+    actions.append(button(label, decision === "rejected" ? "danger" : "secondary", async () => {
+      if (!rationale.value.trim()) return showState("反馈说明不能为空。", true);
+      try {
+        await submitDecisionDisposition(recommendation.id, decision, decision === "rejected" ? undefined : select.value, rationale.value.trim());
+      } catch (error) {
+        showState(friendlyError(error), true);
+      }
+    }));
+  }
+  disposition.append(actions);
+  disposition.addEventListener("submit", (event) => event.preventDefault());
+  panel.append(disposition);
+
+  if (recommendation.status === "generated" && state.resolution?.query?.resolutionCase?.status === "confirmed") {
+    panel.append(button("填入人工方案草稿", "", () => {
+      const selected = recommendation.output.options.find((option) => option.id === select.value) ?? recommendation.output.options[0];
+      state.decisionDraft = { type: selected.actionType, summary: selected.actionSummary };
+      switchTab("resolution");
+      renderResolution(state.resolution.query);
+    }));
+  }
+  if (dispositions.length) {
+    const history = node("section", "explanation-block");
+    history.append(node("h4", "", "人工反馈记录"));
+    const list = node("ul", "explanation-list");
+    for (const item of dispositions) list.append(node("li", "", `${item.decision} · ${item.selectedOptionId || "—"} · ${item.actor} · ${item.createdAt}`));
+    history.append(list);
+    panel.append(history);
+  }
+}
+
+async function loadDecision(exceptionId) {
+  const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}/decision-recommendations`;
+  const result = await api(base);
+  const summaries = result.recommendations || [];
+  const latest = summaries.at(-1);
+  if (!latest) {
+    state.decisionRecommendations = [];
+    state.selectedDecision = null;
+    renderDecisionPanel([]);
+    return;
+  }
+  state.selectedDecision = await api(`${base}/${encodeURIComponent(latest.id)}`);
+  state.decisionRecommendations = [state.selectedDecision];
+  const dispositions = await api(`${base}/${encodeURIComponent(latest.id)}/dispositions`).catch(() => ({ dispositions: [] }));
+  renderDecisionPanel(state.decisionRecommendations, dispositions.dispositions || []);
+}
+
 function governanceSteps(resolutionCase) {
   const status = resolutionCase?.status;
   const actions = resolutionCase?.runtime?.actions || [];
@@ -455,7 +629,7 @@ function snapshotGrid(query) {
   return grid;
 }
 
-function actionEditor() {
+function actionEditor(initialAction) {
   const editor = node("div", "action-editor");
   const addRow = () => {
     if (editor.querySelectorAll(".action-row").length >= 3) return;
@@ -468,6 +642,10 @@ function actionEditor() {
     }
     const summary = node("textarea");
     summary.placeholder = "说明这项动作要做什么，以及完成标准。";
+    if (initialAction && editor.querySelectorAll(".action-row").length === 0) {
+      select.value = initialAction.type;
+      summary.value = initialAction.summary || "";
+    }
     const remove = button("移除", "secondary", () => row.remove());
     row.append(select, summary, remove);
     editor.append(row);
@@ -573,7 +751,8 @@ function renderReviewForm() {
 function renderProposalForm() {
   const form = node("form", "governance-form");
   form.append(node("h4", "", "人工处置方案"));
-  const editor = actionEditor();
+  const editor = actionEditor(state.decisionDraft);
+  if (state.decisionDraft) form.append(node("div", "inline-notice info", "内容来源于 AI Recommendation，提交前请人工核对和修改。"));
   form.append(editor.element, button("增加动作", "secondary", () => editor.add()));
   form.append(button("拟定方案", "", async () => {
     const actions = editor.values();
@@ -715,15 +894,24 @@ async function selectException(exceptionId) {
   state.selectedExceptionId = exceptionId;
   state.bundle = null;
   state.explanations = [];
+  state.decisionRecommendations = [];
+  state.decisionDispositions = [];
+  state.selectedDecision = null;
+  state.decisionDraft = null;
   state.resolution = null;
   renderSelectedException();
   renderExceptions(state.view);
   clearPanels();
   renderLoadingPanel("panel-evidence");
   renderLoadingPanel("panel-ai");
+  renderLoadingPanel("panel-decision");
   renderLoadingPanel("panel-resolution");
   const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
-  const [bundleResult, explanationResult] = await Promise.allSettled([api(`${base}/bundle`), api(`${base}/explanations`)]);
+  const [bundleResult, explanationResult, decisionResult] = await Promise.allSettled([
+    api(`${base}/bundle`),
+    api(`${base}/explanations`),
+    api(`${base}/decision-recommendations`),
+  ]);
   if (bundleResult.status === "fulfilled") {
     state.bundle = bundleResult.value;
     renderEvidence(bundleResult.value);
@@ -732,8 +920,25 @@ async function selectException(exceptionId) {
   }
   if (explanationResult.status === "fulfilled") renderAIPanel(explanationResult.value.explanations || []);
   else renderEmptyPanel("panel-ai", "解释加载失败，未自动生成新解释。");
+  if (decisionResult.status === "fulfilled") {
+    const summaries = decisionResult.value.recommendations || [];
+    const latest = summaries.at(-1);
+    if (!latest) {
+      state.decisionRecommendations = [];
+      state.selectedDecision = null;
+      renderDecisionPanel([]);
+    }
+    else {
+      state.selectedDecision = await api(`${base}/decision-recommendations/${encodeURIComponent(latest.id)}`);
+      state.decisionRecommendations = [state.selectedDecision];
+      const dispositions = await api(`${base}/decision-recommendations/${encodeURIComponent(latest.id)}/dispositions`).catch(() => ({ dispositions: [] }));
+      state.decisionDispositions = dispositions.dispositions || [];
+      renderDecisionPanel(state.decisionRecommendations, dispositions.dispositions || []);
+    }
+  } else renderEmptyPanel("panel-decision", "决策建议加载失败，未自动生成。");
   try {
     await loadResolution(exceptionId);
+    if (state.decisionRecommendations.length) renderDecisionPanel(state.decisionRecommendations, state.decisionDispositions);
   } catch (error) {
     renderEmptyPanel("panel-resolution", error.status === 404 ? "该异常尚未进入人工处置。" : "处置状态加载失败。");
   }

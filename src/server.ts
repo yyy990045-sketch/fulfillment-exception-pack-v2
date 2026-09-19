@@ -12,6 +12,16 @@ import type { GoldCase } from "./types.js";
 import { buildReport } from "./report/build.js";
 import { buildV2WorkbenchView } from "./application/v2-workbench.js";
 import { buildOperationalAnalytics, OperationalAnalyticsError } from "./analytics/index.js";
+import {
+  DecisionAiError,
+  decisionValidationErrorCode,
+  generateDecisionRecommendation,
+  getDecisionRecommendation,
+  listDecisionRecommendationDispositions,
+  listDecisionRecommendations,
+  recordDecisionRecommendationDisposition,
+  resolveDecisionRecommendationProvider,
+} from "./ai/decision/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -271,6 +281,65 @@ const server = createServer(async (req, res) => {
         resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
       });
       return json(res, 200, analytics);
+    }
+    const decisionDispositionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)\/dispositions$/);
+    if (decisionDispositionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(decisionDispositionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(decisionDispositionMatch[2] ?? "");
+      const recommendationId = decodeURIComponent(decisionDispositionMatch[3] ?? "");
+      const store = getV2Store();
+      if (req.method === "GET") {
+        const recommendation = getDecisionRecommendation(store, tenantId, contextId, exceptionId, recommendationId);
+        if (!recommendation) return json(res, 404, { error: "not_found" });
+        return json(res, 200, { recommendationId, dispositions: listDecisionRecommendationDispositions(store, tenantId, recommendationId) });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined || input.actor !== undefined || input.roles !== undefined) {
+        return json(res, 400, { error: "actor_and_tenant_from_auth_required" });
+      }
+      const decision = String(input.decision || "");
+      if (!["accepted", "modified", "rejected"].includes(decision)) return json(res, 422, { error: "invalid_decision_disposition" });
+      const disposition = recordDecisionRecommendationDisposition(store, tenantId, contextId, exceptionId, recommendationId, {
+        decision: decision as "accepted" | "modified" | "rejected",
+        selectedOptionId: typeof input.selectedOptionId === "string" ? input.selectedOptionId : undefined,
+        rationale: typeof input.rationale === "string" ? input.rationale : "",
+        actor,
+      });
+      return json(res, 200, disposition);
+    }
+    const decisionItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)$/);
+    if (req.method === "GET" && decisionItemMatch) {
+      const tenantId = authOf(req).tenantId;
+      const recommendation = getDecisionRecommendation(
+        getV2Store(),
+        tenantId,
+        decodeURIComponent(decisionItemMatch[1] ?? ""),
+        decodeURIComponent(decisionItemMatch[2] ?? ""),
+        decodeURIComponent(decisionItemMatch[3] ?? ""),
+      );
+      if (!recommendation) return json(res, 404, { error: "not_found" });
+      return json(res, 200, recommendation);
+    }
+    const decisionCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations$/);
+    if (decisionCollectionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(decisionCollectionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(decisionCollectionMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.listExceptions(tenantId, contextId).some((item) => item.id === exceptionId)) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") return json(res, 200, { contextId, exceptionId, recommendations: listDecisionRecommendations(store, tenantId, contextId, exceptionId) });
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined || input.actor !== undefined || input.roles !== undefined) {
+        return json(res, 400, { error: "actor_and_tenant_from_auth_required" });
+      }
+      const recommendation = await generateDecisionRecommendation(store, resolveDecisionRecommendationProvider(), tenantId, contextId, exceptionId, actor);
+      if (recommendation.status === "rejected") {
+        return json(res, 422, { error: decisionValidationErrorCode(recommendation.validation), recommendation });
+      }
+      return json(res, 200, recommendation);
     }
     const manufacturingWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/workbench$/);
     if (req.method === "GET" && manufacturingWorkbenchMatch) {
@@ -619,6 +688,12 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     if (error instanceof HttpError) return json(res, error.status, { error: error.code });
     if (error instanceof GroundedAiError) return json(res, error.status, { error: error.code });
+    if (error instanceof DecisionAiError) {
+      const code = error.code.startsWith("DECISION_PROVIDER_INVALID_OUTPUT")
+        ? "DECISION_PROVIDER_INVALID_OUTPUT"
+        : error.code;
+      return json(res, error.status, { error: code });
+    }
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {
