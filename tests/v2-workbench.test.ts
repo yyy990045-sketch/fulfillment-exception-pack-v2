@@ -130,5 +130,9 @@ describe("V2 manufacturing workbench DTO", () => {
     expect(source).not.toContain("客户实际收到80件");
     expect(source).not.toContain("100000");
     expect(source).not.toContain("80000");
+    expect(source).not.toContain("generateAction");
+    expect(source).not.toContain("aiRecommendation");
+    expect(source).not.toContain("rootCause");
+    expect(source).not.toContain("autoResolve");
   });
 });

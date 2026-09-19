@@ -599,13 +599,21 @@ const server = createServer(async (req, res) => {
       "forbidden_approver",
       "resolution_approval_not_allowed",
       "resolution_approval_not_submitted",
+      "resolution_review_not_allowed",
+      "resolution_proposal_not_allowed",
+      "resolution_submit_not_allowed",
       "resolution_execution_not_allowed",
       "resolution_close_not_allowed",
+      "resolution_exception_not_detected",
+      "resolution_exception_bundle_required",
+      "receipt_required",
       "SEGREGATION_OF_DUTIES_VIOLATION",
       "RESOLUTION_EXECUTION_IDEMPOTENCY_CONFLICT",
     ]);
-    const status = message === "not_found" ? 404 : message.startsWith("invalid_risk_case_transition") || message.endsWith("_required") || conflictCodes.has(message) ? 409 : 400;
-    json(res, status, { error: message });
+    const domainCode = message.split(":")[0] ?? message;
+    const isConflict = conflictCodes.has(message) || conflictCodes.has(domainCode);
+    const status = message === "not_found" ? 404 : message.startsWith("invalid_risk_case_transition") || message.endsWith("_required") || isConflict ? 409 : 400;
+    json(res, status, { error: isConflict ? domainCode : message });
   }
 });
 

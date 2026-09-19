@@ -352,7 +352,7 @@ paths:
             schema: { $ref: '#/components/schemas/ResolutionAcceptanceRequest' }
       responses:
         '200':
-          description: Human-accepted Resolution Case
+          description: Human acceptance mutation; creates a triaged Resolution Case and freezes intake lineage and Evidence references
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -382,10 +382,11 @@ paths:
           application/json: { schema: { $ref: '#/components/schemas/ResolutionReviewRequest' } }
       responses:
         '200':
-          description: Reviewed Resolution Case
+          description: Human review mutation; confirm advances to confirmed, needs_evidence remains triaged, reject is terminal
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/resolution-cases/{caseId}/propose:
     post:
       parameters:
@@ -398,10 +399,11 @@ paths:
           application/json: { schema: { $ref: '#/components/schemas/ResolutionProposalRequest' } }
       responses:
         '200':
-          description: Proposed Resolution Case
+          description: Human proposal mutation; creates human-authored actions in draft status
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/resolution-cases/{caseId}/submit:
     post:
       parameters:
@@ -410,10 +412,11 @@ paths:
         - { $ref: '#/components/parameters/DemoActorHeader' }
       responses:
         '200':
-          description: Submitted Resolution Case
+          description: Human submit mutation; actions become pending_approval while the outer Case remains proposed
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/resolution-cases/{caseId}:
     get:
       parameters:
@@ -434,10 +437,12 @@ paths:
         - { $ref: '#/components/parameters/DemoActorHeader' }
       responses:
         '200':
-          description: Approved Resolution Case
+          description: Auth-role and segregation-of-duties protected approval mutation
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/resolution-cases/{caseId}/execute:
     post:
@@ -454,10 +459,11 @@ paths:
               properties: { idempotencyKey: { type: string } }
       responses:
         '200':
-          description: Executed Resolution Case
+          description: Local-ledger demo execution; records idempotent receipts without calling a real ERP/WMS
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/resolution-cases/{caseId}/close:
     post:
@@ -467,10 +473,11 @@ paths:
         - { $ref: '#/components/parameters/DemoActorHeader' }
       responses:
         '200':
-          description: Closed Resolution Case
+          description: Receipt-gated verification and closure; the source Exception remains detected
           content:
             application/json: { schema: { $ref: '#/components/schemas/ResolutionCase' } }
         '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
 components:
   securitySchemes:
