@@ -10,11 +10,13 @@ test("manufacturing evidence workbench smoke", async ({ page }) => {
       const context = document.querySelector('[data-testid="context-header"]')?.getBoundingClientRect();
       const thread = document.querySelector('[data-testid="digital-thread-track"]') as HTMLElement | null;
       const selected = document.querySelector('[data-testid="selected-exception-header"]')?.getBoundingClientRect();
+      const workspace = document.querySelector('[role="tablist"]')?.getBoundingClientRect();
       return {
         noPageOverflow: document.documentElement.scrollWidth <= window.innerWidth,
         threadFits: Boolean(thread && thread.scrollWidth <= thread.clientWidth + 1),
         contextAligned: Boolean(context && context.top >= 56 && context.top < 80),
         selectedInFirstViewport: Boolean(selected && selected.top < window.innerHeight && selected.bottom < window.innerHeight),
+        workspaceInFirstViewport: Boolean(workspace && workspace.top < window.innerHeight),
       };
     });
     expect(layout).toEqual({
@@ -22,6 +24,7 @@ test("manufacturing evidence workbench smoke", async ({ page }) => {
       threadFits: true,
       contextAligned: true,
       selectedInFirstViewport: true,
+      workspaceInFirstViewport: true,
     });
     const ruleIds = await page.getByTestId("rule-chip").evaluateAll((items) => items.map((item) => item.getAttribute("data-rule-id")));
     expect(new Set(ruleIds).size).toBe(ruleIds.length);
@@ -44,6 +47,10 @@ test("manufacturing evidence workbench smoke", async ({ page }) => {
   await expect(page.getByTestId("thread-stage")).toHaveCount(8);
   await expect(page.getByText("7 条唯一规则评估")).toBeVisible();
   await expect(page.getByTestId("exception-item")).toHaveCount(4);
+  await page.getByLabel("搜索异常").fill("发货");
+  await expect(page.getByTestId("exception-item")).toHaveCount(2);
+  await expect(page.getByText("2 / 4")).toBeVisible();
+  await page.getByLabel("搜索异常").fill("");
 
   await page.getByTestId("exception-item").filter({ hasText: "客户收货主张与发货记录不一致" }).click();
   const evidenceTab = page.getByRole("tab", { name: "证据" });

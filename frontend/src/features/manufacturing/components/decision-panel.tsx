@@ -37,7 +37,7 @@ export function DecisionPanel({
           该建议基于旧证据或旧历史快照，请以当前事实为准。
         </p>
       )}
-      <p className="mt-3 text-sm leading-6 text-text-secondary">{recommendation.output.executiveSummary}</p>
+      <p className="mt-3 max-w-[78ch] text-sm leading-6 text-text-secondary">{recommendation.output.executiveSummary}</p>
       <div className="mt-4 divide-y divide-border border-y border-border">
         {recommendation.output.options.map((option) => {
           const recommended = option.id === recommendation.output.recommendedOptionId;
@@ -65,11 +65,15 @@ export function DecisionPanel({
                 </Button>
               </div>
               <h3 className="mt-2 text-sm font-semibold">{option.title}</h3>
-              <p className="mt-1 text-sm text-text-secondary">{option.actionSummary}</p>
-              <p className="mt-2 text-sm text-text-muted">{option.rationale}</p>
+              <p className="mt-1 max-w-[78ch] text-sm text-text-secondary">
+                <span className="font-medium text-text-primary">建议动作：</span>{option.actionSummary}
+              </p>
+              <p className="mt-2 max-w-[78ch] text-sm text-text-muted">
+                <span className="font-medium text-text-secondary">为什么：</span>{option.rationale}
+              </p>
               <dl className="mt-3 grid gap-3 text-xs xl:grid-cols-2">
                 <div>
-                  <dt className="text-text-muted">支持事实</dt>
+                  <dt className="text-text-muted">业务事实</dt>
                   <dd className="mt-1 space-y-1">
                     {option.supportingFacts.map((fact) => (
                       <p key={`${fact.kind}-${fact.key}`}>{businessFactLabel(fact.key)} {formatMetricValue(fact.value)}</p>
@@ -77,7 +81,7 @@ export function DecisionPanel({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-text-muted">证据引用</dt>
+                  <dt className="text-text-muted">证据依据</dt>
                   <dd className="mt-1"><EvidenceReferenceList evidenceIds={option.evidenceIds} bundle={evidence} onOpenEvidence={onOpenEvidence} /></dd>
                 </div>
               </dl>

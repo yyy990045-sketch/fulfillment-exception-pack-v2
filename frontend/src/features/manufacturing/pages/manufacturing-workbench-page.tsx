@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Skeleton } from "../../../components/ui/skeleton.js";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs.js";
@@ -45,18 +46,10 @@ export function ManufacturingWorkbenchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const workbench = useWorkbenchView(contextId);
+  const scrollPositions = useRef<Record<string, number>>({});
   const view = workbench.data;
   const selectedExceptionId = exceptionId ?? view?.defaultExceptionId ?? view?.exceptions[0]?.id;
   const selectedException = view?.exceptions.find((item) => item.id === selectedExceptionId);
-  const evidence = useExceptionEvidence(contextId, selectedException?.id);
-  const selectedEvidenceId = searchParams.get("evidence") ?? undefined;
-  const selectedEvidence = evidence.data?.evidence.find((item) => item.evidenceId === selectedEvidenceId);
-
-  if (workbench.isLoading) return <PageSkeleton />;
-  if (workbench.isError || !view) {
-    return <LocalError title="履约上下文加载失败" detail="当前 API 无法返回制造履约工作台。" />;
-  }
-
   const workspaceTab = location.pathname.endsWith("/evidence")
     ? "evidence"
     : location.pathname.endsWith("/analysis")
@@ -64,29 +57,61 @@ export function ManufacturingWorkbenchPage() {
       : location.pathname.endsWith("/decision")
         ? "decision"
         : "overview";
+  const scrollKey = `${selectedExceptionId ?? ""}:${workspaceTab}`;
+  useLayoutEffect(() => {
+    if (import.meta.env.MODE === "test") return;
+    const target = scrollPositions.current[scrollKey] ?? 0;
+    requestAnimationFrame(() => window.scrollTo({ top: target, behavior: "instant" }));
+  }, [scrollKey]);
+  const evidence = useExceptionEvidence(contextId, selectedException?.id);
+  const selectedEvidenceId = searchParams.get("evidence") ?? undefined;
+  const selectedEvidence = workspaceTab === "evidence"
+    ? evidence.data?.evidence.find((item) => item.evidenceId === selectedEvidenceId)
+    : undefined;
+
+  if (workbench.isLoading) return <PageSkeleton />;
+  if (workbench.isError || !view) {
+    return <LocalError title="履约上下文加载失败" detail="当前 API 无法返回制造履约工作台。" />;
+  }
+
   const highlightedStage = searchParams.get("stage") ?? undefined;
 
   const openException = (exception: ExceptionView) => {
-    navigate(`/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exception.id)}`);
+    scrollPositions.current[scrollKey] = window.scrollY;
+    const next = new URLSearchParams(searchParams);
+    next.delete("evidence");
+    next.delete("stage");
+    const suffix = next.toString() ? `?${next.toString()}` : "";
+    navigate(`/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exception.id)}${suffix}`);
   };
   const openStage = (stage: { entityId: string; key: string }) => {
     const related = view.exceptions.find((exception) =>
       exception.entityIds.includes(stage.entityId) || exception.stageKeys.includes(stage.key),
     );
-    if (related) navigate(`/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(related.id)}?stage=${encodeURIComponent(stage.key)}`);
+    if (!related) return;
+    scrollPositions.current[scrollKey] = window.scrollY;
+    const next = new URLSearchParams(searchParams);
+    next.delete("evidence");
+    next.set("stage", stage.key);
+    navigate(`/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(related.id)}?${next.toString()}`);
   };
   const setTab = (tab: string) => {
     if (!selectedException) return;
+    scrollPositions.current[scrollKey] = window.scrollY;
     const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(selectedException.id)}`;
-    if (tab === "evidence") return navigate(`${base}/evidence`);
-    if (tab === "analysis") return navigate(`${base}/analysis`);
-    if (tab === "decision") return navigate(`${base}/decision`);
-    return navigate(base);
+    const next = new URLSearchParams(searchParams);
+    const suffix = next.toString() ? `?${next.toString()}` : "";
+    if (tab === "evidence") return navigate(`${base}/evidence${suffix}`);
+    if (tab === "analysis") return navigate(`${base}/analysis${suffix}`);
+    if (tab === "decision") return navigate(`${base}/decision${suffix}`);
+    return navigate(`${base}${suffix}`);
   };
   const openEvidenceById = (evidenceId: string) => {
     if (!selectedException) return;
-    const next = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(selectedException.id)}/evidence?evidence=${encodeURIComponent(evidenceId)}`;
-    navigate(next);
+    scrollPositions.current[scrollKey] = window.scrollY;
+    const next = new URLSearchParams(searchParams);
+    next.set("evidence", evidenceId);
+    navigate(`/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(selectedException.id)}/evidence?${next.toString()}`);
   };
   const openEvidence = (item: EvidenceItem) => {
     openEvidenceById(item.evidenceId);
@@ -111,14 +136,21 @@ export function ManufacturingWorkbenchPage() {
         {!selectedException ? (
           <LocalError title="暂无异常" detail="当前履约上下文没有可展示的异常。" />
         ) : (
-          <div className="grid overflow-hidden border border-border bg-surface lg:grid-cols-[320px_minmax(0,1fr)]">
+          <div className="grid overflow-hidden border border-border bg-surface lg:grid-cols-[300px_minmax(0,1fr)]">
             <ExceptionRail
               exceptions={view.exceptions}
+              resolutionCases={view.resolutionCases}
+              stages={view.thread}
               selectedExceptionId={selectedException.id}
               onSelect={openException}
             />
             <section className="min-w-0">
-              <SelectedExceptionHeader exception={selectedException} contextId={contextId} context={view.context} />
+              <SelectedExceptionHeader
+                exception={selectedException}
+                contextId={contextId}
+                context={view.context}
+                onNavigateTab={setTab}
+              />
               <DecisionProcessBar contextId={contextId} exceptionId={selectedException.id} />
               <Tabs value={workspaceTab} onValueChange={setTab}>
                 <div className="px-4 pt-2 lg:px-5">

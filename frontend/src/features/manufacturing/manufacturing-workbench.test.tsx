@@ -169,6 +169,61 @@ describe("Manufacturing decision workbench", () => {
     expect(sourceSystemLabel("wms", "WMS Demo")).toBe("仓储系统");
   });
 
+  it("filters and sorts the exception queue without leaving internal fields in the list", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderAt("/manufacturing/ctx-fixture");
+    await screen.findByRole("heading", { name: "SO-FIXTURE-001" });
+
+    const search = screen.getByLabelText("搜索异常");
+    await user.type(search, "回款");
+    expect(screen.getAllByTestId("exception-item")).toHaveLength(1);
+    expect(screen.getByText("1 / 4")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /回款未结清/ })).toBeInTheDocument();
+    expect(screen.queryByText(/rule-7/)).not.toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, "不存在的异常");
+    expect(await screen.findByText("没有匹配当前条件的异常")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "清除筛选" }));
+    expect(screen.getAllByTestId("exception-item")).toHaveLength(4);
+
+    await user.selectOptions(screen.getByLabelText("严重程度"), "high");
+    expect(screen.getAllByTestId("exception-item")).toHaveLength(2);
+    await user.click(screen.getByRole("button", { name: "清除筛选" }));
+
+    await user.selectOptions(screen.getByLabelText("业务阶段"), "shipment");
+    expect(screen.getAllByTestId("exception-item")).toHaveLength(2);
+    await user.click(screen.getByRole("button", { name: "清除筛选" }));
+
+    await user.selectOptions(screen.getByLabelText("处理阶段"), "approval");
+    expect(screen.getAllByTestId("exception-item")).toHaveLength(1);
+    expect(screen.getByText("质检未通过数量")).toBeInTheDocument();
+  });
+
+  it("preserves queue filters when switching exception workspaces", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderAt("/manufacturing/ctx-fixture");
+    await screen.findByRole("heading", { name: "SO-FIXTURE-001" });
+
+    await user.type(screen.getByLabelText("搜索异常"), "回款");
+    await user.click(screen.getByRole("tab", { name: "证据" }));
+    await waitFor(() => expect(window.location.pathname).toContain("/evidence"));
+    expect(new URLSearchParams(window.location.search).get("q")).toBe("回款");
+    expect(screen.getByLabelText("搜索异常")).toHaveValue("回款");
+  });
+
+  it("runs the current selected exception quick action from the header", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderAt("/manufacturing/ctx-fixture");
+    await screen.findByRole("heading", { name: "SO-FIXTURE-001" });
+    await user.click(screen.getByRole("button", { name: "进入治理" }));
+    expect(await screen.findByRole("heading", { name: "决策建议" })).toBeInTheDocument();
+    expect(screen.getByTestId("selected-exception-header")).toBeInTheDocument();
+  });
+
   it("shows a concise fallback when no verification questions exist", async () => {
     mockApi({
       explanationList: { contextId: "ctx-fixture", exceptionId: "exception-claim", explanations: [] },
@@ -221,8 +276,22 @@ describe("Manufacturing decision workbench", () => {
     const inspector = await screen.findByTestId("evidence-inspector");
     expect(inspector).toHaveTextContent("客户主张收到");
     expect(inspector).toHaveTextContent("客户主张收到=8");
-    expect(screen.getByText("仓储系统")).toBeInTheDocument();
-    expect(screen.getByText("人工记录")).toBeInTheDocument();
+    expect(screen.getAllByText("仓储系统").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("人工记录").length).toBeGreaterThan(0);
+  });
+
+  it("filters the evidence workspace and reports no matching results", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/evidence");
+    expect(await screen.findAllByTestId("evidence-row")).toHaveLength(2);
+
+    await user.type(screen.getByLabelText("搜索证据"), "发货数量");
+    await waitFor(() => expect(screen.getAllByTestId("evidence-row")).toHaveLength(1));
+    expect(screen.getByText("1 / 2 条")).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("搜索证据"));
+    await user.type(screen.getByLabelText("搜索证据"), "不匹配");
+    expect(await screen.findByText("没有匹配当前条件的证据")).toBeInTheDocument();
   });
 
   it("supports evidence deep links and browser back behavior", async () => {
@@ -245,11 +314,11 @@ describe("Manufacturing decision workbench", () => {
     mockApi();
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
     expect(await screen.findByRole("heading", { name: "AI 解释" })).toBeInTheDocument();
-    expect(await screen.findByText("已确认事实")).toBeInTheDocument();
+    expect(await screen.findByText("已知事实")).toBeInTheDocument();
     expect(screen.getByText("系统记录的发货数量为 10。")).toBeInTheDocument();
-    expect(screen.getByText("未知")).toBeInTheDocument();
+    expect(screen.getByText("未知信息")).toBeInTheDocument();
     expect(screen.getByText("当前不能确认客户实际签收数量。")).toBeInTheDocument();
-    expect(screen.getByText("待核实")).toBeInTheDocument();
+    expect(screen.getByText("待核实事项")).toBeInTheDocument();
     expect(screen.getByText("是否存在客户签收单或其他独立签收证据？")).toBeInTheDocument();
   });
 
@@ -260,7 +329,7 @@ describe("Manufacturing decision workbench", () => {
     expect(await screen.findByText("均为待验证假设")).toBeInTheDocument();
     expect(screen.getByText("签收记录缺失可能导致主张数量未被确认。")).toBeInTheDocument();
     expect(screen.getByText("支持证据")).toBeInTheDocument();
-    expect(screen.getByText("反证或矛盾证据")).toBeInTheDocument();
+    expect(screen.getByText("反驳证据")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "客户主张 8" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "系统记录 10" }).length).toBeGreaterThan(0);
   });

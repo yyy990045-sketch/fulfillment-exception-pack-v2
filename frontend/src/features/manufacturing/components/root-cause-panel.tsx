@@ -40,12 +40,12 @@ export function RootCausePanel({
       )}
       {analysis && (
         <>
-          <p className="mt-3 text-sm leading-6 text-text-secondary">{analysis.output.summary}</p>
+          <p className="mt-3 max-w-[78ch] text-sm leading-6 text-text-secondary">{analysis.output.summary}</p>
           <div className="mt-4 divide-y divide-border border-y border-border">
             {analysis.output.hypotheses.map((hypothesis) => (
               <article key={hypothesis.id} className="py-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="warning">待验证假设</Badge>
+                  <Badge variant="warning">假设</Badge>
                 </div>
                 <p className="mt-2 text-sm font-medium leading-6">{hypothesis.statement}</p>
                 <dl className="mt-3 grid gap-3 text-xs xl:grid-cols-2">
@@ -56,7 +56,7 @@ export function RootCausePanel({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-text-muted">反证或矛盾证据</dt>
+                    <dt className="text-text-muted">反驳证据</dt>
                     <dd className="mt-1">
                       <EvidenceReferenceList evidenceIds={hypothesis.contradictingEvidenceIds} bundle={evidence} onOpenEvidence={onOpenEvidence} />
                     </dd>
@@ -66,9 +66,12 @@ export function RootCausePanel({
                   <p className="mt-3 text-xs text-warning">缺失材料：{hypothesis.missingEvidence.join("、")}</p>
                 )}
                 {hypothesis.verificationSteps.length > 0 && (
-                  <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-text-secondary">
-                    {hypothesis.verificationSteps.map((step) => <li key={step}>{step}</li>)}
-                  </ol>
+                  <div className="mt-3">
+                    <h4 className="text-xs font-semibold text-text-muted">待验证内容</h4>
+                    <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-text-secondary">
+                      {hypothesis.verificationSteps.map((step) => <li key={step}>{step}</li>)}
+                    </ol>
+                  </div>
                 )}
               </article>
             ))}

@@ -56,7 +56,11 @@ export const workbenchFixture: WorkbenchView = {
     { id: "exception-quality", code: "QUALITY_NONCONFORMING_QUANTITY", label: "质检未通过数量", severity: "medium", status: "open", title: "质检存在未通过数量", summary: "质检记录包含未通过数量，需要进入内部跟进。", metrics: { failedQty: 1 }, matchKey: "QI-FIXTURE", ruleId: "rule-3", ruleVersionId: "rv-3", latestRuleEvaluationId: "eval-3", entityIds: ["entity-quality"], stageKeys: ["quality_event"], evidenceCount: 2, sourceSystemCount: 1, createdAt, lastDetectedAt: createdAt },
     { id: "exception-shipment", code: "SHIPMENT_SHORTFALL", label: "发货数量短少", severity: "high", status: "open", title: "发货数量少于订单数量", summary: "发货记录少于订单数量。", metrics: { shortfall: 2 }, matchKey: "SO-FIXTURE-001", ruleId: "rule-5", ruleVersionId: "rv-5", latestRuleEvaluationId: "eval-5", entityIds: ["entity-shipment"], stageKeys: ["shipment"], evidenceCount: 2, sourceSystemCount: 2, createdAt, lastDetectedAt: createdAt },
   ],
-  resolutionCases: [],
+  resolutionCases: [
+    { id: "resolution-claim", exceptionId: "exception-claim", status: "triaged", ownerRole: "品质负责人", title: "客户签收主张差异治理", createdAt, updatedAt: createdAt },
+    { id: "resolution-payment", exceptionId: "exception-payment", status: "confirmed", ownerRole: "财务", title: "回款未结清治理", createdAt, updatedAt: createdAt },
+    { id: "resolution-quality", exceptionId: "exception-quality", status: "proposed", ownerRole: "品质负责人", title: "质检未通过治理", createdAt, updatedAt: createdAt },
+  ],
   truthfulness: {},
   defaultExceptionId: "exception-claim",
 };

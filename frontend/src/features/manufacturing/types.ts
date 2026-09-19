@@ -83,12 +83,23 @@ export type ExceptionView = {
   lastDetectedAt: string;
 };
 
-export type WorkbenchView = Omit<GeneratedWorkbench, "context" | "stats" | "thread" | "rules" | "exceptions"> & {
+export type ResolutionCaseSummaryView = {
+  id: string;
+  exceptionId: string;
+  status: string;
+  ownerRole: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WorkbenchView = Omit<GeneratedWorkbench, "context" | "stats" | "thread" | "rules" | "exceptions" | "resolutionCases"> & {
   context: WorkbenchContext;
   stats: WorkbenchStats;
   thread: ThreadStage[];
   rules: RuleView[];
   exceptions: ExceptionView[];
+  resolutionCases: ResolutionCaseSummaryView[];
 };
 
 export type EvidenceRole = "expected" | "actual" | "claim" | "context";

@@ -43,22 +43,22 @@ export function ExplanationPanel({
       )}
       {explanation && (
         <>
-          <p className="mt-3 text-sm leading-6 text-text-secondary">{explanation.output.executiveSummary}</p>
-          <div className="mt-5 grid gap-5 xl:grid-cols-3">
+          <p className="mt-3 max-w-[78ch] text-sm leading-6 text-text-secondary">{explanation.output.executiveSummary}</p>
+          <div className="mt-5 grid gap-5 xl:grid-cols-[1.1fr_0.9fr_0.9fr]">
             <div>
-              <h3 className="text-xs font-semibold text-text-muted">已确认事实</h3>
+              <h3 className="text-xs font-semibold text-text-muted">已知事实</h3>
               <div className="mt-2">
                 <CitationStatementList items={explanation.output.facts} bundle={evidence} onOpenEvidence={onOpenEvidence} />
               </div>
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-text-muted">未知</h3>
+              <h3 className="text-xs font-semibold text-text-muted">未知信息</h3>
               <div className="mt-2">
                 <CitationStatementList items={explanation.output.uncertainties} bundle={evidence} onOpenEvidence={onOpenEvidence} />
               </div>
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-text-muted">待核实</h3>
+              <h3 className="text-xs font-semibold text-text-muted">待核实事项</h3>
               {explanation.output.questionsToVerify.length ? (
                 <ul className="mt-2 space-y-2">
                   {explanation.output.questionsToVerify.map((question) => (
