@@ -19,6 +19,7 @@
     "demo:manufacturing": "npm run demo:manufacturing:prepare && npm run demo",
     "demo:operations:prepare": "tsx src/demo/operational-analytics/prepare-demo.ts",
     "demo:operations": "npm run demo:operations:prepare && npm run demo",
+    "demo:outcomes:prepare": "tsx src/demo/outcomes/prepare-demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

@@ -46,7 +46,7 @@ describe("V2 SQLite persistence", () => {
     const second = runV2Migrations(db);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>;
 
-    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation"]);
+    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence"]);
     expect(second).toEqual([]);
     expect(tables.map((row) => row.name)).toEqual(expect.arrayContaining([
       "business_entities",
@@ -67,6 +67,8 @@ describe("V2 SQLite persistence", () => {
       "automation_runs",
       "automation_receipts",
       "internal_work_items",
+      "outcome_definitions",
+      "outcome_evaluations",
     ]));
   });
 
@@ -83,18 +85,20 @@ describe("V2 SQLite persistence", () => {
     expect(applied).toBeUndefined();
   });
 
-  it("upgrades an existing migration 006 database through decision, root cause, policy, and automation tables", () => {
+  it("upgrades an existing migration 006 database through decision, root cause, policy, automation, and outcome tables", () => {
     const db = openDatabase();
-    const preLatest = V2_MIGRATIONS.filter((migration) => !["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation"].includes(migration.version));
+    const preLatest = V2_MIGRATIONS.filter((migration) => !["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence"].includes(migration.version));
     expect(runV2Migrations(db, preLatest)).not.toContain("007_decision_recommendations");
-    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation"]);
-    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'decision_recommendation%' OR name LIKE 'root_cause_%' OR name LIKE 'policy_%' OR name LIKE 'automation_%' OR name = 'internal_work_items') ORDER BY name").all() as Array<{ name: string }>;
+    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence"]);
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'decision_recommendation%' OR name LIKE 'root_cause_%' OR name LIKE 'policy_%' OR name LIKE 'automation_%' OR name LIKE 'outcome_%' OR name = 'internal_work_items') ORDER BY name").all() as Array<{ name: string }>;
     expect(tables.map((row) => row.name)).toEqual([
       "automation_receipts",
       "automation_runs",
       "decision_recommendation_dispositions",
       "decision_recommendations",
       "internal_work_items",
+      "outcome_definitions",
+      "outcome_evaluations",
       "policy_definitions",
       "policy_evaluations",
       "root_cause_analyses",

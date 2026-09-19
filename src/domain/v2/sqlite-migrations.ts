@@ -606,6 +606,67 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON internal_work_items (tenant_id, status, kind, context_id, exception_id, created_at, id);
     `,
   },
+  {
+    version: "011_outcome_intelligence",
+    sql: `
+      CREATE TABLE IF NOT EXISTS outcome_definitions (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        version TEXT NOT NULL,
+        name TEXT NOT NULL,
+        exception_code TEXT NOT NULL,
+        baseline_metric_key TEXT NOT NULL,
+        current_evidence_field TEXT NOT NULL,
+        comparison TEXT NOT NULL,
+        target_value_json TEXT NOT NULL,
+        better_direction TEXT NOT NULL,
+        enabled INTEGER NOT NULL,
+        content_hash TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS outcome_definitions_enabled_idx
+        ON outcome_definitions (tenant_id, exception_code, enabled, id, version);
+
+      CREATE TABLE IF NOT EXISTS outcome_evaluations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        definition_id TEXT NOT NULL,
+        definition_version TEXT NOT NULL,
+        rule_evaluation_id TEXT NOT NULL,
+        resolution_case_id TEXT,
+        automation_run_id TEXT,
+        evidence_ids_json TEXT NOT NULL,
+        baseline_json TEXT NOT NULL,
+        current_json TEXT NOT NULL,
+        status TEXT NOT NULL,
+        definition_snapshot_hash TEXT NOT NULL,
+        evaluated_by TEXT NOT NULL,
+        evaluated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, exception_id, definition_id, definition_version, definition_snapshot_hash),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, definition_id, definition_version)
+          REFERENCES outcome_definitions (tenant_id, id, version),
+        FOREIGN KEY (tenant_id, rule_evaluation_id)
+          REFERENCES rule_evaluations (tenant_id, id),
+        FOREIGN KEY (tenant_id, resolution_case_id)
+          REFERENCES resolution_cases (tenant_id, id),
+        FOREIGN KEY (tenant_id, automation_run_id)
+          REFERENCES automation_runs (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS outcome_evaluations_exception_idx
+        ON outcome_evaluations (tenant_id, context_id, exception_id, evaluated_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

@@ -41,6 +41,13 @@ import {
   getAutomationRun,
   listAutomationRuns,
 } from "./automation/index.js";
+import {
+  OutcomeError,
+  evaluateOutcome,
+  getOutcomeEvaluation,
+  listOutcomeEvaluations,
+  provisionDefaultManufacturingOutcomeDefinitions,
+} from "./outcomes/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -74,7 +81,10 @@ const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
 
 function getV2Store() {
-  v2Store ??= openV2SqliteStore();
+  if (!v2Store) {
+    v2Store = openV2SqliteStore();
+    provisionDefaultManufacturingOutcomeDefinitions(v2Store, "demo-manufacturing");
+  }
   return v2Store;
 }
 
@@ -300,6 +310,51 @@ const server = createServer(async (req, res) => {
         resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
       });
       return json(res, 200, analytics);
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/outcome-definitions") {
+      const tenantId = authOf(req).tenantId;
+      const exceptionCode = url.searchParams.get("exceptionCode") ?? undefined;
+      return json(res, 200, {
+        definitions: getV2Store().listOutcomeDefinitions(tenantId, exceptionCode, false),
+      });
+    }
+    const outcomeEvaluationItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/outcome-evaluations\/([^/]+)$/);
+    if (req.method === "GET" && outcomeEvaluationItemMatch) {
+      const evaluation = getOutcomeEvaluation(
+        getV2Store(),
+        authOf(req).tenantId,
+        decodeURIComponent(outcomeEvaluationItemMatch[1] ?? ""),
+        decodeURIComponent(outcomeEvaluationItemMatch[2] ?? ""),
+        decodeURIComponent(outcomeEvaluationItemMatch[3] ?? ""),
+      );
+      if (!evaluation) return json(res, 404, { error: "not_found" });
+      return json(res, 200, evaluation);
+    }
+    const outcomeEvaluationCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/outcome-evaluations$/);
+    if (outcomeEvaluationCollectionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(outcomeEvaluationCollectionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(outcomeEvaluationCollectionMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.listExceptions(tenantId, contextId).some((item) => item.id === exceptionId)) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") {
+        return json(res, 200, { contextId, exceptionId, evaluations: listOutcomeEvaluations(store, tenantId, contextId, exceptionId) });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      const forbidden = Object.keys(input).filter((key) => !["definitionId", "evidenceIds", "resolutionCaseId", "automationRunId"].includes(key));
+      if (forbidden.length) return json(res, 400, { error: "OUTCOME_REQUEST_FIELDS_FORBIDDEN" });
+      if (typeof input.definitionId !== "string" || !input.definitionId.trim()) return json(res, 422, { error: "OUTCOME_DEFINITION_ID_REQUIRED" });
+      if (!Array.isArray(input.evidenceIds) || input.evidenceIds.some((item) => typeof item !== "string" || !item.trim())) {
+        return json(res, 422, { error: "OUTCOME_EVIDENCE_IDS_INVALID" });
+      }
+      const evaluation = evaluateOutcome(store, tenantId, contextId, exceptionId, {
+        definitionId: input.definitionId,
+        evidenceIds: input.evidenceIds as string[],
+        ...(typeof input.resolutionCaseId === "string" ? { resolutionCaseId: input.resolutionCaseId } : {}),
+        ...(typeof input.automationRunId === "string" ? { automationRunId: input.automationRunId } : {}),
+      }, actor);
+      return json(res, 200, evaluation);
     }
     const rootCauseReviewMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses\/([^/]+)\/hypotheses\/([^/]+)\/reviews$/);
     if (rootCauseReviewMatch && (req.method === "GET" || req.method === "POST")) {
@@ -880,6 +935,7 @@ const server = createServer(async (req, res) => {
     }
     if (error instanceof PolicyError) return json(res, error.status, { error: error.code });
     if (error instanceof AutomationError) return json(res, error.status, { error: error.code });
+    if (error instanceof OutcomeError) return json(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {

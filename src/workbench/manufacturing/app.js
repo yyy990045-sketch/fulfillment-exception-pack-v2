@@ -60,6 +60,8 @@ const state = {
   decisionDispositions: [],
   selectedDecision: null,
   decisionDraft: null,
+  outcomeDefinitions: [],
+  outcomeEvaluations: [],
   resolution: null,
   resolutionMutating: false,
   demoTenantId: DEFAULT_TENANT_ID,
@@ -1094,6 +1096,48 @@ async function loadResolution(exceptionId) {
   renderResolution(query);
 }
 
+function renderOutcomeSection() {
+  const panel = document.getElementById("panel-resolution");
+  if (!panel) return;
+  const section = node("section", "explanation-block");
+  section.append(node("h4", "", "业务结果"));
+  if (!state.outcomeEvaluations.length) {
+    section.append(node("p", "", "尚无 Evidence-backed 业务结果测量。"));
+  } else {
+    const list = node("div", "evidence-grid");
+    for (const item of state.outcomeEvaluations) {
+      const card = node("article", "evidence-card");
+      const definition = state.outcomeDefinitions.find((definitionItem) => definitionItem.id === item.definitionId && definitionItem.version === item.definitionVersion);
+      card.append(
+        node("span", "evidence-role", item.status),
+        node("strong", "exception-title", definition?.name || item.definitionId),
+        node("p", "", `Baseline：${item.baseline.metricKey} = ${item.baseline.value}`),
+        node("p", "", `Current：${item.current.field} = ${item.current.value ?? "—"}`),
+        node("p", "", `Target：${item.targetValue} · Comparison：${item.comparison}`),
+        node("p", "", `Linked intervention：${item.resolutionCaseId || item.automationRunId || "unlinked"}`),
+        node("p", "", `Evaluated At：${item.evaluatedAt}`),
+      );
+      if (item.current.evidenceIds.length) card.append(citationButtons(item.current.evidenceIds));
+      if (item.syntheticEvidence) card.append(node("div", "inline-notice", "Synthetic Outcome Evidence"));
+      card.append(node("div", "inline-notice", "该结果表示后续业务状态，不证明前序动作导致了该变化。"));
+      list.append(card);
+    }
+    section.append(list);
+  }
+  panel.append(section);
+}
+
+async function loadOutcomes(exceptionId) {
+  state.outcomeDefinitions = [];
+  state.outcomeEvaluations = [];
+  const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
+  const definitions = await api("/api/v2/outcome-definitions").catch(() => ({ definitions: [] }));
+  state.outcomeDefinitions = definitions.definitions || [];
+  const evaluations = await api(`${base}/outcome-evaluations`).catch(() => ({ evaluations: [] }));
+  state.outcomeEvaluations = evaluations.evaluations || [];
+  renderOutcomeSection();
+}
+
 async function mutate(path, body, successMessage) {
   if (state.resolutionMutating) return;
   state.resolutionMutating = true;
@@ -1140,6 +1184,8 @@ async function selectException(exceptionId) {
   state.decisionDispositions = [];
   state.selectedDecision = null;
   state.decisionDraft = null;
+  state.outcomeDefinitions = [];
+  state.outcomeEvaluations = [];
   state.resolution = null;
   renderSelectedException();
   renderExceptions(state.view);
@@ -1206,6 +1252,7 @@ async function selectException(exceptionId) {
   } catch (error) {
     renderEmptyPanel("panel-resolution", error.status === 404 ? "该异常尚未进入人工处置。" : "处置状态加载失败。");
   }
+  await loadOutcomes(exceptionId);
 }
 
 function switchTab(tab, highlightEvidenceId) {

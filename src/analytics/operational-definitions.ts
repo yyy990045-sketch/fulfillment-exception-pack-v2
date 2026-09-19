@@ -20,6 +20,8 @@ export const OPERATIONAL_METRIC_DEFINITIONS: OperationalMetricDefinitions = {
   ruleTriggerRate: "Matched evaluations / all evaluations; this is not accuracy, precision, or false-positive rate",
   exceptionOccurrenceAt: "Latest observedAt of the current Exception Evidence Bundle, falling back to Exception createdAt",
   sourceSystemInvolvement: "Number of Exceptions whose Evidence Bundle involves the source system; values can overlap and are not a mutually exclusive share",
+  outcomeMeasurementCoverage: "Exceptions with at least one Outcome Evaluation / detected Exceptions",
+  observedTargetMetRate: "target_met / Outcome Evaluations with sufficient Evidence; this is not action effectiveness or causal success",
 };
 
 export const OPERATIONAL_TRUTHFULNESS = {

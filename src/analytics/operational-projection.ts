@@ -14,6 +14,7 @@ import {
   type OperationalResolutionStatus,
   type OperationalSeverity,
 } from "./operational-types.js";
+import { buildOutcomeAnalytics } from "../outcomes/analytics.js";
 
 const ACTION_TYPES: ActionType[] = ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"];
 const ACTION_STATUSES = ["draft", "pending_approval", "authorized", "succeeded", "verified", "failed"] as const;
@@ -75,12 +76,15 @@ export function buildOperationalAnalytics(
     cases: ReturnType<V2SqliteStore["listResolutionCases"]>;
     exceptions: V2Exception[];
     evaluations: ReturnType<V2SqliteStore["listRuleEvaluations"]>;
+    outcomeMeasurementCount: number;
+    outcomeStatuses: string[];
   }> = [];
 
   for (const context of contexts) {
     const evaluations = store.listRuleEvaluations(tenantId, context.id);
     const exceptions = store.listExceptions(tenantId, context.id);
     const cases = store.listResolutionCases(tenantId, context.id);
+    const outcomeEvaluations = exceptions.flatMap((exception) => store.listOutcomeEvaluations(tenantId, context.id, exception.id));
     const caseByException = new Map(cases.map((item) => [item.exceptionId, item]));
     const exceptionRows = exceptions
       .filter((exception) => !filters.exceptionCode || exception.code === filters.exceptionCode)
@@ -121,6 +125,8 @@ export function buildOperationalAnalytics(
       cases,
       exceptions,
       evaluations,
+      outcomeMeasurementCount: outcomeEvaluations.length,
+      outcomeStatuses: [...new Set(outcomeEvaluations.map((item) => item.status))],
     });
   }
 
@@ -214,6 +220,7 @@ export function buildOperationalAnalytics(
     governanceCoverageRate: exceptionCount ? exceptionsWithResolutionCase / exceptionCount : null,
     resolutionClosureRate: caseRows.length ? closedResolutionCaseCount / caseRows.length : null,
   };
+  const outcomes = buildOutcomeAnalytics(store, tenantId, { exceptionCode: filters.exceptionCode });
 
   return {
     window: {
@@ -246,7 +253,10 @@ export function buildOperationalAnalytics(
       resolutionCaseCount: row.resolutionCaseCount,
       resolutionStatuses: row.resolutionStatuses,
       sourceSystemIds: row.sourceSystemIds,
+      outcomeMeasurementCount: row.outcomeMeasurementCount,
+      outcomeStatuses: row.outcomeStatuses,
     })),
+    outcomes,
     metricDefinitions: OPERATIONAL_METRIC_DEFINITIONS,
     truthfulness: OPERATIONAL_TRUTHFULNESS,
   };

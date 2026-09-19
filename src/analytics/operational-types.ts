@@ -27,6 +27,8 @@ export type OperationalMetricDefinitions = {
   ruleTriggerRate: string;
   exceptionOccurrenceAt: string;
   sourceSystemInvolvement: string;
+  outcomeMeasurementCoverage: string;
+  observedTargetMetRate: string;
 };
 
 export class OperationalAnalyticsError extends Error {

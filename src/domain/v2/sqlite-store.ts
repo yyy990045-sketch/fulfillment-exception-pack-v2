@@ -46,6 +46,7 @@ import type {
   InternalWorkItemRecord,
   InternalWorkItemStatus,
 } from "./automation-types.js";
+import type { OutcomeDefinitionRecord, OutcomeEvaluationRecord } from "./outcome-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -1586,6 +1587,214 @@ export class V2SqliteStore {
     return rows.flatMap((row) => {
       const item = this.getInternalWorkItem(tenantId, row.id);
       return item ? [item] : [];
+    });
+  }
+
+  saveOutcomeDefinition(input: OutcomeDefinitionRecord): OutcomeDefinitionRecord {
+    const existing = this.getOutcomeDefinition(input.tenantId, input.id, input.version);
+    if (existing) {
+      if (existing.contentHash !== input.contentHash) throw new Error("OUTCOME_DEFINITION_IMMUTABLE");
+      return existing;
+    }
+    this.db.prepare(`
+      INSERT INTO outcome_definitions
+        (tenant_id, id, version, name, exception_code, baseline_metric_key,
+         current_evidence_field, comparison, target_value_json, better_direction,
+         enabled, content_hash, metadata_json, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.id,
+      input.version,
+      input.name,
+      input.exceptionCode,
+      input.baselineMetricKey,
+      input.currentEvidenceField,
+      input.comparison,
+      json(input.targetValue),
+      input.betterDirection,
+      input.enabled ? 1 : 0,
+      input.contentHash,
+      json(input.metadata),
+      input.createdAt,
+    );
+    return this.getOutcomeDefinition(input.tenantId, input.id, input.version) ?? input;
+  }
+
+  getOutcomeDefinition(tenantId: string, definitionId: string, version: string): OutcomeDefinitionRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, version, name, exception_code as exceptionCode,
+             baseline_metric_key as baselineMetricKey, current_evidence_field as currentEvidenceField,
+             comparison, target_value_json as targetValueJson, better_direction as betterDirection,
+             enabled, content_hash as contentHash, metadata_json as metadataJson, created_at as createdAt
+      FROM outcome_definitions
+      WHERE tenant_id = ? AND id = ? AND version = ?
+    `).get(tenantId, definitionId, version) as {
+      tenantId: string;
+      id: string;
+      version: string;
+      name: string;
+      exceptionCode: OutcomeDefinitionRecord["exceptionCode"];
+      baselineMetricKey: string;
+      currentEvidenceField: string;
+      comparison: OutcomeDefinitionRecord["comparison"];
+      targetValueJson: string;
+      betterDirection: OutcomeDefinitionRecord["betterDirection"];
+      enabled: number;
+      contentHash: string;
+      metadataJson: string;
+      createdAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      version: row.version,
+      name: row.name,
+      exceptionCode: row.exceptionCode,
+      baselineMetricKey: row.baselineMetricKey,
+      currentEvidenceField: row.currentEvidenceField,
+      comparison: row.comparison,
+      targetValue: parseJson<string | number>(row.targetValueJson),
+      betterDirection: row.betterDirection,
+      enabled: row.enabled === 1,
+      contentHash: row.contentHash,
+      metadata: parseJson<Record<string, unknown>>(row.metadataJson),
+      createdAt: row.createdAt,
+    } : undefined;
+  }
+
+  listOutcomeDefinitions(tenantId: string, exceptionCode?: string, enabledOnly = false): OutcomeDefinitionRecord[] {
+    const conditions = ["tenant_id = ?"];
+    const params: unknown[] = [tenantId];
+    if (exceptionCode) { conditions.push("exception_code = ?"); params.push(exceptionCode); }
+    if (enabledOnly) conditions.push("enabled = 1");
+    const rows = this.db.prepare(`
+      SELECT id, version FROM outcome_definitions
+      WHERE ${conditions.join(" AND ")}
+      ORDER BY exception_code, id, version
+    `).all(...params) as Array<{ id: string; version: string }>;
+    return rows.flatMap((row) => {
+      const definition = this.getOutcomeDefinition(tenantId, row.id, row.version);
+      return definition ? [definition] : [];
+    });
+  }
+
+  saveOutcomeEvaluation(input: OutcomeEvaluationRecord): OutcomeEvaluationRecord {
+    const existing = this.getOutcomeEvaluationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.definitionId,
+      input.definitionVersion,
+      input.definitionSnapshotHash,
+    );
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO outcome_evaluations
+        (tenant_id, id, context_id, exception_id, definition_id, definition_version,
+         rule_evaluation_id, resolution_case_id, automation_run_id, evidence_ids_json,
+         baseline_json, current_json, status, definition_snapshot_hash, evaluated_by, evaluated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.definitionId,
+      input.definitionVersion,
+      input.ruleEvaluationId,
+      input.resolutionCaseId ?? null,
+      input.automationRunId ?? null,
+      json(input.evidenceIds),
+      json(input.baseline),
+      json(input.current),
+      input.status,
+      input.definitionSnapshotHash,
+      input.evaluatedBy,
+      input.evaluatedAt,
+    );
+    return this.getOutcomeEvaluationBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.definitionId,
+      input.definitionVersion,
+      input.definitionSnapshotHash,
+    ) ?? input;
+  }
+
+  getOutcomeEvaluation(tenantId: string, evaluationId: string): OutcomeEvaluationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             definition_id as definitionId, definition_version as definitionVersion,
+             rule_evaluation_id as ruleEvaluationId, resolution_case_id as resolutionCaseId,
+             automation_run_id as automationRunId, evidence_ids_json as evidenceIdsJson,
+             baseline_json as baselineJson, current_json as currentJson, status,
+             definition_snapshot_hash as definitionSnapshotHash,
+             evaluated_by as evaluatedBy, evaluated_at as evaluatedAt
+      FROM outcome_evaluations
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, evaluationId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      definitionId: string;
+      definitionVersion: string;
+      ruleEvaluationId: string;
+      resolutionCaseId: string | null;
+      automationRunId: string | null;
+      evidenceIdsJson: string;
+      baselineJson: string;
+      currentJson: string;
+      status: OutcomeEvaluationRecord["status"];
+      definitionSnapshotHash: string;
+      evaluatedBy: string;
+      evaluatedAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      definitionId: row.definitionId,
+      definitionVersion: row.definitionVersion,
+      ruleEvaluationId: row.ruleEvaluationId,
+      ...(row.resolutionCaseId ? { resolutionCaseId: row.resolutionCaseId } : {}),
+      ...(row.automationRunId ? { automationRunId: row.automationRunId } : {}),
+      evidenceIds: parseJson<string[]>(row.evidenceIdsJson),
+      baseline: parseJson<unknown>(row.baselineJson),
+      current: parseJson<unknown>(row.currentJson),
+      status: row.status,
+      definitionSnapshotHash: row.definitionSnapshotHash,
+      evaluatedBy: row.evaluatedBy,
+      evaluatedAt: row.evaluatedAt,
+    } : undefined;
+  }
+
+  getOutcomeEvaluationBySnapshot(
+    tenantId: string,
+    exceptionId: string,
+    definitionId: string,
+    definitionVersion: string,
+    definitionSnapshotHash: string,
+  ): OutcomeEvaluationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM outcome_evaluations
+      WHERE tenant_id = ? AND exception_id = ? AND definition_id = ? AND definition_version = ?
+        AND definition_snapshot_hash = ?
+    `).get(tenantId, exceptionId, definitionId, definitionVersion, definitionSnapshotHash) as { id: string } | undefined;
+    return row ? this.getOutcomeEvaluation(tenantId, row.id) : undefined;
+  }
+
+  listOutcomeEvaluations(tenantId: string, contextId: string, exceptionId: string): OutcomeEvaluationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM outcome_evaluations
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY evaluated_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const evaluation = this.getOutcomeEvaluation(tenantId, row.id);
+      return evaluation ? [evaluation] : [];
     });
   }
 

@@ -14,4 +14,15 @@ describe("operations automation work-item view", () => {
     expect(app).not.toContain("完成工作项");
     expect(app).not.toContain("删除工作项");
   });
+
+  it("exposes Outcome Intelligence as observed business state", () => {
+    expect(html).toContain("业务结果观察");
+    expect(html).toContain("不证明前序动作导致变化");
+    expect(app).toContain("renderOutcomes(data.outcomes)");
+    expect(app).toContain("Measured outcomes");
+    expect(app).toContain("Target met");
+    expect(html).toContain("Observed Outcome");
+    expect(app).not.toContain("AI success rate");
+    expect(app).not.toContain("ROI");
+  });
 });

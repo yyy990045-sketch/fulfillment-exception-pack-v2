@@ -63,4 +63,13 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("executionPerformed: { type: boolean, enum: [false] }");
     expect(openapi).toContain("receiptSource: { type: string, enum: [internal-work-item] }");
   });
+
+  it("defines strict Evidence-backed Outcome Intelligence contracts", () => {
+    expect(openapi).toContain("    OutcomeDefinition:");
+    expect(openapi).toContain("    OutcomeEvaluation:");
+    expect(openapi).toContain("    OutcomeEvaluationList:");
+    expect(openapi).toContain("    OutcomeAnalyticsSummary:");
+    expect(openapi).toContain("causalAttribution: { type: boolean, enum: [false] }");
+    expect(openapi).toContain("outcomes: { $ref: '#/components/schemas/OutcomeAnalyticsSummary' }");
+  });
 });

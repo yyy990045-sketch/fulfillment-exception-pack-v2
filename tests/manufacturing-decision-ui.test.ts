@@ -50,4 +50,14 @@ describe("manufacturing decision recommendation UI contract", () => {
     expect(app).not.toContain("AI 自动处理");
     expect(app).not.toContain("AI 一键解决");
   });
+
+  it("shows Evidence-backed business outcome details without causal attribution", () => {
+    expect(app).toContain("业务结果");
+    expect(app).toContain("尚无 Evidence-backed 业务结果测量。");
+    expect(app).toContain("Baseline");
+    expect(app).toContain("Current");
+    expect(app).toContain("Target");
+    expect(app).toContain("该结果表示后续业务状态，不证明前序动作导致了该变化。");
+    expect(app).toContain("Synthetic Outcome Evidence");
+  });
 });

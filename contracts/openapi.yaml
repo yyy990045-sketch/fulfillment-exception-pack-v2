@@ -330,6 +330,75 @@ paths:
         '502': { $ref: '#/components/responses/AIProviderFailure' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
         '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /api/v2/outcome-definitions:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+        - { name: exceptionCode, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: Enabled and historical Outcome Definitions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [definitions]
+                properties:
+                  definitions: { type: array, items: { $ref: '#/components/schemas/OutcomeDefinition' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/outcome-evaluations:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Outcome Evaluation list
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/OutcomeEvaluationList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [definitionId, evidenceIds]
+              properties:
+                definitionId: { type: string }
+                evidenceIds: { type: array, items: { type: string } }
+                resolutionCaseId: { type: string }
+                automationRunId: { type: string }
+      responses:
+        '200':
+          description: Evidence-backed deterministic Outcome Evaluation
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/OutcomeEvaluation' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/outcome-evaluations/{outcomeEvaluationId}:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: outcomeEvaluationId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Outcome Evaluation detail
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/OutcomeEvaluation' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/explanations/{explanationId}:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1022,7 +1091,7 @@ components:
         defaultExceptionId: { type: string, nullable: true }
     OperationalAnalyticsResponse:
       type: object
-      required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, metricDefinitions, truthfulness]
+      required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, outcomes, metricDefinitions, truthfulness]
       properties:
         window:
           type: object
@@ -1144,7 +1213,7 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, sourceSystemIds]
+            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, outcomeMeasurementCount, outcomeStatuses, sourceSystemIds]
             properties:
               contextId: { type: string }
               businessKey: { type: string }
@@ -1156,17 +1225,22 @@ components:
               exceptionCodes: { type: array, items: { type: string } }
               resolutionCaseCount: { type: integer }
               resolutionStatuses: { type: array, items: { type: string } }
+              outcomeMeasurementCount: { type: integer }
+              outcomeStatuses: { type: array, items: { type: string } }
               sourceSystemIds: { type: array, items: { type: string } }
         metricDefinitions:
           type: object
           additionalProperties: false
-          required: [governanceCoverageRate, resolutionClosureRate, ruleTriggerRate, exceptionOccurrenceAt, sourceSystemInvolvement]
+          required: [governanceCoverageRate, resolutionClosureRate, ruleTriggerRate, exceptionOccurrenceAt, sourceSystemInvolvement, outcomeMeasurementCoverage, observedTargetMetRate]
           properties:
             governanceCoverageRate: { type: string }
             resolutionClosureRate: { type: string }
             ruleTriggerRate: { type: string }
             exceptionOccurrenceAt: { type: string }
             sourceSystemInvolvement: { type: string }
+            outcomeMeasurementCoverage: { type: string }
+            observedTargetMetRate: { type: string }
+        outcomes: { $ref: '#/components/schemas/OutcomeAnalyticsSummary' }
         truthfulness:
           type: object
           additionalProperties: false
@@ -1598,6 +1672,176 @@ components:
       required: [workItems]
       properties:
         workItems: { type: array, items: { $ref: '#/components/schemas/InternalWorkItem' } }
+    OutcomeDefinition:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, version, name, exceptionCode, baselineMetricKey, currentEvidenceField, comparison, targetValue, betterDirection, enabled, contentHash, metadata, createdAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        version: { type: string }
+        name: { type: string }
+        exceptionCode: { type: string }
+        baselineMetricKey: { type: string }
+        currentEvidenceField: { type: string }
+        comparison: { type: string, enum: [eq, lte, gte] }
+        targetValue:
+          anyOf:
+            - { type: string }
+            - { type: number }
+        betterDirection: { type: string, enum: [lower, higher, toward_target] }
+        enabled: { type: boolean }
+        contentHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        metadata: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+    OutcomeEvaluation:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, contextId, exceptionId, definitionId, definitionVersion, ruleEvaluationId, evidenceIds, baseline, current, status, definitionSnapshotHash, evaluatedBy, evaluatedAt, targetValue, comparison, betterDirection, measuredAt, truthfulness, syntheticEvidence, stale]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        definitionId: { type: string }
+        definitionVersion: { type: string }
+        ruleEvaluationId: { type: string }
+        resolutionCaseId: { type: string }
+        automationRunId: { type: string }
+        evidenceIds: { type: array, items: { type: string } }
+        baseline:
+          type: object
+          additionalProperties: false
+          required: [metricKey, value, source]
+          properties:
+            metricKey: { type: string }
+            value:
+              anyOf:
+                - { type: string }
+                - { type: number }
+            source: { type: string, enum: [exception_metrics, rule_evaluation_metrics] }
+        current:
+          type: object
+          additionalProperties: false
+          required: [field, value, evidenceIds]
+          properties:
+            field: { type: string }
+            value:
+              anyOf:
+                - { type: string }
+                - { type: number }
+                - { type: "null" }
+            evidenceIds: { type: array, items: { type: string } }
+        status: { type: string, enum: [target_met, improved, unchanged, worsened, insufficient_evidence] }
+        definitionSnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        evaluatedBy: { type: string }
+        evaluatedAt: { type: string, format: date-time }
+        targetValue:
+          anyOf:
+            - { type: string }
+            - { type: number }
+        comparison: { type: string, enum: [eq, lte, gte] }
+        betterDirection: { type: string, enum: [lower, higher, toward_target] }
+        measuredAt: { type: string, format: date-time }
+        truthfulness:
+          type: object
+          additionalProperties: false
+          required: [evidenceBacked, causalAttribution]
+          properties:
+            evidenceBacked: { type: boolean }
+            causalAttribution: { type: boolean, enum: [false] }
+        syntheticEvidence: { type: boolean }
+        stale: { type: boolean }
+    OutcomeEvaluationList:
+      type: object
+      required: [contextId, exceptionId, evaluations]
+      properties:
+        contextId: { type: string }
+        exceptionId: { type: string }
+        evaluations: { type: array, items: { $ref: '#/components/schemas/OutcomeEvaluation' } }
+    OutcomeAnalyticsSummary:
+      type: object
+      additionalProperties: false
+      required: [summary, statusDistribution, coverage, observedOutcomeAssociation, actionAssociations, resolutionAssociation, syntheticEvidence, truthfulness]
+      properties:
+        summary:
+          type: object
+          additionalProperties: false
+          required: [measuredOutcomeCount, targetMetCount, improvedCount, unchangedCount, worsenedCount, insufficientEvidenceCount, outcomeMeasurementCoverage, observedTargetMetRate]
+          properties:
+            measuredOutcomeCount: { type: integer }
+            targetMetCount: { type: integer }
+            improvedCount: { type: integer }
+            unchangedCount: { type: integer }
+            worsenedCount: { type: integer }
+            insufficientEvidenceCount: { type: integer }
+            outcomeMeasurementCoverage: { type: number, nullable: true }
+            observedTargetMetRate: { type: number, nullable: true }
+        statusDistribution:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [status, count]
+            properties:
+              status: { type: string }
+              count: { type: integer }
+        coverage:
+          type: object
+          additionalProperties: false
+          required: [measured, notMeasured]
+          properties:
+            measured: { type: integer }
+            notMeasured: { type: integer }
+        observedOutcomeAssociation:
+          type: object
+          additionalProperties: false
+          required: [automation, resolution, unlinked]
+          properties:
+            automation: { $ref: '#/components/schemas/OutcomeAssociation' }
+            resolution: { $ref: '#/components/schemas/OutcomeAssociation' }
+            unlinked: { $ref: '#/components/schemas/OutcomeAssociation' }
+        actionAssociations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [actionType, measured, targetMet, improved, unchanged, worsened]
+            properties:
+              actionType: { type: string }
+              measured: { type: integer }
+              targetMet: { type: integer }
+              improved: { type: integer }
+              unchanged: { type: integer }
+              worsened: { type: integer }
+        resolutionAssociation:
+          type: object
+          additionalProperties: false
+          required: [closedWithMeasuredOutcome, closedWithoutMeasuredOutcome]
+          properties:
+            closedWithMeasuredOutcome: { type: integer }
+            closedWithoutMeasuredOutcome: { type: integer }
+        syntheticEvidence: { type: boolean }
+        truthfulness:
+          type: object
+          additionalProperties: false
+          required: [causalAttribution, actionEffectivenessMeasured, roiMeasured, realCustomerOutcomeData]
+          properties:
+            causalAttribution: { type: boolean, enum: [false] }
+            actionEffectivenessMeasured: { type: boolean, enum: [false] }
+            roiMeasured: { type: boolean, enum: [false] }
+            realCustomerOutcomeData: { type: boolean, enum: [false] }
+    OutcomeAssociation:
+      type: object
+      additionalProperties: false
+      required: [measured, targetMet, improved, unchanged, worsened, insufficientEvidence]
+      properties:
+        measured: { type: integer }
+        targetMet: { type: integer }
+        improved: { type: integer }
+        unchanged: { type: integer }
+        worsened: { type: integer }
+        insufficientEvidence: { type: integer }
     DecisionRecommendationDisposition:
       type: object
       additionalProperties: false

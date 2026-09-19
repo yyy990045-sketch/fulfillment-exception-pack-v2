@@ -174,7 +174,7 @@ function renderContexts(data) {
   clear(container);
   const tableElement = node("table");
   const head = node("tr");
-  ["Business Key", "Opened At", "Type", "Exceptions", "Resolution Cases", "Governance States", "Source Systems"].forEach((header) => head.append(node("th", "", header)));
+  ["Business Key", "Opened At", "Type", "Exceptions", "Resolution Cases", "Governance States", "Outcome Measurements", "Outcome Statuses", "Source Systems"].forEach((header) => head.append(node("th", "", header)));
   tableElement.append(head);
   for (const row of data.contexts) {
     const tr = node("tr");
@@ -184,7 +184,7 @@ function renderContexts(data) {
       link.href = `/manufacturing?context=${encodeURIComponent(row.contextId)}`;
       business.append(link);
     } else business.textContent = row.businessKey;
-    tr.append(business, node("td", "", row.openedAt), node("td", "", row.contextType), node("td", "", row.exceptionCount), node("td", "", row.resolutionCaseCount), node("td", "wrap", row.resolutionStatuses.join("、") || "无"), node("td", "wrap", row.sourceSystemIds.join("、") || "无"));
+    tr.append(business, node("td", "", row.openedAt), node("td", "", row.contextType), node("td", "", row.exceptionCount), node("td", "", row.resolutionCaseCount), node("td", "wrap", row.resolutionStatuses.join("、") || "无"), node("td", "", row.outcomeMeasurementCount), node("td", "wrap", row.outcomeStatuses.join("、") || "无"), node("td", "wrap", row.sourceSystemIds.join("、") || "无"));
     tableElement.append(tr);
   }
   container.append(tableElement);
@@ -211,6 +211,41 @@ function renderWorkItems(items) {
       item.contextId,
       item.createdAt,
     ]),
+  );
+}
+
+function renderOutcomes(outcomes) {
+  const summary = document.getElementById("outcome-summary");
+  clear(summary);
+  for (const [label, value] of [
+    ["Measured outcomes", outcomes.summary.measuredOutcomeCount],
+    ["Target met", outcomes.summary.targetMetCount],
+    ["Improved", outcomes.summary.improvedCount],
+    ["Unchanged", outcomes.summary.unchangedCount],
+    ["Worsened", outcomes.summary.worsenedCount],
+    ["Insufficient evidence", outcomes.summary.insufficientEvidenceCount],
+  ]) {
+    const item = node("div", "summary-item");
+    item.append(node("span", "", label), node("strong", "", value));
+    summary.append(item);
+  }
+  renderHorizontalBars(
+    document.getElementById("outcome-status-chart"),
+    outcomes.statusDistribution.map((item) => ({ label: item.status, value: item.count })),
+    { ariaLabel: "outcome status distribution" },
+  );
+  renderHorizontalBars(
+    document.getElementById("outcome-coverage-chart"),
+    [
+      { label: "Measured", value: outcomes.coverage.measured },
+      { label: "Not Measured", value: outcomes.coverage.notMeasured },
+    ],
+    { ariaLabel: "outcome measurement coverage" },
+  );
+  table(
+    document.getElementById("outcome-action-table"),
+    ["Action", "Measured", "Target Met", "Improved", "Unchanged", "Worsened"],
+    outcomes.actionAssociations.map((item) => [item.actionType, item.measured, item.targetMet, item.improved, item.unchanged, item.worsened]),
   );
 }
 
@@ -245,6 +280,7 @@ async function load() {
     renderActionTable(data);
     renderSourceTable(data);
     renderContexts(data);
+    renderOutcomes(data.outcomes);
     const workItems = await api("/api/v2/internal-work-items?status=open").catch(() => ({ workItems: [] }));
     renderWorkItems(workItems.workItems || []);
     clearState();
