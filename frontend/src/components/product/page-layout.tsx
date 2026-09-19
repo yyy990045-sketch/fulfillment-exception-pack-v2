@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { cn } from "../../lib/utils.js";
 import { Skeleton } from "../ui/skeleton.js";
 
-export const productWidthClass = "mx-auto w-full max-w-[1720px] px-5";
+export const shellWidthClass = "mx-auto w-full max-w-[1720px] px-5";
+export const productWidthClass = "mx-auto w-full max-w-[1600px] px-5";
+export const recordWidthClass = "mx-auto w-full max-w-[1440px] px-5";
 
 export function ProductPage({ children, className }: { children: ReactNode; className?: string }) {
   return <main className={cn(productWidthClass, "py-4", className)}>{children}</main>;
@@ -29,15 +31,15 @@ export function ProductHeader({
   titleTestId?: string;
 }) {
   return (
-    <header className={cn("min-h-[68px] border-b border-border pb-3", className)}>
+    <header className={cn("min-h-[64px] border-b border-border/80 pb-3", className)}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           {leading}
           <div className="flex min-h-7 flex-wrap items-center gap-2">
-            <h1 data-testid={titleTestId} className="text-xl font-semibold">{title}</h1>
+            <h1 data-testid={titleTestId} className="text-[22px] font-semibold leading-7 tracking-normal">{title}</h1>
             {badges}
           </div>
-          {description && <div className="mt-1 max-w-[88ch] text-sm text-text-secondary">{description}</div>}
+          {description && <div className="mt-1 max-w-[88ch] text-[13px] text-text-secondary">{description}</div>}
         </div>
         {actions && <div className="flex flex-wrap items-center justify-end gap-2">{actions}</div>}
       </div>
@@ -47,7 +49,7 @@ export function ProductHeader({
 }
 
 export function ProductSection({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("border border-border bg-surface", className)}>{children}</section>;
+  return <section className={cn("overflow-hidden rounded-lg border border-border/85 bg-surface", className)}>{children}</section>;
 }
 
 export function SectionHeader({
@@ -64,10 +66,10 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border px-3.5 py-2.5", className)}>
+    <div className={cn("flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border/75 px-4 py-2.5", className)}>
       <div className="min-w-0">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {description && <p className="mt-0.5 text-[11px] text-text-muted">{description}</p>}
+        <h2 className="text-[14px] font-semibold leading-5">{title}</h2>
+        {description && <p className="mt-0.5 text-[11px] leading-4 text-text-muted">{description}</p>}
       </div>
       {(meta || actions) && <div className="flex items-center gap-2 text-xs text-text-muted">{meta}{actions}</div>}
     </div>
@@ -75,14 +77,14 @@ export function SectionHeader({
 }
 
 export function SummaryStrip({ children, className, label = "业务摘要" }: { children: ReactNode; className?: string; label?: string }) {
-  return <dl aria-label={label} className={cn("grid border border-border bg-surface", className)}>{children}</dl>;
+  return <dl aria-label={label} className={cn("grid overflow-hidden rounded-lg border border-border/85 bg-surface", className)}>{children}</dl>;
 }
 
 export function SummaryItem({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="min-w-0 px-3 py-2.5">
+    <div className="min-w-0 px-3.5 py-2.5">
       <dt className="text-[11px] text-text-muted">{label}</dt>
-      <dd className="mt-0.5 text-base font-semibold leading-6">{value}</dd>
+      <dd className="mt-0.5 text-[17px] font-semibold leading-6 tabular-nums">{value}</dd>
     </div>
   );
 }
@@ -117,7 +119,7 @@ export function LocalState({
       role={kind === "error" || kind === "permission-denied" ? "alert" : "status"}
       aria-label={kind === "loading" ? "加载中" : title}
       className={cn(
-        "flex items-start gap-2.5 border text-sm",
+        "flex items-start gap-2.5 rounded-lg border text-[13px]",
         compact ? "px-3 py-3" : "px-4 py-5",
         tone,
       )}

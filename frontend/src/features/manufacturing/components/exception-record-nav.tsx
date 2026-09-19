@@ -19,15 +19,15 @@ export function ExceptionRecordNav({
   const location = useLocation();
   const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
   return (
-    <nav aria-label="异常记录工作面" className="border-b border-border bg-surface px-4 lg:px-5">
-      <div className="flex gap-1 overflow-x-auto py-2">
+    <nav aria-label="异常记录工作面" className="sticky top-14 z-20 border-b border-border/80 bg-surface/95 px-4 lg:px-5">
+      <div className="mx-auto flex max-w-[1440px] gap-0 overflow-x-auto">
         {items.map((item) => (
           <NavLink
             key={item.segment}
             to={`${base}/${item.segment}${location.search}`}
             className={({ isActive }) => cn(
-              "inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary",
-              isActive && "bg-interactive/5 text-interactive",
+              "inline-flex h-11 items-center border-b-2 border-transparent px-3.5 text-[13px] font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
+              isActive && "border-interactive bg-interactive/[0.025] text-text-primary",
             )}
           >
             {item.label}

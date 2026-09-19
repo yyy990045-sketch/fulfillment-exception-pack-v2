@@ -3,6 +3,7 @@ import { OutcomeStatusBadge } from "../../../components/product/status-badge.js"
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { outcomeStatusLabel } from "../../../lib/presentation.js";
+import { cn } from "../../../lib/utils.js";
 import {
   useOutcomeEvaluations,
   usePolicyEvaluations,
@@ -344,6 +345,31 @@ export function GovernanceProcess({
     : "未进入治理";
   const currentStepLabel = governanceSteps.find((step) => step.id === current)?.label ?? "治理";
   const currentPlan = resolutionCase?.runtime.actions.at(-1)?.summary ?? "待拟定处置方案";
+  const compactSteps = [
+    { id: "accept", label: "受理", target: "governance" as const },
+    { id: "review", label: "复核", target: "governance" as const },
+    { id: "propose", label: "方案", target: "governance" as const },
+    { id: "approval", label: "审批", target: "approval" as const },
+    { id: "execution", label: "执行", target: "execution" as const },
+    { id: "receipt", label: "回执", target: "receipt" as const },
+    { id: "outcome", label: "结果", target: "outcome" as const },
+  ];
+  const compactCurrent = !resolutionCase
+    ? "accept"
+    : resolutionCase.status === "triaged"
+      ? "review"
+      : resolutionCase.status === "confirmed"
+        ? "propose"
+        : resolutionCase.status === "proposed"
+          ? approvalSubmitted ? "approval" : "propose"
+          : resolutionCase.status === "approved"
+            ? "execution"
+            : resolutionCase.status === "executed"
+              ? "receipt"
+              : resolutionCase.status === "closed"
+                ? "outcome"
+                : "accept";
+  const compactCurrentIndex = compactSteps.findIndex((step) => step.id === compactCurrent);
 
   const stepStatus = (step: string): ProcessStepStatus => {
     if (step === "governance") return governanceStepStatus("governance", current, { rejected });
@@ -354,7 +380,7 @@ export function GovernanceProcess({
   };
 
   return (
-    <section className="mt-7 border-t border-border pt-5" aria-labelledby="governance-process-title">
+    <section className="mt-4" aria-labelledby="governance-process-title">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 id="governance-process-title" className="text-sm font-semibold">处理进程</h2>
@@ -376,6 +402,37 @@ export function GovernanceProcess({
           <dd className="mt-0.5 truncate text-sm font-medium" title={currentPlan}>{currentPlan}</dd>
         </div>
       </dl>
+      <div className="mt-3 flex overflow-x-auto rounded-lg border border-border/80 bg-surface">
+        {compactSteps.map((step, index) => {
+          const done = index < compactCurrentIndex;
+          const currentCompact = index === compactCurrentIndex;
+          const disabled = index > compactCurrentIndex;
+          return (
+            <button
+              key={step.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => setExpandedStep(step.target)}
+              className={cn(
+                "flex min-w-[108px] flex-1 items-center gap-2 border-r border-border/70 px-3 py-2.5 text-left text-[12px] last:border-r-0",
+                done && "text-success",
+                currentCompact && "bg-interactive/[0.035] font-semibold text-text-primary",
+                disabled && "cursor-not-allowed text-text-muted/55",
+              )}
+            >
+              <span className={cn(
+                "flex size-4 items-center justify-center rounded-full border text-[9px]",
+                done && "border-success/30 bg-success/10",
+                currentCompact && "border-interactive/30 bg-interactive/10 text-interactive",
+                disabled && "border-border",
+              )}>
+                {done ? "✓" : currentCompact ? "●" : ""}
+              </span>
+              {step.label}
+            </button>
+          );
+        })}
+      </div>
       <ProcessStep
         id="governance"
         title="治理"

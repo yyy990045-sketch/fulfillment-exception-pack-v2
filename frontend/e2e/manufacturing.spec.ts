@@ -65,7 +65,7 @@ test("manufacturing task routes separate facts, analysis, decision, and governan
   await page.getByRole("link", { name: "治理", exact: true }).click();
   await expect(page).toHaveURL(/\/governance\?q=/);
   await expect(page.getByRole("heading", { name: "处理进程" })).toBeVisible();
-  await expect(page.getByText("当前阶段", { exact: true })).toBeVisible();
+  await expect(page.getByText("当前阶段", { exact: true })).toHaveCount(2);
 
   await page.getByRole("link", { name: /返回 SO-MFG-001 异常队列/ }).click();
   await expect(page).toHaveURL(/\/manufacturing\/ctx-so-mfg-001\?q=/);

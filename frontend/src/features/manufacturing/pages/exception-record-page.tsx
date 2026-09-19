@@ -8,8 +8,8 @@ import {
 } from "../../../hooks/use-manufacturing.js";
 import { AnalysisWorkspace, DecisionWorkspace } from "../components/analysis-workspace.js";
 import { EvidenceInspector } from "../components/evidence-inspector.js";
+import { EvidencePreview } from "../components/evidence-preview.js";
 import { EvidenceWorkspace } from "../components/evidence-workspace.js";
-import { ExceptionContextStrip } from "../components/exception-context-strip.js";
 import { ExceptionOverview } from "../components/exception-overview.js";
 import { ExceptionRecordHeader } from "../components/exception-record-header.js";
 import { ExceptionRecordNav } from "../components/exception-record-nav.js";
@@ -39,6 +39,7 @@ export function ExceptionRecordPage() {
   const view = workbench.data;
   const exception = view?.exceptions.find((item) => item.id === exceptionId);
   const selectedEvidenceId = searchParams.get("evidence") ?? undefined;
+  const technicalDetailOpen = searchParams.get("detail") === "1";
   const selectedEvidence = section === "evidence"
     ? evidence.data?.evidence.find((item) => item.evidenceId === selectedEvidenceId)
     : undefined;
@@ -67,16 +68,28 @@ export function ExceptionRecordPage() {
   const openEvidence = (id: string) => {
     const next = new URLSearchParams(searchParams);
     next.set("evidence", id);
+    next.delete("detail");
     navigate(`${base}/evidence?${next.toString()}`);
   };
   const closeEvidence = (open: boolean) => {
     if (open) return;
     const next = new URLSearchParams(searchParams);
-    next.delete("evidence");
+    next.delete("detail");
+    setSearchParams(next, { replace: true });
+  };
+  const openEvidenceTechnical = (id: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("evidence", id);
+    next.set("detail", "1");
     setSearchParams(next, { replace: true });
   };
   const recommendation = decision.detail.data;
   const selectedOptionId = searchParams.get("option") ?? recommendation?.output.recommendedOptionId;
+  const contentWidth = section === "analysis" || section === "decision"
+    ? "max-w-[1040px]"
+    : section === "governance"
+      ? "max-w-[1360px]"
+      : "max-w-[1440px]";
 
   return (
     <GovernanceActionControllerProvider
@@ -89,11 +102,11 @@ export function ExceptionRecordPage() {
         exception={exception}
         contextId={contextId}
         context={view.context}
+        stages={view.thread}
         showPrimaryAction={section !== "decision" && section !== "governance"}
       />
-      <ExceptionContextStrip contextId={contextId} exception={exception} stages={view.thread} />
       <ExceptionRecordNav contextId={contextId} exceptionId={exception.id} />
-      <ProductPage>
+      <ProductPage className={`${contentWidth} py-5`}>
         {section === "overview" ? (
           <ExceptionOverview contextId={contextId} exception={exception} rules={view.rules} stages={view.thread} />
         ) : section === "evidence" ? (
@@ -106,11 +119,18 @@ export function ExceptionRecordPage() {
           ) : evidence.isError || !evidence.data ? (
             <LocalState kind="error" title="证据加载失败" detail="当前异常暂时无法读取证据资料。" />
           ) : (
-            <EvidenceWorkspace
-              bundle={evidence.data}
-              {...(selectedEvidenceId ? { selectedEvidenceId } : {})}
-              onSelect={(item) => openEvidence(item.evidenceId)}
-            />
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <EvidenceWorkspace
+                bundle={evidence.data}
+                {...(selectedEvidenceId ? { selectedEvidenceId } : {})}
+                onSelect={(item) => openEvidence(item.evidenceId)}
+              />
+              <EvidencePreview
+                bundle={evidence.data}
+                item={selectedEvidence}
+                onOpenTechnical={openEvidenceTechnical}
+              />
+            </div>
           )
         ) : section === "analysis" ? (
           <AnalysisWorkspace
@@ -139,7 +159,7 @@ export function ExceptionRecordPage() {
         <EvidenceInspector
           bundle={evidence.data}
           item={selectedEvidence}
-          open={Boolean(selectedEvidence)}
+          open={Boolean(selectedEvidence) && technicalDetailOpen}
           onOpenChange={closeEvidence}
         />
       )}

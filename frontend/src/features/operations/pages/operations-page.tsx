@@ -126,33 +126,33 @@ function PortfolioTable({
         </thead>
         <tbody className="divide-y divide-border">
           {rows.map((context) => (
-            <tr key={context.contextId} className="group transition-colors hover:bg-surface-muted focus-within:bg-interactive/5">
-              <td className="sticky left-0 z-10 bg-surface px-3 py-2 transition-colors group-hover:bg-surface-muted group-focus-within:bg-interactive/5">
+            <tr key={context.contextId} className="group h-[50px] transition-colors duration-150 hover:bg-surface-subtle focus-within:bg-interactive/[0.035]">
+              <td className="sticky left-0 z-10 bg-surface px-3.5 py-3 transition-colors group-hover:bg-surface-subtle group-focus-within:bg-interactive/[0.035]">
                 <button
                   type="button"
-                  className="font-medium text-interactive hover:underline focus-visible:rounded-sm"
+                  className="text-[13px] font-semibold text-text-primary hover:text-interactive hover:underline focus-visible:rounded-sm"
                   onClick={() => onOpenContext(context)}
                 >
                   {context.businessKey}
                 </button>
               </td>
-              <td className="px-3 py-2">
+              <td className="px-3.5 py-3">
                 <span className="font-semibold tabular-nums">{context.exceptionCount}</span>
                 <span className="ml-1 text-text-muted">{context.exceptionCodes.length} 类</span>
               </td>
-              <td className="px-3 py-2">
+              <td className="px-3.5 py-3">
                 {context.highestSeverity ? <SeverityBadge severity={context.highestSeverity} /> : <span className="text-text-muted">—</span>}
               </td>
-              <td className="px-3 py-2">
+              <td className="px-3.5 py-3">
                 <div className="flex max-w-[240px] flex-wrap gap-1">
                   {context.resolutionStatuses.length
                     ? context.resolutionStatuses.slice(0, 3).map((status) => <ResolutionStatusBadge key={status} status={status} />)
                     : <ResolutionStatusBadge status="no_case" />}
                 </div>
               </td>
-              <td className="max-w-[150px] truncate px-3 py-2">{context.resolutionOwnerRoles.join("、") || "未指派"}</td>
-              <td className="px-3 py-2 text-text-muted tabular-nums">{formatShortDateTime(context.latestChangeAt)}</td>
-              <td className="px-3 py-2">
+              <td className="max-w-[150px] truncate px-3.5 py-3">{context.resolutionOwnerRoles.join("、") || "未指派"}</td>
+              <td className="px-3.5 py-3 text-text-muted tabular-nums">{formatShortDateTime(context.latestChangeAt)}</td>
+              <td className="px-3.5 py-3">
                 {context.outcomeMeasurementCount ? (
                   <div className="flex max-w-[170px] flex-wrap items-center gap-1">
                     <span className="font-medium tabular-nums">{context.outcomeMeasurementCount} 次</span>
@@ -160,8 +160,8 @@ function PortfolioTable({
                   </div>
                 ) : "暂无测量"}
               </td>
-              <td className="px-3 py-2 text-text-muted">{contextTypeLabel(context.contextType)}</td>
-              <td className="px-3 py-2 text-right"><ChevronRight className="ml-auto size-4 text-text-muted" aria-hidden="true" /></td>
+              <td className="px-3.5 py-3 text-text-muted">{contextTypeLabel(context.contextType)}</td>
+              <td className="px-3.5 py-3 text-right"><ChevronRight className="ml-auto size-4 text-text-muted" aria-hidden="true" /></td>
             </tr>
           ))}
         </tbody>
@@ -268,7 +268,7 @@ export function OperationsPage() {
           <>
             <label className="space-y-1 text-[11px] text-text-muted">
               时间粒度
-              <select className="block h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={bucket} onChange={(event) => updateParam("bucket", event.target.value)}>
+              <select className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={bucket} onChange={(event) => updateParam("bucket", event.target.value)}>
                 <option value="day">日</option>
                 <option value="week">周</option>
                 <option value="month">月</option>
@@ -276,11 +276,11 @@ export function OperationsPage() {
             </label>
             <label className="space-y-1 text-[11px] text-text-muted">
               开始
-              <input type="date" className="block h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={from} onChange={(event) => updateParam("from", event.target.value)} />
+              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={from} onChange={(event) => updateParam("from", event.target.value)} />
             </label>
             <label className="space-y-1 text-[11px] text-text-muted">
               结束
-              <input type="date" className="block h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={to} onChange={(event) => updateParam("to", event.target.value)} />
+              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={to} onChange={(event) => updateParam("to", event.target.value)} />
             </label>
             <Button variant="outline" size="sm" disabled={analytics.isFetching} onClick={() => void analytics.refetch()}>
               <RefreshCw className={cn("size-3.5", analytics.isFetching && "animate-spin")} aria-hidden="true" />
@@ -313,29 +313,29 @@ export function OperationsPage() {
           description="先定位有风险的业务对象，再进入对应工作台。"
           meta={`${data.contexts.length} 个上下文`}
         />
-        <div className="grid gap-2 border-b border-border p-3 md:grid-cols-[minmax(200px,1fr)_150px_180px_170px]">
+        <div className="grid gap-2 border-b border-border/75 bg-surface-subtle/60 p-3 md:grid-cols-[minmax(200px,1fr)_150px_180px_170px]">
           <label className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
             <input
               aria-label="搜索业务上下文"
-              className="h-8 w-full rounded-md border border-border-strong bg-surface pl-8 pr-2 text-xs"
+              className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-2 text-[12px]"
               value={query}
               onChange={(event) => updateParam("q", event.target.value)}
               placeholder="搜索业务编号、类型或异常"
             />
           </label>
-          <select aria-label="异常类型" className="h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={exceptionCode} onChange={(event) => updateParam("exceptionCode", event.target.value)}>
+          <select aria-label="异常类型" className="h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={exceptionCode} onChange={(event) => updateParam("exceptionCode", event.target.value)}>
             <option value="">全部异常类型</option>
             {data.exceptionBreakdown.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}
           </select>
-          <select aria-label="最高等级" className="h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={severity} onChange={(event) => updateParam("severity", event.target.value)}>
+          <select aria-label="最高等级" className="h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={severity} onChange={(event) => updateParam("severity", event.target.value)}>
             <option value="">全部等级</option>
             <option value="critical">严重</option>
             <option value="high">高</option>
             <option value="medium">中</option>
             <option value="low">低</option>
           </select>
-          <select aria-label="治理状态" className="h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={resolutionStatus} onChange={(event) => updateParam("resolutionStatus", event.target.value)}>
+          <select aria-label="治理状态" className="h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={resolutionStatus} onChange={(event) => updateParam("resolutionStatus", event.target.value)}>
             <option value="">全部治理状态</option>
             {["no_case", "triaged", "confirmed", "proposed_draft", "pending_approval", "approved", "executed", "closed", "rejected"].map((value) => (
               <option key={value} value={value}>{resolutionStatusLabel(value)}</option>

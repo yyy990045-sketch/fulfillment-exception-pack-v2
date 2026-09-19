@@ -1,9 +1,10 @@
-import { AlertTriangle, ListChecks } from "lucide-react";
+import { AlertTriangle, ArrowRight, ListChecks } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { LocalState, ProductSection, SectionHeader } from "../../../components/product/page-layout.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { useGroundedExplanation } from "../../../hooks/use-manufacturing.js";
 import type { ExceptionView, RuleView, ThreadStage } from "../types.js";
-import { formatMetricValue, metricLabel } from "../utils.js";
+import { exceptionStatusLabel, formatMetricValue, metricLabel } from "../utils.js";
 
 export function ExceptionOverview({
   contextId,
@@ -27,83 +28,113 @@ export function ExceptionOverview({
   const [searchParams] = useSearchParams();
   const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exception.id)}`;
   const suffix = searchParams.toString() ? `?${searchParams.toString()}` : "";
-  return (
-    <div className="space-y-5">
-      <section className="max-w-4xl">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
-          <div>
-            <h3 className="text-sm font-semibold">核心差异</h3>
-            <p className="mt-1 text-sm leading-6 text-text-secondary">{exception.summary}</p>
-          </div>
-        </div>
-      </section>
 
-      {metrics.length > 0 && (
-        <section>
-          <h3 className="text-sm font-semibold">当前事实</h3>
-          <dl className="mt-2 grid gap-x-6 gap-y-3 border-y border-border py-3 sm:grid-cols-2 xl:grid-cols-4">
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+      <div className="space-y-4">
+        <section className="rounded-lg border border-border/85 bg-surface p-5">
+          <div className="flex items-start gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-warning/10 text-warning">
+              <AlertTriangle className="size-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-[14px] font-semibold">核心差异</h2>
+              <p className="mt-1 max-w-[72ch] text-[13px] leading-6 text-text-secondary">{exception.summary}</p>
+            </div>
+          </div>
+          {metrics.length > 0 && (
+            <dl className="mt-5 grid gap-px overflow-hidden rounded-lg border border-border/80 bg-border/70 sm:grid-cols-2 lg:grid-cols-3">
+              {metrics.map(([key, value], index) => (
+                <div key={key} className="bg-surface px-4 py-3">
+                  <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
+                  <dd className={index === 0 ? "mt-1 text-[22px] font-semibold tabular-nums" : "mt-1 text-[18px] font-semibold tabular-nums"}>
+                    {formatMetricValue(value)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </section>
+
+        <ProductSection>
+          <SectionHeader title="当前事实" description="来自当前异常记录与规则评估" />
+          <dl className="grid gap-px bg-border/60 sm:grid-cols-2">
             {metrics.map(([key, value]) => (
-              <div key={key} className="min-w-0">
-                <dt className="text-xs text-text-muted">{metricLabel(key)}</dt>
-                <dd className="mt-0.5 text-lg font-semibold">{formatMetricValue(value)}</dd>
+              <div key={key} className="bg-surface px-4 py-3">
+                <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
+                <dd className="mt-1 text-[15px] font-semibold tabular-nums">{formatMetricValue(value)}</dd>
               </div>
             ))}
+            {!metrics.length && <div className="bg-surface p-4 text-sm text-text-muted">暂无结构化事实。</div>}
           </dl>
-        </section>
-      )}
+        </ProductSection>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <ListChecks className="size-4 text-text-muted" aria-hidden="true" />
-            待核实内容
-          </h3>
-          {questionsLoading ? (
-            <p className="mt-2 text-sm text-text-muted">正在读取待核实事项</p>
-          ) : questionsError ? (
-            <p className="mt-2 text-sm text-text-muted">待核实事项暂不可用</p>
-          ) : questions.length ? (
-            <ul className="mt-2 space-y-1.5 text-sm text-text-secondary">
-              {questions.map((question) => <li key={question}>{question}</li>)}
-            </ul>
-          ) : (
-            <p className="mt-2 text-sm text-text-muted">暂无明确待核实事项</p>
-          )}
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold">相关业务阶段</h3>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {exception.stageKeys.map((stage) => (
-              <Badge key={stage} variant="info">{stages.find((item) => item.key === stage)?.label ?? stage}</Badge>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {relatedRules.length > 0 && (
-        <section>
-          <h3 className="text-sm font-semibold">相关规则评估</h3>
-          <div className="mt-2 divide-y divide-border border-y border-border">
+        <ProductSection>
+          <SectionHeader title="相关规则评估" meta={`${relatedRules.length} 条`} />
+          <div className="divide-y divide-border/70">
             {relatedRules.map((rule) => (
-              <div key={rule.id} className="flex items-center justify-between gap-4 py-2 text-sm">
+              <div key={rule.id} className="flex items-center justify-between gap-4 px-4 py-2.5 text-[13px]">
                 <span>{rule.label}</span>
                 <Badge variant={rule.matched ? "warning" : "success"}>{rule.statusLabel}</Badge>
               </div>
             ))}
+            {!relatedRules.length && <div className="p-4"><LocalState kind="empty" title="暂无相关规则评估" compact /></div>}
           </div>
-        </section>
-      )}
+        </ProductSection>
+      </div>
 
-      <section className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-        <span className="text-xs text-text-muted">继续核对</span>
-        <Link className="text-sm font-medium text-interactive hover:underline" to={`${base}/evidence${suffix}`}>
-          查看证据
-        </Link>
-        <Link className="text-sm font-medium text-interactive hover:underline" to={`${base}/analysis${suffix}`}>
-          查看分析
-        </Link>
-      </section>
+      <div className="space-y-4">
+        <ProductSection>
+          <SectionHeader title="待核实内容" />
+          <div className="p-4">
+            {questionsLoading ? (
+              <LocalState kind="loading" title="正在读取待核实事项" compact />
+            ) : questionsError ? (
+              <LocalState kind="error" title="待核实事项暂不可用" compact />
+            ) : questions.length ? (
+              <ul className="space-y-2.5">
+                {questions.map((question) => (
+                  <li key={question} className="flex items-start gap-2 text-[12px] leading-5 text-text-secondary">
+                    <ListChecks className="mt-0.5 size-3.5 shrink-0 text-text-muted" aria-hidden="true" />
+                    {question}
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-[12px] text-text-muted">暂无明确待核实事项</p>}
+          </div>
+        </ProductSection>
+
+        <ProductSection>
+          <SectionHeader title="相关业务阶段" />
+          <div className="flex flex-wrap gap-2 p-4">
+            {exception.stageKeys.map((stage) => (
+              <Badge key={stage} variant="info">{stages.find((item) => item.key === stage)?.label ?? stage}</Badge>
+            ))}
+          </div>
+        </ProductSection>
+
+        <ProductSection>
+          <SectionHeader title="当前状态" />
+          <div className="p-4">
+            <Badge>{exceptionStatusLabel(exception.status)}</Badge>
+            <p className="mt-2 text-[12px] leading-5 text-text-muted">
+              当前记录仍需按任务工作面继续核对事实、分析原因并选择治理方案。
+            </p>
+          </div>
+        </ProductSection>
+
+        <ProductSection>
+          <SectionHeader title="继续处理" />
+          <div className="divide-y divide-border/70">
+            <Link className="flex items-center justify-between px-4 py-3 text-[13px] hover:bg-surface-subtle" to={`${base}/evidence${suffix}`}>
+              查看证据 <ArrowRight className="size-3.5 text-text-muted" aria-hidden="true" />
+            </Link>
+            <Link className="flex items-center justify-between px-4 py-3 text-[13px] hover:bg-surface-subtle" to={`${base}/analysis${suffix}`}>
+              查看分析 <ArrowRight className="size-3.5 text-text-muted" aria-hidden="true" />
+            </Link>
+          </div>
+        </ProductSection>
+      </div>
     </div>
   );
 }

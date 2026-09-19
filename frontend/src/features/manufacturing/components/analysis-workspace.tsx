@@ -1,5 +1,6 @@
-import { ArrowDown, ArrowRight, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { ProductSection } from "../../../components/product/page-layout.js";
 import { Button } from "../../../components/ui/button.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { useDecisionRecommendation } from "../../../hooks/use-manufacturing.js";
@@ -24,8 +25,8 @@ export function AnalysisWorkspace({
   const [searchParams] = useSearchParams();
   const suffix = searchParams.toString() ? `?${searchParams.toString()}` : "";
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
           <span className="flex items-center gap-1.5"><FileText className="size-3.5" /> 证据 {evidence?.evidence.length ?? 0}</span>
           <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -40,16 +41,9 @@ export function AnalysisWorkspace({
         </Link>
       </div>
 
-      <div className="py-5">
-        <ExplanationPanel contextId={contextId} exceptionId={exceptionId} evidence={evidence} onOpenEvidence={onOpenEvidence} />
-      </div>
-      <div className="flex justify-center border-y border-border py-2 text-text-muted" aria-hidden="true">
-        <ArrowDown className="size-4" />
-      </div>
-      <div className="py-5">
-        <RootCausePanel contextId={contextId} exceptionId={exceptionId} evidence={evidence} onOpenEvidence={onOpenEvidence} />
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+      <ProductSection><div className="p-5"><ExplanationPanel contextId={contextId} exceptionId={exceptionId} evidence={evidence} onOpenEvidence={onOpenEvidence} /></div></ProductSection>
+      <ProductSection><div className="p-5"><RootCausePanel contextId={contextId} exceptionId={exceptionId} evidence={evidence} onOpenEvidence={onOpenEvidence} /></div></ProductSection>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
         <div className="flex items-center gap-2">
           <Badge>下一步</Badge>
           <span className="text-sm text-text-secondary">决策建议仅作为人工决策输入，不会自动执行。</span>

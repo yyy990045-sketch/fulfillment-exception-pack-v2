@@ -1,5 +1,6 @@
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { recordWidthClass } from "../../../components/product/page-layout.js";
 import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
@@ -12,8 +13,8 @@ import {
   governanceActionSuccessMessages,
   useGovernanceActionController,
 } from "../governance-action-controller.js";
-import { exceptionStatusLabel, formatMetricValue, metricLabel } from "../utils.js";
-import type { ExceptionView, WorkbenchView } from "../types.js";
+import { exceptionStatusLabel, formatBusinessValue, formatMetricValue, metricLabel } from "../utils.js";
+import type { ExceptionView, ThreadStage, WorkbenchView } from "../types.js";
 import { ExceptionDetailsSheet } from "./exception-details-sheet.js";
 
 type PrimaryAction =
@@ -30,11 +31,13 @@ export function ExceptionRecordHeader({
   exception,
   contextId,
   context,
+  stages,
   showPrimaryAction = true,
 }: {
   exception: ExceptionView;
   contextId: string;
   context: WorkbenchView["context"];
+  stages: ThreadStage[];
   showPrimaryAction?: boolean;
 }) {
   const capabilities = useResolutionCapabilities(contextId, exception.id);
@@ -44,6 +47,10 @@ export function ExceptionRecordHeader({
   const caps = capabilities.data?.resolutionCapabilities;
   const resolutionCase = resolution.detail.data?.resolutionCase;
   const metrics = Object.entries(exception.metrics ?? {}).slice(0, 3);
+  const relatedStages = exception.stageKeys.flatMap((key) => {
+    const stage = stages.find((item) => item.key === key);
+    return stage ? [stage] : [];
+  });
   const currentStage = resolutionCase
     ? resolutionCase.status === "proposed"
       ? isResolutionApprovalSubmitted(resolutionCase) ? "approval" : "propose"
@@ -97,7 +104,7 @@ export function ExceptionRecordHeader({
 
   return (
     <header data-testid="selected-exception-header" className="border-b border-border bg-surface">
-      <div className="px-4 py-3 lg:px-5">
+      <div className={`${recordWidthClass} py-4`}>
         <Link
           to={queueHref}
           className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-interactive"
@@ -105,23 +112,25 @@ export function ExceptionRecordHeader({
           <ChevronLeft className="size-3.5" aria-hidden="true" />
           返回 {context.businessKey} 异常队列
         </Link>
-        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-semibold">{exception.label}</h1>
-              <SeverityBadge severity={exception.severity} />
+              <h1 className="text-[22px] font-semibold leading-7">{exception.label}</h1>
+              <SeverityBadge severity={exception.severity} className="px-1.5 py-0 text-[10px]" />
               <Badge>{exceptionStatusLabel(exception.status)}</Badge>
             </div>
-            <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-text-muted">
+            <dl className="mt-3 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/70 sm:grid-cols-4">
               {metrics.map(([key, value]) => (
-                <span key={key}>
-                  {metricLabel(key)} <strong className="font-semibold text-text-primary">{formatMetricValue(value)}</strong>
-                </span>
+                <div key={key} className="bg-surface px-3 py-2.5">
+                  <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
+                  <dd className="mt-1 text-[18px] font-semibold leading-6 tabular-nums">{formatMetricValue(value)}</dd>
+                </div>
               ))}
-              <span>
-                当前阶段 <strong className="font-semibold text-text-secondary">{governanceStageLabel(currentStage)}</strong>
-              </span>
-            </div>
+              <div className="bg-surface px-3 py-2.5">
+                <dt className="text-[11px] text-text-muted">当前阶段</dt>
+                <dd className="mt-1 text-[15px] font-semibold leading-6 text-text-secondary">{governanceStageLabel(currentStage)}</dd>
+              </div>
+            </dl>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {capabilities.isLoading && <span className="text-xs text-text-muted">正在读取操作能力</span>}
@@ -141,11 +150,11 @@ export function ExceptionRecordHeader({
               )
             )}
             <details className="relative">
-              <summary className="flex h-9 cursor-pointer list-none items-center gap-1 rounded-md border border-border px-2.5 text-xs font-medium text-text-secondary hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
+              <summary className="flex h-9 cursor-pointer list-none items-center gap-1 rounded-md border border-border px-2.5 text-xs font-medium text-text-secondary hover:bg-surface-subtle [&::-webkit-details-marker]:hidden">
                 更多
                 <ChevronDown className="size-3.5" aria-hidden="true" />
               </summary>
-              <div className="absolute right-0 top-10 z-30 w-48 border border-border bg-surface p-1.5 shadow-sm">
+              <div className="absolute right-0 top-10 z-30 w-48 rounded-lg border border-border bg-surface p-1.5 shadow-popover">
                 <div className="px-1 py-1">
                   <ExceptionDetailsSheet contextId={contextId} exception={exception} context={context} />
                 </div>
@@ -157,6 +166,25 @@ export function ExceptionRecordHeader({
           <p className="mt-2 text-xs text-warning">{primary.capability.reason}</p>
         )}
         {mutationError && <p className="mt-2 text-xs text-danger">{governanceErrorMessage(mutationError)}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/70 pt-2.5">
+          <span className="text-[11px] font-medium text-text-muted">相关链路</span>
+          {relatedStages.map((stage, index) => {
+            const fact = stage.facts[0];
+            return (
+              <span key={stage.key} className="inline-flex items-center gap-2 text-[12px] text-text-secondary">
+                {index > 0 && <ChevronRight className="size-3.5 text-text-muted" aria-hidden="true" />}
+                <span>{stage.label}</span>
+                {fact && <strong className="font-semibold text-text-primary">{formatBusinessValue(fact)}</strong>}
+              </span>
+            );
+          })}
+          <Link
+            to={`/manufacturing/${encodeURIComponent(contextId)}?stageKey=${encodeURIComponent(exception.stageKeys[0] ?? "")}`}
+            className="ml-auto text-[11px] font-medium text-interactive hover:underline"
+          >
+            查看完整履约链路 →
+          </Link>
+        </div>
       </div>
     </header>
   );

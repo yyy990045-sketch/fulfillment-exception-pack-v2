@@ -1,7 +1,7 @@
 import { Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { productWidthClass } from "../components/product/page-layout.js";
+import { shellWidthClass } from "../components/product/page-layout.js";
 import { Button } from "../components/ui/button.js";
 import { useAccountContext } from "../hooks/use-manufacturing.js";
 import { cn } from "../lib/utils.js";
@@ -34,11 +34,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
-        <div className={`${productWidthClass} flex h-full items-center justify-between`}>
+        <div className={`${shellWidthClass} flex h-full items-center justify-between`}>
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-md bg-interactive text-sm font-semibold text-white">履</span>
-              <strong className="truncate text-sm font-semibold">{PRODUCT_NAME}</strong>
+              <span className="flex size-7 items-center justify-center rounded-md border border-interactive/20 bg-interactive/5 text-xs font-semibold text-interactive">履</span>
+              <strong className="truncate text-[13px] font-semibold tracking-normal">{PRODUCT_NAME}</strong>
             </div>
             <nav aria-label="主导航" className="hidden items-center gap-1 lg:flex">
               {navItems.map((item) => (
@@ -46,8 +46,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) => cn(
-                    "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary",
-                    isActive && "bg-interactive/5 text-interactive",
+                    "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
+                    isActive && "bg-surface-subtle font-medium text-text-primary",
                   )}
                 >
                   <item.icon className="size-4" aria-hidden="true" />

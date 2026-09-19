@@ -30,6 +30,20 @@
 - Queue filters are retained in the URL and queue scroll position is restored when returning from a record.
 - Duplicate navigation in the exception Header More menu was removed.
 
+## Resolved In Visual Design Rebuild
+
+- Added a unified neutral enterprise token set for background, surfaces, borders, text, semantic states, radius, and floating shadow.
+- Added separate Shell, list, Record, and long-form reading widths so content no longer stretches across the full viewport.
+- Rebuilt the Digital Thread as a connected process flow with typed hierarchy and prominent business values.
+- Rebuilt the Exception Record Header as one surface with a fact strip and related context chain.
+- Added a sticky Record navigation with restrained active states.
+- Rebuilt Overview as a two-column understanding workspace.
+- Rebuilt Evidence as a list plus preview workspace, keeping technical metadata in the Sheet.
+- Made the recommended Decision option the primary surface and alternatives secondary.
+- Added a compact Governance stepper with only the current step expanded.
+- Refined Operations summary/table density and Solution Pack's three-level workspace.
+- Added centralized Chinese presentation names for built-in Solution Packs.
+
 ## P0
 
 当前无阻塞 Manufacturing 主工作区使用的 P0 问题。

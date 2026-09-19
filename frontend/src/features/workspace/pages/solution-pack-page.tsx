@@ -29,6 +29,24 @@ function statusList(statuses: string[]) {
   return statuses.length ? statuses.map(resolutionStatusLabel).join("、") : "未进入治理";
 }
 
+const builtInPackPresentation: Record<string, { name: string; purpose: string }> = {
+  "manufacturing-fulfillment": {
+    name: "制造履约",
+    purpose: "销售订单履约异常、证据核对与处置治理",
+  },
+  "finance-reconciliation": {
+    name: "财务对账",
+    purpose: "应收、发票与银行回款差异核对",
+  },
+};
+
+function packPresentation(manifest: SolutionPackManifestView) {
+  return builtInPackPresentation[manifest.id] ?? {
+    name: manifest.name,
+    purpose: manifest.description,
+  };
+}
+
 function PackList({
   packs,
   selectedPackId,
@@ -39,7 +57,7 @@ function PackList({
   onSelect: (packId: string) => void;
 }) {
   return (
-    <aside className="border-b border-border bg-surface lg:border-b-0 lg:border-r">
+    <aside className="border-b border-border/75 bg-surface-subtle/70 lg:border-b-0 lg:border-r">
       <SectionHeader
         title="已安装方案包"
         description="当前企业已安装的方案包"
@@ -48,24 +66,28 @@ function PackList({
       <div role="list">
         {packs.map(({ manifest, installation }) => {
           const active = manifest.id === selectedPackId;
+          const presentation = packPresentation(manifest);
           return (
             <button
               key={manifest.id}
               type="button"
               aria-current={active ? "true" : undefined}
               className={cn(
-                "w-full border-b border-l-2 border-l-transparent border-border px-3 py-3 text-left transition-colors hover:bg-surface-muted focus-visible:bg-interactive/5",
-                active && "border-l-interactive bg-interactive/5",
+                "w-full border-b border-l-2 border-l-transparent border-border/70 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-surface focus-visible:bg-interactive/5",
+                active && "border-l-interactive bg-surface",
               )}
               onClick={() => onSelect(manifest.id)}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium">{manifest.name}</span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[13px] font-semibold">{presentation.name}</span>
+                  <span className="mt-0.5 block truncate text-[10px] text-text-muted">{manifest.name}</span>
+                </span>
                 <Badge variant={installation.status === "active" ? "success" : "default"}>
                   {installation.status === "active" ? "已启用" : "已停用"}
                 </Badge>
               </div>
-              <div className="mt-1 text-xs leading-5 text-text-secondary">{manifest.description}</div>
+              <div className="mt-1.5 text-[11px] leading-5 text-text-secondary">{presentation.purpose}</div>
               <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-text-muted">
                 <span>{manifest.contextTypes.map(contextTypeLabel).join("、")}</span>
                 <span className="text-[10px]">v{installation.packVersion}</span>
@@ -141,6 +163,7 @@ export function SolutionPackPage() {
   const businessCapabilities = manifest
     ? Object.entries(manifest.capabilities).filter(([key, enabled]) => enabled && isBusinessPackCapability(key))
     : [];
+  const presentation = manifest ? packPresentation(manifest) : undefined;
 
   return (
     <ProductPage>
@@ -149,7 +172,7 @@ export function SolutionPackPage() {
         description="查看当前企业已安装的业务解决方案与可复用平台能力。"
         badges={manifest && (
           <>
-            <Badge variant="info">{manifest.name}</Badge>
+            <Badge variant="info">{presentation?.name}</Badge>
             <Badge>{manifest.contextTypes.map(contextTypeLabel).join("、")}</Badge>
             <Badge variant={selectedPack?.installation.status === "active" ? "success" : "default"}>
               {selectedPack?.installation.status === "active" ? "已启用" : "已停用"}
@@ -159,7 +182,7 @@ export function SolutionPackPage() {
         footer={selectedPack && `当前版本 v${selectedPack.installation.packVersion}`}
       />
 
-      <ProductSection className="mt-4 grid lg:grid-cols-[280px_minmax(0,1fr)]">
+      <ProductSection className="mt-4 grid lg:grid-cols-[250px_minmax(0,1fr)]">
         <PackList packs={installed} selectedPackId={manifest?.id} onSelect={selectPack} />
         {!manifest || !selectedPack ? (
           <div className="p-4"><LocalState kind="empty" title="请选择一个已安装方案包" /></div>
@@ -168,8 +191,9 @@ export function SolutionPackPage() {
             <div className="border-b border-border px-4 py-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-base font-semibold">{manifest.name}</h2>
-                  <p className="mt-1 max-w-[78ch] text-sm text-text-secondary">{manifest.description}</p>
+                  <h2 className="text-[17px] font-semibold">{presentation?.name}</h2>
+                  <p className="mt-1 max-w-[78ch] text-[12px] text-text-secondary">{presentation?.purpose}</p>
+                  <p className="mt-1 text-[10px] text-text-muted">{manifest.name}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {businessCapabilities.map(([key]) => (
@@ -179,7 +203,7 @@ export function SolutionPackPage() {
               </div>
             </div>
 
-            <div className="grid xl:grid-cols-[280px_minmax(0,1fr)]">
+            <div className="grid xl:grid-cols-[300px_minmax(0,1fr)]">
               <div className="border-b border-border xl:border-b-0 xl:border-r">
                 <SectionHeader title="业务上下文" meta={packContexts.length} className="min-h-[46px]" />
                 {packContexts.length ? (
