@@ -3,7 +3,7 @@ import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { useGovernanceMutations, useOutcomeEvaluations, usePolicyEvaluations, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
 import type { DecisionRecommendationView, OutcomeEvaluationView, PolicyEvaluationView, ResolutionCaseView } from "../analysis-types.js";
-import { governanceStepStatus, resolveGovernanceStep } from "../governance-step.js";
+import { governanceStepStatus, isResolutionApprovalSubmitted, resolveGovernanceStep } from "../governance-step.js";
 import { governanceErrorMessage } from "../governance-errors.js";
 import { actionTypeLabel, fieldLabel, metricLabel, policyModeLabel, resolutionStatusLabel } from "../utils.js";
 import { ProcessStep, type ProcessStepStatus } from "./process-step.js";
@@ -16,6 +16,9 @@ const actionLabels: Record<string, string> = {
   review_quotation: "复核报价",
   create_task: "创建任务",
 };
+
+// COMMERCIAL_GAP: Production assignable roles must come from backend RBAC.
+const DEMO_ASSIGNABLE_OWNER_ROLES = ["品质负责人", "销售总监", "工程师", "财务", "总经理", "管理员"];
 
 const outcomeLabels = {
   target_met: "目标达成",
@@ -84,7 +87,7 @@ function AcceptanceForm({
             value={ownerRole}
             onChange={(event) => setOwnerRole(event.target.value)}
           >
-            {["品质负责人", "销售总监", "工程师", "财务", "总经理", "管理员"].map((role) => <option key={role}>{role}</option>)}
+            {DEMO_ASSIGNABLE_OWNER_ROLES.map((role) => <option key={role}>{role}</option>)}
           </select>
         </label>
         <label className="space-y-1 text-xs text-text-muted">
@@ -165,6 +168,10 @@ function ProposalForm({
   const selectedOption = recommendation?.output.options.find((option) => option.id === selectedOptionId);
   const [type, setType] = useState<string>(selectedOption?.actionType ?? "create_task");
   const [summary, setSummary] = useState(selectedOption?.actionSummary ?? "");
+  useEffect(() => {
+    setType(selectedOption?.actionType ?? "create_task");
+    setSummary(selectedOption?.actionSummary ?? "");
+  }, [selectedOption?.id, selectedOption?.actionType, selectedOption?.actionSummary]);
   return (
     <form className="space-y-3" onSubmit={(event) => {
       event.preventDefault();
@@ -243,6 +250,7 @@ export function GovernanceProcess({
 
   const policyDone = Boolean(currentPolicy && !currentPolicy.stale);
   const rejected = resolutionCase?.status === "rejected";
+  const approvalSubmitted = isResolutionApprovalSubmitted(resolutionCase);
   const approvalDone = Boolean(resolutionCase && ["approved", "executed", "closed"].includes(resolutionCase.status));
   const executionDone = Boolean(resolutionCase && ["executed", "closed"].includes(resolutionCase.status));
   const approvalEvent = resolutionCase?.runtime.events.filter((event) => event.to === "approved").at(-1);
@@ -250,12 +258,21 @@ export function GovernanceProcess({
     ? approvalEvent?.actor ?? "审批角色未记录"
     : currentPolicy?.decision.requiredRoles.join("、") || "独立审批人";
   const approvalResult = resolutionCase?.status === "proposed"
-    ? "等待审批"
+    ? approvalSubmitted
+      ? "等待审批"
+      : "未提交审批"
     : resolutionCase?.status === "rejected"
       ? "已终止"
       : approvalDone
         ? "已批准"
         : "未开始";
+  const governanceResult = resolutionCase
+    ? resolutionCase.status === "proposed"
+      ? approvalSubmitted
+        ? "待审批"
+        : "方案草案"
+      : resolutionStatusLabel(resolutionCase.status)
+    : "未进入治理";
 
   const stepStatus = (step: string): ProcessStepStatus => {
     if (step === "governance") return governanceStepStatus("governance", current, { rejected });
@@ -280,7 +297,7 @@ export function GovernanceProcess({
         status={stepStatus("governance")}
         summary={policyDone ? `策略资格：${policyModeLabel(currentPolicy!.decision.mode)}` : "等待选择候选并完成策略评估与人工治理"}
         owner={resolutionCase?.ownerRole ?? "待指定负责人"}
-        result={resolutionCase ? resolutionStatusLabel(resolutionCase.status) : "未进入治理"}
+        result={governanceResult}
         expanded={expandedStep === "governance"}
         onToggle={() => setExpandedStep(expandedStep === "governance" ? "" : "governance")}
       >
@@ -372,7 +389,7 @@ export function GovernanceProcess({
                       {mutations.submit.mutation.isPending ? "正在提交..." : "提交审批"}
                     </Button>
                   )}
-                  {resolutionCase.status === "proposed" && <Badge variant="warning">等待独立审批</Badge>}
+                  {approvalSubmitted && <Badge variant="warning">等待独立审批</Badge>}
                   {resolutionCase.status === "rejected" && <Badge variant="danger">治理已终止</Badge>}
                   {invocationError(mutations.submit.mutation) && <span className="text-xs text-danger">{invocationError(mutations.submit.mutation)}</span>}
                 </div>

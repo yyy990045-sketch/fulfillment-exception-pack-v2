@@ -16,6 +16,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hasToken = Boolean(window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken"));
   const actor = DEMO_ACTORS.find((item) => item.id === actorId) ?? DEMO_ACTORS[0];
+  // COMMERCIAL_GAP: Production organization, user, role, and role-switching data must come from backend auth/RBAC.
   const account = hasToken
     ? { organization: "当前企业", user: "已认证用户", role: "由后端权限决定" }
     : { organization: "示例制造企业", user: actor.label, role: actor.label };

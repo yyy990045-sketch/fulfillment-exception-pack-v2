@@ -30,7 +30,7 @@ The frontend does not evaluate rules and does not decide policy eligibility.
 
 The Manufacturing page is organized as:
 
-1. Application shell and compact demo identity controls.
+1. Application shell and B2B account area with controlled demo role switching.
 2. Context Header for the active business key and status.
 3. Digital Thread for the eight fulfillment stages.
 4. Exception Rail for current deterministic exceptions.
@@ -157,3 +157,21 @@ BUSINESS_RULES_IN_FRONTEND=false
 POLICY_LOGIC_IN_FRONTEND=false
 FAKE_AI_METRICS=false
 ```
+
+# 13 Commercialization Gap: Organization and Role Provisioning
+
+The current frontend still contains hard-coded demo identities and an assignable owner-role list:
+
+- `DEMO_ACTORS` in the account area.
+- `DEMO_ASSIGNABLE_OWNER_ROLES` in the Resolution acceptance form.
+
+This is acceptable only for the current controlled demo and pilot environment.
+
+Formal commercial delivery must obtain the following from backend RBAC and organization services:
+
+- current organization
+- current user
+- current role
+- assignable owner roles for the current user and organization
+
+Until that backend contract exists, the UI must continue to identify the organization as a demo organization and must not imply that the frontend role list represents production authorization.

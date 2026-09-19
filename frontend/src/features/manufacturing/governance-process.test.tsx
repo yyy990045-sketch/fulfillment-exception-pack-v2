@@ -78,22 +78,29 @@ function mockGovernanceApi(options: {
   return calls;
 }
 
-function renderProcess() {
+function renderProcess(selectedOptionId = "option-evidence") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: 0 } },
   });
-  render(
+  const tree = (optionId: string) => (
     <QueryClientProvider client={queryClient}>
       <DemoSettingsProvider>
         <GovernanceProcess
           contextId="ctx-fixture"
           exceptionId="exception-claim"
           recommendation={decisionFixture}
-          selectedOptionId="option-evidence"
+          selectedOptionId={optionId}
         />
       </DemoSettingsProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  const view = render(tree(selectedOptionId));
+  return {
+    ...view,
+    rerenderSelection(optionId: string) {
+      view.rerender(tree(optionId));
+    },
+  };
 }
 
 beforeEach(() => {
@@ -107,6 +114,19 @@ afterEach(() => {
 });
 
 describe("governance process", () => {
+  it("resets the proposal draft when the Decision candidate changes", async () => {
+    mockGovernanceApi({ initial: resolutionQueryFixture("confirmed") });
+    const view = renderProcess("option-evidence");
+    const action = await screen.findByLabelText("治理动作");
+    const summary = await screen.findByLabelText("动作说明与完成标准");
+    expect(action).toHaveValue("supplement_evidence");
+    expect(summary).toHaveValue("收集客户签收单和物流记录。");
+
+    view.rerenderSelection("option-review");
+    await waitFor(() => expect(action).toHaveValue("review_quotation"));
+    expect(summary).toHaveValue("由业务人员复核当前差异。");
+  });
+
   it("keeps review, propose, and submit as real mutations", async () => {
     const user = userEvent.setup();
     mockGovernanceApi({ initial: resolutionQueryFixture("triaged") });
@@ -123,6 +143,22 @@ describe("governance process", () => {
 
     await user.click(await screen.findByRole("button", { name: "提交审批" }));
     expect(await screen.findByText("等待审批")).toBeInTheDocument();
+  });
+
+  it("keeps draft proposals as 未提交审批 and submitted proposals as 等待审批", async () => {
+    mockGovernanceApi({ initial: resolutionQueryFixture("proposed", { submitted: false }) });
+    renderProcess();
+    expect(await screen.findByText("未提交审批")).toBeInTheDocument();
+    expect(screen.getByTestId("process-step-governance")).toHaveAttribute("data-status", "current");
+    expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "pending");
+    expect(screen.getByRole("button", { name: "提交审批" })).toBeInTheDocument();
+    cleanup();
+
+    mockGovernanceApi({ initial: resolutionQueryFixture("proposed", { submitted: true }) });
+    renderProcess();
+    expect(await screen.findByText("等待审批")).toBeInTheDocument();
+    expect(screen.getByTestId("process-step-governance")).toHaveAttribute("data-status", "done");
+    expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "current");
   });
 
   it("shows approval requirements and the backend SoD rejection", async () => {

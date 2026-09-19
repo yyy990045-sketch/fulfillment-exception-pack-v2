@@ -1,4 +1,4 @@
-import { Check, Circle, LoaderCircle } from "lucide-react";
+import { AlertCircle, Check, Circle, LoaderCircle } from "lucide-react";
 import { cn } from "../../../lib/utils.js";
 import { useDecisionRecommendation, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
 import { governanceSteps, governanceStepStatus, resolveGovernanceStep } from "../governance-step.js";
@@ -14,22 +14,46 @@ export function DecisionProcessBar({
   const resolution = useResolutionProcess(contextId, exceptionId);
   const resolutionCase = resolution.detail.data?.resolutionCase;
   const hasRecommendation = Boolean(decision.detail.data);
-  const current = resolveGovernanceStep(resolutionCase, hasRecommendation);
-  const currentLabel = governanceSteps.find((step) => step.id === current)?.label ?? "治理";
+  const loading = Boolean(
+    decision.list.isLoading ||
+    resolution.list.isLoading ||
+    (decision.latest && decision.detail.isLoading) ||
+    (resolution.summary && resolution.detail.isLoading),
+  );
+  const error = Boolean(
+    decision.list.isError ||
+    decision.detail.isError ||
+    resolution.list.isError ||
+    resolution.detail.isError,
+  );
+  const state = error ? "error" : loading ? "loading" : "ready";
+  const current = state === "ready" ? resolveGovernanceStep(resolutionCase, hasRecommendation) : undefined;
+  const currentLabel = current
+    ? governanceSteps.find((step) => step.id === current)?.label ?? "治理"
+    : error
+      ? "治理状态暂不可用"
+      : "正在读取治理状态";
 
   return (
     <div
       data-testid="decision-process-bar"
-      data-current-step={current}
+      data-state={state}
+      {...(current ? { "data-current-step": current } : {})}
+      aria-busy={loading}
       className="overflow-x-auto border-b border-border bg-surface-muted/50 px-3 py-3"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-medium text-text-secondary">当前步骤：{currentLabel}</span>
+        <span className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+          {error && <AlertCircle className="size-3.5 text-warning" aria-hidden="true" />}
+          {state === "ready" ? `当前步骤：${currentLabel}` : currentLabel}
+        </span>
         <span className="text-xs text-text-muted">建议 → 治理 → 审批 → 执行 → 回执 → 结果</span>
       </div>
       <ol className="mt-2.5 grid min-w-[760px] grid-cols-6" aria-label="治理流程">
         {governanceSteps.map((step) => {
-          const status = governanceStepStatus(step.id, current, { rejected: resolutionCase?.status === "rejected" });
+          const status = current
+            ? governanceStepStatus(step.id, current, { rejected: resolutionCase?.status === "rejected" })
+            : "pending";
           const Icon = status === "done" ? Check : status === "current" ? LoaderCircle : Circle;
           return (
             <li

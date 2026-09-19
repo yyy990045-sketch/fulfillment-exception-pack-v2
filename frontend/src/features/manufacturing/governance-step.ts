@@ -11,6 +11,14 @@ export const governanceSteps: Array<{ id: GovernanceStepId; label: string }> = [
   { id: "outcome", label: "结果" },
 ];
 
+export function isResolutionApprovalSubmitted(resolution: ResolutionCaseView | undefined) {
+  return Boolean(
+    resolution?.status === "proposed" &&
+    resolution.runtime.actions.length > 0 &&
+    resolution.runtime.actions.every((action) => action.status === "pending_approval"),
+  );
+}
+
 export function resolveGovernanceStep(
   resolution: ResolutionCaseView | undefined,
   hasRecommendation: boolean,
@@ -19,9 +27,7 @@ export function resolveGovernanceStep(
   if (!resolution) return "governance";
   if (resolution.status === "triaged" || resolution.status === "confirmed" || resolution.status === "rejected") return "governance";
   if (resolution.status === "proposed") {
-    const pendingApproval = resolution.runtime.actions.length > 0 &&
-      resolution.runtime.actions.every((action) => action.status === "pending_approval");
-    return pendingApproval ? "approval" : "governance";
+    return isResolutionApprovalSubmitted(resolution) ? "approval" : "governance";
   }
   if (resolution.status === "approved") return "execution";
   if (resolution.status === "executed") return "receipt";
