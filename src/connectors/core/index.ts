@@ -6,3 +6,4 @@ export * from "./secrets.js";
 export * from "./security.js";
 export * from "./outbox.js";
 export * from "./worker.js";
+export * from "./inbound-runtime.js";

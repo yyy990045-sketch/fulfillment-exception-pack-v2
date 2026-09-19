@@ -1,0 +1,12 @@
+{
+  "id": "inbound-connector-runtime-v1",
+  "title": "Inbound Connector Runtime V1",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "connectors",
+  "currentPhase": "completed",
+  "nextAction": "Archive after commit and push",
+  "createdAt": "2026-09-19T15:05:00Z",
+  "branch": "main"
+}

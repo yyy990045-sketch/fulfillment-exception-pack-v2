@@ -46,7 +46,7 @@ describe("V2 SQLite persistence", () => {
     const second = runV2Migrations(db);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>;
 
-    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings"]);
+    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings", "016_inbound_connector_runtime"]);
     expect(second).toEqual([]);
     expect(tables.map((row) => row.name)).toEqual(expect.arrayContaining([
       "business_entities",
@@ -71,6 +71,10 @@ describe("V2 SQLite persistence", () => {
       "outcome_evaluations",
       "solution_pack_installations",
       "solution_pack_context_bindings",
+      "connector_mapping_versions",
+      "connector_sync_states",
+      "connector_sync_runs",
+      "connector_source_records",
       "connector_installations",
       "connector_outbox",
       "connector_delivery_attempts",
@@ -92,19 +96,23 @@ describe("V2 SQLite persistence", () => {
     expect(applied).toBeUndefined();
   });
 
-  it("upgrades an existing migration 006 database through decision, root cause, policy, automation, outcome, pack, connector, decision runtime, and explicit binding tables", () => {
+  it("upgrades an existing migration 006 database through decision, root cause, policy, automation, outcome, pack, connector, decision runtime, explicit binding, and inbound runtime tables", () => {
     const db = openDatabase();
-    const preLatest = V2_MIGRATIONS.filter((migration) => !["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings"].includes(migration.version));
+    const preLatest = V2_MIGRATIONS.filter((migration) => !["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings", "016_inbound_connector_runtime"].includes(migration.version));
     expect(runV2Migrations(db, preLatest)).not.toContain("007_decision_recommendations");
-    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings"]);
+    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings", "016_inbound_connector_runtime"]);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'decision_recommendation%' OR name LIKE 'root_cause_%' OR name LIKE 'policy_%' OR name LIKE 'automation_%' OR name LIKE 'outcome_%' OR name LIKE 'solution_pack_%' OR name LIKE 'connector_%' OR name LIKE 'decision_runtime_%' OR name = 'internal_work_items') ORDER BY name").all() as Array<{ name: string }>;
     expect(tables.map((row) => row.name)).toEqual([
       "automation_receipts",
       "automation_runs",
       "connector_delivery_attempts",
       "connector_installations",
+      "connector_mapping_versions",
       "connector_outbox",
       "connector_receipts",
+      "connector_source_records",
+      "connector_sync_runs",
+      "connector_sync_states",
       "decision_recommendation_dispositions",
       "decision_recommendations",
       "decision_runtime_calls",

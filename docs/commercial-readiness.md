@@ -29,6 +29,8 @@
 | Jev | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | 官方 object-map contract、Choice/Score/Noul normalization 已实现并 fixture 验证；live Jev 未验证。 |
 | Open supOS Adapter | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | Adapter、UNS mapping、inbound contract 已实现；真实 Open supOS runtime 未启动、未验证。 |
 | Connector SDK | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 包含安装、secretRef、transactional outbox、lease、attempt、receipt；reference HTTP connector 只连接本地测试服务器。 |
+| Inbound Connector Runtime | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 只读 readPage、provider-opaque cursor、sync run/state、ledger、mapping version 和 commit/cursor 边界已实现并本地验证。 |
+| Reference HTTP Inbound | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 只连接本地测试服务器，用于分页、duplicate/revision、429、timeout、invalid response 和 provenance 验证。 |
 | ERP integration | NOT_IMPLEMENTED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | 没有客户 ERP 环境的真实连接、认证、字段映射或端到端验证。 |
 | MES integration | NOT_IMPLEMENTED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | 没有客户 MES 环境的真实连接、认证、字段映射或端到端验证。 |
 | QMS integration | NOT_IMPLEMENTED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | 没有客户 QMS 环境的真实连接、认证、字段映射或端到端验证。 |

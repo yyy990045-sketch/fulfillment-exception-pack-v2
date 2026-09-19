@@ -1,11 +1,13 @@
 import type { V2SqliteStore } from "../../domain/v2/index.js";
 import { assertCompatibleConnectorManifest, connectorManifestHash } from "./manifest.js";
 import { validateSecretRef } from "./secrets.js";
-import { ConnectorError, type OutboundConnector } from "./types.js";
+import { ConnectorError, type InboundConnector, type OutboundConnector } from "./types.js";
+
+type InstallableConnector = OutboundConnector | InboundConnector;
 
 export function installConnector(
   store: V2SqliteStore,
-  connector: OutboundConnector,
+  connector: InstallableConnector,
   input: {
     tenantId: string;
     installationId: string;

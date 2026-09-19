@@ -819,6 +819,104 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON solution_pack_context_bindings (tenant_id, pack_id, context_id);
     `,
   },
+  {
+    version: "016_inbound_connector_runtime",
+    sql: `
+      CREATE TABLE IF NOT EXISTS connector_mapping_versions (
+        tenant_id TEXT NOT NULL,
+        connector_id TEXT NOT NULL,
+        mapping_id TEXT NOT NULL,
+        version TEXT NOT NULL,
+        effective_at TEXT NOT NULL,
+        definition_hash TEXT NOT NULL,
+        description TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, connector_id, mapping_id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS connector_mapping_versions_effective_idx
+        ON connector_mapping_versions (tenant_id, connector_id, mapping_id, effective_at, version);
+
+      CREATE TABLE IF NOT EXISTS connector_sync_states (
+        tenant_id TEXT NOT NULL,
+        connector_installation_id TEXT NOT NULL,
+        record_type TEXT NOT NULL,
+        last_successful_cursor TEXT,
+        last_attempted_cursor TEXT,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, connector_installation_id, record_type),
+        FOREIGN KEY (tenant_id, connector_installation_id)
+          REFERENCES connector_installations (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS connector_sync_runs (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        connector_installation_id TEXT NOT NULL,
+        connector_id TEXT NOT NULL,
+        record_type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        completed_at TEXT,
+        records_read INTEGER NOT NULL,
+        records_accepted INTEGER NOT NULL,
+        records_rejected INTEGER NOT NULL,
+        records_duplicate INTEGER NOT NULL,
+        attempted_cursor TEXT,
+        committed_cursor TEXT,
+        last_error_code TEXT,
+        error_class TEXT,
+        retry_after_ms INTEGER,
+        provider_request_id TEXT,
+        mapping_id TEXT NOT NULL,
+        mapping_version TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, connector_installation_id)
+          REFERENCES connector_installations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS connector_sync_runs_installation_idx
+        ON connector_sync_runs (tenant_id, connector_installation_id, record_type, started_at, id);
+
+      CREATE TABLE IF NOT EXISTS connector_source_records (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        connector_id TEXT NOT NULL,
+        connector_installation_id TEXT NOT NULL,
+        record_type TEXT NOT NULL,
+        external_record_id TEXT NOT NULL,
+        source_version TEXT NOT NULL,
+        raw_hash TEXT NOT NULL,
+        locator_json TEXT NOT NULL,
+        observed_at TEXT NOT NULL,
+        mapping_id TEXT NOT NULL,
+        mapping_version TEXT NOT NULL,
+        first_seen_at TEXT NOT NULL,
+        last_seen_at TEXT NOT NULL,
+        canonical_refs_json TEXT NOT NULL,
+        evidence_refs_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (
+          tenant_id,
+          connector_installation_id,
+          record_type,
+          external_record_id,
+          source_version,
+          raw_hash,
+          mapping_id,
+          mapping_version
+        ),
+        FOREIGN KEY (tenant_id, connector_installation_id)
+          REFERENCES connector_installations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS connector_source_records_external_idx
+        ON connector_source_records (tenant_id, connector_installation_id, record_type, external_record_id, observed_at, id);
+
+      CREATE INDEX IF NOT EXISTS connector_source_records_hash_idx
+        ON connector_source_records (tenant_id, connector_installation_id, record_type, raw_hash, mapping_version);
+    `,
+  },
 ];
 
 export function runV2Migrations(

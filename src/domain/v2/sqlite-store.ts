@@ -53,6 +53,10 @@ import type {
   ConnectorInstallationRecord,
   ConnectorOutboxRecord,
   ConnectorReceiptRecord,
+  ConnectorMappingVersionRecord,
+  ConnectorSourceRecordRecord,
+  ConnectorSyncRunRecord,
+  ConnectorSyncStateRecord,
 } from "./connector-types.js";
 import type { DecisionRuntimeCallRecord } from "./decision-runtime-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
@@ -2009,6 +2013,312 @@ export class V2SqliteStore {
       const item = this.getConnectorInstallation(tenantId, row.id);
       return item ? [item] : [];
     });
+  }
+
+  saveConnectorMappingVersion(input: ConnectorMappingVersionRecord): ConnectorMappingVersionRecord {
+    const existing = this.getConnectorMappingVersion(input.tenantId, input.connectorId, input.mappingId, input.version);
+    if (existing) {
+      if (existing.definitionHash !== input.definitionHash || existing.effectiveAt !== input.effectiveAt) {
+        throw new DomainError("connector_mapping_version_conflict", `${input.mappingId}@${input.version}`);
+      }
+      return existing;
+    }
+    this.db.prepare(`
+      INSERT INTO connector_mapping_versions
+        (tenant_id, connector_id, mapping_id, version, effective_at, definition_hash, description, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.connectorId,
+      input.mappingId,
+      input.version,
+      input.effectiveAt,
+      input.definitionHash,
+      input.description,
+      input.createdAt,
+    );
+    return input;
+  }
+
+  getConnectorMappingVersion(
+    tenantId: string,
+    connectorId: string,
+    mappingId: string,
+    version: string,
+  ): ConnectorMappingVersionRecord | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, connector_id as connectorId, mapping_id as mappingId,
+             version, effective_at as effectiveAt, definition_hash as definitionHash,
+             description, created_at as createdAt
+      FROM connector_mapping_versions
+      WHERE tenant_id = ? AND connector_id = ? AND mapping_id = ? AND version = ?
+    `).get(tenantId, connectorId, mappingId, version) as ConnectorMappingVersionRecord | undefined;
+  }
+
+  listConnectorMappingVersions(tenantId: string, connectorId?: string): ConnectorMappingVersionRecord[] {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, connector_id as connectorId, mapping_id as mappingId,
+             version, effective_at as effectiveAt, definition_hash as definitionHash,
+             description, created_at as createdAt
+      FROM connector_mapping_versions
+      WHERE tenant_id = ? ${connectorId ? "AND connector_id = ?" : ""}
+      ORDER BY connector_id, mapping_id, effective_at, version
+    `).all(...(connectorId ? [tenantId, connectorId] : [tenantId])) as ConnectorMappingVersionRecord[];
+  }
+
+  saveConnectorSyncState(input: ConnectorSyncStateRecord): ConnectorSyncStateRecord {
+    this.db.prepare(`
+      INSERT INTO connector_sync_states
+        (tenant_id, connector_installation_id, record_type, last_successful_cursor, last_attempted_cursor, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, connector_installation_id, record_type) DO UPDATE SET
+        last_successful_cursor = excluded.last_successful_cursor,
+        last_attempted_cursor = excluded.last_attempted_cursor,
+        updated_at = excluded.updated_at
+    `).run(
+      input.tenantId,
+      input.connectorInstallationId,
+      input.recordType,
+      input.lastSuccessfulCursor,
+      input.lastAttemptedCursor,
+      input.updatedAt,
+    );
+    return this.getConnectorSyncState(input.tenantId, input.connectorInstallationId, input.recordType) ?? input;
+  }
+
+  getConnectorSyncState(
+    tenantId: string,
+    connectorInstallationId: string,
+    recordType: string,
+  ): ConnectorSyncStateRecord | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, connector_installation_id as connectorInstallationId,
+             record_type as recordType, last_successful_cursor as lastSuccessfulCursor,
+             last_attempted_cursor as lastAttemptedCursor, updated_at as updatedAt
+      FROM connector_sync_states
+      WHERE tenant_id = ? AND connector_installation_id = ? AND record_type = ?
+    `).get(tenantId, connectorInstallationId, recordType) as ConnectorSyncStateRecord | undefined;
+  }
+
+  saveConnectorSyncRun(input: ConnectorSyncRunRecord): ConnectorSyncRunRecord {
+    this.db.prepare(`
+      INSERT INTO connector_sync_runs
+        (tenant_id, id, connector_installation_id, connector_id, record_type, status, started_at,
+         completed_at, records_read, records_accepted, records_rejected, records_duplicate,
+         attempted_cursor, committed_cursor, last_error_code, error_class, retry_after_ms,
+         provider_request_id, mapping_id, mapping_version)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, id) DO UPDATE SET
+        status = excluded.status,
+        completed_at = excluded.completed_at,
+        records_read = excluded.records_read,
+        records_accepted = excluded.records_accepted,
+        records_rejected = excluded.records_rejected,
+        records_duplicate = excluded.records_duplicate,
+        attempted_cursor = excluded.attempted_cursor,
+        committed_cursor = excluded.committed_cursor,
+        last_error_code = excluded.last_error_code,
+        error_class = excluded.error_class,
+        retry_after_ms = excluded.retry_after_ms,
+        provider_request_id = excluded.provider_request_id,
+        mapping_id = excluded.mapping_id,
+        mapping_version = excluded.mapping_version
+    `).run(
+      input.tenantId,
+      input.id,
+      input.connectorInstallationId,
+      input.connectorId,
+      input.recordType,
+      input.status,
+      input.startedAt,
+      input.completedAt,
+      input.recordsRead,
+      input.recordsAccepted,
+      input.recordsRejected,
+      input.recordsDuplicate,
+      input.attemptedCursor,
+      input.committedCursor,
+      input.lastErrorCode ?? null,
+      input.errorClass ?? null,
+      input.retryAfterMs ?? null,
+      input.providerRequestId ?? null,
+      input.mappingId,
+      input.mappingVersion,
+    );
+    return this.getConnectorSyncRun(input.tenantId, input.id) ?? input;
+  }
+
+  getConnectorSyncRun(tenantId: string, runId: string): ConnectorSyncRunRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, connector_installation_id as connectorInstallationId,
+             connector_id as connectorId, record_type as recordType, status,
+             started_at as startedAt, completed_at as completedAt,
+             records_read as recordsRead, records_accepted as recordsAccepted,
+             records_rejected as recordsRejected, records_duplicate as recordsDuplicate,
+             attempted_cursor as attemptedCursor, committed_cursor as committedCursor,
+             last_error_code as lastErrorCode, error_class as errorClass,
+             retry_after_ms as retryAfterMs, provider_request_id as providerRequestId,
+             mapping_id as mappingId, mapping_version as mappingVersion
+      FROM connector_sync_runs
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, runId) as (Omit<ConnectorSyncRunRecord, "lastErrorCode" | "errorClass" | "retryAfterMs" | "providerRequestId"> & {
+      lastErrorCode: string | null;
+      errorClass: ConnectorSyncRunRecord["errorClass"] | null;
+      retryAfterMs: number | null;
+      providerRequestId: string | null;
+    }) | undefined;
+    if (!row) return undefined;
+    const {
+      lastErrorCode,
+      errorClass,
+      retryAfterMs,
+      providerRequestId,
+      ...base
+    } = row;
+    return {
+      ...base,
+      ...(lastErrorCode ? { lastErrorCode } : {}),
+      ...(errorClass ? { errorClass } : {}),
+      ...(retryAfterMs !== null ? { retryAfterMs } : {}),
+      ...(providerRequestId ? { providerRequestId } : {}),
+    };
+  }
+
+  listConnectorSyncRuns(
+    tenantId: string,
+    connectorInstallationId: string,
+    recordType?: string,
+  ): ConnectorSyncRunRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM connector_sync_runs
+      WHERE tenant_id = ? AND connector_installation_id = ? ${recordType ? "AND record_type = ?" : ""}
+      ORDER BY started_at, id
+    `).all(...(recordType ? [tenantId, connectorInstallationId, recordType] : [tenantId, connectorInstallationId])) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const run = this.getConnectorSyncRun(tenantId, row.id);
+      return run ? [run] : [];
+    });
+  }
+
+  findConnectorSourceRecordExact(input: Pick<
+    ConnectorSourceRecordRecord,
+    "tenantId" | "connectorInstallationId" | "recordType" | "externalRecordId" | "sourceVersion" | "rawHash" | "mappingId" | "mappingVersion"
+  >): ConnectorSourceRecordRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM connector_source_records
+      WHERE tenant_id = ? AND connector_installation_id = ? AND record_type = ?
+        AND external_record_id = ? AND source_version = ? AND raw_hash = ?
+        AND mapping_id = ? AND mapping_version = ?
+    `).get(
+      input.tenantId,
+      input.connectorInstallationId,
+      input.recordType,
+      input.externalRecordId,
+      input.sourceVersion,
+      input.rawHash,
+      input.mappingId,
+      input.mappingVersion,
+    ) as { id: string } | undefined;
+    return row ? this.getConnectorSourceRecord(input.tenantId, row.id) : undefined;
+  }
+
+  getConnectorSourceRecord(tenantId: string, recordId: string): ConnectorSourceRecordRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, connector_id as connectorId,
+             connector_installation_id as connectorInstallationId, record_type as recordType,
+             external_record_id as externalRecordId, source_version as sourceVersion,
+             raw_hash as rawHash, locator_json as locatorJson, observed_at as observedAt,
+             mapping_id as mappingId, mapping_version as mappingVersion,
+             first_seen_at as firstSeenAt, last_seen_at as lastSeenAt,
+             canonical_refs_json as canonicalRefsJson, evidence_refs_json as evidenceRefsJson
+      FROM connector_source_records
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, recordId) as {
+      tenantId: string;
+      id: string;
+      connectorId: string;
+      connectorInstallationId: string;
+      recordType: string;
+      externalRecordId: string;
+      sourceVersion: string;
+      rawHash: string;
+      locatorJson: string;
+      observedAt: string;
+      mappingId: string;
+      mappingVersion: string;
+      firstSeenAt: string;
+      lastSeenAt: string;
+      canonicalRefsJson: string;
+      evidenceRefsJson: string;
+    } | undefined;
+    return row ? {
+      ...row,
+      locator: parseJson<Record<string, unknown>>(row.locatorJson),
+      canonicalRefs: parseJson<string[]>(row.canonicalRefsJson),
+      evidenceRefs: parseJson<string[]>(row.evidenceRefsJson),
+      locatorJson: undefined,
+      canonicalRefsJson: undefined,
+      evidenceRefsJson: undefined,
+    } as ConnectorSourceRecordRecord : undefined;
+  }
+
+  listConnectorSourceRecords(
+    tenantId: string,
+    connectorInstallationId: string,
+    recordType?: string,
+  ): ConnectorSourceRecordRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM connector_source_records
+      WHERE tenant_id = ? AND connector_installation_id = ? ${recordType ? "AND record_type = ?" : ""}
+      ORDER BY observed_at, id
+    `).all(...(recordType ? [tenantId, connectorInstallationId, recordType] : [tenantId, connectorInstallationId])) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const record = this.getConnectorSourceRecord(tenantId, row.id);
+      return record ? [record] : [];
+    });
+  }
+
+  saveConnectorSourceRecord(input: ConnectorSourceRecordRecord): ConnectorSourceRecordRecord {
+    const existing = this.findConnectorSourceRecordExact(input);
+    if (existing) {
+      this.db.prepare(`
+        UPDATE connector_source_records
+        SET last_seen_at = ?, canonical_refs_json = ?, evidence_refs_json = ?
+        WHERE tenant_id = ? AND id = ?
+      `).run(
+        input.lastSeenAt,
+        json(input.canonicalRefs),
+        json(input.evidenceRefs),
+        input.tenantId,
+        existing.id,
+      );
+      return this.getConnectorSourceRecord(input.tenantId, existing.id) ?? existing;
+    }
+    this.db.prepare(`
+      INSERT INTO connector_source_records
+        (tenant_id, id, connector_id, connector_installation_id, record_type, external_record_id,
+         source_version, raw_hash, locator_json, observed_at, mapping_id, mapping_version,
+         first_seen_at, last_seen_at, canonical_refs_json, evidence_refs_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.id,
+      input.connectorId,
+      input.connectorInstallationId,
+      input.recordType,
+      input.externalRecordId,
+      input.sourceVersion,
+      input.rawHash,
+      json(input.locator),
+      input.observedAt,
+      input.mappingId,
+      input.mappingVersion,
+      input.firstSeenAt,
+      input.lastSeenAt,
+      json(input.canonicalRefs),
+      json(input.evidenceRefs),
+    );
+    return input;
   }
 
   enqueueConnectorOutbox(input: ConnectorOutboxRecord): ConnectorOutboxRecord {

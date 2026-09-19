@@ -42,6 +42,7 @@ export type DomainErrorCode =
   | "solution_pack_binding_version_mismatch"
   | "solution_pack_binding_context_required"
   | "solution_pack_context_already_bound"
+  | "connector_mapping_version_conflict"
   | "DOMAIN_SOURCE_DOCUMENT_IDEMPOTENCY_CONFLICT"
   | "DOMAIN_ENTITY_REFERENCE_CONFLICT"
   | "DOMAIN_EVENT_IDEMPOTENCY_CONFLICT"
