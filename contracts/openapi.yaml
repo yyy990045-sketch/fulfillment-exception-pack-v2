@@ -315,6 +315,126 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/connectors:
+    get:
+      responses:
+        '200':
+          description: Code-packaged Connector catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [connectors]
+                properties:
+                  connectors: { type: array, items: { $ref: '#/components/schemas/ConnectorManifest' } }
+  /api/v2/connectors/installed:
+    parameters:
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Tenant Connector installations, secret values omitted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [installations]
+                properties:
+                  installations: { type: array, items: { type: object, additionalProperties: true } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/connectors/{connectorId}/install:
+    parameters:
+      - { name: connectorId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [installationId, config]
+              properties:
+                installationId: { type: string }
+                config: { type: object, additionalProperties: true }
+                secretRef: { type: string, pattern: '^[A-Z0-9_]+$' }
+      responses:
+        '200':
+          description: Connector installation without network call
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ConnectorInstallationResponse' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/internal-work-items/{workItemId}/deliveries:
+    parameters:
+      - { name: workItemId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Connector outbox deliveries for an Internal Work Item
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workItemId, deliveries]
+                properties:
+                  workItemId: { type: string }
+                  deliveries: { type: array, items: { $ref: '#/components/schemas/ConnectorDeliveryView' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [connectorInstallationId]
+              properties:
+                connectorInstallationId: { type: string }
+      responses:
+        '202':
+          description: Delivery enqueued to transactional outbox; no HTTP call performed
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ConnectorDeliveryView' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/connectors/outbox/{outboxId}:
+    parameters:
+      - { name: outboxId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Connector outbox and receipt view
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ConnectorDeliveryView' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/connectors/outbox/{outboxId}/attempts:
+    parameters:
+      - { name: outboxId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Safe Connector delivery attempts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [outboxId, attempts]
+                properties:
+                  outboxId: { type: string }
+                  attempts: { type: array, items: { $ref: '#/components/schemas/ConnectorDeliveryAttempt' } }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/pack-workbench:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1303,6 +1423,115 @@ components:
             syntheticDemoData: { type: boolean }
             packBound: { type: boolean }
             causalAttribution: { type: boolean, enum: [false] }
+    ConnectorManifest:
+      type: object
+      additionalProperties: false
+      required: [id, version, name, description, direction, capabilities, audience, effects, compatibility]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        name: { type: string }
+        description: { type: string }
+        direction: { type: string, enum: [inbound, outbound, bidirectional] }
+        capabilities: { type: array, items: { type: string } }
+        audience: { type: string, enum: [internal_operations, business_system, external_customer] }
+        effects:
+          type: object
+          additionalProperties: false
+          required: [customerFacing, financialMovement, legalEffect]
+          properties:
+            customerFacing: { type: boolean }
+            financialMovement: { type: boolean }
+            legalEffect: { type: boolean }
+        compatibility:
+          type: object
+          additionalProperties: false
+          required: [coreApiVersion]
+          properties:
+            coreApiVersion: { type: string }
+    ConnectorInstallation:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, connectorId, connectorVersion, status, manifestHash, config, installedBy, installedAt, updatedAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        connectorId: { type: string }
+        connectorVersion: { type: string }
+        status: { type: string, enum: [active, inactive] }
+        manifestHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        config: { type: object, additionalProperties: true }
+        secretRef: { type: string }
+        secretConfigured: { type: boolean }
+        installedBy: { type: string }
+        installedAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ConnectorInstallationResponse:
+      type: object
+      required: [installation, manifest]
+      properties:
+        installation: { $ref: '#/components/schemas/ConnectorInstallation' }
+        manifest: { $ref: '#/components/schemas/ConnectorManifest' }
+    ConnectorOutboxItem:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, connectorInstallationId, workItemId, contextId, exceptionId, capability, operationKey, payload, status, attemptCount, availableAt, createdAt, updatedAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        connectorInstallationId: { type: string }
+        workItemId: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        capability: { type: string }
+        operationKey: { type: string, pattern: '^[a-f0-9]{64}$' }
+        payload: { type: object, additionalProperties: true }
+        status: { type: string, enum: [pending, in_flight, succeeded, failed, dead_letter] }
+        attemptCount: { type: integer }
+        availableAt: { type: string, format: date-time }
+        leaseOwner: { type: string }
+        leaseExpiresAt: { type: string, format: date-time }
+        lastErrorCode: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ConnectorDeliveryAttempt:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, outboxId, attemptNumber, workerId, startedAt, completedAt, status]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        outboxId: { type: string }
+        attemptNumber: { type: integer }
+        workerId: { type: string }
+        startedAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time }
+        status: { type: string, enum: [succeeded, retryable_failure, permanent_failure] }
+        httpStatus: { type: integer }
+        errorCode: { type: string }
+        responseHash: { type: string }
+    ConnectorReceipt:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, outboxId, externalRequestId, receiptSource, status, payloadHash, createdAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        outboxId: { type: string }
+        externalRequestId: { type: string }
+        externalResourceId: { type: string }
+        receiptSource: { type: string }
+        status: { type: string, enum: [succeeded, failed] }
+        payloadHash: { type: string }
+        createdAt: { type: string, format: date-time }
+    ConnectorDeliveryView:
+      type: object
+      additionalProperties: false
+      required: [outbox, attempts]
+      properties:
+        outbox: { $ref: '#/components/schemas/ConnectorOutboxItem' }
+        attempts: { type: array, items: { $ref: '#/components/schemas/ConnectorDeliveryAttempt' } }
+        receipt: { $ref: '#/components/schemas/ConnectorReceipt' }
     OperationalAnalyticsResponse:
       type: object
       required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, outcomes, metricDefinitions, truthfulness]

@@ -48,6 +48,12 @@ import type {
 } from "./automation-types.js";
 import type { OutcomeDefinitionRecord, OutcomeEvaluationRecord } from "./outcome-types.js";
 import type { SolutionPackInstallationRecord } from "./solution-pack-types.js";
+import type {
+  ConnectorDeliveryAttemptRecord,
+  ConnectorInstallationRecord,
+  ConnectorOutboxRecord,
+  ConnectorReceiptRecord,
+} from "./connector-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -1873,6 +1879,246 @@ export class V2SqliteStore {
       const installation = this.getSolutionPackInstallation(tenantId, row.packId);
       return installation ? [installation] : [];
     });
+  }
+
+  saveConnectorInstallation(input: ConnectorInstallationRecord): ConnectorInstallationRecord {
+    const existing = this.getConnectorInstallation(input.tenantId, input.id);
+    const installedAt = existing?.installedAt ?? input.installedAt;
+    this.db.prepare(`
+      INSERT INTO connector_installations
+        (tenant_id, id, connector_id, connector_version, status, manifest_hash,
+         config_json, secret_ref, installed_by, installed_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, id) DO UPDATE SET
+        connector_id = excluded.connector_id,
+        connector_version = excluded.connector_version,
+        status = excluded.status,
+        manifest_hash = excluded.manifest_hash,
+        config_json = excluded.config_json,
+        secret_ref = excluded.secret_ref,
+        installed_by = excluded.installed_by,
+        updated_at = excluded.updated_at
+    `).run(
+      input.tenantId,
+      input.id,
+      input.connectorId,
+      input.connectorVersion,
+      input.status,
+      input.manifestHash,
+      json(input.config),
+      input.secretRef ?? null,
+      input.installedBy,
+      installedAt,
+      input.updatedAt,
+    );
+    return this.getConnectorInstallation(input.tenantId, input.id) ?? input;
+  }
+
+  getConnectorInstallation(tenantId: string, installationId: string): ConnectorInstallationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, connector_id as connectorId, connector_version as connectorVersion,
+             status, manifest_hash as manifestHash, config_json as configJson, secret_ref as secretRef,
+             installed_by as installedBy, installed_at as installedAt, updated_at as updatedAt
+      FROM connector_installations
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, installationId) as {
+      tenantId: string;
+      id: string;
+      connectorId: string;
+      connectorVersion: string;
+      status: ConnectorInstallationRecord["status"];
+      manifestHash: string;
+      configJson: string;
+      secretRef: string | null;
+      installedBy: string;
+      installedAt: string;
+      updatedAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      connectorId: row.connectorId,
+      connectorVersion: row.connectorVersion,
+      status: row.status,
+      manifestHash: row.manifestHash,
+      config: parseJson<Record<string, unknown>>(row.configJson),
+      ...(row.secretRef ? { secretRef: row.secretRef } : {}),
+      installedBy: row.installedBy,
+      installedAt: row.installedAt,
+      updatedAt: row.updatedAt,
+    } : undefined;
+  }
+
+  listConnectorInstallations(tenantId: string, status?: ConnectorInstallationRecord["status"]): ConnectorInstallationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM connector_installations
+      WHERE tenant_id = ? ${status ? "AND status = ?" : ""}
+      ORDER BY id
+    `).all(...(status ? [tenantId, status] : [tenantId])) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const item = this.getConnectorInstallation(tenantId, row.id);
+      return item ? [item] : [];
+    });
+  }
+
+  enqueueConnectorOutbox(input: ConnectorOutboxRecord): ConnectorOutboxRecord {
+    const existing = this.getConnectorOutboxByOperationKey(input.tenantId, input.operationKey);
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO connector_outbox
+        (tenant_id, id, connector_installation_id, work_item_id, context_id, exception_id,
+         capability, operation_key, payload_json, status, attempt_count, available_at,
+         lease_owner, lease_expires_at, last_error_code, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, operation_key) DO NOTHING
+    `).run(
+      input.tenantId, input.id, input.connectorInstallationId, input.workItemId,
+      input.contextId, input.exceptionId, input.capability, input.operationKey,
+      json(input.payload), input.status, input.attemptCount, input.availableAt,
+      input.leaseOwner ?? null, input.leaseExpiresAt ?? null, input.lastErrorCode ?? null,
+      input.createdAt, input.updatedAt,
+    );
+    return this.getConnectorOutboxByOperationKey(input.tenantId, input.operationKey) ?? input;
+  }
+
+  getConnectorOutbox(tenantId: string, outboxId: string): ConnectorOutboxRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, connector_installation_id as connectorInstallationId,
+             work_item_id as workItemId, context_id as contextId, exception_id as exceptionId,
+             capability, operation_key as operationKey, payload_json as payloadJson,
+             status, attempt_count as attemptCount, available_at as availableAt,
+             lease_owner as leaseOwner, lease_expires_at as leaseExpiresAt,
+             last_error_code as lastErrorCode, created_at as createdAt, updated_at as updatedAt
+      FROM connector_outbox WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, outboxId) as {
+      tenantId: string; id: string; connectorInstallationId: string; workItemId: string;
+      contextId: string; exceptionId: string; capability: string; operationKey: string;
+      payloadJson: string; status: ConnectorOutboxRecord["status"]; attemptCount: number;
+      availableAt: string; leaseOwner: string | null; leaseExpiresAt: string | null;
+      lastErrorCode: string | null; createdAt: string; updatedAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId, id: row.id, connectorInstallationId: row.connectorInstallationId,
+      workItemId: row.workItemId, contextId: row.contextId, exceptionId: row.exceptionId,
+      capability: row.capability, operationKey: row.operationKey,
+      payload: parseJson<Record<string, unknown>>(row.payloadJson), status: row.status,
+      attemptCount: row.attemptCount, availableAt: row.availableAt,
+      ...(row.leaseOwner ? { leaseOwner: row.leaseOwner } : {}),
+      ...(row.leaseExpiresAt ? { leaseExpiresAt: row.leaseExpiresAt } : {}),
+      ...(row.lastErrorCode ? { lastErrorCode: row.lastErrorCode } : {}),
+      createdAt: row.createdAt, updatedAt: row.updatedAt,
+    } : undefined;
+  }
+
+  getConnectorOutboxByOperationKey(tenantId: string, operationKey: string): ConnectorOutboxRecord | undefined {
+    const row = this.db.prepare("SELECT id FROM connector_outbox WHERE tenant_id = ? AND operation_key = ?").get(tenantId, operationKey) as { id: string } | undefined;
+    return row ? this.getConnectorOutbox(tenantId, row.id) : undefined;
+  }
+
+  listConnectorOutboxByWorkItem(tenantId: string, workItemId: string): ConnectorOutboxRecord[] {
+    const rows = this.db.prepare("SELECT id FROM connector_outbox WHERE tenant_id = ? AND work_item_id = ? ORDER BY created_at, id").all(tenantId, workItemId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const item = this.getConnectorOutbox(tenantId, row.id);
+      return item ? [item] : [];
+    });
+  }
+
+  claimConnectorOutbox(workerId: string, now: string, leaseMs: number): ConnectorOutboxRecord | undefined {
+    return this.transaction(() => {
+      const row = this.db.prepare(`
+        SELECT tenant_id as tenantId, id FROM connector_outbox
+        WHERE status IN ('pending', 'failed', 'in_flight')
+          AND available_at <= ?
+          AND (lease_expires_at IS NULL OR lease_expires_at <= ?)
+        ORDER BY created_at, id LIMIT 1
+      `).get(now, now) as { tenantId: string; id: string } | undefined;
+      if (!row) return undefined;
+      const leaseExpiresAt = new Date(Date.parse(now) + leaseMs).toISOString();
+      this.db.prepare(`
+        UPDATE connector_outbox
+        SET status='in_flight', lease_owner=?, lease_expires_at=?, updated_at=?
+        WHERE tenant_id=? AND id=? AND status IN ('pending','failed')
+      `).run(workerId, leaseExpiresAt, now, row.tenantId, row.id);
+      return this.getConnectorOutbox(row.tenantId, row.id);
+    });
+  }
+
+  saveConnectorDeliveryAttempt(input: ConnectorDeliveryAttemptRecord): ConnectorDeliveryAttemptRecord {
+    this.db.prepare(`
+      INSERT INTO connector_delivery_attempts
+        (tenant_id,id,outbox_id,attempt_number,worker_id,started_at,completed_at,status,http_status,error_code,response_hash)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    `).run(
+      input.tenantId,input.id,input.outboxId,input.attemptNumber,input.workerId,
+      input.startedAt,input.completedAt,input.status,input.httpStatus ?? null,
+      input.errorCode ?? null,input.responseHash ?? null,
+    );
+    return input;
+  }
+
+  finalizeConnectorOutboxSuccess(input: {
+    outbox: ConnectorOutboxRecord;
+    attempt: ConnectorDeliveryAttemptRecord;
+    receipt: ConnectorReceiptRecord;
+  }) {
+    return this.transaction(() => {
+      this.saveConnectorDeliveryAttempt(input.attempt);
+      this.db.prepare(`
+        INSERT INTO connector_receipts
+          (tenant_id,id,outbox_id,external_request_id,external_resource_id,receipt_source,status,payload_hash,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?)
+      `).run(
+        input.receipt.tenantId,input.receipt.id,input.receipt.outboxId,
+        input.receipt.externalRequestId,input.receipt.externalResourceId ?? null,
+        input.receipt.receiptSource,input.receipt.status,input.receipt.payloadHash,input.receipt.createdAt,
+      );
+      this.db.prepare(`
+        UPDATE connector_outbox SET status='succeeded', attempt_count=?, lease_owner=NULL,
+          lease_expires_at=NULL, last_error_code=NULL, updated_at=? WHERE tenant_id=? AND id=?
+      `).run(input.attempt.attemptNumber,input.attempt.completedAt,input.outbox.tenantId,input.outbox.id);
+    });
+  }
+
+  finalizeConnectorOutboxFailure(input: {
+    outbox: ConnectorOutboxRecord;
+    attempt: ConnectorDeliveryAttemptRecord;
+    nextAvailableAt: string;
+    deadLetter: boolean;
+  }) {
+    return this.transaction(() => {
+      this.saveConnectorDeliveryAttempt(input.attempt);
+      this.db.prepare(`
+        UPDATE connector_outbox SET status=?, attempt_count=?, available_at=?,
+          lease_owner=NULL, lease_expires_at=NULL, last_error_code=?, updated_at=?
+        WHERE tenant_id=? AND id=?
+      `).run(
+        input.deadLetter ? "dead_letter" : "failed",
+        input.attempt.attemptNumber,
+        input.nextAvailableAt,
+        input.attempt.errorCode ?? null,
+        input.attempt.completedAt,
+        input.outbox.tenantId,
+        input.outbox.id,
+      );
+    });
+  }
+
+  listConnectorDeliveryAttempts(tenantId: string, outboxId: string): ConnectorDeliveryAttemptRecord[] {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId,id,outbox_id as outboxId,attempt_number as attemptNumber,
+             worker_id as workerId,started_at as startedAt,completed_at as completedAt,
+             status,http_status as httpStatus,error_code as errorCode,response_hash as responseHash
+      FROM connector_delivery_attempts WHERE tenant_id=? AND outbox_id=? ORDER BY attempt_number,id
+    `).all(tenantId,outboxId) as ConnectorDeliveryAttemptRecord[];
+  }
+
+  getConnectorReceipt(tenantId: string, outboxId: string): ConnectorReceiptRecord | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId,id,outbox_id as outboxId,external_request_id as externalRequestId,
+             external_resource_id as externalResourceId,receipt_source as receiptSource,
+             status,payload_hash as payloadHash,created_at as createdAt
+      FROM connector_receipts WHERE tenant_id=? AND outbox_id=?
+    `).get(tenantId,outboxId) as ConnectorReceiptRecord | undefined;
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

@@ -54,6 +54,15 @@ import {
   registerBuiltInSolutionPacks,
   solutionPackRegistry,
 } from "./solution-packs/index.js";
+import {
+  ConnectorError,
+  connectorRegistry,
+  enqueueInternalWorkItemDelivery,
+  getConnectorDeliveryView,
+  installConnector,
+  registerBuiltInConnectors,
+  requireConnector,
+} from "./connectors/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -86,6 +95,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
 registerBuiltInSolutionPacks();
+registerBuiltInConnectors();
 
 function getV2Store() {
   if (!v2Store) {
@@ -349,6 +359,77 @@ const server = createServer(async (req, res) => {
           installed: Boolean(getV2Store().getSolutionPackInstallation(authOf(req).tenantId, pack.manifest.id)),
         })),
       });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/connectors") {
+      return json(res, 200, { connectors: connectorRegistry.list() });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/connectors/installed") {
+      const tenantId = authOf(req).tenantId;
+      return json(res, 200, {
+        installations: getV2Store().listConnectorInstallations(tenantId).map((installation) => ({
+          installation: {
+            ...installation,
+            secretConfigured: Boolean(installation.secretRef),
+            secretRef: undefined,
+          },
+          manifest: connectorRegistry.get(installation.connectorId)?.manifest ?? null,
+        })),
+      });
+    }
+    const connectorInstallMatch = url.pathname.match(/^\/api\/v2\/connectors\/([^/]+)\/install$/);
+    if (req.method === "POST" && connectorInstallMatch) {
+      const connectorId = decodeURIComponent(connectorInstallMatch[1] ?? "");
+      const connector = requireConnector(connectorRegistry.get(connectorId));
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      const forbidden = Object.keys(input).filter((key) => ["actor", "roles", "tenant", "tenantId"].includes(key));
+      if (forbidden.length) return json(res, 400, { error: "CONNECTOR_INSTALL_FIELDS_FORBIDDEN" });
+      if (typeof input.installationId !== "string" || !input.installationId.trim()) return json(res, 422, { error: "CONNECTOR_INSTALLATION_ID_REQUIRED" });
+      const installation = installConnector(getV2Store(), connector, {
+        tenantId: authOf(req).tenantId,
+        installationId: input.installationId,
+        config: input.config && typeof input.config === "object" && !Array.isArray(input.config) ? input.config as Record<string, unknown> : {},
+        ...(typeof input.secretRef === "string" ? { secretRef: input.secretRef } : {}),
+        actor,
+      });
+      return json(res, 200, {
+        installation: { ...installation, secretConfigured: Boolean(installation.secretRef), secretRef: undefined },
+        manifest: connector.manifest,
+      });
+    }
+    const connectorOutboxAttemptsMatch = url.pathname.match(/^\/api\/v2\/connectors\/outbox\/([^/]+)\/attempts$/);
+    if (req.method === "GET" && connectorOutboxAttemptsMatch) {
+      const tenantId = authOf(req).tenantId;
+      const outboxId = decodeURIComponent(connectorOutboxAttemptsMatch[1] ?? "");
+      const outbox = getV2Store().getConnectorOutbox(tenantId, outboxId);
+      if (!outbox) return json(res, 404, { error: "not_found" });
+      return json(res, 200, { outboxId, attempts: getV2Store().listConnectorDeliveryAttempts(tenantId, outboxId) });
+    }
+    const connectorOutboxMatch = url.pathname.match(/^\/api\/v2\/connectors\/outbox\/([^/]+)$/);
+    if (req.method === "GET" && connectorOutboxMatch) {
+      const view = getConnectorDeliveryView(getV2Store(), authOf(req).tenantId, decodeURIComponent(connectorOutboxMatch[1] ?? ""));
+      if (!view) return json(res, 404, { error: "not_found" });
+      return json(res, 200, view);
+    }
+    const workItemDeliveryMatch = url.pathname.match(/^\/api\/v2\/internal-work-items\/([^/]+)\/deliveries$/);
+    if (workItemDeliveryMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const workItemId = decodeURIComponent(workItemDeliveryMatch[1] ?? "");
+      const store = getV2Store();
+      const workItem = store.getInternalWorkItem(tenantId, workItemId);
+      if (!workItem) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") {
+        return json(res, 200, {
+          workItemId,
+          deliveries: store.listConnectorOutboxByWorkItem(tenantId, workItemId).map((item) => getConnectorDeliveryView(store, tenantId, item.id)),
+        });
+      }
+      const input = await readJson(req);
+      const forbidden = Object.keys(input).filter((key) => key !== "connectorInstallationId");
+      if (forbidden.length) return json(res, 400, { error: "CONNECTOR_DELIVERY_FIELDS_FORBIDDEN" });
+      if (typeof input.connectorInstallationId !== "string" || !input.connectorInstallationId.trim()) return json(res, 422, { error: "CONNECTOR_INSTALLATION_ID_REQUIRED" });
+      const outbox = enqueueInternalWorkItemDelivery(store, tenantId, workItemId, input.connectorInstallationId);
+      return json(res, 202, getConnectorDeliveryView(store, tenantId, outbox.id));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/solution-packs/installed") {
       const tenantId = authOf(req).tenantId;
@@ -1002,6 +1083,7 @@ const server = createServer(async (req, res) => {
     if (error instanceof AutomationError) return json(res, error.status, { error: error.code });
     if (error instanceof OutcomeError) return json(res, error.status, { error: error.code });
     if (error instanceof SolutionPackError) return json(res, error.status, { error: error.code });
+    if (error instanceof ConnectorError) return json(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {

@@ -51,8 +51,11 @@ function requestQuery() {
   return params;
 }
 
-async function api(path) {
-  const response = await fetch(path, { headers: requestHeaders() });
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: { ...requestHeaders(), ...(options.headers || {}) },
+  });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(body.error || `http_${response.status}`);
@@ -195,7 +198,7 @@ function renderContexts(data) {
   container.append(tableElement);
 }
 
-function renderWorkItems(items) {
+function renderWorkItems(items, installations = [], deliveriesByWorkItem = {}) {
   const summary = document.getElementById("work-item-summary");
   clear(summary);
   const open = items.filter((item) => item.status === "open");
@@ -206,17 +209,51 @@ function renderWorkItems(items) {
     item.append(node("span", "", label), node("strong", "", value));
     summary.append(item);
   }
-  table(
-    document.getElementById("work-item-table"),
-    ["类型", "标题", "来源 Exception", "Business Context", "创建时间"],
-    items.map((item) => [
-      item.kind === "task" ? "内部任务" : "补证请求",
-      item.title,
-      item.exceptionId,
-      item.contextId,
-      item.createdAt,
-    ]),
-  );
+  const container = document.getElementById("work-item-table");
+  clear(container);
+  const tableElement = node("table");
+  const head = node("tr");
+  ["类型", "标题", "来源 Exception", "Business Context", "创建时间", "External Delivery"].forEach((header) => head.append(node("th", "", header)));
+  tableElement.append(head);
+  for (const item of items) {
+    const tr = node("tr");
+    tr.append(
+      node("td", "", item.kind === "task" ? "内部任务" : "补证请求"),
+      node("td", "", item.title),
+      node("td", "", item.exceptionId),
+      node("td", "", item.contextId),
+      node("td", "", item.createdAt),
+    );
+    const deliveryCell = node("td");
+    const delivery = (deliveriesByWorkItem[item.id] || [])[0];
+    if (delivery) {
+      deliveryCell.append(
+        node("div", "", delivery.receipt ? "外部任务已创建并收到回执" : delivery.outbox.status === "dead_letter" ? "外部投递失败，已停止自动重试。" : delivery.outbox.status === "pending" ? "已进入可靠投递队列" : `投递状态：${delivery.outbox.status}`),
+        node("div", "muted", `Attempts：${delivery.attempts.length}`),
+        ...(delivery.receipt?.externalResourceId ? [node("div", "muted", `External Resource：${delivery.receipt.externalResourceId}`)] : []),
+      );
+    } else if (installations.length) {
+      const button = node("button", "button secondary", "投递到已连接的内部任务系统");
+      button.type = "button";
+      button.addEventListener("click", async () => {
+        try {
+          await api(`/api/v2/internal-work-items/${encodeURIComponent(item.id)}/deliveries`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ connectorInstallationId: installations[0].installation.id }),
+          });
+          showState("已进入可靠投递队列");
+          await load();
+        } catch (error) {
+          showState(error.message, true);
+        }
+      });
+      deliveryCell.append(button);
+    } else deliveryCell.textContent = "未安装 Connector";
+    tr.append(deliveryCell);
+    tableElement.append(tr);
+  }
+  container.append(tableElement);
 }
 
 function renderOutcomes(outcomes) {
@@ -301,7 +338,12 @@ async function load() {
     const installed = await api("/api/v2/solution-packs/installed").catch(() => ({ installations: [] }));
     renderPacks(installed.installations || [], data.contexts);
     const workItems = await api("/api/v2/internal-work-items?status=open").catch(() => ({ workItems: [] }));
-    renderWorkItems(workItems.workItems || []);
+    const connectors = await api("/api/v2/connectors/installed").catch(() => ({ installations: [] }));
+    const deliveryResults = await Promise.all((workItems.workItems || []).map((item) =>
+      api(`/api/v2/internal-work-items/${encodeURIComponent(item.id)}/deliveries`).catch(() => ({ deliveries: [] })),
+    ));
+    const deliveriesByWorkItem = Object.fromEntries((workItems.workItems || []).map((item, index) => [item.id, deliveryResults[index]?.deliveries || []]));
+    renderWorkItems(workItems.workItems || [], connectors.installations || [], deliveriesByWorkItem);
     clearState();
   } catch (error) {
     showState(error.status === 400 ? "筛选条件无效。" : "经营治理分析加载失败。", true);

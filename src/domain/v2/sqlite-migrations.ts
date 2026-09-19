@@ -687,6 +687,90 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON solution_pack_installations (tenant_id, status, pack_id);
     `,
   },
+  {
+    version: "013_connector_runtime",
+    sql: `
+      CREATE TABLE IF NOT EXISTS connector_installations (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        connector_id TEXT NOT NULL,
+        connector_version TEXT NOT NULL,
+        status TEXT NOT NULL,
+        manifest_hash TEXT NOT NULL,
+        config_json TEXT NOT NULL,
+        secret_ref TEXT,
+        installed_by TEXT NOT NULL,
+        installed_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS connector_installations_active_idx
+        ON connector_installations (tenant_id, status, connector_id);
+
+      CREATE TABLE IF NOT EXISTS connector_outbox (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        connector_installation_id TEXT NOT NULL,
+        work_item_id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        capability TEXT NOT NULL,
+        operation_key TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        status TEXT NOT NULL,
+        attempt_count INTEGER NOT NULL,
+        available_at TEXT NOT NULL,
+        lease_owner TEXT,
+        lease_expires_at TEXT,
+        last_error_code TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, operation_key),
+        FOREIGN KEY (tenant_id, connector_installation_id)
+          REFERENCES connector_installations (tenant_id, id),
+        FOREIGN KEY (tenant_id, work_item_id)
+          REFERENCES internal_work_items (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS connector_outbox_claim_idx
+        ON connector_outbox (status, available_at, lease_expires_at, created_at, id);
+
+      CREATE TABLE IF NOT EXISTS connector_delivery_attempts (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        outbox_id TEXT NOT NULL,
+        attempt_number INTEGER NOT NULL,
+        worker_id TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        completed_at TEXT NOT NULL,
+        status TEXT NOT NULL,
+        http_status INTEGER,
+        error_code TEXT,
+        response_hash TEXT,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, outbox_id)
+          REFERENCES connector_outbox (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS connector_receipts (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        outbox_id TEXT NOT NULL,
+        external_request_id TEXT NOT NULL,
+        external_resource_id TEXT,
+        receipt_source TEXT NOT NULL,
+        status TEXT NOT NULL,
+        payload_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, outbox_id),
+        FOREIGN KEY (tenant_id, outbox_id)
+          REFERENCES connector_outbox (tenant_id, id)
+      );
+    `,
+  },
 ];
 
 export function runV2Migrations(
