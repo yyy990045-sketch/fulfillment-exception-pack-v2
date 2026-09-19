@@ -2252,6 +2252,15 @@ export class V2SqliteStore {
     } : undefined;
   }
 
+  listTenantIds(): string[] {
+    const rows = this.db.prepare(`
+      SELECT DISTINCT tenant_id as tenantId
+      FROM fulfillment_contexts
+      ORDER BY tenant_id
+    `).all() as Array<{ tenantId: string }>;
+    return rows.map((row) => row.tenantId);
+  }
+
   listContexts(tenantId: string): FulfillmentContext[] {
     const rows = this.db.prepare(`
       SELECT tenant_id as tenantId, id, business_key as businessKey, context_type as contextType,

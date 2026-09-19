@@ -9,6 +9,14 @@ import {
   provisionV2ManufacturingDemoData,
 } from "../src/domain/v2/index.js";
 
+type DatabaseSyncLike = {
+  prepare(sql: string): { run(...params: unknown[]): unknown };
+  close(): void;
+};
+type DatabaseSyncConstructor = new (path: string) => DatabaseSyncLike;
+const sqlite = process.getBuiltinModule("node:sqlite") as { DatabaseSync: DatabaseSyncConstructor } | undefined;
+if (!sqlite?.DatabaseSync) throw new Error("sqlite_backend_requires_node_22_5_or_newer");
+
 const port = 35950 + (process.pid % 60);
 const base = `http://127.0.0.1:${port}`;
 let child: ChildProcess;
@@ -33,10 +41,15 @@ async function waitUntilHealthy() {
 
 beforeAll(async () => {
   storeDir = mkdtempSync(join(tmpdir(), "fep-pack-http-"));
+  const databasePath = join(storeDir, "pack-cases.sqlite");
   process.env.PACK_STORE_DIR = storeDir;
-  process.env.PACK_STORE_DB = join(storeDir, "pack-cases.sqlite");
+  process.env.PACK_STORE_DB = databasePath;
   provisionV2ManufacturingDemoData();
   evaluateContextRules(openV2SqliteStore(), "demo-manufacturing", "ctx-so-mfg-001");
+  const legacyDb = new sqlite!.DatabaseSync(databasePath);
+  legacyDb.prepare("DELETE FROM solution_pack_context_bindings WHERE tenant_id = ? AND context_id = ?")
+    .run("demo-manufacturing", "ctx-so-mfg-001");
+  legacyDb.close();
   child = spawn(join(process.cwd(), "node_modules", ".bin", "tsx"), ["src/server.ts"], {
     cwd: process.cwd(),
     env: { ...process.env, HOST: "127.0.0.1", PORT: String(port), NODE_ENV: "test", DEMO_MODE: "true", PACK_STORE_BACKEND: "json", PACK_STORE_DIR: storeDir },
@@ -57,6 +70,10 @@ describe("Solution Pack HTTP", () => {
     expect(catalog.json.packs.some((item: any) => item.manifest.id === "manufacturing-fulfillment")).toBe(true);
     const installed = await call("GET", "/api/v2/solution-packs/installed");
     expect(installed.json.installations[0].installation.packId).toBe("manufacturing-fulfillment");
+    expect(installed.json.installations[0].boundContexts.map((item: { contextId: string }) => item.contextId))
+      .toContain("ctx-so-mfg-001");
+    expect(openV2SqliteStore().getSolutionPackContextBinding("demo-manufacturing", "ctx-so-mfg-001"))
+      .toMatchObject({ packId: "manufacturing-fulfillment", source: "migration_backfill" });
     const before = openV2SqliteStore().listRuleEvaluations("demo-manufacturing", "ctx-so-mfg-001").length;
     const workbench = await call("GET", "/api/v2/contexts/ctx-so-mfg-001/pack-workbench");
     expect(workbench.status).toBe(200);

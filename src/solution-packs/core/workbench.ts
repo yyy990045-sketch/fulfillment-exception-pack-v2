@@ -25,7 +25,7 @@ export function buildPackWorkbenchView(store: V2SqliteStore, tenantId: string, c
       const evidence = latestEvidence(store, tenantId, contextId, entity.id, selector.field);
       return evidence ? [{
         key: selector.key,
-        label: selector.label ?? selector.key,
+        label: selector.label,
         field: selector.field,
         value: evidence.value,
         valueType: evidence.valueType,

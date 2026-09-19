@@ -32,7 +32,7 @@ export type PackPresentation = {
     key: string;
     label: string;
     entityType: BusinessEntityType;
-    factSelectors: Array<{ key: string; field: string; label?: string }>;
+    factSelectors: Array<{ key: string; field: string; label: string }>;
   }>;
 };
 

@@ -16,8 +16,8 @@ export const financePresentation: PackPresentation = {
     "FINANCE.INVOICE_RECEIVABLE_AMOUNT_MISMATCH": "发票与应收金额一致",
   },
   stages: [
-    { key: "receivable", label: "应收", entityType: "receivable", factSelectors: [{ key: "amount", field: "amount" }] },
-    { key: "invoice", label: "发票", entityType: "invoice", factSelectors: [{ key: "amount", field: "amount" }] },
-    { key: "payment", label: "银行回款", entityType: "payment", factSelectors: [{ key: "amount", field: "amount" }] },
+    { key: "receivable", label: "应收", entityType: "receivable", factSelectors: [{ key: "amount", field: "amount", label: "金额" }] },
+    { key: "invoice", label: "发票", entityType: "invoice", factSelectors: [{ key: "amount", field: "amount", label: "金额" }] },
+    { key: "payment", label: "银行回款", entityType: "payment", factSelectors: [{ key: "amount", field: "amount", label: "金额" }] },
   ],
 };

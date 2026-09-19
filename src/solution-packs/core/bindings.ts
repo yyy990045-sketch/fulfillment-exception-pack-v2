@@ -78,12 +78,23 @@ export function backfillPackContextBindings(
   tenantId: string,
   actor = "migration",
 ) {
-  let created = 0;
+  const result = {
+    tenantId,
+    created: 0,
+    alreadyBound: 0,
+    unbound: [] as Array<{ contextId: string; status: "unbound_no_rule_evaluation_candidate" }>,
+  };
   for (const context of store.listContexts(tenantId)) {
-    if (store.getSolutionPackContextBinding(tenantId, context.id)) continue;
+    if (store.getSolutionPackContextBinding(tenantId, context.id)) {
+      result.alreadyBound += 1;
+      continue;
+    }
     const candidates = packsWithEvaluationEvidence(store, context);
     if (candidates.length > 1) throw new SolutionPackError("PACK_CONTEXT_BINDING_AMBIGUOUS", 409);
-    if (candidates.length !== 1) continue;
+    if (candidates.length !== 1) {
+      result.unbound.push({ contextId: context.id, status: "unbound_no_rule_evaluation_candidate" });
+      continue;
+    }
     const pack = candidates[0]!;
     const installation = store.getSolutionPackInstallation(tenantId, pack.manifest.id)!;
     store.saveSolutionPackContextBinding({
@@ -95,9 +106,16 @@ export function backfillPackContextBindings(
       boundBy: actor,
       source: "migration_backfill",
     });
-    created += 1;
+    result.created += 1;
   }
-  return created;
+  return result;
+}
+
+export function bootstrapPackContextBindings(
+  store: V2SqliteStore,
+  actor = "migration",
+) {
+  return store.listTenantIds().map((tenantId) => backfillPackContextBindings(store, tenantId, actor));
 }
 
 export function listBoundContextsForPack(

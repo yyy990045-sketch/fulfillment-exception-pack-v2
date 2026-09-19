@@ -15,6 +15,7 @@ import {
   presentSupportedActions,
   resolveInstalledPackForContext,
   bindPackContext,
+  backfillPackContextBindings,
 } from "../src/solution-packs/index.js";
 import { directionStatus } from "../src/outcomes/measurement.js";
 import { buildDemoWorkspaceProjection } from "../src/application/demo-workspaces.js";
@@ -35,11 +36,15 @@ const sqlite = process.getBuiltinModule("node:sqlite") as { DatabaseSync: Databa
 if (!sqlite?.DatabaseSync) throw new Error("sqlite_backend_requires_node_22_5_or_newer");
 const databases: DatabaseSyncLike[] = [];
 
-function openStore() {
+function openStoreBundle() {
   const dir = mkdtempSync(join(tmpdir(), "fep-pack-platform-"));
   const db = new sqlite!.DatabaseSync(join(dir, "pack-platform.sqlite"));
   databases.push(db);
-  return new V2SqliteStore(db);
+  return { store: new V2SqliteStore(db), db };
+}
+
+function openStore() {
+  return openStoreBundle().store;
 }
 
 afterEach(() => {
@@ -87,6 +92,32 @@ describe("Solution Pack Platform", () => {
     expect(evaluated.exceptions).toHaveLength(4);
     expect(store.listOutcomeDefinitions("demo-manufacturing").length).toBeGreaterThanOrEqual(3);
     expect(store.getSolutionPackInstallation("demo-manufacturing", "manufacturing-fulfillment")?.status).toBe("active");
+  });
+
+  it("requires business labels for every built-in fact selector and never returns raw keys as labels", () => {
+    registerBuiltInSolutionPacks();
+    for (const pack of [manufacturingFulfillmentPack, financeReconciliationPack]) {
+      expect(pack.presentation.stages.every((stage) =>
+        stage.factSelectors.every((selector) => selector.label.trim().length > 0),
+      )).toBe(true);
+    }
+
+    const store = openStore();
+    provisionV2ManufacturingDemoData(store);
+    evaluateContextRules(store, "demo-manufacturing", "ctx-so-mfg-001");
+    const view = buildPackWorkbenchView(store, "demo-manufacturing", "ctx-so-mfg-001")!;
+    const rawKeys = new Set(["qty", "plannedQty", "completedQty", "inspectedQty", "passedQty", "failedQty", "amount", "claimedReceivedQty"]);
+    expect(view.thread.flatMap((stage) => stage.facts).every((fact) => !rawKeys.has(fact.label))).toBe(true);
+    expect(view.thread.flatMap((stage) => stage.facts).map((fact) => fact.label)).toEqual(expect.arrayContaining([
+      "数量",
+      "计划数量",
+      "完成数量",
+      "检验数量",
+      "合格数量",
+      "未通过数量",
+      "金额",
+      "客户主张收到",
+    ]));
   });
 
   it("builds a generic pack workbench view without side effects", () => {
@@ -165,6 +196,88 @@ describe("Solution Pack Platform", () => {
     expect(store.listRuleEvaluations("demo-finance", "ctx-fin-rec-001")).toEqual([]);
     expect(presentBoundContexts(store, "demo-finance", "finance-reconciliation").map((item) => item.contextId))
       .toEqual(["ctx-fin-rec-001"]);
+  });
+
+  it("backfills a legacy missing binding idempotently without changing the first migration provenance", () => {
+    const { store, db } = openStoreBundle();
+    provisionV2ManufacturingDemoData(store);
+    evaluateContextRules(store, "demo-manufacturing", "ctx-so-mfg-001");
+    db.prepare("DELETE FROM solution_pack_context_bindings WHERE tenant_id = ? AND context_id = ?")
+      .run("demo-manufacturing", "ctx-so-mfg-001");
+
+    const first = backfillPackContextBindings(store, "demo-manufacturing", "upgrade-bootstrap");
+    expect(first).toMatchObject({ created: 1, alreadyBound: 0, unbound: [] });
+    const firstBinding = store.getSolutionPackContextBinding("demo-manufacturing", "ctx-so-mfg-001");
+    expect(firstBinding).toMatchObject({
+      packId: "manufacturing-fulfillment",
+      source: "migration_backfill",
+      boundBy: "upgrade-bootstrap",
+    });
+
+    const second = backfillPackContextBindings(store, "demo-manufacturing", "second-start");
+    expect(second).toMatchObject({ created: 0, alreadyBound: 1, unbound: [] });
+    expect(store.getSolutionPackContextBinding("demo-manufacturing", "ctx-so-mfg-001")).toEqual(firstBinding);
+  });
+
+  it("does not guess a binding when an upgraded legacy Context has no RuleEvaluation candidate", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    financeReconciliationPack.install(store, "tenant-legacy", "admin");
+    store.saveContext(createFulfillmentContext({
+      id: "ctx-legacy-unbound",
+      tenantId: "tenant-legacy",
+      businessKey: "LEGACY-001",
+      contextType: "finance_reconciliation",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    }));
+    const result = backfillPackContextBindings(store, "tenant-legacy");
+    expect(result.unbound).toEqual([{
+      contextId: "ctx-legacy-unbound",
+      status: "unbound_no_rule_evaluation_candidate",
+    }]);
+    expect(store.getSolutionPackContextBinding("tenant-legacy", "ctx-legacy-unbound")).toBeUndefined();
+  });
+
+  it("fails closed when a legacy Context has ambiguous active Pack candidates", () => {
+    registerBuiltInSolutionPacks();
+    const makePack = (id: string) => ({
+      ...manufacturingFulfillmentPack,
+      manifest: {
+        ...manufacturingFulfillmentPack.manifest,
+        id,
+        name: id,
+        contextTypes: ["ambiguous_context"],
+      },
+      ruleContributions: {
+        definitions: [{
+          id: `${id}-rule`,
+          code: `${id.toUpperCase()}.RULE`,
+          name: id,
+          description: id,
+          exceptionType: `${id.toUpperCase()}_EXCEPTION`,
+          enabled: true,
+          metadata: { packId: id },
+        }],
+        versions: [],
+      },
+      outcomeDefinitions: [],
+      supportedActionTypes: [],
+    });
+    const packA = makePack("legacy-ambiguous-a");
+    const packB = makePack("legacy-ambiguous-b");
+    solutionPackRegistry.register(packA as typeof manufacturingFulfillmentPack);
+    solutionPackRegistry.register(packB as typeof manufacturingFulfillmentPack);
+    const store = {
+      listContexts: () => [{ id: "ctx-ambiguous", tenantId: "tenant-a", contextType: "ambiguous_context" }],
+      getSolutionPackContextBinding: () => undefined,
+      listRuleEvaluations: () => [{ ruleId: "legacy-ambiguous-a-rule" }, { ruleId: "legacy-ambiguous-b-rule" }],
+      getSolutionPackInstallation: () => ({ status: "active" }),
+    };
+    expect(() => backfillPackContextBindings(store as never, "tenant-a"))
+      .toThrow(/PACK_CONTEXT_BINDING_AMBIGUOUS/);
   });
 
   it("fails closed when explicit binding conflicts with another Pack's RuleEvaluation contribution", () => {

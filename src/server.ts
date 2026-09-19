@@ -50,6 +50,7 @@ import {
 } from "./outcomes/index.js";
 import {
   SolutionPackError,
+  bootstrapPackContextBindings,
   buildPackWorkbenchView,
   installSolutionPack,
   presentBoundContexts,
@@ -119,6 +120,7 @@ function getV2Store() {
   if (!v2Store) {
     v2Store = openV2SqliteStore();
     registerBuiltInSolutionPacks();
+    bootstrapPackContextBindings(v2Store);
   }
   return v2Store;
 }
@@ -1263,6 +1265,7 @@ const server = createServer(async (req, res) => {
 const port = Number(process.env.PORT ?? 3410);
 const host = process.env.HOST ?? "127.0.0.1";
 validateAuthEnv();
+getV2Store();
 server.listen(port, host, () => {
   console.log(`履约例外工作台 http://${host}:${port}`);
 });
