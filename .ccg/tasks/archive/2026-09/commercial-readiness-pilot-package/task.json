@@ -1,0 +1,12 @@
+{
+  "id": "commercial-readiness-pilot-package",
+  "title": "Commercial Readiness and Pilot Package",
+  "status": "completed",
+  "complexity": "S",
+  "risk": "low",
+  "domain": "docs",
+  "currentPhase": "completed",
+  "nextAction": "Archive after commit and push",
+  "createdAt": "2026-09-19T14:40:00Z",
+  "branch": "main"
+}
