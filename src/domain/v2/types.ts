@@ -1,4 +1,4 @@
-export type FulfillmentContextType = "sales_order" | "project" | "contract";
+export type FulfillmentContextType = "sales_order" | "project" | "contract" | "finance_reconciliation";
 
 export type FulfillmentContextStatus = "open" | "active" | "on_hold" | "closed" | "cancelled";
 
@@ -10,6 +10,7 @@ export type BusinessEntityType =
   | "quality_event"
   | "shipment"
   | "receivable"
+  | "invoice"
   | "payment"
   | "complaint";
 
@@ -33,7 +34,9 @@ export const FULFILLMENT_EVENT_TYPES = [
   "SHIPMENT_DISPATCHED",
   "SHIPMENT_SIGNED",
   "RECEIVABLE_CREATED",
+  "INVOICE_CREATED",
   "PAYMENT_RECEIVED",
+  "BANK_PAYMENT_RECEIVED",
   "COMPLAINT_OPENED",
   "COMPLAINT_UPDATED",
 ] as const;

@@ -39,6 +39,7 @@ const STAGE_FACTS: Record<BusinessEntityType, Array<{ key: string; field: string
   ],
   shipment: [{ key: "qty", field: "qty" }],
   receivable: [{ key: "amount", field: "amount" }],
+  invoice: [{ key: "amount", field: "amount" }],
   payment: [{ key: "amount", field: "amount" }],
   complaint: [{ key: "claimedReceivedQty", field: "claimedReceivedQty", label: "客户主张收到" }],
 };

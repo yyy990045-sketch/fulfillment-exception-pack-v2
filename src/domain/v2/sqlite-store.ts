@@ -47,6 +47,7 @@ import type {
   InternalWorkItemStatus,
 } from "./automation-types.js";
 import type { OutcomeDefinitionRecord, OutcomeEvaluationRecord } from "./outcome-types.js";
+import type { SolutionPackInstallationRecord } from "./solution-pack-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -1795,6 +1796,82 @@ export class V2SqliteStore {
     return rows.flatMap((row) => {
       const evaluation = this.getOutcomeEvaluation(tenantId, row.id);
       return evaluation ? [evaluation] : [];
+    });
+  }
+
+  saveSolutionPackInstallation(input: SolutionPackInstallationRecord): SolutionPackInstallationRecord {
+    const existing = this.getSolutionPackInstallation(input.tenantId, input.packId);
+    const record: SolutionPackInstallationRecord = {
+      ...input,
+      installedAt: existing?.installedAt ?? input.installedAt,
+      updatedAt: input.updatedAt,
+    };
+    this.db.prepare(`
+      INSERT INTO solution_pack_installations
+        (tenant_id, pack_id, pack_version, status, manifest_hash, config_json,
+         installed_by, installed_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, pack_id) DO UPDATE SET
+        pack_version = excluded.pack_version,
+        status = excluded.status,
+        manifest_hash = excluded.manifest_hash,
+        config_json = excluded.config_json,
+        installed_by = excluded.installed_by,
+        updated_at = excluded.updated_at
+    `).run(
+      record.tenantId,
+      record.packId,
+      record.packVersion,
+      record.status,
+      record.manifestHash,
+      json(record.config),
+      record.installedBy,
+      record.installedAt,
+      record.updatedAt,
+    );
+    return this.getSolutionPackInstallation(input.tenantId, input.packId) ?? record;
+  }
+
+  getSolutionPackInstallation(tenantId: string, packId: string): SolutionPackInstallationRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, pack_id as packId, pack_version as packVersion,
+             status, manifest_hash as manifestHash, config_json as configJson,
+             installed_by as installedBy, installed_at as installedAt, updated_at as updatedAt
+      FROM solution_pack_installations
+      WHERE tenant_id = ? AND pack_id = ?
+    `).get(tenantId, packId) as {
+      tenantId: string;
+      packId: string;
+      packVersion: string;
+      status: SolutionPackInstallationRecord["status"];
+      manifestHash: string;
+      configJson: string;
+      installedBy: string;
+      installedAt: string;
+      updatedAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      packId: row.packId,
+      packVersion: row.packVersion,
+      status: row.status,
+      manifestHash: row.manifestHash,
+      config: parseJson<Record<string, unknown>>(row.configJson),
+      installedBy: row.installedBy,
+      installedAt: row.installedAt,
+      updatedAt: row.updatedAt,
+    } : undefined;
+  }
+
+  listSolutionPackInstallations(tenantId: string, status?: SolutionPackInstallationRecord["status"]): SolutionPackInstallationRecord[] {
+    const rows = this.db.prepare(`
+      SELECT pack_id as packId FROM solution_pack_installations
+      WHERE tenant_id = ? ${status ? "AND status = ?" : ""}
+      ORDER BY pack_id
+    `).all(...(status ? [tenantId, status] : [tenantId])) as Array<{ packId: string }>;
+    return rows.flatMap((row) => {
+      const installation = this.getSolutionPackInstallation(tenantId, row.packId);
+      return installation ? [installation] : [];
     });
   }
 

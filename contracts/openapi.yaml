@@ -261,6 +261,74 @@ paths:
           description: Invalid analytics filter
           content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/solution-packs:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Code-packaged Solution Pack catalog
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/SolutionPackCatalog' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/solution-packs/installed:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Installed Solution Packs for current tenant
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/SolutionPackInstalledList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/solution-packs/{packId}:
+    parameters:
+      - { name: packId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Solution Pack manifest
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/SolutionPackManifestResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/solution-packs/{packId}/install:
+    parameters:
+      - { name: packId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    post:
+      requestBody:
+        required: false
+        content:
+          application/json: { schema: { type: object, additionalProperties: false } }
+      responses:
+        '200':
+          description: Idempotent Solution Pack installation
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/SolutionPackInstallationResponse' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/contexts/{contextId}/pack-workbench:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Pure-query generic Solution Pack workbench
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/PackWorkbenchResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /api/v2/contexts/{contextId}/exceptions:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1089,6 +1157,152 @@ components:
         resolutionCases: { type: array, items: { type: object, additionalProperties: true } }
         truthfulness: { type: object, additionalProperties: true }
         defaultExceptionId: { type: string, nullable: true }
+    SolutionPackManifest:
+      type: object
+      additionalProperties: false
+      required: [id, version, name, description, contextTypes, capabilities, compatibility]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        name: { type: string }
+        description: { type: string }
+        contextTypes: { type: array, items: { type: string } }
+        capabilities:
+          type: object
+          additionalProperties: false
+          required: [rules, outcomes, presentation, decisionEligibility, demo]
+          properties:
+            rules: { type: boolean }
+            outcomes: { type: boolean }
+            presentation: { type: boolean }
+            decisionEligibility: { type: boolean }
+            demo: { type: boolean }
+        workbenchPath: { type: string }
+        compatibility:
+          type: object
+          additionalProperties: false
+          required: [coreApiVersion]
+          properties:
+            coreApiVersion: { type: string }
+    SolutionPackInstallation:
+      type: object
+      additionalProperties: false
+      required: [tenantId, packId, packVersion, status, manifestHash, config, installedBy, installedAt, updatedAt]
+      properties:
+        tenantId: { type: string }
+        packId: { type: string }
+        packVersion: { type: string }
+        status: { type: string, enum: [active, inactive] }
+        manifestHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        config: { type: object, additionalProperties: true }
+        installedBy: { type: string }
+        installedAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SolutionPackCatalog:
+      type: object
+      required: [packs]
+      properties:
+        packs:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [manifest, installed]
+            properties:
+              manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+              installed: { type: boolean }
+    SolutionPackInstalledList:
+      type: object
+      required: [installations]
+      properties:
+        installations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [installation, manifest]
+            properties:
+              installation: { $ref: '#/components/schemas/SolutionPackInstallation' }
+              manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+    SolutionPackManifestResponse:
+      type: object
+      required: [manifest]
+      properties:
+        manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+    SolutionPackInstallationResponse:
+      type: object
+      required: [installation, manifest]
+      properties:
+        installation: { $ref: '#/components/schemas/SolutionPackInstallation' }
+        manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+    PackWorkbenchResponse:
+      type: object
+      additionalProperties: false
+      required: [pack, context, stats, thread, rules, exceptions, outcomes, truthfulness]
+      properties:
+        pack:
+          type: object
+          additionalProperties: false
+          required: [id, version, name, contextLabel, workbenchPath]
+          properties:
+            id: { type: string }
+            version: { type: string }
+            name: { type: string }
+            contextLabel: { type: string }
+            workbenchPath: { type: string }
+        context:
+          type: object
+          additionalProperties: true
+        stats:
+          type: object
+          additionalProperties: false
+          required: [entities, evidence, ruleEvaluations, matchedRules, notMatchedRules, exceptions]
+          properties:
+            entities: { type: integer }
+            evidence: { type: integer }
+            ruleEvaluations: { type: integer }
+            matchedRules: { type: integer }
+            notMatchedRules: { type: integer }
+            exceptions: { type: integer }
+        thread:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [key, label, entityId, businessKey, facts, state]
+            properties:
+              key: { type: string }
+              label: { type: string }
+              entityId: { type: string }
+              businessKey: { type: string }
+              facts:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [key, label, field, value, valueType, evidenceId]
+                  properties:
+                    key: { type: string }
+                    label: { type: string }
+                    field: { type: string }
+                    value:
+                      anyOf:
+                        - { type: string }
+                        - { type: number }
+                    valueType: { type: string }
+                    evidenceId: { type: string }
+              state: { type: string, enum: [normal, exception] }
+        rules: { type: array, items: { type: object, additionalProperties: true } }
+        exceptions: { type: array, items: { type: object, additionalProperties: true } }
+        outcomes: { type: array, items: { $ref: '#/components/schemas/OutcomeEvaluation' } }
+        truthfulness:
+          type: object
+          additionalProperties: false
+          required: [syntheticDemoData, packBound, causalAttribution]
+          properties:
+            syntheticDemoData: { type: boolean }
+            packBound: { type: boolean }
+            causalAttribution: { type: boolean, enum: [false] }
     OperationalAnalyticsResponse:
       type: object
       required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, outcomes, metricDefinitions, truthfulness]

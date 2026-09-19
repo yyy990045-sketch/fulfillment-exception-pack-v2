@@ -19,7 +19,7 @@ export function directionStatus(
 ) {
   if (typeof baseline !== "number" || typeof current !== "number") {
     if (baseline === current) return "unchanged" as const;
-    return "improved" as const;
+    return "insufficient_evidence" as const;
   }
   if (current === baseline) return "unchanged" as const;
   if (betterDirection === "lower") return current < baseline ? "improved" as const : "worsened" as const;

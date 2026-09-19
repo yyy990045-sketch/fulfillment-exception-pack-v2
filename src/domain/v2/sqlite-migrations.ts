@@ -667,6 +667,26 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON outcome_evaluations (tenant_id, context_id, exception_id, evaluated_at, id);
     `,
   },
+  {
+    version: "012_solution_pack_installations",
+    sql: `
+      CREATE TABLE IF NOT EXISTS solution_pack_installations (
+        tenant_id TEXT NOT NULL,
+        pack_id TEXT NOT NULL,
+        pack_version TEXT NOT NULL,
+        status TEXT NOT NULL,
+        manifest_hash TEXT NOT NULL,
+        config_json TEXT NOT NULL,
+        installed_by TEXT NOT NULL,
+        installed_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, pack_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS solution_pack_installations_status_idx
+        ON solution_pack_installations (tenant_id, status, pack_id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

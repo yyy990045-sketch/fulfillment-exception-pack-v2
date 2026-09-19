@@ -10,12 +10,23 @@ import {
   submitResolution,
 } from "./resolution/runtime.js";
 import type { ResolutionActionInput, ResolutionReview } from "./resolution/types.js";
+import { registerBuiltInSolutionPacks, resolveInstalledPackForContext, solutionPackRegistry } from "../../solution-packs/index.js";
 
 export function evaluateContextRules(store: V2SqliteStore, tenantId: string, contextId: string) {
   const context = store.getContext(tenantId, contextId);
   if (!context) return undefined;
-  const definitions = store.listEnabledRuleDefinitions(tenantId);
-  const versions = store.listActiveRuleVersions(tenantId);
+  registerBuiltInSolutionPacks();
+  const pack = resolveInstalledPackForContext(store, context);
+  const registeredPack = solutionPackRegistry.resolveByContextType(context.contextType);
+  const allowedRuleIds = pack
+    ? new Set(pack.ruleContributions.definitions.filter((item) => item.tenantId === tenantId).map((item) => item.id))
+    : undefined;
+  const definitions = registeredPack && !pack
+    ? []
+    : store.listEnabledRuleDefinitions(tenantId).filter((item) => !allowedRuleIds || allowedRuleIds.has(item.id));
+  const versions = registeredPack && !pack
+    ? []
+    : store.listActiveRuleVersions(tenantId).filter((item) => !allowedRuleIds || allowedRuleIds.has(item.ruleId));
   const replay = store.replayContext(tenantId, contextId);
   const results = evaluateActiveRules(replay, definitions, versions);
   for (const result of results) store.recordRuleExecution(result);

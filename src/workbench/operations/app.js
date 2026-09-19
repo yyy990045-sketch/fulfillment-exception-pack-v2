@@ -249,6 +249,18 @@ function renderOutcomes(outcomes) {
   );
 }
 
+function renderPacks(installations, contexts) {
+  table(
+    document.getElementById("pack-table"),
+    ["Pack", "Version", "Status", "Contexts"],
+    installations.map((item) => {
+      const contextTypes = item.manifest?.contextTypes || [];
+      const count = contexts.filter((context) => contextTypes.includes(context.contextType)).length;
+      return [item.manifest?.name || item.installation.packId, item.installation.packVersion, item.installation.status, count];
+    }),
+  );
+}
+
 function populateExceptionOptions(data) {
   if (state.exceptionCode) return;
   const select = document.getElementById("exceptionCode");
@@ -281,6 +293,8 @@ async function load() {
     renderSourceTable(data);
     renderContexts(data);
     renderOutcomes(data.outcomes);
+    const installed = await api("/api/v2/solution-packs/installed").catch(() => ({ installations: [] }));
+    renderPacks(installed.installations || [], data.contexts);
     const workItems = await api("/api/v2/internal-work-items?status=open").catch(() => ({ workItems: [] }));
     renderWorkItems(workItems.workItems || []);
     clearState();

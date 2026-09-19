@@ -46,8 +46,14 @@ import {
   evaluateOutcome,
   getOutcomeEvaluation,
   listOutcomeEvaluations,
-  provisionDefaultManufacturingOutcomeDefinitions,
 } from "./outcomes/index.js";
+import {
+  SolutionPackError,
+  buildPackWorkbenchView,
+  installSolutionPack,
+  registerBuiltInSolutionPacks,
+  solutionPackRegistry,
+} from "./solution-packs/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -79,11 +85,12 @@ const contestSet = buildContestSet();
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
+registerBuiltInSolutionPacks();
 
 function getV2Store() {
   if (!v2Store) {
     v2Store = openV2SqliteStore();
-    provisionDefaultManufacturingOutcomeDefinitions(v2Store, "demo-manufacturing");
+    registerBuiltInSolutionPacks();
   }
   return v2Store;
 }
@@ -266,9 +273,26 @@ const server = createServer(async (req, res) => {
               : undefined
       )
       : undefined;
+    const workspaceFile = req.method === "GET"
+      ? (
+        url.pathname === "/workspace" || url.pathname === "/workspace/"
+          ? { path: "index.html", contentType: "text/html; charset=utf-8" }
+          : url.pathname === "/workspace/styles.css"
+            ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
+            : url.pathname === "/workspace/app.js"
+              ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
+              : undefined
+      )
+      : undefined;
     if (manufacturingFile) {
       const body = readFileSync(join(ROOT, "workbench", "manufacturing", manufacturingFile.path), "utf8");
       res.writeHead(200, { "content-type": manufacturingFile.contentType, "cache-control": "no-store" });
+      res.end(body);
+      return;
+    }
+    if (workspaceFile) {
+      const body = readFileSync(join(ROOT, "workbench", "workspace", workspaceFile.path), "utf8");
+      res.writeHead(200, { "content-type": workspaceFile.contentType, "cache-control": "no-store" });
       res.end(body);
       return;
     }
@@ -317,6 +341,47 @@ const server = createServer(async (req, res) => {
       return json(res, 200, {
         definitions: getV2Store().listOutcomeDefinitions(tenantId, exceptionCode, false),
       });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/solution-packs") {
+      return json(res, 200, {
+        packs: solutionPackRegistry.list().map((pack) => ({
+          manifest: pack.manifest,
+          installed: Boolean(getV2Store().getSolutionPackInstallation(authOf(req).tenantId, pack.manifest.id)),
+        })),
+      });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/solution-packs/installed") {
+      const tenantId = authOf(req).tenantId;
+      return json(res, 200, {
+        installations: getV2Store().listSolutionPackInstallations(tenantId).map((installation) => ({
+          installation,
+          manifest: solutionPackRegistry.get(installation.packId)?.manifest ?? null,
+        })),
+      });
+    }
+    const packInstallMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)\/install$/);
+    if (req.method === "POST" && packInstallMatch) {
+      const packId = decodeURIComponent(packInstallMatch[1] ?? "");
+      const pack = solutionPackRegistry.get(packId);
+      if (!pack) return json(res, 404, { error: "PACK_NOT_FOUND" });
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      const forbidden = Object.keys(input).filter((key) => ["actor", "roles", "tenant", "tenantId"].includes(key));
+      if (forbidden.length) return json(res, 400, { error: "PACK_INSTALL_FIELDS_FORBIDDEN" });
+      const installation = installSolutionPack(getV2Store(), pack, authOf(req).tenantId, actor, input);
+      return json(res, 200, { installation, manifest: pack.manifest });
+    }
+    const packDetailMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)$/);
+    if (req.method === "GET" && packDetailMatch) {
+      const pack = solutionPackRegistry.get(decodeURIComponent(packDetailMatch[1] ?? ""));
+      if (!pack) return json(res, 404, { error: "PACK_NOT_FOUND" });
+      return json(res, 200, { manifest: pack.manifest });
+    }
+    const packWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/pack-workbench$/);
+    if (req.method === "GET" && packWorkbenchMatch) {
+      const view = buildPackWorkbenchView(getV2Store(), authOf(req).tenantId, decodeURIComponent(packWorkbenchMatch[1] ?? ""));
+      if (!view) return json(res, 404, { error: "not_found" });
+      return json(res, 200, view);
     }
     const outcomeEvaluationItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/outcome-evaluations\/([^/]+)$/);
     if (req.method === "GET" && outcomeEvaluationItemMatch) {
@@ -936,6 +1001,7 @@ const server = createServer(async (req, res) => {
     if (error instanceof PolicyError) return json(res, error.status, { error: error.code });
     if (error instanceof AutomationError) return json(res, error.status, { error: error.code });
     if (error instanceof OutcomeError) return json(res, error.status, { error: error.code });
+    if (error instanceof SolutionPackError) return json(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {
