@@ -101,7 +101,7 @@ export function evaluateAll() {
 
       if (gold.negatives.includes("duplicate_action")) {
         const submitted = submitForApproval(proposed, gold.ownerRole);
-        const approved = approve(submitted, "销售总监");
+        const approved = approve(submitted, "销售总监", undefined, ["销售总监"]);
         const first = execute(approved, "销售总监", approved.actions[0]?.idempotencyKey);
         const second = execute(first, "销售总监", approved.actions[0]?.idempotencyKey);
         const receipts = second.actions.filter((a) => a.receipt).length;

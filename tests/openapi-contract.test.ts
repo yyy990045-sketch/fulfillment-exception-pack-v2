@@ -79,6 +79,7 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("    ResolutionCapabilities:");
     expect(openapi).toContain("    ResolutionCapabilitiesResponse:");
     expect(openapi).toContain("additionalProperties: false");
+    expect(openapi).toContain("organizationSource: { type: string, enum: [demo, claim, tenant_fallback] }");
     expect(openapi).toContain("canApprove: { $ref: '#/components/schemas/CapabilityDecision' }");
     expect(openapi).toContain("assignableOwnerRoles: { type: array, items: { type: string } }");
   });

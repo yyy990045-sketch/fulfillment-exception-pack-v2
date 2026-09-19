@@ -1,6 +1,7 @@
 import type { ActionRecord, ActionType, CaseRecord, CaseStatus, ConflictReview, EvidencePack, Finding, GoldCase } from "../types.js";
 import { buildConflictIssues, detectConflicts, gapsFrom } from "../conflict/detect.js";
 import { EvidenceError, extractCase } from "../evidence/extract.js";
+import { RESOLUTION_APPROVER_ROLES, subjectHasAnyRole } from "../authorization.js";
 
 const TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
   new: ["triaged"],
@@ -237,8 +238,7 @@ export function submitForApproval(runtime: CaseRecord, actor: string) {
 }
 
 export function approve(runtime: CaseRecord, actor: string, actionId?: string, actorRoles: string[] = []) {
-  const approverRoles = ["总经理", "管理员", "销售总监", "财务", "工程师"];
-  if (!approverRoles.includes(actor) && !actorRoles.some((role) => approverRoles.includes(role))) throw new Error("forbidden_approver");
+  if (!subjectHasAnyRole({ subjectId: actor, roles: actorRoles }, RESOLUTION_APPROVER_ROLES)) throw new Error("forbidden_approver");
   if (!runtime.actions.length) {
     if (runtime.findings.length || runtime.status !== "proposed") throw new Error("approval_not_pending");
     return {
@@ -336,7 +336,7 @@ export function runHappyPath(gold: GoldCase, approver = "销售总监"): CaseRec
     };
     return runtime;
   }
-  runtime = approve(runtime, approver);
+  runtime = approve(runtime, approver, undefined, [approver]);
   runtime = execute(runtime, approver);
   runtime = verifyAndClose(runtime, approver);
   return runtime;

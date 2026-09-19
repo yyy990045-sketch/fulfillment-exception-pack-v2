@@ -142,7 +142,7 @@ describe("Sprint 7-9 runtime / actions / agents", () => {
     const proposed = propose(reviewed, noGap.ownerRole);
     expect(() => execute(proposed, "销售总监")).toThrow(/approval_required/);
     const submitted = submitForApproval(proposed, noGap.ownerRole);
-    const approved = approve(submitted, "销售总监");
+    const approved = approve(submitted, "销售总监", undefined, ["销售总监"]);
     const key = approved.actions[0]!.idempotencyKey;
     const first = execute(approved, "销售总监", key);
     const second = execute(first, "销售总监", key);
@@ -169,7 +169,7 @@ describe("Sprint 7-9 runtime / actions / agents", () => {
     runtime = reviewConflicts(runtime, noGap.ownerRole, runtime.pack?.conflicts.map((conflict) => conflict.id) ?? []);
     runtime = propose(runtime, noGap.ownerRole);
     runtime = submitForApproval(runtime, noGap.ownerRole);
-    runtime = approve(runtime, "销售总监");
+    runtime = approve(runtime, "销售总监", undefined, ["销售总监"]);
     expect(() => propose(runtime, noGap.ownerRole)).toThrow(/proposal_not_allowed/);
     expect(() => verifyAndClose(runtime, "销售总监")).toThrow(/receipt_required/);
   });

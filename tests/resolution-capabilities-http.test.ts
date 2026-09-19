@@ -18,6 +18,7 @@ const authSecret = "b".repeat(64);
 let child: ChildProcess;
 let storeDir: string;
 let exceptionId = "";
+let shipmentExceptionId = "";
 
 async function call(
   method: string,
@@ -55,7 +56,7 @@ async function waitUntilHealthy() {
   throw new Error("resolution capabilities server did not become healthy");
 }
 
-function bearerToken() {
+function bearerToken(overrides: Record<string, unknown> = {}) {
   const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
   const header = encode({ alg: "HS256", typ: "JWT" });
   const payload = encode({
@@ -64,7 +65,9 @@ function bearerToken() {
     roles: ["销售总监"],
     scopes: ["*"],
     name: "Bearer 张经理",
+    organization_name: "示例集团",
     exp: Math.floor(Date.now() / 1000) + 300,
+    ...overrides,
   });
   const signature = createHmac("sha256", authSecret).update(`${header}.${payload}`).digest("base64url");
   return `${header}.${payload}.${signature}`;
@@ -87,6 +90,7 @@ beforeAll(async () => {
   provisionV2ManufacturingDemoData();
   const evaluated = evaluateContextRules(openV2SqliteStore(), tenant, "ctx-so-mfg-001")!;
   exceptionId = evaluated.exceptions.find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")!.id;
+  shipmentExceptionId = evaluated.exceptions.find((item) => item.code === "SHIPMENT_QUANTITY_SHORTFALL")!.id;
   child = spawn(join(process.cwd(), "node_modules", ".bin", "tsx"), ["src/server.ts"], {
     cwd: process.cwd(),
     env: {
@@ -117,6 +121,7 @@ describe("Resolution capabilities HTTP projection", () => {
       organization: "示例制造企业",
       user: "品质负责人",
       roles: ["品质负责人"],
+      organizationSource: "demo",
       authnMethod: "demo-header",
     });
     expect(initial.assignableOwnerRoles).toEqual([
@@ -154,6 +159,17 @@ describe("Resolution capabilities HTTP projection", () => {
     const submitted = await call("POST", `/api/v2/resolution-cases/${caseId}/submit`, {}, "engineer");
     expect(submitted.status).toBe(200);
 
+    const viewerCapabilities = await getCapabilities("viewer");
+    expect(viewerCapabilities.currentActor).toMatchObject({ user: "演示查看者", roles: ["viewer"] });
+    expect(viewerCapabilities.resolutionCapabilities.canApprove).toMatchObject({
+      applicable: true,
+      allowed: false,
+      reasonCode: "ROLE_NOT_ALLOWED",
+    });
+    const viewerApprove = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "viewer");
+    expect(viewerApprove.status).toBe(403);
+    expect(viewerApprove.json.error).toBe("read_only_principal");
+
     const selfApproval = await getCapabilities("engineer");
     expect(selfApproval.resolutionCapabilities.canApprove).toMatchObject({
       applicable: true,
@@ -162,11 +178,48 @@ describe("Resolution capabilities HTTP projection", () => {
       reason: "方案提出人与审批人必须分离",
     });
 
-    const approver = await getCapabilities("general-manager");
-    expect(approver.resolutionCapabilities.canApprove).toMatchObject({ applicable: true, allowed: true });
-    const approved = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "general-manager");
+    const nameOnlyApproverToken = bearerToken({ name: "总经理", roles: ["品质负责人"] });
+    const nameOnlyCapabilities = await call("GET", capabilitiesPath(), undefined, "quality-owner", {
+      authorization: `Bearer ${nameOnlyApproverToken}`,
+    });
+    expect(nameOnlyCapabilities.status).toBe(200);
+    expect(nameOnlyCapabilities.json.resolutionCapabilities.canApprove).toMatchObject({
+      applicable: true,
+      allowed: false,
+      reasonCode: "ROLE_NOT_ALLOWED",
+    });
+    const nameOnlyApprove = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "quality-owner", {
+      authorization: `Bearer ${nameOnlyApproverToken}`,
+    });
+    expect(nameOnlyApprove.status).toBe(403);
+    expect(nameOnlyApprove.json.error).toBe("ROLE_NOT_ALLOWED");
+
+    const approverToken = bearerToken({ sub: "bearer-manager", name: "Bearer 总经理", roles: ["总经理"] });
+    const approver = await call("GET", capabilitiesPath(), undefined, "quality-owner", {
+      authorization: `Bearer ${approverToken}`,
+    });
+    expect(approver.status).toBe(200);
+    expect(approver.json.resolutionCapabilities.canApprove).toMatchObject({ applicable: true, allowed: true });
+    expect(approver.json.currentActor).toMatchObject({
+      organization: "示例集团",
+      organizationSource: "claim",
+      roles: ["总经理"],
+    });
+    const approved = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "quality-owner", {
+      authorization: `Bearer ${approverToken}`,
+    });
     expect(approved.status).toBe(200);
     expect(approved.json.status).toBe("approved");
+
+    const viewerExecuteCapabilities = await getCapabilities("viewer");
+    expect(viewerExecuteCapabilities.resolutionCapabilities.canExecute).toMatchObject({
+      applicable: true,
+      allowed: false,
+      reasonCode: "ROLE_NOT_ALLOWED",
+    });
+    const viewerExecute = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "viewer");
+    expect(viewerExecute.status).toBe(403);
+    expect(viewerExecute.json.error).toBe("read_only_principal");
 
     const unauthorizedExecution = await getCapabilities("quality-owner");
     expect(unauthorizedExecution.resolutionCapabilities.canExecute).toMatchObject({
@@ -180,6 +233,16 @@ describe("Resolution capabilities HTTP projection", () => {
     expect(executed.status).toBe(200);
     expect(executed.json.status).toBe("executed");
 
+    const viewerCloseCapabilities = await getCapabilities("viewer");
+    expect(viewerCloseCapabilities.resolutionCapabilities.canClose).toMatchObject({
+      applicable: true,
+      allowed: false,
+      reasonCode: "ROLE_NOT_ALLOWED",
+    });
+    const viewerClose = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, "viewer");
+    expect(viewerClose.status).toBe(403);
+    expect(viewerClose.json.error).toBe("read_only_principal");
+
     const unauthorizedClose = await getCapabilities("quality-owner");
     expect(unauthorizedClose.resolutionCapabilities.canClose).toMatchObject({
       applicable: true,
@@ -191,6 +254,17 @@ describe("Resolution capabilities HTTP projection", () => {
     const closed = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, "sales-director");
     expect(closed.status).toBe(200);
     expect(closed.json.status).toBe("closed");
+  });
+
+  it("rejects owner roles that are not in the backend assignable role source", async () => {
+    const response = await call(
+      "POST",
+      `/api/v2/contexts/ctx-so-mfg-001/exceptions/${encodeURIComponent(shipmentExceptionId)}/resolution-case`,
+      { ownerRole: "任意角色", rationale: "非法负责人角色测试。" },
+      "quality-owner",
+    );
+    expect(response.status).toBe(422);
+    expect(response.json.error).toBe("resolution_owner_role_not_assignable");
   });
 
   it("returns actor and role changes from the backend when the demo actor changes", async () => {
@@ -207,11 +281,24 @@ describe("Resolution capabilities HTTP projection", () => {
     expect(response.status).toBe(200);
     expect(response.json.currentActor).toMatchObject({
       tenantId: tenant,
-      organization: tenant,
+      organization: "示例集团",
+      organizationSource: "claim",
       user: "Bearer 张经理",
       subjectId: "bearer-user-1",
       roles: ["销售总监"],
       authnMethod: "jwt-hs256",
+    });
+  });
+
+  it("marks tenant organization as a fallback when no organization claim exists", async () => {
+    const token = bearerToken({ organization_name: undefined, org_name: undefined });
+    const response = await call("GET", "/api/v2/auth/context", undefined, "quality-owner", {
+      authorization: `Bearer ${token}`,
+    });
+    expect(response.status).toBe(200);
+    expect(response.json.currentActor).toMatchObject({
+      organization: tenant,
+      organizationSource: "tenant_fallback",
     });
   });
 });

@@ -48,6 +48,7 @@ describe("B2B account area", () => {
         currentActor: {
           tenantId: "tenant-acme",
           organization: "Acme 制造",
+          organizationSource: "claim",
           user: "Alice",
           subjectId: "user-alice",
           roles: ["采购经理", "审批人"],
@@ -74,6 +75,7 @@ describe("B2B account area", () => {
         currentActor: {
           tenantId: "demo-manufacturing",
           organization: "示例制造企业",
+          organizationSource: "demo",
           user: isSales ? "销售总监" : "品质负责人",
           subjectId: `demo-${actorId}`,
           roles: [isSales ? "销售总监" : "品质负责人"],

@@ -25,6 +25,7 @@ export type ResolutionReview = {
   decision: "confirm" | "needs_evidence" | "reject";
   rationale: string;
   actor: string;
+  actorSubjectId?: string;
   at: string;
 };
 
@@ -38,7 +39,9 @@ export type ResolutionCase = {
   origin: ResolutionCaseOrigin;
   review?: ResolutionReview;
   proposedBy?: string;
-  runtime: CaseRecord;
+  runtime: CaseRecord & {
+    proposedBySubjectId?: string;
+  };
   createdAt: string;
   updatedAt: string;
 };

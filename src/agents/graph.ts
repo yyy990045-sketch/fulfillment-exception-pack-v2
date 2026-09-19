@@ -76,7 +76,7 @@ export function runGraph(gold: GoldCase, opts?: { pauseAfter?: AgentRole; approv
   }
 
   if (shouldRun("Verification", startAt)) {
-    if (runtime.status !== "approved") runtime = approve(runtime, approver);
+    if (runtime.status !== "approved") runtime = approve(runtime, approver, undefined, [approver]);
     runtime = execute(runtime, approver);
     runtime = verifyAndClose(runtime, approver);
     log.push("Verification");

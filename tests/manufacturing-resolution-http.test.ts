@@ -157,7 +157,7 @@ describe("manufacturing resolution governance HTTP", () => {
 
     const roleForbidden = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "quality-owner");
     expect(roleForbidden.status).toBe(403);
-    expect(roleForbidden.json.error).toBe("scope_forbidden");
+    expect(roleForbidden.json.error).toBe("ROLE_NOT_ALLOWED");
 
     const actorInjection = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {
       actor: "总经理",

@@ -4475,6 +4475,8 @@ export interface components {
         CurrentActorContext: {
             tenantId: string;
             organization: string;
+            /** @enum {string} */
+            organizationSource: "demo" | "claim" | "tenant_fallback";
             user: string;
             subjectId: string;
             roles: string[];

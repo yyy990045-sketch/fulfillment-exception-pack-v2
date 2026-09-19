@@ -2358,10 +2358,11 @@ components:
     CurrentActorContext:
       type: object
       additionalProperties: false
-      required: [tenantId, organization, user, subjectId, roles, authnMethod]
+      required: [tenantId, organization, organizationSource, user, subjectId, roles, authnMethod]
       properties:
         tenantId: { type: string }
         organization: { type: string }
+        organizationSource: { type: string, enum: [demo, claim, tenant_fallback] }
         user: { type: string }
         subjectId: { type: string }
         roles: { type: array, items: { type: string } }

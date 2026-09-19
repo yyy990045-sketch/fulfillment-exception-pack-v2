@@ -1,7 +1,13 @@
 import type { ActionRecord } from "../../../types.js";
 import { createHash } from "node:crypto";
 import { approve, assertTransition, execute, submitForApproval, verifyAndClose } from "../../../case/runtime.js";
+import { isAssignableOwnerRole } from "../../../authorization.js";
 import type { V2Exception, ExceptionEvidenceBundle } from "../rule-types.js";
+import {
+  canApproveResolution,
+  canCloseResolution,
+  canExecuteResolution,
+} from "./authorization.js";
 import type {
   ResolutionActionInput,
   ResolutionCase,
@@ -9,15 +15,6 @@ import type {
 } from "./types.js";
 
 const nowIso = () => new Date().toISOString();
-const RESOLUTION_APPROVER_ROLES = ["总经理", "管理员", "销售总监", "财务", "工程师"] as const;
-
-export function isResolutionApprover(actor: string, actorRoles: string[]) {
-  return RESOLUTION_APPROVER_ROLES.some((role) => actor === role || actorRoles.includes(role));
-}
-
-export function hasResolutionSegregationOfDutiesViolation(current: ResolutionCase, actor: string) {
-  return current.review?.actor === actor || current.proposedBy === actor;
-}
 
 function withResolutionRuntime(current: ResolutionCase, runtime: ResolutionCase["runtime"], updatedAt: string): ResolutionCase {
   return {
@@ -50,6 +47,7 @@ export function acceptExceptionCase(input: {
   acceptedAt?: string;
 }): ResolutionCase {
   assertHumanText(input.ownerRole, "resolution_owner_role_required");
+  if (!isAssignableOwnerRole(input.ownerRole)) throw new Error("resolution_owner_role_not_assignable");
   assertHumanText(input.rationale, "resolution_acceptance_rationale_required");
   assertHumanText(input.actor, "human_actor_required");
   if (input.exception.status !== "detected") throw new Error("resolution_exception_not_detected");
@@ -99,13 +97,13 @@ export function acceptExceptionCase(input: {
 
 export function reviewResolutionCase(
   current: ResolutionCase,
-  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string; reviewedAt?: string },
+  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string; actorId?: string; reviewedAt?: string },
 ): ResolutionCase {
   assertHumanText(input.rationale, "resolution_review_rationale_required");
   assertHumanText(input.actor, "human_actor_required");
   if (current.status !== "triaged") throw new Error("resolution_review_not_allowed");
   const at = input.reviewedAt ?? nowIso();
-  const review: ResolutionReview = { ...input, at };
+  const review: ResolutionReview = { ...input, actorSubjectId: input.actorId ?? input.actor, at };
   if (input.decision === "needs_evidence") {
     return {
       ...current,
@@ -134,7 +132,7 @@ export function reviewResolutionCase(
 
 export function proposeResolution(
   current: ResolutionCase,
-  input: { actions: ResolutionActionInput[]; actor: string; proposedAt?: string },
+  input: { actions: ResolutionActionInput[]; actor: string; actorId?: string; proposedAt?: string },
 ): ResolutionCase {
   assertHumanText(input.actor, "human_actor_required");
   if (current.status !== "confirmed") throw new Error("resolution_proposal_not_allowed");
@@ -163,12 +161,18 @@ export function proposeResolution(
       ...current.runtime,
       status: "proposed",
       actions,
+      proposedBySubjectId: input.actorId ?? input.actor,
       events: [...current.runtime.events, { at, from: "confirmed", to: "proposed", actor: input.actor, reason: "提交处置方案" }],
     },
   };
 }
 
-export function submitResolution(current: ResolutionCase, actor: string, submittedAt = nowIso()): ResolutionCase {
+export function submitResolution(
+  current: ResolutionCase,
+  actor: string,
+  submittedAt = nowIso(),
+  _actorId?: string,
+): ResolutionCase {
   if (current.status !== "proposed") throw new Error("resolution_submit_not_allowed");
   const submitted = submitForApproval(current.runtime, actor);
   return assertStatusSync(withResolutionRuntime(current, {
@@ -182,14 +186,15 @@ export function approveResolution(
   actor: string,
   actorRoles: string[],
   approvedAt = nowIso(),
+  actorId = actor,
 ) {
   if (current.status !== "proposed") throw new Error("resolution_approval_not_allowed");
   if (!current.runtime.actions.length || current.runtime.actions.some((action) => action.status !== "pending_approval")) {
     throw new Error("resolution_approval_not_submitted");
   }
-  if (hasResolutionSegregationOfDutiesViolation(current, actor)) {
-    throw new Error("SEGREGATION_OF_DUTIES_VIOLATION");
-  }
+  const subject = { subjectId: actorId, roles: actorRoles };
+  const decision = canApproveResolution(subject, current);
+  if (!decision.allowed) throw new Error(decision.reasonCode);
   const approved = approve(current.runtime, actor, undefined, actorRoles);
   return assertStatusSync(withResolutionRuntime(current, approved, approvedAt));
 }
@@ -216,6 +221,7 @@ export function executeResolution(
   operationKey: string,
   receiptFactory: (action: ActionRecord, operationKey: string, payloadHash: string) => ResolutionReceiptResult,
   executedAt = nowIso(),
+  actorId = actor,
 ) {
   if (
     ["executed", "verified"].includes(current.status) &&
@@ -223,9 +229,8 @@ export function executeResolution(
     current.runtime.actions.every((action) => action.receipt && ["succeeded", "verified"].includes(action.status))
   ) return current;
   if (current.status !== "approved") throw new Error("resolution_execution_not_allowed");
-  if (!isResolutionApprover(actor, actorRoles)) {
-    throw new Error("forbidden_approver");
-  }
+  const decision = canExecuteResolution({ subjectId: actorId, roles: actorRoles }, current);
+  if (!decision.allowed) throw new Error(decision.reasonCode);
   const executed = execute(current.runtime, actor, operationKey, (action, operation) =>
     receiptFactory(action, operation, resolutionExecutionPayloadHash({
       resolutionCaseId: current.id,
@@ -235,12 +240,11 @@ export function executeResolution(
   return assertStatusSync(withResolutionRuntime(current, executed, executedAt));
 }
 
-export function closeResolution(current: ResolutionCase, actor: string, actorRoles: string[], closedAt = nowIso()) {
+export function closeResolution(current: ResolutionCase, actor: string, actorRoles: string[], closedAt = nowIso(), actorId = actor) {
   if (current.status === "closed" && current.runtime.status === "closed") return current;
   if (current.status !== "executed") throw new Error("resolution_close_not_allowed");
-  if (!isResolutionApprover(actor, actorRoles)) {
-    throw new Error("forbidden_approver");
-  }
+  const decision = canCloseResolution({ subjectId: actorId, roles: actorRoles }, current);
+  if (!decision.allowed) throw new Error(decision.reasonCode === "RECEIPT_REQUIRED" ? "receipt_required" : decision.reasonCode);
   const closed = verifyAndClose(current.runtime, actor);
   return assertStatusSync(withResolutionRuntime(current, closed, closedAt));
 }

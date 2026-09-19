@@ -2,6 +2,9 @@ import { ApiError } from "../../api/client.js";
 
 const messages: Record<string, string> = {
   SEGREGATION_OF_DUTIES_VIOLATION: "复核/方案提出人与审批人必须分离，请切换独立审批人。",
+  ROLE_NOT_ALLOWED: "当前角色没有执行该治理操作的权限。",
+  read_only_principal: "当前身份仅可查看，不能执行治理操作。",
+  APPROVAL_SUBJECT_IDENTITY_REQUIRED: "审批身份链不完整，请联系管理员重新建立审批任务。",
   scope_forbidden: "当前身份没有执行该治理操作的权限。",
   resolution_review_not_allowed: "当前状态不能再次复核。",
   resolution_proposal_not_allowed: "当前状态不能拟定处置方案。",

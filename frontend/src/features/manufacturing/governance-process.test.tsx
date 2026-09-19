@@ -59,6 +59,7 @@ function mockGovernanceApi(options: {
         currentActor: {
           tenantId: "demo-manufacturing",
           organization: "示例制造企业",
+          organizationSource: "demo",
           user: actor.user,
           subjectId: `demo-${actorId}`,
           roles: actor.roles,

@@ -50,7 +50,7 @@ export function acceptExceptionForResolution(
   tenantId: string,
   contextId: string,
   exceptionId: string,
-  input: { ownerRole: string; rationale: string; actor: string },
+  input: { ownerRole: string; rationale: string; actor: string; actorId?: string },
 ) {
   const existing = store.getResolutionCaseByException(tenantId, exceptionId);
   if (existing) return existing;
@@ -65,7 +65,7 @@ export function reviewResolution(
   store: V2SqliteStore,
   tenantId: string,
   caseId: string,
-  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string },
+  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string; actorId?: string },
 ) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
@@ -76,7 +76,7 @@ export function proposeResolutionCase(
   store: V2SqliteStore,
   tenantId: string,
   caseId: string,
-  input: { actions: ResolutionActionInput[]; actor: string },
+  input: { actions: ResolutionActionInput[]; actor: string; actorId?: string },
 ) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
@@ -84,16 +84,16 @@ export function proposeResolutionCase(
   return store.saveResolutionCase(proposeResolution(current, input));
 }
 
-export function submitResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string) {
+export function submitResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorId?: string) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(submitResolution(current, actor));
+  return store.saveResolutionCase(submitResolution(current, actor, undefined, actorId));
 }
 
-export function approveResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[]) {
+export function approveResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[], actorId?: string) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(approveResolution(current, actor, actorRoles));
+  return store.saveResolutionCase(approveResolution(current, actor, actorRoles, undefined, actorId));
 }
 
 export function executeResolutionCase(
@@ -103,6 +103,7 @@ export function executeResolutionCase(
   actor: string,
   actorRoles: string[],
   idempotencyKey?: string,
+  actorId?: string,
 ) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
@@ -121,13 +122,13 @@ export function executeResolutionCase(
       receiptSource: receipt.receiptSource,
       receiptAt: receipt.createdAt,
     };
-  }));
+  }, undefined, actorId));
 }
 
-export function closeResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[]) {
+export function closeResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[], actorId?: string) {
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(closeResolution(current, actor, actorRoles));
+  return store.saveResolutionCase(closeResolution(current, actor, actorRoles, undefined, actorId));
 }
 
 export function queryResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string) {

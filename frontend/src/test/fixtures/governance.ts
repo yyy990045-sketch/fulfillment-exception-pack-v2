@@ -47,6 +47,7 @@ export function resolutionCapabilitiesFixture(options: {
     currentActor: {
       tenantId: "demo-manufacturing",
       organization: "示例制造企业",
+      organizationSource: "demo",
       user: "品质负责人",
       subjectId: "demo-quality-owner",
       roles: ["品质负责人"],
