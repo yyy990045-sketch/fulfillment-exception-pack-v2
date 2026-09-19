@@ -1,4 +1,4 @@
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -22,8 +22,6 @@ async function waitUntilHealthy() {
 }
 
 beforeAll(async () => {
-  const build = spawnSync("npm", ["run", "frontend:build"], { cwd: process.cwd(), stdio: "pipe", encoding: "utf8" });
-  if (build.status !== 0) throw new Error(build.stderr || build.stdout);
   storeDir = mkdtempSync(join(tmpdir(), "fep-frontend-http-"));
   child = spawn(join(process.cwd(), "node_modules", ".bin", "tsx"), ["src/server.ts"], {
     cwd: process.cwd(),

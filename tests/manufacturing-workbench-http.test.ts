@@ -63,15 +63,19 @@ describe("manufacturing workbench HTTP surface", () => {
     const manufacturing = await call("/manufacturing");
     expect(manufacturing.status).toBe(200);
     expect(manufacturing.contentType).toContain("text/html");
-    expect(manufacturing.body).toContain("Manufacturing Fulfillment Governance");
-    expect(manufacturing.body).toContain("制造履约数字线程");
+    expect(manufacturing.body).toContain('<div id="root"></div>');
 
-    const css = await call("/manufacturing/styles.css");
+    const css = await call("/manufacturing-legacy/styles.css");
     expect(css.status).toBe(200);
     expect(css.contentType).toContain("text/css");
-    const js = await call("/manufacturing/app.js");
+    const js = await call("/manufacturing-legacy/app.js");
     expect(js.status).toBe(200);
     expect(js.contentType).toContain("javascript");
+
+    const legacy = await call("/manufacturing-legacy");
+    expect(legacy.status).toBe(200);
+    expect(legacy.body).toContain("Manufacturing Fulfillment Governance");
+    expect(legacy.body).toContain("制造履约数字线程");
 
     const v1 = await call("/");
     expect(v1.status).toBe(200);

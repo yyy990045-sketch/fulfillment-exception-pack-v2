@@ -1,5 +1,5 @@
 import { Boxes, ChartNoAxesCombined, Menu, ShieldAlert } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../components/ui/button.js";
 import { cn } from "../lib/utils.js";
@@ -13,6 +13,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { actorId, setActorId } = useDemoSettings();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:px-5">
@@ -50,11 +51,34 @@ export function AppShell({ children }: { children: ReactNode }) {
               {DEMO_ACTORS.map((actor) => <option key={actor.id} value={actor.id}>{actor.label}</option>)}
             </select>
           </label>
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="打开导航">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            aria-label="打开导航"
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
             <Menu className="size-4" />
           </Button>
         </div>
       </header>
+      {mobileNavOpen && (
+        <nav aria-label="移动导航" className="border-b border-border bg-surface px-4 py-2 lg:hidden">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              reloadDocument={item.external}
+              className="flex h-9 items-center gap-2 text-sm text-text-secondary"
+              onClick={() => setMobileNavOpen(false)}
+            >
+              <item.icon className="size-4" aria-hidden="true" />
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
       {children}
     </div>
   );
