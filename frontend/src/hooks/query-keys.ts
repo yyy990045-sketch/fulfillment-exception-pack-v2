@@ -1,5 +1,11 @@
 export const queryKeys = {
   accountContext: (tenantId: string, actorId: string) => ["account-context", tenantId, actorId] as const,
+  operationalAnalytics: (tenantId: string, actorId: string, filters: string) => ["operational-analytics", tenantId, actorId, filters] as const,
+  solutionPackCatalog: (tenantId: string, actorId: string) => ["solution-pack-catalog", tenantId, actorId] as const,
+  solutionPacksInstalled: (tenantId: string, actorId: string) => ["solution-packs-installed", tenantId, actorId] as const,
+  internalWorkItems: (tenantId: string, actorId: string, status: string) => ["internal-work-items", tenantId, actorId, status] as const,
+  packWorkbench: (tenantId: string, actorId: string, contextId: string) => ["pack-workbench", tenantId, actorId, contextId] as const,
+  contextResolutionCases: (tenantId: string, actorId: string, contextId: string) => ["context-resolution-cases", tenantId, actorId, contextId] as const,
   workbench: (tenantId: string, contextId: string) => ["workbench", tenantId, contextId] as const,
   exceptionEvidence: (tenantId: string, contextId: string, exceptionId: string) =>
     ["exception-evidence", tenantId, contextId, exceptionId] as const,

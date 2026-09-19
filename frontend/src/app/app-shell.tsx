@@ -8,8 +8,8 @@ import { DEMO_ACTORS, useDemoSettings } from "./demo-settings.js";
 
 const navItems = [
   { to: "/manufacturing/ctx-so-mfg-001", label: "履约风险", icon: ShieldAlert },
-  { to: "/operations", label: "运营视图", icon: ChartNoAxesCombined, external: true },
-  { to: "/workspace?context=ctx-so-mfg-001", label: "方案包", icon: Boxes, external: true },
+  { to: "/operations", label: "运营视图", icon: ChartNoAxesCombined },
+  { to: "/workspace", label: "方案包", icon: Boxes },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -43,10 +43,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  reloadDocument={item.external}
                   className={({ isActive }) => cn(
                     "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary",
-                    isActive && !item.external && "bg-interactive/5 text-interactive",
+                    isActive && "bg-interactive/5 text-interactive",
                   )}
                 >
                   <item.icon className="size-4" aria-hidden="true" />
@@ -123,7 +122,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavLink
               key={item.to}
               to={item.to}
-              reloadDocument={item.external}
               className="flex h-9 items-center gap-2 text-sm text-text-secondary"
               onClick={() => setMobileNavOpen(false)}
             >

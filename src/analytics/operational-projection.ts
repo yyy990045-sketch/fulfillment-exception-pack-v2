@@ -72,6 +72,9 @@ export function buildOperationalAnalytics(
     exceptionCodes: string[];
     resolutionCaseCount: number;
     resolutionStatuses: OperationalResolutionStatus[];
+    resolutionOwnerRoles: string[];
+    highestSeverity: OperationalSeverity | null;
+    latestChangeAt: string;
     sourceSystemIds: string[];
     cases: ReturnType<V2SqliteStore["listResolutionCases"]>;
     exceptions: V2Exception[];
@@ -121,6 +124,16 @@ export function buildOperationalAnalytics(
       exceptionCodes: [...new Set(exceptionRows.map((item) => item.code))],
       resolutionCaseCount: cases.length,
       resolutionStatuses: [...new Set(cases.map((item) => resolutionCategory(item.status, item.runtime.actions)))],
+      resolutionOwnerRoles: [...new Set(cases.map((item) => item.ownerRole).filter(Boolean))],
+      highestSeverity: exceptionRows.reduce<OperationalSeverity | null>((current, item) => {
+        const rank = { low: 1, medium: 2, high: 3, critical: 4 } as const;
+        return !current || rank[item.severity] > rank[current] ? item.severity : current;
+      }, null),
+      latestChangeAt: [
+        context.updatedAt,
+        ...cases.map((item) => item.updatedAt),
+        ...exceptionRows.map((item) => item.occurrenceAt),
+      ].sort().at(-1) ?? context.updatedAt,
       sourceSystemIds: [...new Set(store.listDocuments(tenantId, context.id).map((item) => item.sourceSystemId))],
       cases,
       exceptions,
@@ -252,6 +265,9 @@ export function buildOperationalAnalytics(
       exceptionCodes: row.exceptionCodes,
       resolutionCaseCount: row.resolutionCaseCount,
       resolutionStatuses: row.resolutionStatuses,
+      resolutionOwnerRoles: row.resolutionOwnerRoles,
+      highestSeverity: row.highestSeverity,
+      latestChangeAt: row.latestChangeAt,
       sourceSystemIds: row.sourceSystemIds,
       outcomeMeasurementCount: row.outcomeMeasurementCount,
       outcomeStatuses: row.outcomeStatuses,

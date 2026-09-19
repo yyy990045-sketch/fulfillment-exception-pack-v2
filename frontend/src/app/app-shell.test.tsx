@@ -39,6 +39,24 @@ afterEach(() => {
 });
 
 describe("B2B account area", () => {
+  it("keeps the product surfaces inside the same React shell", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => jsonResponse({
+      currentActor: {
+        tenantId: "demo-manufacturing",
+        organization: "示例制造企业",
+        organizationSource: "demo",
+        user: "品质负责人",
+        subjectId: "demo-quality-owner",
+        roles: ["品质负责人"],
+        authnMethod: "demo-header",
+      },
+    })));
+    renderShell();
+
+    expect(await screen.findByRole("link", { name: "运营视图" })).toHaveAttribute("href", "/operations");
+    expect(screen.getByRole("link", { name: "方案包" })).toHaveAttribute("href", "/workspace");
+  });
+
   it("shows Bearer organization, user, and roles from the backend", async () => {
     window.localStorage.setItem("authToken", "bearer-token");
     const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {

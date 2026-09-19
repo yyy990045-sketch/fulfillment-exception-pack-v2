@@ -43,6 +43,27 @@
 - 影响：高频日常使用中可能误触，尤其 execute 和 close 的业务影响较大。
 - 建议：保留快捷入口，但增加紧凑确认 Sheet，确认对象、动作和当前状态。
 
+### Solution Pack context binding contract
+
+- 位置：React 方案包页面的 Pack → Context 列表
+- 问题：当前通过 Operational Analytics 的 `contextType` 反推 Pack 绑定关系，没有专门的 pack-context projection。
+- 影响：两个 Pack 使用同一 `contextType` 时会互相串入，也无法可靠展示每个 Pack 的实际绑定数量。
+- 建议：后端提供只读的 Pack installation → bound contexts projection；在此之前保留当前确定性映射并明确其限制。
+
+### Pack governance action metadata
+
+- 位置：方案包工作区的“规则能力”和方案能力区
+- 问题：Manifest 只提供 capability 布尔值，没有 Pack 支持的治理动作清单或业务标签。
+- 影响：页面能证明平台按 Pack 装载能力，但不能直接展示“该 Pack 支持哪些处置动作”。
+- 建议：后续在只读 manifest projection 中增加 action catalog，不在前端推断。
+
+### Time bucket drill-down parsing
+
+- 位置：Operations 异常趋势的时间桶点击筛选
+- 问题：当前用 `new Date(bucketKey)` 解释趋势桶，日/月桶通常可用，但非标准周键可能无法稳定解析。
+- 影响：使用周粒度时，点击趋势桶可能不应用预期时间范围。
+- 建议：后端为每个趋势桶返回明确的 `from` / `to`，前端不解析展示标签。
+
 ## P2
 
 ### Queue filters are single-select
@@ -66,9 +87,16 @@
 - 影响：用户可能不确定操作是否已经生效，尤其是页面局部变化不明显时。
 - 建议：后续增加统一的轻量 toast 或状态过渡提示，不使用弹窗打断流程。
 
-### Legacy workspace navigation consistency
+### Legacy static surface retention
 
-- 位置：Operations 与 Workspace 导航
-- 问题：Operations / Workspace 仍未迁移到 React 工作台，Header、账户区和交互模式与 Manufacturing 不完全一致。
-- 影响：跨页面使用时存在产品感断层。
-- 建议：在后续前端迁移阶段统一 Shell、身份区和导航行为。
+- 位置：`workbench/operations`、`workbench/workspace` 与 `manufacturing-legacy`
+- 问题：本轮已将 Operations / Workspace 主路由切到 React，但旧静态文件仍保留在仓库中，`manufacturing-legacy` 也继续可访问。
+- 影响：产品主路径已统一，但后续维护仍存在少量重复实现和废弃页面资产。
+- 建议：在确认历史回归、文档链接和演示流程都不再依赖旧页面后，单独清理静态文件；本轮不删除。
+
+### Frontend bundle chunk warning
+
+- 位置：React 前端生产构建
+- 问题：Vite 报告单个 chunk 超过 500 kB。
+- 影响：当前功能可用，但随着 Operations、Solution Pack 和 Manufacturing 继续扩展，首屏加载会逐渐变慢。
+- 建议：后续按路由 lazy-load，并把高频基础依赖拆成稳定 vendor chunk；本轮不改变产品行为。

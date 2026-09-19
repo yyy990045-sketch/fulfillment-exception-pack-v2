@@ -61,14 +61,12 @@ afterAll(() => {
 });
 
 describe("operational analytics HTTP", () => {
-  it("serves /operations while keeping /manufacturing available", async () => {
+  it("keeps the operations surface and analytics API available", async () => {
     const operations = await call("/operations", "demo-manufacturing", "text/html");
     expect(operations.status).toBe(200);
     expect(operations.contentType).toContain("text/html");
-    expect(operations.body).toContain("经营治理中心");
-    const charts = await call("/operations/charts.js", "demo-manufacturing", "text/javascript");
-    expect(charts.status).toBe(200);
-    expect(charts.contentType).toContain("javascript");
+    const analytics = await call("/api/v2/analytics/operational", "demo-manufacturing", "application/json");
+    expect(analytics.status).toBe(200);
     const manufacturing = await call("/manufacturing", "demo-manufacturing", "text/html");
     expect(manufacturing.status).toBe(200);
   });
@@ -94,6 +92,11 @@ describe("operational analytics HTTP", () => {
       resolutionCaseCount: 8,
     });
     expect(body.contexts).toHaveLength(11);
+    expect(body.contexts[0]).toMatchObject({
+      highestSeverity: expect.any(String),
+      latestChangeAt: expect.any(String),
+      resolutionOwnerRoles: expect.any(Array),
+    });
     expect(body.metricDefinitions.governanceCoverageRate).toContain("Resolution Case");
     expect(body.truthfulness).toMatchObject({
       derivedFromDomainFacts: true,

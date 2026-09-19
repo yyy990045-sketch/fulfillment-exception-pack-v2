@@ -1681,7 +1681,7 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, outcomeMeasurementCount, outcomeStatuses, sourceSystemIds]
+            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, resolutionOwnerRoles, highestSeverity, latestChangeAt, outcomeMeasurementCount, outcomeStatuses, sourceSystemIds]
             properties:
               contextId: { type: string }
               businessKey: { type: string }
@@ -1693,6 +1693,9 @@ components:
               exceptionCodes: { type: array, items: { type: string } }
               resolutionCaseCount: { type: integer }
               resolutionStatuses: { type: array, items: { type: string } }
+              resolutionOwnerRoles: { type: array, items: { type: string } }
+              highestSeverity: { type: string, nullable: true, enum: [low, medium, high, critical] }
+              latestChangeAt: { type: string, format: date-time }
               outcomeMeasurementCount: { type: integer }
               outcomeStatuses: { type: array, items: { type: string } }
               sourceSystemIds: { type: array, items: { type: string } }

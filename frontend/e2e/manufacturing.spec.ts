@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+const desktopViewports = [
+  { width: 1440, height: 900 },
+  { width: 1600, height: 900 },
+  { width: 1920, height: 1080 },
+];
+
 test("manufacturing evidence workbench smoke", async ({ page }) => {
-  for (const viewport of [{ width: 1440, height: 900 }, { width: 1600, height: 900 }, { width: 1920, height: 1080 }]) {
+  for (const viewport of desktopViewports) {
     await page.setViewportSize(viewport);
     await page.goto("/manufacturing/ctx-so-mfg-001");
     await expect(page.getByRole("heading", { name: "SO-MFG-001" })).toBeVisible();
@@ -84,4 +90,32 @@ test("manufacturing evidence workbench smoke", async ({ page }) => {
 
   await page.goBack();
   await expect(page).toHaveURL(/\/analysis$/);
+
+  await page.getByRole("link", { name: "运营视图" }).click();
+  await expect(page).toHaveURL(/\/operations/);
+  await expect(page.getByRole("heading", { name: "运营视图" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "业务上下文组合" })).toBeVisible();
+  await page.getByRole("button", { name: "SO-MFG-001" }).first().click();
+  await expect(page).toHaveURL(/\/manufacturing\/ctx-so-mfg-001/);
+
+  await page.getByRole("link", { name: "方案包" }).click();
+  await expect(page).toHaveURL(/\/workspace/);
+  await expect(page.getByRole("heading", { name: "方案包", exact: true })).toBeVisible();
+  await expect(page.getByText("Manufacturing Fulfillment").first()).toBeVisible();
+});
+
+test("operations and solution pack keep product-shell density across desktop sizes", async ({ page }) => {
+  for (const viewport of desktopViewports) {
+    await page.setViewportSize(viewport);
+
+    await page.goto("/operations");
+    await expect(page.getByRole("heading", { name: "运营视图" })).toBeVisible();
+    await expect(page.getByTestId("operations-portfolio-table")).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    await page.goto("/workspace");
+    await expect(page.getByRole("heading", { name: "方案包", exact: true })).toBeVisible();
+    await expect(page.getByText("Manufacturing Fulfillment").first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
 });

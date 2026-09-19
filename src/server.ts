@@ -222,6 +222,15 @@ function serveManufacturing(res: import("node:http").ServerResponse, pathname: s
   res.end(legacy);
 }
 
+function serveFrontendSurface(res: import("node:http").ServerResponse) {
+  const frontendIndex = join(FRONTEND_DIST, "index.html");
+  if (existsSync(frontendIndex)) {
+    serveFile(res, frontendIndex);
+    return true;
+  }
+  return false;
+}
+
 function tenantOf(req: import("node:http").IncomingMessage) {
   return authenticate(req.headers).tenantId;
 }
@@ -375,17 +384,6 @@ const server = createServer(async (req, res) => {
               : undefined
       )
       : undefined;
-    const workspaceFile = req.method === "GET"
-      ? (
-        url.pathname === "/workspace" || url.pathname === "/workspace/"
-          ? { path: "index.html", contentType: "text/html; charset=utf-8" }
-          : url.pathname === "/workspace/styles.css"
-            ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
-            : url.pathname === "/workspace/app.js"
-              ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
-              : undefined
-      )
-      : undefined;
     if (legacyManufacturingFile) {
       let body = readFileSync(join(ROOT, "workbench", "manufacturing", legacyManufacturingFile.path), "utf8");
       if (legacyManufacturingFile.path === "index.html") {
@@ -401,30 +399,16 @@ const server = createServer(async (req, res) => {
       serveManufacturing(res, url.pathname);
       return;
     }
-    if (workspaceFile) {
-      const body = readFileSync(join(ROOT, "workbench", "workspace", workspaceFile.path), "utf8");
-      res.writeHead(200, { "content-type": workspaceFile.contentType, "cache-control": "no-store" });
-      res.end(body);
-      return;
-    }
-    const operationsFile = req.method === "GET"
-      ? (
-        url.pathname === "/operations" || url.pathname === "/operations/"
-          ? { path: "index.html", contentType: "text/html; charset=utf-8" }
-          : url.pathname === "/operations/styles.css"
-            ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
-            : url.pathname === "/operations/app.js"
-              ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
-              : url.pathname === "/operations/charts.js"
-                ? { path: "charts.js", contentType: "text/javascript; charset=utf-8" }
-                : undefined
+    if (
+      req.method === "GET" &&
+      (
+        url.pathname === "/operations" ||
+        url.pathname === "/operations/" ||
+        url.pathname === "/workspace" ||
+        url.pathname.startsWith("/workspace/")
       )
-      : undefined;
-    if (operationsFile) {
-      const body = readFileSync(join(ROOT, "workbench", "operations", operationsFile.path), "utf8");
-      res.writeHead(200, { "content-type": operationsFile.contentType, "cache-control": "no-store" });
-      res.end(body);
-      return;
+    ) {
+      if (serveFrontendSurface(res)) return;
     }
     if (req.method === "GET" && url.pathname === "/") {
       const html = readFileSync(join(ROOT, "workbench", "index.html"), "utf8");

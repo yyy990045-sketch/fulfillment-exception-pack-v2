@@ -3922,6 +3922,11 @@ export interface components {
                 exceptionCodes: string[];
                 resolutionCaseCount: number;
                 resolutionStatuses: string[];
+                resolutionOwnerRoles: string[];
+                /** @enum {string|null} */
+                highestSeverity: "low" | "medium" | "high" | "critical" | null;
+                /** Format: date-time */
+                latestChangeAt: string;
                 outcomeMeasurementCount: number;
                 outcomeStatuses: string[];
                 sourceSystemIds: string[];
