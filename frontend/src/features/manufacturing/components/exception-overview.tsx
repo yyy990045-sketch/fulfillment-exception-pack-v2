@@ -1,4 +1,5 @@
 import { AlertTriangle, ListChecks } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Badge } from "../../../components/ui/badge.js";
 import { useGroundedExplanation } from "../../../hooks/use-manufacturing.js";
 import type { ExceptionView, RuleView, ThreadStage } from "../types.js";
@@ -23,6 +24,9 @@ export function ExceptionOverview({
   const questionsLoading = explanationQuery.list.isLoading ||
     Boolean(explanationQuery.latest && explanationQuery.detail.isLoading);
   const questionsError = explanationQuery.list.isError || explanationQuery.detail.isError;
+  const [searchParams] = useSearchParams();
+  const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exception.id)}`;
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : "";
   return (
     <div className="space-y-5">
       <section className="max-w-4xl">
@@ -90,6 +94,16 @@ export function ExceptionOverview({
           </div>
         </section>
       )}
+
+      <section className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+        <span className="text-xs text-text-muted">继续核对</span>
+        <Link className="text-sm font-medium text-interactive hover:underline" to={`${base}/evidence${suffix}`}>
+          查看证据
+        </Link>
+        <Link className="text-sm font-medium text-interactive hover:underline" to={`${base}/analysis${suffix}`}>
+          查看分析
+        </Link>
+      </section>
     </div>
   );
 }

@@ -15,7 +15,12 @@ import type {
   PolicyEvaluationView,
   ResolutionCaseView,
 } from "../analysis-types.js";
-import { governanceStepStatus, isResolutionApprovalSubmitted, resolveGovernanceStep } from "../governance-step.js";
+import {
+  governanceSteps,
+  governanceStepStatus,
+  isResolutionApprovalSubmitted,
+  resolveGovernanceStep,
+} from "../governance-step.js";
 import { governanceErrorMessage } from "../governance-errors.js";
 import {
   governanceActionSuccessMessages,
@@ -337,6 +342,8 @@ export function GovernanceProcess({
         : "方案草案"
       : resolutionStatusLabel(resolutionCase.status)
     : "未进入治理";
+  const currentStepLabel = governanceSteps.find((step) => step.id === current)?.label ?? "治理";
+  const currentPlan = resolutionCase?.runtime.actions.at(-1)?.summary ?? "待拟定处置方案";
 
   const stepStatus = (step: string): ProcessStepStatus => {
     if (step === "governance") return governanceStepStatus("governance", current, { rejected });
@@ -355,6 +362,20 @@ export function GovernanceProcess({
         </div>
         {resolutionCase && <Badge variant="info">治理：{resolutionStatusLabel(resolutionCase.status)}</Badge>}
       </div>
+      <dl className="grid border-y border-border bg-surface-muted/40 sm:grid-cols-3 sm:divide-x sm:divide-border">
+        <div className="px-3 py-2.5">
+          <dt className="text-[11px] text-text-muted">当前阶段</dt>
+          <dd className="mt-0.5 text-sm font-medium">{currentStepLabel}</dd>
+        </div>
+        <div className="px-3 py-2.5">
+          <dt className="text-[11px] text-text-muted">负责人</dt>
+          <dd className="mt-0.5 text-sm font-medium">{resolutionCase?.ownerRole ?? "待指定"}</dd>
+        </div>
+        <div className="px-3 py-2.5">
+          <dt className="text-[11px] text-text-muted">当前方案</dt>
+          <dd className="mt-0.5 truncate text-sm font-medium" title={currentPlan}>{currentPlan}</dd>
+        </div>
+      </dl>
       <ProcessStep
         id="governance"
         title="治理"

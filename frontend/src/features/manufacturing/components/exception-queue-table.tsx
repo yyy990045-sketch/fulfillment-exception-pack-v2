@@ -1,9 +1,8 @@
 import { Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { LocalState } from "../../../components/product/page-layout.js";
+import { LocalState, ProductSection, SectionHeader } from "../../../components/product/page-layout.js";
 import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Button } from "../../../components/ui/button.js";
-import { cn } from "../../../lib/utils.js";
 import { severityLabel } from "../../../lib/presentation.js";
 import {
   exceptionQueueOptions,
@@ -42,18 +41,16 @@ function FilterSelect({
   );
 }
 
-export function ExceptionRail({
+export function ExceptionQueueTable({
   exceptions,
   resolutionCases,
   stages,
-  selectedExceptionId,
-  onSelect,
+  onOpen,
 }: {
   exceptions: ExceptionView[];
   resolutionCases: ResolutionCaseSummaryView[];
   stages: ThreadStage[];
-  selectedExceptionId?: string;
-  onSelect: (exception: ExceptionView) => void;
+  onOpen: (exception: ExceptionView) => void;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const filters: ExceptionQueueFilters = {
@@ -87,16 +84,14 @@ export function ExceptionRail({
   };
 
   return (
-    <aside
-      className="border-b border-border bg-surface lg:sticky lg:top-14 lg:max-h-[calc(100vh-3.5rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r"
-      aria-labelledby="exception-rail-title"
-    >
-      <div className="border-b border-border px-3 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 id="exception-rail-title" className="text-sm font-semibold">异常队列</h2>
-          <span className="text-xs text-text-muted">{results.length} / {exceptions.length}</span>
-        </div>
-        <label className="relative mt-2 block">
+    <ProductSection>
+      <SectionHeader
+        title="异常"
+        description="定位需要进入治理的异常，再打开独立异常记录。"
+        meta={`${results.length} / ${exceptions.length}`}
+      />
+      <div className="grid gap-2 border-b border-border p-3 lg:grid-cols-[minmax(220px,1.5fr)_140px_140px_150px_150px_auto]">
+        <label className="relative min-w-0">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
           <input
             aria-label="搜索异常"
@@ -116,34 +111,32 @@ export function ExceptionRail({
             </button>
           )}
         </label>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <FilterSelect
-            label="严重程度"
-            value={filters.severity}
-            onChange={(value) => updateFilter("severity", value)}
-            options={options.severities.map((value) => ({ value, label: severityLabel(value) }))}
-          />
-          <FilterSelect
-            label="异常状态"
-            value={filters.status}
-            onChange={(value) => updateFilter("status", value)}
-            options={options.statuses.map((value) => ({ value, label: exceptionStatusLabel(value) }))}
-          />
-          <FilterSelect
-            label="业务阶段"
-            value={filters.stageKey}
-            onChange={(value) => updateFilter("stageKey", value)}
-            options={options.stages}
-          />
-          <FilterSelect
-            label="处理阶段"
-            value={filters.governanceStage}
-            onChange={(value) => updateFilter("governanceStage", value)}
-            options={options.governanceStages}
-          />
-        </div>
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <label className="flex items-center gap-1.5 text-xs text-text-secondary">
+        <FilterSelect
+          label="严重程度"
+          value={filters.severity}
+          onChange={(value) => updateFilter("severity", value)}
+          options={options.severities.map((value) => ({ value, label: severityLabel(value) }))}
+        />
+        <FilterSelect
+          label="异常状态"
+          value={filters.status}
+          onChange={(value) => updateFilter("status", value)}
+          options={options.statuses.map((value) => ({ value, label: exceptionStatusLabel(value) }))}
+        />
+        <FilterSelect
+          label="业务阶段"
+          value={filters.stageKey}
+          onChange={(value) => updateFilter("stageKey", value)}
+          options={options.stages}
+        />
+        <FilterSelect
+          label="处理阶段"
+          value={filters.governanceStage}
+          onChange={(value) => updateFilter("governanceStage", value)}
+          options={options.governanceStages}
+        />
+        <div className="flex items-end gap-2">
+          <label className="flex h-8 items-center gap-1.5 whitespace-nowrap text-xs text-text-secondary">
             <input
               type="checkbox"
               className="size-3.5 accent-[var(--color-interactive)]"
@@ -153,9 +146,7 @@ export function ExceptionRail({
             未处理优先
           </label>
           {activeFilterCount > 0 && (
-            <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[11px]" onClick={clearFilters}>
-              清除筛选
-            </Button>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>清除筛选</Button>
           )}
         </div>
       </div>
@@ -163,42 +154,44 @@ export function ExceptionRail({
       {results.length === 0 ? (
         <div className="p-3"><LocalState kind="no-results" title="没有匹配当前条件的异常" compact /></div>
       ) : (
-        <div role="list">
-          {results.map(({ exception, governanceStage }) => {
-            const active = exception.id === selectedExceptionId;
-            return (
-              <div key={exception.id} role="listitem">
-                <button
-                  type="button"
-                  data-testid="exception-item"
-                  aria-current={active ? "true" : undefined}
-                  onClick={() => onSelect(exception)}
-                  className={cn(
-                    "w-full border-b border-l-2 border-l-transparent border-border px-3 py-2 text-left transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-interactive/40",
-                    active && "border-l-interactive bg-interactive/5",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="min-w-0 truncate text-sm font-medium leading-5">{exception.label}</span>
-                    <SeverityBadge severity={exception.severity} />
-                  </div>
-                  <div className="mt-1 truncate text-xs text-text-secondary">
-                    {primaryExceptionDifference(exception)}
-                  </div>
-                  <div className="mt-1.5 flex items-center justify-between gap-2 text-[11px] text-text-muted">
-                    <span className="flex min-w-0 items-center gap-1.5">
-                      <span>{exceptionStatusLabel(exception.status)}</span>
-                      <span aria-hidden="true">·</span>
-                      <span className="truncate">{governanceStageLabel(governanceStage)}</span>
-                    </span>
-                    <time className="shrink-0">{formatShortDateTime(exception.lastDetectedAt || exception.createdAt)}</time>
-                  </div>
-                </button>
-              </div>
-            );
-          })}
+        <div className="overflow-x-auto">
+          <table data-testid="exception-queue-table" className="w-full min-w-[860px] text-left text-xs">
+            <thead className="bg-surface-muted text-text-muted">
+              <tr>
+                <th className="px-3 py-2 font-medium">异常</th>
+                <th className="px-3 py-2 font-medium">等级</th>
+                <th className="px-3 py-2 font-medium">状态</th>
+                <th className="px-3 py-2 font-medium">核心差异</th>
+                <th className="px-3 py-2 font-medium">处理阶段</th>
+                <th className="px-3 py-2 font-medium">最近更新</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {results.map(({ exception, governanceStage }) => (
+                <tr key={exception.id} className="transition-colors hover:bg-surface-muted focus-within:bg-interactive/5">
+                  <td className="px-3 py-2.5">
+                    <button
+                      type="button"
+                      data-testid="exception-item"
+                      className="text-left font-medium text-interactive hover:underline focus-visible:rounded-sm"
+                      onClick={() => onOpen(exception)}
+                    >
+                      {exception.label}
+                    </button>
+                  </td>
+                  <td className="px-3 py-2.5"><SeverityBadge severity={exception.severity} /></td>
+                  <td className="px-3 py-2.5">{exceptionStatusLabel(exception.status)}</td>
+                  <td className="px-3 py-2.5 text-text-secondary">{primaryExceptionDifference(exception)}</td>
+                  <td className="px-3 py-2.5">{governanceStageLabel(governanceStage)}</td>
+                  <td className="px-3 py-2.5 text-text-muted tabular-nums">
+                    {formatShortDateTime(exception.lastDetectedAt || exception.createdAt)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
-    </aside>
+    </ProductSection>
   );
 }

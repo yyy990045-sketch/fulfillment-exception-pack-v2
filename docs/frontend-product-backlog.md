@@ -20,6 +20,16 @@
 - Product Shell now uses the neutral product name `履约异常治理平台`; the demo environment is identified as `演示环境 · 示例组织`.
 - Demo resolution action copy now uses business Chinese instead of seeded English synthetic text.
 
+## Resolved In Manufacturing Information Architecture Rebuild
+
+- Context Page now contains only the context Header, Digital Thread, and exception queue.
+- Exception Record Page is a true route with its own Header and compact related-context strip.
+- Overview, Evidence, Analysis, Decision, and Governance now render as separate task routes.
+- Decision no longer renders Governance below the recommendation and links to `/governance` instead.
+- Governance keeps only the current step expanded and shows current phase, owner, and current plan above the process.
+- Queue filters are retained in the URL and queue scroll position is restored when returning from a record.
+- Duplicate navigation in the exception Header More menu was removed.
+
 ## P0
 
 当前无阻塞 Manufacturing 主工作区使用的 P0 问题。
@@ -111,6 +121,13 @@
 - 问题：这些区域已经复用共享 Badge 与 Local State，但仍保留各自手写的 section/header 容器。
 - 影响：主流程已一致，但深度工作面仍有少量样式迁移空间。
 - 建议：后续只迁移仍有真实重复的面板，不为统一而重写全部 Manufacturing 组件。
+
+### Exception Record uses full Workbench projection
+
+- 位置：Exception Record 的 Overview / Evidence / Analysis / Decision / Governance 路由
+- 问题：每个子 Route 仍通过 Workbench API 读取整个 Context 的 thread、rules 和 exceptions，再在前端取出当前异常。
+- 影响：当前数据规模下可用，但异常记录增长后会带来不必要的响应体和服务端计算。
+- 建议：后续增加只读的 Exception Record projection，按 exception 返回相关上下文、规则和异常摘要；本轮不扩展 Backend contract。
 
 ### Formal product brand not defined
 
