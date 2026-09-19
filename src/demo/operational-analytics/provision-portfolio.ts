@@ -16,6 +16,7 @@ import {
   submitResolutionCase,
   type V2SqliteStore,
 } from "../../domain/v2/index.js";
+import { bindPackContext, manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
 import { OPERATIONAL_PORTFOLIO, type OperationalPortfolioSpec } from "./portfolio-spec.js";
 
 const tenantId = "demo-manufacturing";
@@ -226,9 +227,11 @@ function ensureResolutionTarget(store: V2SqliteStore, contextId: string, spec: O
 }
 
 export function provisionOperationalPortfolio(store: V2SqliteStore) {
+  registerBuiltInSolutionPacks();
   const contexts: string[] = [];
   for (const spec of OPERATIONAL_PORTFOLIO) {
     const contextId = saveScenario(store, spec);
+    bindPackContext(store, manufacturingFulfillmentPack, tenantId, contextId, "demo-system");
     evaluateContextRules(store, tenantId, contextId);
     ensureResolutionTarget(store, contextId, spec);
     contexts.push(contextId);

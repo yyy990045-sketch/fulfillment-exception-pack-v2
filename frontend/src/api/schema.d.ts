@@ -803,6 +803,7 @@ export interface paths {
             query?: {
                 from?: string;
                 to?: string;
+                timeBasis?: "context_opened" | "exception_occurrence";
                 bucket?: "day" | "week" | "month";
                 contextType?: string;
                 exceptionCode?: string;
@@ -823,6 +824,7 @@ export interface paths {
                 query?: {
                     from?: string;
                     to?: string;
+                    timeBasis?: "context_opened" | "exception_occurrence";
                     bucket?: "day" | "week" | "month";
                     contextType?: string;
                     exceptionCode?: string;
@@ -3870,9 +3872,9 @@ export interface components {
                 /** @enum {string} */
                 bucket: "day" | "week" | "month";
                 /** @enum {string} */
-                timeBasis: "context.openedAt";
+                timeBasis: "context_opened" | "exception_occurrence";
                 /** @enum {string} */
-                trendTimeBasis: "exceptionOccurrenceAt";
+                trendTimeBasis: "exception_occurrence";
             };
             summary: {
                 contextCount: number;

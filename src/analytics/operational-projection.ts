@@ -51,16 +51,18 @@ export function buildOperationalAnalytics(
   filters: OperationalAnalyticsFilters = {},
 ) {
   const bucket = normalizeBucket(filters.bucket);
+  const timeBasis = filters.timeBasis ?? "context_opened";
   const from = parseAnalyticsDate(filters.from, "from");
   const to = parseAnalyticsDate(filters.to, "to");
   if (from !== undefined && to !== undefined && from > to) throw new OperationalAnalyticsError("ANALYTICS_INVALID_DATE_RANGE");
+  if (!["context_opened", "exception_occurrence"].includes(timeBasis)) throw new OperationalAnalyticsError("ANALYTICS_INVALID_TIME_BASIS");
   if (filters.severity && !OPERATIONAL_SEVERITIES.includes(filters.severity)) throw new OperationalAnalyticsError("ANALYTICS_INVALID_FILTER");
   if (filters.resolutionStatus && !OPERATIONAL_RESOLUTION_STATUSES.includes(filters.resolutionStatus)) throw new OperationalAnalyticsError("ANALYTICS_INVALID_FILTER");
 
   const allContexts = store.listContexts(tenantId);
   const contexts = allContexts.filter((context) =>
-    inRange(context.openedAt, from, to) &&
-    (!filters.contextType || context.contextType === filters.contextType),
+    (!filters.contextType || context.contextType === filters.contextType) &&
+    (timeBasis === "exception_occurrence" || inRange(context.openedAt, from, to)),
   );
   const definitions = store.listEnabledRuleDefinitions(tenantId);
   const allExceptionRows: OperationalExceptionRow[] = [];
@@ -89,7 +91,7 @@ export function buildOperationalAnalytics(
     const cases = store.listResolutionCases(tenantId, context.id);
     const outcomeEvaluations = exceptions.flatMap((exception) => store.listOutcomeEvaluations(tenantId, context.id, exception.id));
     const caseByException = new Map(cases.map((item) => [item.exceptionId, item]));
-    const exceptionRows = exceptions
+    const filteredExceptionRows = exceptions
       .filter((exception) => !filters.exceptionCode || exception.code === filters.exceptionCode)
       .filter((exception) => !filters.severity || exception.severity === filters.severity)
       .filter((exception) => {
@@ -116,6 +118,10 @@ export function buildOperationalAnalytics(
           sourceSystemIds: bundle?.sourceSystems.map((item) => item.id) ?? [],
         };
       });
+    const exceptionRows = timeBasis === "exception_occurrence"
+      ? filteredExceptionRows.filter((item) => inRange(item.occurrenceAt, from, to))
+      : filteredExceptionRows;
+    if (timeBasis === "exception_occurrence" && !exceptionRows.length) continue;
     allExceptionRows.push(...exceptionRows);
     contextRows.push({
       context,
@@ -245,8 +251,8 @@ export function buildOperationalAnalytics(
       from: filters.from ?? null,
       to: filters.to ?? null,
       bucket,
-      timeBasis: "context.openedAt" as const,
-      trendTimeBasis: "exceptionOccurrenceAt" as const,
+      timeBasis,
+      trendTimeBasis: "exception_occurrence" as const,
     },
     summary,
     exceptionTrend,

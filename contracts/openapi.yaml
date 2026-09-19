@@ -244,6 +244,7 @@ paths:
     parameters:
       - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
       - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+      - { name: timeBasis, in: query, required: false, schema: { type: string, enum: [context_opened, exception_occurrence] } }
       - { name: bucket, in: query, required: false, schema: { type: string, enum: [day, week, month] } }
       - { name: contextType, in: query, required: false, schema: { type: string } }
       - { name: exceptionCode, in: query, required: false, schema: { type: string } }
@@ -1619,8 +1620,8 @@ components:
             from: { type: string, nullable: true }
             to: { type: string, nullable: true }
             bucket: { type: string, enum: [day, week, month] }
-            timeBasis: { type: string, enum: [context.openedAt] }
-            trendTimeBasis: { type: string, enum: [exceptionOccurrenceAt] }
+            timeBasis: { type: string, enum: [context_opened, exception_occurrence] }
+            trendTimeBasis: { type: string, enum: [exception_occurrence] }
         summary:
           type: object
           required: [contextCount, ruleEvaluationCount, matchedRuleEvaluationCount, notMatchedRuleEvaluationCount, detectedExceptionCount, exceptionsWithResolutionCase, exceptionsWithoutResolutionCase, resolutionCaseCount, closedResolutionCaseCount, rejectedResolutionCaseCount, receiptCount, actionCount, verifiedActionCount, governanceCoverageRate, resolutionClosureRate]

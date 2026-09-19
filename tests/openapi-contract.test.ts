@@ -93,6 +93,8 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }");
     expect(openapi).toContain("label: { type: string }");
     expect(openapi).toContain("from: { type: string, format: date-time }");
+    expect(openapi).toContain("timeBasis: { type: string, enum: [context_opened, exception_occurrence] }");
+    expect(openapi).toContain("trendTimeBasis: { type: string, enum: [exception_occurrence] }");
     expect(openapi).toContain("    DemoWorkspaceProjection:");
     expect(openapi).toContain("demoWorkspace: { $ref: '#/components/schemas/DemoWorkspaceProjection' }");
   });

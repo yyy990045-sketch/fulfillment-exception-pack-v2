@@ -40,6 +40,11 @@ const bucketLabels: Record<string, string> = {
   month: "按月",
 };
 
+const timeBasisLabels: Record<string, string> = {
+  context_opened: "上下文创建时间",
+  exception_occurrence: "异常发生时间",
+};
+
 function formatRate(value: number | null) {
   return value === null ? "—" : `${(value * 100).toFixed(1)}%`;
 }
@@ -181,11 +186,13 @@ export function OperationsPage() {
   const severity = searchParams.get("severity") ?? "";
   const exceptionCode = searchParams.get("exceptionCode") ?? "";
   const resolutionStatus = searchParams.get("resolutionStatus") ?? "";
+  const timeBasis = (searchParams.get("timeBasis") ?? "context_opened") as "context_opened" | "exception_occurrence";
   const bucket = (searchParams.get("bucket") ?? "month") as "day" | "week" | "month";
   const from = searchParams.get("from") ?? "";
   const to = searchParams.get("to") ?? "";
   const filters: OperationalAnalyticsQuery = {
     bucket,
+    timeBasis,
     ...(from ? { from } : {}),
     ...(to ? { to } : {}),
     ...(severity ? { severity: severity as OperationalAnalyticsQuery["severity"] } : {}),
@@ -204,15 +211,23 @@ export function OperationsPage() {
   };
   const clearAllFilters = () => {
     const next = new URLSearchParams(searchParams);
-    for (const key of ["q", "severity", "exceptionCode", "resolutionStatus", "from", "to"]) next.delete(key);
+    for (const key of ["q", "severity", "exceptionCode", "resolutionStatus", "from", "to", "timeBasis"]) next.delete(key);
     setSearchParams(next, { replace: true });
   };
-  const applyRange = (nextFrom: string, nextTo: string) => {
+  const applyRange = (nextFrom: string, nextTo: string, nextTimeBasis: "context_opened" | "exception_occurrence") => {
     const next = new URLSearchParams(searchParams);
     if (nextFrom) next.set("from", nextFrom);
     else next.delete("from");
     if (nextTo) next.set("to", nextTo);
     else next.delete("to");
+    next.set("timeBasis", nextTimeBasis);
+    setSearchParams(next, { replace: true });
+  };
+  const updateRangeBoundary = (key: "from" | "to", value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    next.set("timeBasis", "context_opened");
     setSearchParams(next, { replace: true });
   };
   if (analytics.isLoading) {
@@ -250,6 +265,7 @@ export function OperationsPage() {
     resolutionStatus ? { key: "resolutionStatus", label: `治理：${resolutionStatusLabel(resolutionStatus)}` } : null,
     from ? { key: "from", label: `开始：${from}` } : null,
     to ? { key: "to", label: `结束：${to}` } : null,
+    (from || to) ? { key: "timeBasis", label: `时间口径：${timeBasisLabels[timeBasis]}` } : null,
   ].filter((item): item is { key: string; label: string } => Boolean(item));
 
   return (
@@ -269,11 +285,11 @@ export function OperationsPage() {
             </label>
             <label className="space-y-1 text-[11px] text-text-muted">
               开始
-              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={from} onChange={(event) => updateParam("from", event.target.value)} />
+              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={from} onChange={(event) => updateRangeBoundary("from", event.target.value)} />
             </label>
             <label className="space-y-1 text-[11px] text-text-muted">
               结束
-              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={to} onChange={(event) => updateParam("to", event.target.value)} />
+              <input type="date" className="block h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px]" value={to} onChange={(event) => updateRangeBoundary("to", event.target.value)} />
             </label>
             <Button variant="outline" size="sm" disabled={analytics.isFetching} onClick={() => void analytics.refetch()}>
               <RefreshCw className={cn("size-3.5", analytics.isFetching && "animate-spin")} aria-hidden="true" />
@@ -283,7 +299,7 @@ export function OperationsPage() {
         )}
         footer={(
           <>
-            {analytics.isFetching ? "正在刷新…" : `统计窗口：${data.window.from ?? "最早"} 至 ${data.window.to ?? "最新"} · ${bucketLabels[data.window.bucket] ?? data.window.bucket}`}
+            {analytics.isFetching ? "正在刷新…" : `统计窗口：${data.window.from ?? "最早"} 至 ${data.window.to ?? "最新"} · ${timeBasisLabels[data.window.timeBasis] ?? data.window.timeBasis} · ${bucketLabels[data.window.bucket] ?? data.window.bucket}`}
             {" · "}已安装方案包 {packs.isPending || packs.isError ? "—" : packs.data?.installations.length ?? 0} 个
           </>
         )}
@@ -369,7 +385,7 @@ export function OperationsPage() {
             <p className="mt-0.5 text-[11px] text-text-muted">按业务发生时间聚合，点击柱形筛选时间窗口。</p>
             <div className="mt-3 border-t border-border">
               {data.exceptionTrend.map((item) => (
-                <MiniBar key={item.bucket} label={item.label} value={item.exceptionCount} max={maxTrend} tone="interactive" onClick={() => applyRange(item.from, item.to)} />
+                <MiniBar key={item.bucket} label={item.label} value={item.exceptionCount} max={maxTrend} tone="interactive" onClick={() => applyRange(item.from, item.to, "exception_occurrence")} />
               ))}
               {!data.exceptionTrend.length && <div className="pt-3"><LocalState kind="empty" title="暂无趋势数据" compact /></div>}
             </div>

@@ -14,6 +14,7 @@ import { queryKeys } from "./query-keys.js";
 export type OperationalAnalyticsQuery = {
   from?: string;
   to?: string;
+  timeBasis?: "context_opened" | "exception_occurrence";
   bucket?: "day" | "week" | "month";
   contextType?: string;
   exceptionCode?: string;

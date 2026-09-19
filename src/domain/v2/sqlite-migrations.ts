@@ -796,6 +796,29 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON decision_runtime_calls (tenant_id, task_id, created_at, id);
     `,
   },
+  {
+    version: "015_solution_pack_context_bindings",
+    sql: `
+      CREATE TABLE IF NOT EXISTS solution_pack_context_bindings (
+        tenant_id TEXT NOT NULL,
+        pack_id TEXT NOT NULL,
+        pack_version TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        bound_at TEXT NOT NULL,
+        bound_by TEXT NOT NULL,
+        source TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, pack_id, context_id),
+        UNIQUE (tenant_id, context_id),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, pack_id)
+          REFERENCES solution_pack_installations (tenant_id, pack_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS solution_pack_context_bindings_pack_idx
+        ON solution_pack_context_bindings (tenant_id, pack_id, context_id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

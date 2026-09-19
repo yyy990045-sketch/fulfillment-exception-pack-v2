@@ -14,6 +14,7 @@ import {
   presentBoundContexts,
   presentSupportedActions,
   resolveInstalledPackForContext,
+  bindPackContext,
 } from "../src/solution-packs/index.js";
 import { directionStatus } from "../src/outcomes/measurement.js";
 import { buildDemoWorkspaceProjection } from "../src/application/demo-workspaces.js";
@@ -156,7 +157,64 @@ describe("Solution Pack Platform", () => {
       .toEqual(["ctx-fin-rec-001"]);
   });
 
-  it("disambiguates same-context-type Packs from their rule evaluation contributions", () => {
+  it("keeps explicit bound contexts visible before any RuleEvaluation exists", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    financeReconciliationPack.install(store, "demo-finance", "admin", { ruleProfile: "finance" });
+    financeReconciliationPack.provisionDemo?.(store, "demo-finance", "admin");
+    expect(store.listRuleEvaluations("demo-finance", "ctx-fin-rec-001")).toEqual([]);
+    expect(presentBoundContexts(store, "demo-finance", "finance-reconciliation").map((item) => item.contextId))
+      .toEqual(["ctx-fin-rec-001"]);
+  });
+
+  it("fails closed when explicit binding conflicts with another Pack's RuleEvaluation contribution", () => {
+    registerBuiltInSolutionPacks();
+    const store = {
+      getSolutionPackContextBinding: () => ({
+        tenantId: "tenant-a",
+        packId: "manufacturing-fulfillment",
+        packVersion: "1.0.0",
+        contextId: "ctx-a",
+        boundAt: "2026-09-01T00:00:00.000Z",
+        boundBy: "tester",
+        source: "manual" as const,
+      }),
+      getContext: () => ({ id: "ctx-a", tenantId: "tenant-a", contextType: "sales_order" }),
+      getSolutionPackInstallation: () => ({ status: "active", packVersion: "1.0.0" }),
+      listRuleEvaluations: () => [{ ruleId: "finance-rule-invoice-receivable-amount" }],
+    };
+    expect(() => resolveInstalledPackForContext(store as never, {
+      id: "ctx-a",
+      tenantId: "tenant-a",
+      businessKey: "CTX-A",
+      contextType: "sales_order",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    })).toThrow(/PACK_CONTEXT_BINDING_EVALUATION_CONFLICT/);
+  });
+
+  it("rejects cross-tenant explicit binding", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    financeReconciliationPack.install(store, "tenant-a", "admin", { ruleProfile: "finance" });
+    financeReconciliationPack.install(store, "tenant-b", "admin", { ruleProfile: "finance" });
+    store.saveContext(createFulfillmentContext({
+      id: "ctx-shared",
+      tenantId: "tenant-a",
+      businessKey: "CTX-A",
+      contextType: "finance_reconciliation",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    }));
+    expect(() => bindPackContext(store, financeReconciliationPack, "tenant-b", "ctx-shared", "admin"))
+      .toThrow(/PACK_CONTEXT_NOT_FOUND/);
+  });
+
+  it("disambiguates same-context-type Packs from explicit tenant bindings", () => {
     registerBuiltInSolutionPacks();
     const makePack = (id: string, contextType: string) => ({
       ...manufacturingFulfillmentPack,
@@ -189,9 +247,15 @@ describe("Solution Pack Platform", () => {
       "ctx-a": [{ ruleId: "shared-binding-a-rule" }],
       "ctx-b": [{ ruleId: "shared-binding-b-rule" }],
     };
+    const bindings: Record<string, { tenantId: string; packId: string; packVersion: string; contextId: string; boundAt: string; boundBy: string; source: "manual" }> = {
+      "ctx-a": { tenantId: "tenant-a", packId: "shared-binding-a", packVersion: "1.0.0", contextId: "ctx-a", boundAt: "2026-09-01T00:00:00.000Z", boundBy: "tester", source: "manual" },
+      "ctx-b": { tenantId: "tenant-a", packId: "shared-binding-b", packVersion: "1.0.0", contextId: "ctx-b", boundAt: "2026-09-01T00:00:00.000Z", boundBy: "tester", source: "manual" },
+    };
     const store = {
       listRuleEvaluations: (_tenantId: string, contextId: string) => evaluations[contextId] ?? [],
-      getSolutionPackInstallation: () => ({ status: "active" }),
+      getSolutionPackInstallation: () => ({ status: "active", packVersion: "1.0.0" }),
+      getSolutionPackContextBinding: (_tenantId: string, contextId: string) => bindings[contextId],
+      getContext: (_tenantId: string, contextId: string) => ({ id: contextId, tenantId: "tenant-a", contextType: "shared_test_context" }),
     };
 
     expect(resolveInstalledPackForContext(store as never, {
@@ -255,6 +319,7 @@ describe("Solution Pack Platform", () => {
       updatedAt: "2026-09-01T00:00:00.000Z",
       metadata: { synthetic: false },
     }));
+    bindPackContext(store, financeReconciliationPack, "tenant-real", "ctx-real-fin-001", "admin");
     expect(buildPackWorkbenchView(store, "tenant-real", "ctx-real-fin-001")?.truthfulness.syntheticDemoData).toBe(false);
   });
 });

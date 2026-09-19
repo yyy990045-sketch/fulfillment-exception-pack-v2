@@ -1,4 +1,5 @@
 export type OperationalBucket = "day" | "week" | "month";
+export type OperationalTimeBasis = "context_opened" | "exception_occurrence";
 export type OperationalSeverity = "low" | "medium" | "high" | "critical";
 export type OperationalResolutionStatus =
   | "no_case"
@@ -14,6 +15,7 @@ export type OperationalResolutionStatus =
 export type OperationalAnalyticsFilters = {
   from?: string;
   to?: string;
+  timeBasis?: OperationalTimeBasis;
   bucket?: OperationalBucket;
   contextType?: string;
   exceptionCode?: string;

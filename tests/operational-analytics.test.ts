@@ -74,7 +74,7 @@ describe("Operational Analytics projection", () => {
     expect(listed.every((item, index) => index === 0 || listed[index - 1]!.openedAt <= item.openedAt)).toBe(true);
     expect(store.listContexts("other-tenant")).toEqual([]);
     const analytics = buildOperationalAnalytics(store, "demo-manufacturing", { bucket: "week" });
-    expect(analytics.window.timeBasis).toBe("context.openedAt");
+    expect(analytics.window.timeBasis).toBe("context_opened");
     expect(analytics.summary).toMatchObject({
       contextCount: 11,
       ruleEvaluationCount: 77,
@@ -128,6 +128,25 @@ describe("Operational Analytics projection", () => {
     expect(wmsCount).toBeGreaterThanOrEqual(claim.count);
     expect(serviceCount).toBeGreaterThanOrEqual(claim.count);
     expect(analytics.summary.detectedExceptionCount).toBeGreaterThan(claim.count);
+  });
+
+  it("separates Context opening time from Exception occurrence time", () => {
+    const store = openStore();
+    const occurrenceWindow = buildOperationalAnalytics(store, "demo-manufacturing", {
+      from: "2026-09-01T00:00:00.000Z",
+      to: "2026-09-30T23:59:59.999Z",
+      timeBasis: "exception_occurrence",
+    });
+    expect(occurrenceWindow.window.timeBasis).toBe("exception_occurrence");
+    expect(occurrenceWindow.contexts.map((item) => item.businessKey)).toContain("SO-OPS-006");
+
+    const openedWindow = buildOperationalAnalytics(store, "demo-manufacturing", {
+      from: "2026-09-01T00:00:00.000Z",
+      to: "2026-09-30T23:59:59.999Z",
+      timeBasis: "context_opened",
+    });
+    expect(openedWindow.window.timeBasis).toBe("context_opened");
+    expect(openedWindow.contexts.map((item) => item.businessKey)).not.toContain("SO-OPS-006");
   });
 
   it("filters by exception code and resolution status without mutating the store", () => {

@@ -1,0 +1,12 @@
+{
+  "id": "runtime-screenshot-regression-fix",
+  "title": "Runtime Screenshot Regression Fix",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "contracts-docs-e2e",
+  "currentPhase": "verification",
+  "nextAction": "Archive after commit and push",
+  "createdAt": "2026-09-19T14:10:00Z",
+  "branch": "main"
+}

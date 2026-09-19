@@ -11,8 +11,8 @@ export const operationalAnalyticsFixture: OperationalAnalyticsView = {
     from: null,
     to: null,
     bucket: "month",
-    timeBasis: "context.openedAt",
-    trendTimeBasis: "exceptionOccurrenceAt",
+    timeBasis: "context_opened",
+    trendTimeBasis: "exception_occurrence",
   },
   summary: {
     contextCount: 2,

@@ -434,6 +434,7 @@ const server = createServer(async (req, res) => {
       const analytics = buildOperationalAnalytics(getV2Store(), tenantId, {
         from: url.searchParams.get("from") ?? undefined,
         to: url.searchParams.get("to") ?? undefined,
+        timeBasis: (url.searchParams.get("timeBasis") as "context_opened" | "exception_occurrence" | null) ?? undefined,
         bucket: (url.searchParams.get("bucket") as "day" | "week" | "month" | null) ?? undefined,
         contextType: url.searchParams.get("contextType") ?? undefined,
         exceptionCode: url.searchParams.get("exceptionCode") ?? undefined,

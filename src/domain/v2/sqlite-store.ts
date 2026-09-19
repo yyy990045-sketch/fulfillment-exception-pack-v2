@@ -47,7 +47,7 @@ import type {
   InternalWorkItemStatus,
 } from "./automation-types.js";
 import type { OutcomeDefinitionRecord, OutcomeEvaluationRecord } from "./outcome-types.js";
-import type { SolutionPackInstallationRecord } from "./solution-pack-types.js";
+import type { SolutionPackContextBindingRecord, SolutionPackInstallationRecord } from "./solution-pack-types.js";
 import type {
   ConnectorDeliveryAttemptRecord,
   ConnectorInstallationRecord,
@@ -1880,6 +1880,55 @@ export class V2SqliteStore {
       const installation = this.getSolutionPackInstallation(tenantId, row.packId);
       return installation ? [installation] : [];
     });
+  }
+
+  saveSolutionPackContextBinding(input: SolutionPackContextBindingRecord): SolutionPackContextBindingRecord {
+    const installation = this.getSolutionPackInstallation(input.tenantId, input.packId);
+    if (!installation) throw new DomainError("solution_pack_installation_required");
+    if (installation.packVersion !== input.packVersion) throw new DomainError("solution_pack_binding_version_mismatch");
+    const context = this.getContext(input.tenantId, input.contextId);
+    if (!context) throw new DomainError("solution_pack_binding_context_required");
+    const existing = this.getSolutionPackContextBinding(input.tenantId, input.contextId);
+    if (existing && existing.packId !== input.packId) throw new DomainError("solution_pack_context_already_bound");
+    this.db.prepare(`
+      INSERT INTO solution_pack_context_bindings
+        (tenant_id, pack_id, pack_version, context_id, bound_at, bound_by, source)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, context_id) DO UPDATE SET
+        pack_version = excluded.pack_version,
+        bound_at = excluded.bound_at,
+        bound_by = excluded.bound_by,
+        source = excluded.source
+    `).run(
+      input.tenantId,
+      input.packId,
+      input.packVersion,
+      input.contextId,
+      input.boundAt,
+      input.boundBy,
+      input.source,
+    );
+    return this.getSolutionPackContextBinding(input.tenantId, input.contextId) ?? input;
+  }
+
+  getSolutionPackContextBinding(tenantId: string, contextId: string): SolutionPackContextBindingRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, pack_id as packId, pack_version as packVersion,
+             context_id as contextId, bound_at as boundAt, bound_by as boundBy, source
+      FROM solution_pack_context_bindings
+      WHERE tenant_id = ? AND context_id = ?
+    `).get(tenantId, contextId) as SolutionPackContextBindingRecord | undefined;
+    return row;
+  }
+
+  listSolutionPackContextBindings(tenantId: string, packId?: string): SolutionPackContextBindingRecord[] {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, pack_id as packId, pack_version as packVersion,
+             context_id as contextId, bound_at as boundAt, bound_by as boundBy, source
+      FROM solution_pack_context_bindings
+      WHERE tenant_id = ? ${packId ? "AND pack_id = ?" : ""}
+      ORDER BY pack_id, context_id
+    `).all(...(packId ? [tenantId, packId] : [tenantId])) as SolutionPackContextBindingRecord[];
   }
 
   saveConnectorInstallation(input: ConnectorInstallationRecord): ConnectorInstallationRecord {

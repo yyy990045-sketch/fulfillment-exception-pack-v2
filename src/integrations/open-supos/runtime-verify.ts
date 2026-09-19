@@ -14,7 +14,7 @@ import { mapUnsEnvelopeToDomainPlan } from "./mapper.js";
 import { startConfiguredOpenSupOSInbound } from "./runtime.js";
 import { OpenSupOSMqttTransport, type UnsTransport } from "./transport.js";
 import type { OpenSupOSInboundResult } from "./types.js";
-import { manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
+import { bindPackContext, manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
 
 const TENANT_ID = "demo-manufacturing";
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -424,6 +424,7 @@ function provisionManufacturingRuleCatalog(store: V2SqliteStore) {
 
 function runManufacturingRules(store: V2SqliteStore, contextId: string) {
   provisionManufacturingRuleCatalog(store);
+  bindPackContext(store, manufacturingFulfillmentPack, TENANT_ID, contextId, "runtime-verifier");
   const evaluated = evaluateContextRules(store, TENANT_ID, contextId);
   if (!evaluated) throw new RuntimeVerificationError("OPEN_SUPOS_RUNTIME_CONTEXT_MISSING");
   const matched = evaluated.results.filter((item) => item.evaluation.status === "matched").length;

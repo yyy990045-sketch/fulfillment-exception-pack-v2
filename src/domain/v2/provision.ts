@@ -1,7 +1,7 @@
 import { openV2SqliteStore } from "./runtime-store.js";
 import { seedSoDemo001 } from "./fixtures/so-demo-001.js";
 import { seedSoMfg001 } from "./fixtures/so-mfg-001.js";
-import { manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
+import { bindPackContext, manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
 import type { V2SqliteStore } from "./sqlite-store.js";
 
 export function provisionV2DemoData(store: V2SqliteStore = openV2SqliteStore()) {
@@ -14,6 +14,7 @@ export function provisionV2DemoData(store: V2SqliteStore = openV2SqliteStore()) 
     store.retireRuleVersionsExcept("demo-industrial", version.ruleId, version.id);
   }
   const replay = store.replayContext("demo-industrial", "ctx-so-demo-001");
+  bindPackContext(store, manufacturingFulfillmentPack, "demo-industrial", "ctx-so-demo-001", "demo-system");
   return {
     contextId: replay.context?.id,
     entities: replay.entities.length,

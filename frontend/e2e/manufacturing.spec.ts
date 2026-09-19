@@ -12,6 +12,13 @@ test("manufacturing list and record surfaces hold across desktop sizes", async (
 
     await page.goto("/manufacturing/ctx-so-mfg-001");
     await expect(page.getByRole("heading", { name: "SO-MFG-001" })).toBeVisible();
+    const shellHeader = await page.locator("header").first().boundingBox();
+    const contextHeader = await page.locator("header").nth(1).boundingBox();
+    expect(shellHeader).not.toBeNull();
+    expect(contextHeader).not.toBeNull();
+    expect(contextHeader!.y).toBeGreaterThanOrEqual(shellHeader!.y + shellHeader!.height);
+    await expect(page.locator("header").nth(1)).toContainText("销售订单");
+    await expect(page.locator("header").nth(1)).toContainText("进行中");
     await expect(page.getByTestId("digital-thread-track")).toBeVisible();
     await expect(page.getByTestId("exception-queue-table")).toBeVisible();
     await expect(page.getByTestId("selected-exception-header")).toHaveCount(0);
@@ -79,12 +86,27 @@ test("operations, solution pack, and finance workspace keep the shared product s
 
     await page.goto("/operations");
     await expect(page.getByRole("heading", { name: "运营视图" })).toBeVisible();
+    const shellHeader = await page.locator("header").first().boundingBox();
+    const operationsHeader = await page.locator("header").nth(1).boundingBox();
+    expect(shellHeader).not.toBeNull();
+    expect(operationsHeader).not.toBeNull();
+    expect(operationsHeader!.y).toBeGreaterThanOrEqual(shellHeader!.y + shellHeader!.height);
+    await expect(page.locator("header").nth(1)).toContainText("时间粒度");
+    await expect(page.locator("header").nth(1)).toContainText("刷新");
     await expect(page.getByTestId("operations-portfolio-table")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
     await page.goto("/workspace");
     await expect(page.getByRole("heading", { name: "方案包", exact: true })).toBeVisible();
     await expect(page.getByText("Manufacturing Fulfillment").first()).toBeVisible();
+    const installed = await page.request.get("/api/v2/solution-packs/installed", {
+      headers: { "x-tenant-id": "demo-manufacturing", "x-actor": "quality-owner" },
+    });
+    expect(installed.ok()).toBe(true);
+    const installedBody = await installed.json();
+    expect(installedBody.installations[0].boundContexts.map((item: { contextId: string }) => item.contextId))
+      .toContain("ctx-so-mfg-001");
+    await expect(page.getByText("SO-MFG-001").first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 
@@ -148,6 +170,9 @@ test("manufacturing governance confirms high-impact actions and reports success"
 test("customer pilot flow keeps confirmation failures retryable and switches demo organizations without header overrides", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/operations");
+  await page.getByRole("button", { name: /2026年09月/ }).first().click();
+  await expect(page).toHaveURL(/timeBasis=exception_occurrence/);
+  await expect(page.getByText("时间口径：异常发生时间")).toBeVisible();
   await page.getByRole("button", { name: "SO-MFG-001" }).first().click();
   await page.getByLabel("搜索异常").fill("客户收货");
   await page.getByTestId("exception-item").click();

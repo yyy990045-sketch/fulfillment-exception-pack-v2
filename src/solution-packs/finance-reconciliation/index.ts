@@ -1,5 +1,6 @@
 import type { V2SqliteStore } from "../../domain/v2/index.js";
 import { installSolutionPack } from "../core/installer.js";
+import { bindPackContext } from "../core/bindings.js";
 import type { SolutionPack } from "../core/types.js";
 import { provisionFinanceReconciliationDemo } from "./demo.js";
 import { financeEligibility } from "./eligibility.js";
@@ -19,7 +20,11 @@ export const financeReconciliationPack: SolutionPack = {
     installSolutionPack(store, financeReconciliationPack, tenantId, actor, config);
   },
   provisionDemo(store: V2SqliteStore, tenantId: string) {
-    return provisionFinanceReconciliationDemo(store, tenantId);
+    const result = provisionFinanceReconciliationDemo(store, tenantId);
+    if (store.getSolutionPackInstallation(tenantId, financeReconciliationPack.manifest.id)?.status === "active") {
+      bindPackContext(store, financeReconciliationPack, tenantId, result.contextId, "demo-system");
+    }
+    return result;
   },
 };
 
