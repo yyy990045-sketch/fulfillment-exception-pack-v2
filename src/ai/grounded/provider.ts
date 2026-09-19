@@ -97,7 +97,7 @@ function genericOutput(input: GroundedExplanationInput): GroundedExplanationOutp
   }
   const evidenceIds = [...new Set(input.evidence.map((item) => item.evidenceId))];
   return {
-    executiveSummary: `确定性规则引擎已判定该异常成立。当前证据支持规则记录中的数量差异，但不能确认原因或责任。`,
+    executiveSummary: "确定性规则引擎已判定该异常成立。当前证据支持规则记录中的差异，尚需人工核验。",
     facts,
     discrepancy: {
       statement: "当前证据记录了规则计算所依据的差异。",

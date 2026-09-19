@@ -14,6 +14,7 @@ import { mapUnsEnvelopeToDomainPlan } from "./mapper.js";
 import { startConfiguredOpenSupOSInbound } from "./runtime.js";
 import { OpenSupOSMqttTransport, type UnsTransport } from "./transport.js";
 import type { OpenSupOSInboundResult } from "./types.js";
+import { manufacturingFulfillmentPack, registerBuiltInSolutionPacks } from "../../solution-packs/index.js";
 
 const TENANT_ID = "demo-manufacturing";
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -412,6 +413,8 @@ function assertDomainState(
 }
 
 function provisionManufacturingRuleCatalog(store: V2SqliteStore) {
+  registerBuiltInSolutionPacks();
+  manufacturingFulfillmentPack.install(store, TENANT_ID, "runtime-verifier");
   for (const definition of MANUFACTURING_RULE_DEFINITIONS) store.saveRuleDefinition(definition);
   for (const version of MANUFACTURING_RULE_VERSIONS) {
     store.saveRuleVersion(version);

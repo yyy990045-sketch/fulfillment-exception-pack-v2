@@ -9,6 +9,18 @@ export class SolutionPackRegistry {
       throw new SolutionPackError("PACK_ID_VERSION_CONFLICT", 409);
     }
     if (existing && existing !== pack) throw new SolutionPackError("PACK_ID_CONFLICT", 409);
+    const incomingRuleCodes = new Set(pack.ruleContributions.definitions.map((item) => item.code));
+    for (const registered of this.packs.values()) {
+      if (registered === pack) continue;
+      for (const definition of registered.ruleContributions.definitions) {
+        if (incomingRuleCodes.has(definition.code)) throw new SolutionPackError("PACK_RULE_CODE_CONFLICT", 409);
+      }
+      for (const outcome of pack.outcomeDefinitions) {
+        if (registered.outcomeDefinitions.some((item) => item.id === outcome.id && item.version === outcome.version)) {
+          throw new SolutionPackError("PACK_OUTCOME_DEFINITION_CONFLICT", 409);
+        }
+      }
+    }
     this.packs.set(pack.manifest.id, pack);
     return pack;
   }

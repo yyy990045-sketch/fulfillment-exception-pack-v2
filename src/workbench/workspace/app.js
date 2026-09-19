@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search);
 const contextId = params.get("context");
+const demoTenantId = params.get("tenant") || "demo-manufacturing";
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -17,7 +18,7 @@ function showState(message, error = false) {
 
 function headers() {
   const token = window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken");
-  return token ? { accept: "application/json", authorization: `Bearer ${token}` } : { accept: "application/json", "x-tenant-id": "demo-manufacturing", "x-actor": "quality-owner" };
+  return token ? { accept: "application/json", authorization: `Bearer ${token}` } : { accept: "application/json", "x-tenant-id": demoTenantId, "x-actor": "quality-owner" };
 }
 
 async function load() {

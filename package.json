@@ -20,6 +20,8 @@
     "demo:operations:prepare": "tsx src/demo/operational-analytics/prepare-demo.ts",
     "demo:operations": "npm run demo:operations:prepare && npm run demo",
     "demo:outcomes:prepare": "tsx src/demo/outcomes/prepare-demo.ts",
+    "demo:finance:prepare": "tsx src/demo/solution-packs/prepare-finance.ts",
+    "demo:packs:prepare": "tsx src/demo/solution-packs/prepare-all.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

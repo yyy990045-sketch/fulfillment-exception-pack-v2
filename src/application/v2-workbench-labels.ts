@@ -6,6 +6,7 @@ export const V2_ENTITY_LABELS: Record<string, string> = {
   shipment: "发货",
   receivable: "应收",
   payment: "回款",
+  invoice: "发票",
   complaint: "客诉",
   contract: "合同",
 };
@@ -23,6 +24,8 @@ export const V2_EVENT_LABELS: Record<string, string> = {
   SHIPMENT_SIGNED: "客户签收",
   RECEIVABLE_CREATED: "应收创建",
   PAYMENT_RECEIVED: "回款到账",
+  BANK_PAYMENT_RECEIVED: "银行回款到账",
+  INVOICE_CREATED: "发票创建",
   COMPLAINT_OPENED: "客诉创建",
   COMPLAINT_UPDATED: "客诉更新",
 };
@@ -35,6 +38,9 @@ export const V2_EXCEPTION_LABELS: Record<string, string> = {
   ORDER_PRODUCTION_COMPLETION_SHORTFALL: "订单与生产完成数量不一致",
   QUALITY_NONCONFORMING_QUANTITY_DETECTED: "质检存在未通过数量",
   QUALITY_SHIPMENT_QUANTITY_MISMATCH: "质检合格数量与发货数量不一致",
+  "FINANCE.INVOICE_RECEIVABLE_AMOUNT_MISMATCH": "发票与应收金额不一致",
+  "FINANCE.RECEIVABLE_PAYMENT_BALANCE_OUTSTANDING": "回款尚未覆盖应收",
+  "FINANCE.INVOICE_PAYMENT_AMOUNT_MISMATCH": "发票金额与银行到账不一致",
 };
 
 export const V2_FIELD_LABELS: Record<string, string> = {

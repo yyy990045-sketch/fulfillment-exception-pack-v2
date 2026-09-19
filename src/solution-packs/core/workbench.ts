@@ -1,4 +1,5 @@
 import type { V2SqliteStore } from "../../domain/v2/index.js";
+import { getOutcomeEvaluation } from "../../outcomes/service.js";
 import { requireInstalledPackForContext } from "./resolver.js";
 
 function latestEvidence(store: V2SqliteStore, tenantId: string, contextId: string, entityId: string, field: string) {
@@ -78,7 +79,11 @@ export function buildPackWorkbenchView(store: V2SqliteStore, tenantId: string, c
       evidenceCount: store.getExceptionEvidenceBundle(tenantId, exception.id)?.evidence.length ?? 0,
     })),
     outcomes: replay.context
-      ? exceptions.flatMap((exception) => store.listOutcomeEvaluations(tenantId, contextId, exception.id))
+      ? exceptions.flatMap((exception) => store.listOutcomeEvaluations(tenantId, contextId, exception.id)
+        .flatMap((item) => {
+          const view = getOutcomeEvaluation(store, tenantId, contextId, exception.id, item.id);
+          return view ? [view] : [];
+        }))
       : [],
     truthfulness: {
       syntheticDemoData: true,

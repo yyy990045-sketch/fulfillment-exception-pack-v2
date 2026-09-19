@@ -1,12 +1,13 @@
 import { renderFunnel, renderHorizontalBars, renderLineChart } from "./charts.js";
 
 const state = { data: null, exceptionCode: "" };
+const demoTenantId = new URLSearchParams(window.location.search).get("tenant") || "demo-manufacturing";
 
 function requestHeaders() {
   const headers = { accept: "application/json" };
   const token = window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken");
   if (token) headers.authorization = `Bearer ${token}`;
-  else headers["x-tenant-id"] = "demo-manufacturing";
+  else headers["x-tenant-id"] = demoTenantId;
   return headers;
 }
 
@@ -182,6 +183,10 @@ function renderContexts(data) {
     if (row.contextType === "sales_order") {
       const link = node("a", "context-link", row.businessKey);
       link.href = `/manufacturing?context=${encodeURIComponent(row.contextId)}`;
+      business.append(link);
+    } else if (row.contextType === "finance_reconciliation") {
+      const link = node("a", "context-link", row.businessKey);
+      link.href = `/workspace?context=${encodeURIComponent(row.contextId)}&tenant=${encodeURIComponent(demoTenantId)}`;
       business.append(link);
     } else business.textContent = row.businessKey;
     tr.append(business, node("td", "", row.openedAt), node("td", "", row.contextType), node("td", "", row.exceptionCount), node("td", "", row.resolutionCaseCount), node("td", "wrap", row.resolutionStatuses.join("、") || "无"), node("td", "", row.outcomeMeasurementCount), node("td", "wrap", row.outcomeStatuses.join("、") || "无"), node("td", "wrap", row.sourceSystemIds.join("、") || "无"));

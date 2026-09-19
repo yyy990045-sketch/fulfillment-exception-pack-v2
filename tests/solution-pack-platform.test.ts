@@ -48,6 +48,15 @@ describe("Solution Pack Platform", () => {
     expect(solutionPackRegistry.resolveByContextType("sales_order")?.manifest.id).toBe("manufacturing-fulfillment");
   });
 
+  it("fails closed on duplicate rule codes across packs", () => {
+    registerBuiltInSolutionPacks();
+    const conflict = {
+      ...manufacturingFulfillmentPack,
+      manifest: { ...manufacturingFulfillmentPack.manifest, id: "duplicate-rule-pack", contextTypes: ["project"] },
+    };
+    expect(() => solutionPackRegistry.register(conflict as typeof manufacturingFulfillmentPack)).toThrow(/PACK_RULE_CODE_CONFLICT/);
+  });
+
   it("installs idempotently with tenant isolation and does not evaluate rules", () => {
     const store = openStore();
     installSolutionPack(store, manufacturingFulfillmentPack, "tenant-a", "admin");
