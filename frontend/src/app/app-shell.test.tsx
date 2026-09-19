@@ -84,6 +84,7 @@ describe("B2B account area", () => {
     expect(screen.queryByText("已认证用户")).not.toBeInTheDocument();
     expect(screen.queryByText("由后端权限决定")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("切换业务角色")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("切换演示组织")).not.toBeInTheDocument();
   });
 
   it("labels tenant fallback as an unconfigured organization", async () => {
@@ -128,5 +129,50 @@ describe("B2B account area", () => {
     expect(screen.getByText("演示环境 · 示例组织")).toBeInTheDocument();
     await userEvent.setup().selectOptions(screen.getByLabelText("切换业务角色"), "sales-director");
     await waitFor(() => expect(screen.getByText("销售总监 · 销售总监")).toBeInTheDocument());
+  });
+
+  it("switches demo organizations from the backend projection and refreshes tenant-scoped data", async () => {
+    const tenants: string[] = [];
+    vi.stubGlobal("fetch", vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      const tenantId = new Headers(init?.headers).get("x-tenant-id") ?? "demo-manufacturing";
+      tenants.push(tenantId);
+      const finance = tenantId === "demo-finance";
+      return jsonResponse({
+        currentActor: {
+          tenantId,
+          organization: finance ? "示例财务企业" : "示例制造企业",
+          organizationSource: "demo",
+          user: finance ? "财务" : "品质负责人",
+          subjectId: finance ? "demo-finance" : "demo-quality-owner",
+          roles: [finance ? "财务" : "品质负责人"],
+          authnMethod: "demo-header",
+        },
+        demoWorkspace: {
+          organizations: [
+            {
+              organization: "示例制造企业",
+              tenantId: "demo-manufacturing",
+              packs: [],
+              contexts: [],
+              defaultPath: "/manufacturing/ctx-so-mfg-001",
+            },
+            {
+              organization: "示例财务企业",
+              tenantId: "demo-finance",
+              packs: [],
+              contexts: [],
+              defaultPath: "/workspace/ctx-fin-rec-001",
+            },
+          ],
+        },
+      });
+    }));
+    renderShell();
+
+    await screen.findByText("品质负责人 · 品质负责人");
+    await userEvent.setup().selectOptions(screen.getByLabelText("切换演示组织"), "demo-finance");
+    await waitFor(() => expect(tenants).toContain("demo-finance"));
+    expect((await screen.findAllByText("示例财务企业")).length).toBeGreaterThan(0);
+    expect(window.localStorage.getItem("demoTenantId")).toBe("demo-finance");
   });
 });

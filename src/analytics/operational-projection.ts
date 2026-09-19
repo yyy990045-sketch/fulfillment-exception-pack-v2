@@ -6,7 +6,7 @@ import type {
 } from "../domain/v2/index.js";
 import { v2ExceptionLabel } from "../application/v2-workbench-labels.js";
 import { OPERATIONAL_METRIC_DEFINITIONS, OPERATIONAL_RESOLUTION_STATUSES, OPERATIONAL_SEVERITIES, OPERATIONAL_TRUTHFULNESS } from "./operational-definitions.js";
-import { bucketKey, bucketKeysBetween, normalizeBucket, parseAnalyticsDate } from "./time-buckets.js";
+import { bucketKey, bucketKeysBetween, bucketRange, normalizeBucket, parseAnalyticsDate } from "./time-buckets.js";
 import {
   OperationalAnalyticsError,
   type OperationalAnalyticsFilters,
@@ -213,7 +213,12 @@ export function buildOperationalAnalytics(
   const trendKeys = trendFrom !== undefined && trendTo !== undefined ? bucketKeysBetween(trendFrom, trendTo, bucket) : [];
   const exceptionTrend = trendKeys.map((key) => {
     const rows = allExceptionRows.filter((item) => bucketKey(item.occurrenceAt, bucket) === key);
-    return { bucket: key, exceptionCount: rows.length, contextsWithException: new Set(rows.map((item) => item.contextId)).size };
+    return {
+      bucket: key,
+      ...bucketRange(key, bucket),
+      exceptionCount: rows.length,
+      contextsWithException: new Set(rows.map((item) => item.contextId)).size,
+    };
   });
 
   const summary = {

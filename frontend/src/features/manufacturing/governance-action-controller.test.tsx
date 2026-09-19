@@ -12,7 +12,7 @@ function jsonResponse(body: unknown, status = 200) {
   }));
 }
 
-function Consumer({ id, action }: { id: string; action: "approve" | "submit" }) {
+function Consumer({ id, action }: { id: string; action: "approve" | "execute" | "close" | "submit" }) {
   const { mutations, requestAction } = useGovernanceActionController();
   const pending = mutations[action].mutation.isPending;
   return (
@@ -113,5 +113,65 @@ describe("governance action controller", () => {
     await user.click(screen.getByRole("button", { name: "submit" }));
     expect(screen.queryByTestId("governance-confirmation-sheet")).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText("操作成功")).toBeInTheDocument());
+  });
+
+  it.each([
+    ["approve", "确认批准", "resolution_approval_not_allowed", "当前状态不能审批该方案。"],
+    ["execute", "确认执行", "resolution_execution_not_allowed", "方案尚未批准或已执行，不能执行。"],
+    ["close", "确认结案", "resolution_close_not_allowed", "尚未完成执行，不能结案。"],
+  ] as const)("keeps the %s confirmation open after failure and succeeds on retry", async (action, confirmLabel, errorCode, errorMessage) => {
+    const user = userEvent.setup();
+    let calls = 0;
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const path = new URL(String(input), window.location.origin).pathname;
+      if (path === "/api/v2/auth/context") {
+        return jsonResponse({
+          currentActor: {
+            tenantId: "demo-manufacturing",
+            organization: "示例制造企业",
+            organizationSource: "demo",
+            user: "总经理",
+            subjectId: "demo-general-manager",
+            roles: ["总经理"],
+            authnMethod: "demo-header",
+          },
+        });
+      }
+      if (path.endsWith(`/${action}`)) {
+        calls += 1;
+        return calls === 1
+          ? jsonResponse({ error: errorCode }, 409)
+          : jsonResponse({});
+      }
+      return jsonResponse({});
+    }));
+
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 0 } } })}>
+        <DemoSettingsProvider>
+          <GovernanceActionControllerProvider
+            contextId="ctx-fixture"
+            exceptionId="exception-fixture"
+            businessKey="SO-FIXTURE-001"
+            exceptionLabel="客户签收主张差异"
+          >
+            <Consumer id={action} action={action} />
+          </GovernanceActionControllerProvider>
+        </DemoSettingsProvider>
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: action }));
+    const sheet = await screen.findByTestId("governance-confirmation-sheet");
+    await user.click(within(sheet).getByRole("button", { name: confirmLabel }));
+
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(errorMessage);
+    expect(screen.getByTestId("governance-confirmation-sheet")).toBeInTheDocument();
+    expect(screen.queryByText("操作成功")).not.toBeInTheDocument();
+
+    await user.click(within(sheet).getByRole("button", { name: confirmLabel }));
+    await waitFor(() => expect(screen.queryByTestId("governance-confirmation-sheet")).not.toBeInTheDocument());
+    expect(await screen.findByText("操作成功")).toBeInTheDocument();
+    expect(calls).toBe(2);
   });
 });

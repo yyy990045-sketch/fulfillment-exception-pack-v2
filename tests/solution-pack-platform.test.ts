@@ -11,8 +11,12 @@ import {
   manufacturingFulfillmentPack,
   financeReconciliationPack,
   buildPackWorkbenchView,
+  presentBoundContexts,
+  presentSupportedActions,
+  resolveInstalledPackForContext,
 } from "../src/solution-packs/index.js";
 import { directionStatus } from "../src/outcomes/measurement.js";
+import { buildDemoWorkspaceProjection } from "../src/application/demo-workspaces.js";
 import {
   V2SqliteStore,
   createFulfillmentContext,
@@ -110,6 +114,106 @@ describe("Solution Pack Platform", () => {
     expect(evaluated.evaluations.filter((item) => item.status === "matched")).toHaveLength(2);
     expect(evaluated.evaluations.filter((item) => item.status === "not_matched")).toHaveLength(1);
     expect(evaluated.exceptions).toHaveLength(2);
+  });
+
+  it("binds Pack Contexts from rule contributions and exposes backend-owned action labels", () => {
+    const store = openStore();
+    provisionV2ManufacturingDemoData(store);
+    financeReconciliationPack.install(store, "demo-finance", "admin", { ruleProfile: "finance" });
+    financeReconciliationPack.provisionDemo?.(store, "demo-finance", "admin");
+    evaluateContextRules(store, "demo-manufacturing", "ctx-so-mfg-001");
+    evaluateContextRules(store, "demo-finance", "ctx-fin-rec-001");
+
+    expect(presentBoundContexts(store, "demo-manufacturing", "manufacturing-fulfillment").map((item) => item.contextId))
+      .toEqual(["ctx-so-mfg-001"]);
+    expect(presentBoundContexts(store, "demo-finance", "finance-reconciliation").map((item) => item.contextId))
+      .toEqual(["ctx-fin-rec-001"]);
+    expect(presentBoundContexts(store, "demo-manufacturing", "finance-reconciliation")).toEqual([]);
+    expect(presentSupportedActions(manufacturingFulfillmentPack)).toEqual(expect.arrayContaining([
+      { type: "supplement_evidence", label: "补充证据" },
+      { type: "reject_overclaim", label: "驳回超额主张" },
+    ]));
+  });
+
+  it("projects demo organizations, installed packs, bound contexts, and safe default routes", () => {
+    const store = openStore();
+    provisionV2ManufacturingDemoData(store);
+    financeReconciliationPack.install(store, "demo-finance", "admin", { ruleProfile: "finance" });
+    financeReconciliationPack.provisionDemo?.(store, "demo-finance", "admin");
+    evaluateContextRules(store, "demo-manufacturing", "ctx-so-mfg-001");
+    evaluateContextRules(store, "demo-finance", "ctx-fin-rec-001");
+
+    const demo = buildDemoWorkspaceProjection(store);
+    const manufacturing = demo.organizations.find((item) => item.tenantId === "demo-manufacturing")!;
+    const finance = demo.organizations.find((item) => item.tenantId === "demo-finance")!;
+    expect(manufacturing.organization).toBe("示例制造企业");
+    expect(manufacturing.defaultPath).toBe("/manufacturing/ctx-so-mfg-001");
+    expect(manufacturing.packs.find((item) => item.packId === "manufacturing-fulfillment")?.contexts.map((item) => item.contextId))
+      .toEqual(["ctx-so-mfg-001"]);
+    expect(finance.organization).toBe("示例财务企业");
+    expect(finance.defaultPath).toBe("/workspace/ctx-fin-rec-001");
+    expect(finance.packs.find((item) => item.packId === "finance-reconciliation")?.contexts.map((item) => item.contextId))
+      .toEqual(["ctx-fin-rec-001"]);
+  });
+
+  it("disambiguates same-context-type Packs from their rule evaluation contributions", () => {
+    registerBuiltInSolutionPacks();
+    const makePack = (id: string, contextType: string) => ({
+      ...manufacturingFulfillmentPack,
+      manifest: {
+        ...manufacturingFulfillmentPack.manifest,
+        id,
+        name: id,
+        contextTypes: [contextType],
+      },
+      ruleContributions: {
+        definitions: [{
+          id: `${id}-rule`,
+          code: `${id.toUpperCase()}.RULE`,
+          name: id,
+          description: id,
+          exceptionType: `${id.toUpperCase()}_EXCEPTION`,
+          enabled: true,
+          metadata: { packId: id },
+        }],
+        versions: [],
+      },
+      outcomeDefinitions: [],
+      supportedActionTypes: [],
+    });
+    const packA = makePack("shared-binding-a", "shared_test_context");
+    const packB = makePack("shared-binding-b", "shared_test_context");
+    solutionPackRegistry.register(packA as typeof manufacturingFulfillmentPack);
+    solutionPackRegistry.register(packB as typeof manufacturingFulfillmentPack);
+    const evaluations: Record<string, Array<{ ruleId: string }>> = {
+      "ctx-a": [{ ruleId: "shared-binding-a-rule" }],
+      "ctx-b": [{ ruleId: "shared-binding-b-rule" }],
+    };
+    const store = {
+      listRuleEvaluations: (_tenantId: string, contextId: string) => evaluations[contextId] ?? [],
+      getSolutionPackInstallation: () => ({ status: "active" }),
+    };
+
+    expect(resolveInstalledPackForContext(store as never, {
+      id: "ctx-a",
+      tenantId: "tenant-a",
+      businessKey: "CTX-A",
+      contextType: "shared_test_context",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    })).toMatchObject({ manifest: { id: "shared-binding-a" } });
+    expect(resolveInstalledPackForContext(store as never, {
+      id: "ctx-b",
+      tenantId: "tenant-a",
+      businessKey: "CTX-B",
+      contextType: "shared_test_context",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    })).toMatchObject({ manifest: { id: "shared-binding-b" } });
   });
 
   it("materializes Manufacturing rules for a second arbitrary tenant", () => {

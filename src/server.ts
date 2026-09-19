@@ -12,6 +12,7 @@ import { getCase, listCapabilityReceipts, recordCapabilityReceipt, saveCase } fr
 import type { GoldCase } from "./types.js";
 import { buildReport } from "./report/build.js";
 import { buildV2WorkbenchView } from "./application/v2-workbench.js";
+import { buildDemoWorkspaceProjection } from "./application/demo-workspaces.js";
 import { buildOperationalAnalytics, OperationalAnalyticsError } from "./analytics/index.js";
 import {
   DecisionAiError,
@@ -51,6 +52,8 @@ import {
   SolutionPackError,
   buildPackWorkbenchView,
   installSolutionPack,
+  presentBoundContexts,
+  presentSupportedActions,
   registerBuiltInSolutionPacks,
   solutionPackRegistry,
 } from "./solution-packs/index.js";
@@ -418,7 +421,13 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true });
     if (req.method === "GET" && url.pathname === "/api/v2/auth/context") {
-      return json(res, 200, { currentActor: currentActorProjection(authOf(req)) });
+      const auth = authOf(req);
+      return json(res, 200, {
+        currentActor: currentActorProjection(auth),
+        ...(auth.authnMethod === "demo-header" && isDemoMode()
+          ? { demoWorkspace: buildDemoWorkspaceProjection(getV2Store()) }
+          : {}),
+      });
     }
     if (req.method === "GET" && url.pathname === "/api/v2/analytics/operational") {
       const tenantId = authOf(req).tenantId;
@@ -445,6 +454,7 @@ const server = createServer(async (req, res) => {
         packs: solutionPackRegistry.list().map((pack) => ({
           manifest: pack.manifest,
           installed: Boolean(getV2Store().getSolutionPackInstallation(authOf(req).tenantId, pack.manifest.id)),
+          supportedActions: presentSupportedActions(pack),
         })),
       });
     }
@@ -521,11 +531,17 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === "GET" && url.pathname === "/api/v2/solution-packs/installed") {
       const tenantId = authOf(req).tenantId;
+      const store = getV2Store();
       return json(res, 200, {
-        installations: getV2Store().listSolutionPackInstallations(tenantId).map((installation) => ({
+        installations: store.listSolutionPackInstallations(tenantId).map((installation) => {
+          const pack = solutionPackRegistry.get(installation.packId);
+          return {
           installation,
-          manifest: solutionPackRegistry.get(installation.packId)?.manifest ?? null,
-        })),
+          manifest: pack?.manifest ?? null,
+          supportedActions: pack ? presentSupportedActions(pack) : [],
+          boundContexts: pack ? presentBoundContexts(store, tenantId, installation.packId) : [],
+          };
+        }),
       });
     }
     const packInstallMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)\/install$/);
@@ -538,13 +554,13 @@ const server = createServer(async (req, res) => {
       const forbidden = Object.keys(input).filter((key) => ["actor", "roles", "tenant", "tenantId"].includes(key));
       if (forbidden.length) return json(res, 400, { error: "PACK_INSTALL_FIELDS_FORBIDDEN" });
       const installation = installSolutionPack(getV2Store(), pack, authOf(req).tenantId, actor, input);
-      return json(res, 200, { installation, manifest: pack.manifest });
+      return json(res, 200, { installation, manifest: pack.manifest, supportedActions: presentSupportedActions(pack) });
     }
     const packDetailMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)$/);
     if (req.method === "GET" && packDetailMatch) {
       const pack = solutionPackRegistry.get(decodeURIComponent(packDetailMatch[1] ?? ""));
       if (!pack) return json(res, 404, { error: "PACK_NOT_FOUND" });
-      return json(res, 200, { manifest: pack.manifest });
+      return json(res, 200, { manifest: pack.manifest, supportedActions: presentSupportedActions(pack) });
     }
     const packWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/pack-workbench$/);
     if (req.method === "GET" && packWorkbenchMatch) {

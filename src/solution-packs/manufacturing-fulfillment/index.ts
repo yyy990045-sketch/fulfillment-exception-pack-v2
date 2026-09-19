@@ -10,6 +10,7 @@ import { manufacturingRuleContributions } from "./rules.js";
 
 export const manufacturingFulfillmentPack: SolutionPack = {
   manifest: MANUFACTURING_FULFILLMENT_MANIFEST,
+  supportedActionTypes: ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"],
   ruleContributions: manufacturingRuleContributions,
   outcomeDefinitions: manufacturingOutcomeDefinitions,
   presentation: manufacturingPresentation,

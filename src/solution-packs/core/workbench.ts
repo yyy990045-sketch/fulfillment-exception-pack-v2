@@ -1,5 +1,6 @@
 import type { V2SqliteStore } from "../../domain/v2/index.js";
 import { getOutcomeEvaluation } from "../../outcomes/service.js";
+import { presentSupportedActions } from "./bindings.js";
 import { requireInstalledPackForContext } from "./resolver.js";
 
 function latestEvidence(store: V2SqliteStore, tenantId: string, contextId: string, entityId: string, field: string) {
@@ -47,6 +48,7 @@ export function buildPackWorkbenchView(store: V2SqliteStore, tenantId: string, c
       name: pack.manifest.name,
       contextLabel: pack.presentation.contextLabel,
       workbenchPath: pack.manifest.workbenchPath ?? `/workspace?context=${encodeURIComponent(contextId)}`,
+      supportedActions: presentSupportedActions(pack),
     },
     context: replay.context,
     stats: {

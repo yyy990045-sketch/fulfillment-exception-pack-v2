@@ -1,6 +1,7 @@
 import { Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { shellWidthClass } from "../components/product/page-layout.js";
 import { Button } from "../components/ui/button.js";
 import { useAccountContext } from "../hooks/use-manufacturing.js";
@@ -15,7 +16,10 @@ const navItems = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { actorId, setActorId } = useDemoSettings();
+  const { actorId, setActorId, tenantId, setTenantId } = useDemoSettings();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
   const accountContext = useAccountContext();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hasToken = Boolean(window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken"));
@@ -31,6 +35,20 @@ export function AppShell({ children }: { children: ReactNode }) {
     : null;
   const accountSummary = account?.organization ?? (accountContext.isLoading ? "正在读取账户信息" : "账户信息暂不可用");
   const accountUser = account?.user ?? (accountContext.isLoading ? "正在读取当前用户" : "用户信息不可用");
+  const demoOrganizations = accountContext.data?.demoWorkspace?.organizations ?? [];
+  const selectedDemoOrganization = demoOrganizations.find((organization) => organization.tenantId === tenantId);
+  const switchDemoOrganization = (nextTenantId: string) => {
+    const next = demoOrganizations.find((organization) => organization.tenantId === nextTenantId);
+    if (!next) return;
+    setTenantId(nextTenantId);
+    queryClient.clear();
+    if (location.pathname !== next.defaultPath) navigate(next.defaultPath, { replace: true });
+  };
+  useEffect(() => {
+    if (hasToken || !demoOrganizations.length) return;
+    if (demoOrganizations.some((organization) => organization.tenantId === tenantId)) return;
+    switchDemoOrganization(demoOrganizations[0]!.tenantId);
+  }, [demoOrganizations, hasToken, tenantId]);
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
@@ -89,6 +107,24 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {!hasToken && (
                   <>
                     <div className="my-3 border-t border-border" />
+                    <label className="mb-3 block space-y-1 text-xs text-text-muted">
+                      切换演示组织
+                      <select
+                        aria-label="切换演示组织"
+                        className="h-8 w-full rounded-md border border-border-strong bg-surface px-2 text-xs text-text-secondary"
+                        value={selectedDemoOrganization?.tenantId ?? tenantId}
+                        disabled={!demoOrganizations.length}
+                        onChange={(event) => switchDemoOrganization(event.target.value)}
+                      >
+                        {demoOrganizations.length
+                          ? demoOrganizations.map((organization) => (
+                            <option key={organization.tenantId} value={organization.tenantId}>
+                              {organization.organization}
+                            </option>
+                          ))
+                          : <option value={tenantId}>正在读取演示组织</option>}
+                      </select>
+                    </label>
                     <label className="block space-y-1 text-xs text-text-muted">
                       切换业务角色
                       <select

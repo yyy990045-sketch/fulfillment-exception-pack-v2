@@ -6,8 +6,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildV2WorkbenchView } from "../src/application/v2-workbench.js";
 import {
   V2SqliteStore,
+  acceptExceptionForResolution,
   evaluateContextRules,
+  proposeResolutionCase,
   provisionV2ManufacturingDemoData,
+  reviewResolution,
+  submitResolutionCase,
 } from "../src/domain/v2/index.js";
 
 type DatabaseSyncLike = {
@@ -135,5 +139,42 @@ describe("V2 manufacturing workbench DTO", () => {
     expect(source).not.toContain("rootCauseConfirmed");
     expect(source).not.toContain("autoRootCause");
     expect(source).not.toContain("autoResolve");
+  });
+
+  it("projects proposal draft and pending approval as distinct backend governance stages", () => {
+    const store = openPreparedStore();
+    const actor = {
+      subjectId: "demo-quality-owner",
+      displayName: "品质负责人",
+      roles: ["品质负责人"],
+    };
+    const exception = store.listExceptions("demo-manufacturing", "ctx-so-mfg-001")
+      .find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")!;
+    let resolution = acceptExceptionForResolution(store, "demo-manufacturing", "ctx-so-mfg-001", exception.id, {
+      ownerRole: "品质负责人",
+      rationale: "确认进入治理。",
+      actor,
+    });
+    expect(buildV2WorkbenchView(store, "demo-manufacturing", "ctx-so-mfg-001")!.exceptions
+      .find((item) => item.id === exception.id)?.governanceStage).toBe("review");
+
+    resolution = reviewResolution(store, "demo-manufacturing", resolution.id, {
+      decision: "confirm",
+      rationale: "复核通过。",
+      actor,
+    })!;
+    expect(buildV2WorkbenchView(store, "demo-manufacturing", "ctx-so-mfg-001")!.exceptions
+      .find((item) => item.id === exception.id)?.governanceStage).toBe("proposal");
+
+    resolution = proposeResolutionCase(store, "demo-manufacturing", resolution.id, {
+      actor,
+      actions: [{ type: "supplement_evidence", summary: "补充客户签收证据。" }],
+    })!;
+    expect(buildV2WorkbenchView(store, "demo-manufacturing", "ctx-so-mfg-001")!.exceptions
+      .find((item) => item.id === exception.id)?.governanceStage).toBe("proposal_draft");
+
+    submitResolutionCase(store, "demo-manufacturing", resolution.id, actor);
+    expect(buildV2WorkbenchView(store, "demo-manufacturing", "ctx-so-mfg-001")!.exceptions
+      .find((item) => item.id === exception.id)?.governanceStage).toBe("pending_approval");
   });
 });

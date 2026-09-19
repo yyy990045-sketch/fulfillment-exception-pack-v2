@@ -18,6 +18,7 @@ import {
   SheetTitle,
 } from "../../components/ui/sheet.js";
 import { useAccountContext, useGovernanceMutations } from "../../hooks/use-manufacturing.js";
+import { governanceErrorMessage } from "./governance-errors.js";
 
 type GovernanceMutations = ReturnType<typeof useGovernanceMutations>;
 
@@ -111,6 +112,7 @@ export function GovernanceActionControllerProvider({
   const account = useAccountContext();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
+  const [confirmationError, setConfirmationError] = useState<string | null>(null);
   const feedbackTimer = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -165,21 +167,27 @@ export function GovernanceActionControllerProvider({
     successMessage: string,
   ) => {
     if (confirmationCopy[action]) {
+      setConfirmationError(null);
       setConfirmation({ action, input, successMessage });
       return;
     }
-    void runAction(action, input, successMessage);
+    void runAction(action, input, successMessage).catch(() => undefined);
   }, [runAction]);
 
   const confirmAction = async () => {
     if (!confirmation) return;
     const current = confirmation;
-    await runAction(
-      current.action,
-      current.input as GovernanceActionInput[typeof current.action],
-      current.successMessage,
-    );
-    setConfirmation(null);
+    setConfirmationError(null);
+    try {
+      await runAction(
+        current.action,
+        current.input as GovernanceActionInput[typeof current.action],
+        current.successMessage,
+      );
+      setConfirmation(null);
+    } catch (error) {
+      setConfirmationError(governanceErrorMessage(error));
+    }
   };
 
   const currentActor = account.data?.currentActor;
@@ -230,6 +238,11 @@ export function GovernanceActionControllerProvider({
             <p className="mt-4 border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-text-secondary">
               {copy.risk}
             </p>
+            {confirmationError && (
+              <p role="alert" className="mt-3 border border-danger/25 bg-danger/5 px-3 py-2 text-xs text-danger">
+                {confirmationError}
+              </p>
+            )}
             <div className="mt-5 flex justify-end gap-2">
               <SheetClose asChild>
                 <Button variant="outline" disabled={pending}>取消</Button>

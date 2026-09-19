@@ -18,6 +18,8 @@ import type {
 } from "../analysis-types.js";
 import {
   governanceSteps,
+  governanceStageToCompactStep,
+  governanceStageToStep,
   governanceStepStatus,
   isResolutionApprovalSubmitted,
   resolveGovernanceStep,
@@ -273,11 +275,13 @@ export function GovernanceProcess({
   exceptionId,
   recommendation,
   selectedOptionId,
+  exceptionGovernanceStage,
 }: {
   contextId: string;
   exceptionId: string;
   recommendation: DecisionRecommendationView | undefined;
   selectedOptionId: string | undefined;
+  exceptionGovernanceStage?: string;
 }) {
   const policy = usePolicyEvaluations(contextId, exceptionId);
   const resolution = useResolutionProcess(contextId, exceptionId);
@@ -293,7 +297,11 @@ export function GovernanceProcess({
     .at(-1);
   const historicalOutcomes = outcomeEvaluations.filter((item) => item.id !== latestOutcome?.id);
   const currentPolicy = latestPolicyForOption(policyEvaluations, recommendation?.id, selectedOptionId);
-  const current = resolveGovernanceStep(resolutionCase, Boolean(recommendation));
+  const current = exceptionGovernanceStage
+    ? exceptionGovernanceStage === "not_started" && !recommendation
+      ? "recommendation"
+      : governanceStageToStep(exceptionGovernanceStage)
+    : resolveGovernanceStep(resolutionCase, Boolean(recommendation));
   const [expandedStep, setExpandedStep] = useState<typeof current | "">(current);
 
   useEffect(() => {
@@ -354,21 +362,23 @@ export function GovernanceProcess({
     { id: "receipt", label: "回执", target: "receipt" as const },
     { id: "outcome", label: "结果", target: "outcome" as const },
   ];
-  const compactCurrent = !resolutionCase
-    ? "accept"
-    : resolutionCase.status === "triaged"
-      ? "review"
-      : resolutionCase.status === "confirmed"
-        ? "propose"
-        : resolutionCase.status === "proposed"
-          ? approvalSubmitted ? "approval" : "propose"
-          : resolutionCase.status === "approved"
-            ? "execution"
-            : resolutionCase.status === "executed"
-              ? "receipt"
-              : resolutionCase.status === "closed"
-                ? "outcome"
-                : "accept";
+  const compactCurrent = exceptionGovernanceStage
+    ? governanceStageToCompactStep(exceptionGovernanceStage)
+    : !resolutionCase
+      ? "accept"
+      : resolutionCase.status === "triaged"
+        ? "review"
+        : resolutionCase.status === "confirmed"
+          ? "propose"
+          : resolutionCase.status === "proposed"
+            ? approvalSubmitted ? "approval" : "propose"
+            : resolutionCase.status === "approved"
+              ? "execution"
+              : resolutionCase.status === "executed"
+                ? "receipt"
+                : resolutionCase.status === "closed"
+                  ? "outcome"
+                  : "accept";
   const compactCurrentIndex = compactSteps.findIndex((step) => step.id === compactCurrent);
 
   const stepStatus = (step: string): ProcessStepStatus => {

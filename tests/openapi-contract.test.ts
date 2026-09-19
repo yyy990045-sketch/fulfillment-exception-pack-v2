@@ -83,4 +83,17 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("canApprove: { $ref: '#/components/schemas/CapabilityDecision' }");
     expect(openapi).toContain("assignableOwnerRoles: { type: array, items: { type: string } }");
   });
+
+  it("defines commercial-pilot projections for governance stage, Pack binding, actions, trends, and demo workspaces", () => {
+    expect(openapi).toContain("    GovernanceStage:");
+    expect(openapi).toContain("governanceStage: { $ref: '#/components/schemas/GovernanceStage' }");
+    expect(openapi).toContain("    PackBoundContext:");
+    expect(openapi).toContain("boundContexts: { type: array, items: { $ref: '#/components/schemas/PackBoundContext' } }");
+    expect(openapi).toContain("    PackSupportedAction:");
+    expect(openapi).toContain("supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }");
+    expect(openapi).toContain("label: { type: string }");
+    expect(openapi).toContain("from: { type: string, format: date-time }");
+    expect(openapi).toContain("    DemoWorkspaceProjection:");
+    expect(openapi).toContain("demoWorkspace: { $ref: '#/components/schemas/DemoWorkspaceProjection' }");
+  });
 });

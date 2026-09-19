@@ -5,7 +5,7 @@ import { useDemoSettings } from "../app/demo-settings.js";
 import type {
   DecisionRecommendationListResponse,
   DecisionRecommendationView,
-  CurrentActorContextView,
+  CurrentActorContextResponseView,
   ExplanationListResponse,
   ExplanationResponse,
   RootCauseAnalysisListResponse,
@@ -36,7 +36,7 @@ export function useAccountContext() {
   const { identity } = useDemoSettings();
   return useQuery({
     queryKey: queryKeys.accountContext(identity.tenantId, identity.actorId),
-    queryFn: ({ signal }) => apiRequest<{ currentActor: CurrentActorContextView }>(
+    queryFn: ({ signal }) => apiRequest<CurrentActorContextResponseView>(
       "/api/v2/auth/context",
       { identity, signal },
     ),
@@ -129,8 +129,6 @@ function useGuardedMutation<TInput, TResult>(
     inFlight.current = true;
     try {
       return await mutation.mutateAsync(input);
-    } catch {
-      return undefined;
     } finally {
       inFlight.current = false;
     }

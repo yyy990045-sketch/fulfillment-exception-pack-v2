@@ -242,7 +242,7 @@ describe("governance process", () => {
     expect(within(confirmation).getByText(/品质负责人 · 品质负责人/)).toBeInTheDocument();
     expect(within(confirmation).getByText(/批准后方案将进入可执行状态/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "确认批准" }));
-    expect(await screen.findByText(/复核\/方案提出人与审批人必须分离/)).toBeInTheDocument();
+    expect(await within(confirmation).findByRole("alert")).toHaveTextContent(/复核\/方案提出人与审批人必须分离/);
   });
 
   it("disables approval before click when the backend denies the current role", async () => {

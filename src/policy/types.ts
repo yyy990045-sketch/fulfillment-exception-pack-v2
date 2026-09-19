@@ -11,6 +11,7 @@ export type PolicyEffectClass =
 
 export type PolicyActionMetadata = {
   actionType: ActionType;
+  label: string;
   effectClass: PolicyEffectClass;
   customerFacing: boolean;
   financialMovement: boolean;

@@ -32,8 +32,8 @@ export const operationalAnalyticsFixture: OperationalAnalyticsView = {
     resolutionClosureRate: 1 / 3,
   },
   exceptionTrend: [
-    { bucket: "2026-08-01", exceptionCount: 3, contextsWithException: 1 },
-    { bucket: "2026-09-01", exceptionCount: 4, contextsWithException: 2 },
+    { bucket: "2026-08-01", label: "2026年08月", from: "2026-08-01T00:00:00.000Z", to: "2026-08-31T23:59:59.999Z", exceptionCount: 3, contextsWithException: 1 },
+    { bucket: "2026-09-01", label: "2026年09月", from: "2026-09-01T00:00:00.000Z", to: "2026-09-30T23:59:59.999Z", exceptionCount: 4, contextsWithException: 2 },
   ],
   exceptionBreakdown: [
     { code: "CUSTOMER_RECEIPT_CLAIM_MISMATCH", label: "客户签收主张差异", count: 2, severityBreakdown: { high: 2 }, contextsInvolved: ["ctx-mfg"], resolutionCaseCount: 1, closedResolutionCaseCount: 0 },
@@ -171,8 +171,29 @@ const financeManifest = {
 
 export const installedPacksFixture: SolutionPackInstalledListView = {
   installations: [
-    { installation: { tenantId: "demo-manufacturing", packId: manufacturingManifest.id, packVersion: "1.0.0", status: "active", manifestHash: "a".repeat(64), config: {}, installedBy: "admin", installedAt: createdAt, updatedAt: createdAt }, manifest: manufacturingManifest },
-    { installation: { tenantId: "demo-manufacturing", packId: financeManifest.id, packVersion: "1.0.0", status: "active", manifestHash: "b".repeat(64), config: {}, installedBy: "admin", installedAt: createdAt, updatedAt: createdAt }, manifest: financeManifest },
+    {
+      installation: { tenantId: "demo-manufacturing", packId: manufacturingManifest.id, packVersion: "1.0.0", status: "active", manifestHash: "a".repeat(64), config: {}, installedBy: "admin", installedAt: createdAt, updatedAt: createdAt },
+      manifest: manufacturingManifest,
+      supportedActions: [
+        { type: "supplement_evidence", label: "补充证据" },
+        { type: "urge_follow_up", label: "跟进催办" },
+        { type: "reject_overclaim", label: "驳回超额主张" },
+        { type: "review_quotation", label: "复核报价" },
+        { type: "create_task", label: "创建任务" },
+      ],
+      boundContexts: [{ contextId: "ctx-mfg", businessKey: "SO-MFG-001", contextType: "sales_order", status: "active", updatedAt: createdAt, exceptionCount: 4, resolutionCaseCount: 2, workbenchPath: "/manufacturing/ctx-mfg" }],
+    },
+    {
+      installation: { tenantId: "demo-manufacturing", packId: financeManifest.id, packVersion: "1.0.0", status: "active", manifestHash: "b".repeat(64), config: {}, installedBy: "admin", installedAt: createdAt, updatedAt: createdAt },
+      manifest: financeManifest,
+      supportedActions: [
+        { type: "supplement_evidence", label: "补充证据" },
+        { type: "urge_follow_up", label: "跟进催办" },
+        { type: "review_quotation", label: "复核报价" },
+        { type: "create_task", label: "创建任务" },
+      ],
+      boundContexts: [{ contextId: "ctx-fin", businessKey: "FIN-REC-001", contextType: "finance_reconciliation", status: "active", updatedAt: createdAt, exceptionCount: 3, resolutionCaseCount: 1, workbenchPath: "/workspace/ctx-fin" }],
+    },
   ],
 };
 
@@ -185,6 +206,9 @@ export function packWorkbenchFixture(input: { id: string; businessKey: string; c
       name: finance ? "Finance Reconciliation" : "Manufacturing Fulfillment",
       contextLabel: finance ? "财务对账上下文" : "制造履约",
       workbenchPath: finance ? "/workspace" : "/manufacturing",
+      supportedActions: finance
+        ? [{ type: "supplement_evidence", label: "补充证据" }, { type: "create_task", label: "创建任务" }]
+        : [{ type: "supplement_evidence", label: "补充证据" }, { type: "reject_overclaim", label: "驳回超额主张" }],
     },
     context: {
       id: input.id,

@@ -55,6 +55,7 @@ export type PolicyEvaluationListResponse = components["schemas"]["PolicyEvaluati
 export type OutcomeEvaluationView = components["schemas"]["OutcomeEvaluation"];
 export type OutcomeEvaluationListResponse = components["schemas"]["OutcomeEvaluationList"];
 export type CurrentActorContextView = components["schemas"]["CurrentActorContext"];
+export type CurrentActorContextResponseView = components["schemas"]["CurrentActorContextResponse"];
 export type CapabilityDecisionView = components["schemas"]["CapabilityDecision"];
 export type ResolutionCapabilitiesView = components["schemas"]["ResolutionCapabilities"];
 export type ResolutionCapabilitiesResponseView = components["schemas"]["ResolutionCapabilitiesResponse"];

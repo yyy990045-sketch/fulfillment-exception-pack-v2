@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { IncomingHttpHeaders } from "node:http";
+import { demoOrganizationName } from "./application/demo-workspaces.js";
 
 export type AuthContext = {
   subjectId: string;
@@ -92,14 +93,14 @@ export function authenticate(headers: IncomingHttpHeaders): AuthContext {
   const actor = String(headers["x-actor"] ?? "").trim() || "viewer";
   const demo = DEMO_ACTORS[actor];
   if (!demo) throw new AuthError("auth_required");
-  const tenantId = String(headers["x-tenant-id"] ?? "demo-tenant-a").trim();
+  const tenantId = String(headers["x-tenant-id"] ?? "demo-manufacturing").trim();
   if (!tenantId) throw new AuthError("auth_required");
   return {
     ...demo,
     tenantId,
     scopes: ["*"],
     displayName: demo.displayName,
-    organizationName: "示例制造企业",
+    organizationName: demoOrganizationName(tenantId),
     organizationSource: "demo",
     authnMethod: "demo-header",
     ...(actor === "viewer" ? {} : { sessionId: `demo-session:${actor}` }),

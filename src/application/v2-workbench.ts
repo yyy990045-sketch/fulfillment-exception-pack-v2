@@ -12,6 +12,7 @@ import {
   v2ExceptionLabel,
   v2FieldLabel,
 } from "./v2-workbench-labels.js";
+import { resolutionGovernanceStage } from "../domain/v2/resolution/governance-stage.js";
 
 const THREAD_ORDER: BusinessEntityType[] = [
   "quote",
@@ -108,6 +109,7 @@ function exceptionSummary(
   tenantId: string,
   exception: V2Exception,
   entityTypeById: Map<string, BusinessEntityType>,
+  resolutionCase: ReturnType<V2SqliteStore["getResolutionCaseByException"]>,
 ) {
   const bundle = store.getExceptionEvidenceBundle(tenantId, exception.id);
   return {
@@ -116,6 +118,7 @@ function exceptionSummary(
     label: v2ExceptionLabel(exception.code),
     severity: exception.severity,
     status: exception.status,
+    governanceStage: resolutionGovernanceStage(resolutionCase?.status, resolutionCase?.runtime.actions ?? []),
     title: exception.title,
     summary: exception.summary,
     metrics: exception.metrics,
@@ -207,7 +210,13 @@ export function buildV2WorkbenchView(
     };
   });
 
-  const exceptionSummaries = exceptions.map((exception) => exceptionSummary(store, tenantId, exception, entityTypeById));
+  const exceptionSummaries = exceptions.map((exception) => exceptionSummary(
+    store,
+    tenantId,
+    exception,
+    entityTypeById,
+    store.getResolutionCaseByException(tenantId, exception.id),
+  ));
   const defaultException = exceptionSummaries.find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")
     ?? exceptionSummaries[0]
     ?? null;
@@ -240,6 +249,7 @@ export function buildV2WorkbenchView(
       id: item.id,
       exceptionId: item.exceptionId,
       status: item.status,
+      governanceStage: resolutionGovernanceStage(item.status, item.runtime.actions),
       ownerRole: item.ownerRole,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,

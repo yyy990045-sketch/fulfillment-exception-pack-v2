@@ -9,24 +9,19 @@ import {
 } from "../../../components/product/page-layout.js";
 import { ContextStatusBadge, SeverityBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
-import { useInstalledSolutionPacks, useOperationalAnalytics, usePackWorkbench } from "../../../hooks/use-operations.js";
+import { useInstalledSolutionPacks, usePackWorkbench } from "../../../hooks/use-operations.js";
 import { cn } from "../../../lib/utils.js";
 import {
   isBusinessPackCapability,
   packCapabilityLabel,
-  resolutionStatusLabel,
 } from "../../../lib/presentation.js";
 import { contextTypeLabel, formatBusinessValue } from "../../manufacturing/utils.js";
-import type { OperationalContextView, PackWorkbenchView, SolutionPackManifestView } from "../../operations/types.js";
+import type { PackBoundContextView, PackWorkbenchView, SolutionPackManifestView } from "../../operations/types.js";
 
-function contextLink(context: OperationalContextView) {
+function contextLink(context: PackBoundContextView) {
   return context.contextType === "sales_order"
     ? `/manufacturing/${encodeURIComponent(context.contextId)}`
     : `/workspace/${encodeURIComponent(context.contextId)}`;
-}
-
-function statusList(statuses: string[]) {
-  return statuses.length ? statuses.map(resolutionStatusLabel).join("、") : "未进入治理";
 }
 
 const builtInPackPresentation: Record<string, { name: string; purpose: string }> = {
@@ -130,11 +125,9 @@ function PackList({
 export function SolutionPackPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const packs = useInstalledSolutionPacks();
-  const analytics = useOperationalAnalytics({});
   const selectedPackId = searchParams.get("pack") ?? packs.data?.installations[0]?.manifest.id;
   const selectedPack = packs.data?.installations.find((item) => item.manifest.id === selectedPackId);
-  const contextTypeSet = new Set(selectedPack?.manifest.contextTypes ?? []);
-  const contexts = (analytics.data?.contexts ?? []).filter((context) => contextTypeSet.has(context.contextType));
+  const contexts = selectedPack?.boundContexts ?? [];
   const requestedContextId = searchParams.get("context") ?? undefined;
   const queryContext = contexts.find((item) => item.contextId === requestedContextId) ?? contexts[0];
   const workbench = usePackWorkbench(queryContext?.contextId);
@@ -151,7 +144,7 @@ export function SolutionPackPage() {
     setSearchParams(next, { replace: true });
   };
 
-  if (packs.isLoading || analytics.isLoading) {
+  if (packs.isLoading) {
     return (
       <ProductPage className="space-y-3 py-5">
         <LocalState kind="loading" title="正在读取方案包" />
@@ -159,7 +152,7 @@ export function SolutionPackPage() {
       </ProductPage>
     );
   }
-  if (packs.isError || analytics.isError || !packs.data || !analytics.data) {
+  if (packs.isError || !packs.data) {
     return (
       <ProductPage className="py-5">
         <ProductHeader title="方案包" description="查看当前企业已安装的业务解决方案与可复用平台能力。" />
@@ -182,14 +175,13 @@ export function SolutionPackPage() {
   }
 
   const manifest = selectedPack?.manifest;
-  const packContexts = manifest
-    ? analytics.data.contexts.filter((context) => manifest.contextTypes.includes(context.contextType))
-    : [];
+  const packContexts = selectedPack?.boundContexts ?? [];
   const activeContext = packContexts.find((item) => item.contextId === requestedContextId) ?? packContexts[0];
   const activeWorkbench = workbench.data;
   const businessCapabilities = manifest
     ? Object.entries(manifest.capabilities).filter(([key, enabled]) => enabled && isBusinessPackCapability(key))
     : [];
+  const supportedActions = selectedPack?.supportedActions ?? [];
   const presentation = manifest ? packPresentation(manifest) : undefined;
 
   return (
@@ -221,6 +213,11 @@ export function SolutionPackPage() {
                   <h2 className="text-[17px] font-semibold">{presentation?.name}</h2>
                   <p className="mt-1 max-w-[78ch] text-[12px] text-text-secondary">{presentation?.purpose}</p>
                   <p className="mt-1 text-[10px] text-text-muted">{manifest.name}</p>
+                  {supportedActions.length > 0 && (
+                    <p className="mt-1 text-[11px] text-text-muted">
+                      支持处置：{supportedActions.map((action) => action.label).join("、")}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                   {businessCapabilities.map(([key]) => (
@@ -254,7 +251,7 @@ export function SolutionPackPage() {
                           <ChevronRight className="size-3.5 text-text-muted" aria-hidden="true" />
                         </div>
                         <div className="mt-1 text-xs text-text-muted">
-                          {context.exceptionCount} 异常 · {statusList(context.resolutionStatuses)}
+                          {context.exceptionCount} 异常 · {context.resolutionCaseCount} 项治理
                         </div>
                       </button>
                     ))}

@@ -3609,12 +3609,29 @@ export interface components {
             rules: {
                 [key: string]: unknown;
             }[];
-            exceptions: {
+            exceptions: ({
+                id: string;
+                code: string;
+                label: string;
+                /** @enum {string} */
+                severity: "low" | "medium" | "high" | "critical";
+                status: string;
+                governanceStage: components["schemas"]["GovernanceStage"];
+                metrics: {
+                    [key: string]: unknown;
+                };
+            } & {
                 [key: string]: unknown;
-            }[];
-            resolutionCases: {
+            })[];
+            resolutionCases: ({
+                id: string;
+                exceptionId: string;
+                status: string;
+                governanceStage: components["schemas"]["GovernanceStage"];
+                ownerRole: string;
+            } & {
                 [key: string]: unknown;
-            }[];
+            })[];
             truthfulness: {
                 [key: string]: unknown;
             };
@@ -3658,20 +3675,41 @@ export interface components {
             packs: {
                 manifest: components["schemas"]["SolutionPackManifest"];
                 installed: boolean;
+                supportedActions: components["schemas"]["PackSupportedAction"][];
             }[];
         };
         SolutionPackInstalledList: {
             installations: {
                 installation: components["schemas"]["SolutionPackInstallation"];
                 manifest: components["schemas"]["SolutionPackManifest"];
+                supportedActions: components["schemas"]["PackSupportedAction"][];
+                boundContexts: components["schemas"]["PackBoundContext"][];
             }[];
         };
         SolutionPackManifestResponse: {
             manifest: components["schemas"]["SolutionPackManifest"];
+            supportedActions: components["schemas"]["PackSupportedAction"][];
         };
         SolutionPackInstallationResponse: {
             installation: components["schemas"]["SolutionPackInstallation"];
             manifest: components["schemas"]["SolutionPackManifest"];
+            supportedActions: components["schemas"]["PackSupportedAction"][];
+        };
+        PackSupportedAction: {
+            /** @enum {string} */
+            type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            label: string;
+        };
+        PackBoundContext: {
+            contextId: string;
+            businessKey: string;
+            contextType: string;
+            status: string;
+            /** Format: date-time */
+            updatedAt: string;
+            exceptionCount: number;
+            resolutionCaseCount: number;
+            workbenchPath: string;
         };
         PackWorkbenchResponse: {
             pack: {
@@ -3680,6 +3718,7 @@ export interface components {
                 name: string;
                 contextLabel: string;
                 workbenchPath: string;
+                supportedActions: components["schemas"]["PackSupportedAction"][];
             };
             context: {
                 [key: string]: unknown;
@@ -3854,6 +3893,11 @@ export interface components {
             };
             exceptionTrend: {
                 bucket: string;
+                label: string;
+                /** Format: date-time */
+                from: string;
+                /** Format: date-time */
+                to: string;
                 exceptionCount: number;
                 contextsWithException: number;
             }[];
@@ -4490,6 +4534,23 @@ export interface components {
         };
         CurrentActorContextResponse: {
             currentActor: components["schemas"]["CurrentActorContext"];
+            demoWorkspace?: components["schemas"]["DemoWorkspaceProjection"];
+        };
+        /** @enum {string} */
+        GovernanceStage: "not_started" | "review" | "proposal" | "proposal_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected";
+        DemoWorkspaceProjection: {
+            organizations: {
+                organization: string;
+                tenantId: string;
+                packs: {
+                    packId: string;
+                    version: string;
+                    name: string;
+                    contexts: components["schemas"]["PackBoundContext"][];
+                }[];
+                contexts: components["schemas"]["PackBoundContext"][];
+                defaultPath: string;
+            }[];
         };
         CapabilityDecision: {
             applicable: boolean;

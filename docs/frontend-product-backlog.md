@@ -20,6 +20,17 @@
 - Product Shell now uses the neutral product name `履约异常治理平台`; the demo environment is identified as `演示环境 · 示例组织`.
 - Demo resolution action copy now uses business Chinese instead of seeded English synthetic text.
 
+## Resolved In Commercial Pilot Hardening
+
+- Confirmation Sheets stay open on approve, execute, or close failure, show a business error in place, and allow retry; success still closes the Sheet.
+- Workbench exceptions now include a backend-owned `governanceStage`, including the distinction between `proposal_draft` and `pending_approval`.
+- Exception Queue display, filtering, sorting, and Record Header current-stage labels consume the backend governance projection.
+- Installed Solution Packs now expose backend-derived `boundContexts`; the React page no longer infers Pack binding from `contextType`.
+- Demo Account Area can switch between backend-projected demo organizations, invalidates tenant-scoped query caches, and follows backend-provided safe routes.
+- Technical metadata now uses a shared Audit Details Sheet; Evidence Preview keeps business source, original text, field, value, time, and locator at the primary layer.
+- Operational trend buckets now return `label`, `from`, and `to`; drill-down no longer parses bucket display keys.
+- Solution Pack projections now expose backend-owned `supportedActions` with business labels sourced from the action catalog.
+
 ## Resolved In Manufacturing Information Architecture Rebuild
 
 - Context Page now contains only the context Header, Digital Thread, and exception queue.
@@ -49,16 +60,9 @@
 
 ## P0
 
-当前无阻塞 Manufacturing 主工作区使用的 P0 问题。
+0
 
 ## P1
-
-### Resolution summary contract gap
-
-- 位置：Manufacturing Exception Rail 的处理阶段筛选与排序
-- 问题：Workbench 的 Resolution Case summary 只有外层 status，没有 action status，前端无法区分 `proposed + draft` 与 `proposed + pending_approval`。
-- 影响：队列只能显示“待审批”，不能精确呈现“未提交审批”和“等待审批”。
-- 建议：后续在 Workbench resolution summary 中增加明确的治理子阶段或 action 状态摘要。
 
 ### Page query fragmentation
 
@@ -66,41 +70,6 @@
 - 问题：Workbench、Evidence、Capability、Policy、Resolution、Outcome 分别请求和展示 loading/error。
 - 影响：局部区域可能先后闪烁，用户难以判断页面是否已完全可用。
 - 建议：增加页面级 projection 或统一 query state，但不建议本 Sprint 扩展 Backend。
-
-### Technical metadata duplication
-
-- 位置：Evidence Inspector、Exception Details Sheet、Analysis 面板
-- 问题：Evidence ID、source ID、hash、provider 等技术字段仍在多个次级入口重复出现。
-- 影响：审计入口不统一，用户不确定应该从哪里查看完整技术上下文。
-- 建议：定义唯一 Technical Details 入口，Evidence Inspector 只保留原文、定位和来源。
-
-### Solution Pack context binding contract
-
-- 位置：React 方案包页面的 Pack → Context 列表
-- 问题：当前通过 Operational Analytics 的 `contextType` 反推 Pack 绑定关系，没有专门的 pack-context projection。
-- 影响：两个 Pack 使用同一 `contextType` 时会互相串入，也无法可靠展示每个 Pack 的实际绑定数量。
-- 建议：后端提供只读的 Pack installation → bound contexts projection；在此之前保留当前确定性映射并明确其限制。
-
-### Pack governance action metadata
-
-- 位置：方案包工作区的“规则能力”和方案能力区
-- 问题：Manifest 只提供 capability 布尔值，没有 Pack 支持的治理动作清单或业务标签。
-- 影响：页面能证明平台按 Pack 装载能力，但不能直接展示“该 Pack 支持哪些处置动作”。
-- 建议：后续在只读 manifest projection 中增加 action catalog，不在前端推断。
-
-### Time bucket drill-down parsing
-
-- 位置：Operations 异常趋势的时间桶点击筛选
-- 问题：当前用 `new Date(bucketKey)` 解释趋势桶，日/月桶通常可用，但非标准周键可能无法稳定解析。
-- 影响：使用周粒度时，点击趋势桶可能不应用预期时间范围。
-- 建议：后端为每个趋势桶返回明确的 `from` / `to`，前端不解析展示标签。
-
-### Demo tenant cannot switch between installed Pack tenants
-
-- 位置：React Demo Account Area 与 Finance Generic Workspace
-- 问题：Demo frontend 固定请求 `demo-manufacturing` tenant，Finance Pack 实例位于 `demo-finance` tenant；E2E 只能通过路由层改写 tenant header 进入 Finance Workspace。
-- 影响：演示用户无法仅通过界面切换不同 Pack 的租户上下文，跨领域产品价值仍需更专业的身份/上下文切换入口。
-- 建议：后续由后端提供明确的 demo organization/context projection，前端只消费，不在 UI 中硬编码 tenant 映射。
 
 ## P2
 

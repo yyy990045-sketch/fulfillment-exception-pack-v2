@@ -113,6 +113,11 @@ describe("Operational Analytics projection", () => {
     const store = openStore();
     const analytics = buildOperationalAnalytics(store, "demo-manufacturing", { bucket: "day" });
     expect(analytics.exceptionTrend.length).toBeGreaterThan(1);
+    expect(analytics.exceptionTrend[0]).toMatchObject({
+      label: expect.stringMatching(/\d{2}-\d{2}/),
+      from: expect.stringMatching(/T00:00:00\.000Z$/),
+      to: expect.stringMatching(/T23:59:59\.999Z$/),
+    });
     const claim = analytics.exceptionBreakdown.find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")!;
     const wmsCount = analytics.sourceSystemInvolvement
       .filter((item) => item.sourceSystemId.startsWith("WMS"))

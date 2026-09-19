@@ -68,6 +68,7 @@ export type ExceptionView = {
   label: string;
   severity: string;
   status: string;
+  governanceStage: "not_started" | "review" | "proposal" | "proposal_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected";
   title: string;
   summary: string;
   metrics: Record<string, unknown>;
@@ -87,6 +88,7 @@ export type ResolutionCaseSummaryView = {
   id: string;
   exceptionId: string;
   status: string;
+  governanceStage: ExceptionView["governanceStage"];
   ownerRole: string;
   title: string;
   createdAt: string;

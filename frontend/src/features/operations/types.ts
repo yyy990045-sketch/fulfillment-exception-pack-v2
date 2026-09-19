@@ -3,6 +3,9 @@ import type { components } from "../../api/schema.js";
 export type OperationalAnalyticsView = components["schemas"]["OperationalAnalyticsResponse"];
 export type OperationalContextView = OperationalAnalyticsView["contexts"][number];
 export type SolutionPackInstalledListView = components["schemas"]["SolutionPackInstalledList"];
+export type InstalledSolutionPackView = SolutionPackInstalledListView["installations"][number];
+export type PackBoundContextView = InstalledSolutionPackView["boundContexts"][number];
+export type PackSupportedActionView = InstalledSolutionPackView["supportedActions"][number];
 export type SolutionPackCatalogView = components["schemas"]["SolutionPackCatalog"];
 export type SolutionPackManifestView = components["schemas"]["SolutionPackManifest"];
 export type InternalWorkItemListView = components["schemas"]["InternalWorkItemList"];
@@ -14,6 +17,7 @@ export type PackWorkbenchView = {
     name: string;
     contextLabel: string;
     workbenchPath: string;
+    supportedActions: Array<{ type: string; label: string }>;
   };
   context: {
     id: string;

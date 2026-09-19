@@ -215,16 +215,6 @@ export function OperationsPage() {
     else next.delete("to");
     setSearchParams(next, { replace: true });
   };
-  const drillTrendBucket = (bucketKey: string) => {
-    const start = new Date(bucketKey);
-    if (Number.isNaN(start.getTime())) return;
-    const end = new Date(start);
-    if (bucket === "day") end.setUTCDate(end.getUTCDate());
-    if (bucket === "week") end.setUTCDate(end.getUTCDate() + 6);
-    if (bucket === "month") end.setUTCMonth(end.getUTCMonth() + 1, 0);
-    applyRange(start.toISOString().slice(0, 10), end.toISOString().slice(0, 10));
-  };
-
   if (analytics.isLoading) {
     return (
       <ProductPage className="space-y-3 py-5">
@@ -379,7 +369,7 @@ export function OperationsPage() {
             <p className="mt-0.5 text-[11px] text-text-muted">按业务发生时间聚合，点击柱形筛选时间窗口。</p>
             <div className="mt-3 border-t border-border">
               {data.exceptionTrend.map((item) => (
-                <MiniBar key={item.bucket} label={item.bucket} value={item.exceptionCount} max={maxTrend} tone="interactive" onClick={() => drillTrendBucket(item.bucket)} />
+                <MiniBar key={item.bucket} label={item.label} value={item.exceptionCount} max={maxTrend} tone="interactive" onClick={() => applyRange(item.from, item.to)} />
               ))}
               {!data.exceptionTrend.length && <div className="pt-3"><LocalState kind="empty" title="暂无趋势数据" compact /></div>}
             </div>

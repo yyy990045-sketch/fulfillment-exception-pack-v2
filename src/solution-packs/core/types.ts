@@ -63,6 +63,7 @@ export type PackRuleVersionTemplate = {
 
 export interface SolutionPack {
   manifest: SolutionPackManifest;
+  supportedActionTypes: ActionType[];
   ruleContributions: {
     definitions: PackRuleDefinitionTemplate[];
     versions: PackRuleVersionTemplate[];

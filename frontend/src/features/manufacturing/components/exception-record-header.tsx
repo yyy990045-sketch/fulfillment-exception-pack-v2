@@ -6,8 +6,7 @@ import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { useResolutionCapabilities, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
 import type { CapabilityDecisionView } from "../analysis-types.js";
-import { governanceStageFromStatus, governanceStageLabel } from "../exception-queue.js";
-import { isResolutionApprovalSubmitted } from "../governance-step.js";
+import { governanceStageLabel } from "../exception-queue.js";
 import { governanceErrorMessage } from "../governance-errors.js";
 import {
   governanceActionSuccessMessages,
@@ -51,11 +50,7 @@ export function ExceptionRecordHeader({
     const stage = stages.find((item) => item.key === key);
     return stage ? [stage] : [];
   });
-  const currentStage = resolutionCase
-    ? resolutionCase.status === "proposed"
-      ? isResolutionApprovalSubmitted(resolutionCase) ? "approval" : "propose"
-      : governanceStageFromStatus(resolutionCase.status)
-    : "accept";
+  const currentStage = exception.governanceStage;
   const governanceHref = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exception.id)}/governance`;
   const queueHref = `/manufacturing/${encodeURIComponent(contextId)}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
   const primary: PrimaryAction | undefined = caps ? [

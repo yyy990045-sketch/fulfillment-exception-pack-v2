@@ -1298,8 +1298,32 @@ components:
           required: [sourceSystems, entities, documents, events, evidence, ruleEvaluations, matchedRules, notMatchedRules, exceptions, resolutionCases]
         thread: { type: array, items: { type: object, additionalProperties: true } }
         rules: { type: array, items: { type: object, additionalProperties: true } }
-        exceptions: { type: array, items: { type: object, additionalProperties: true } }
-        resolutionCases: { type: array, items: { type: object, additionalProperties: true } }
+        exceptions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            required: [id, code, label, severity, status, governanceStage, metrics]
+            properties:
+              id: { type: string }
+              code: { type: string }
+              label: { type: string }
+              severity: { type: string, enum: [low, medium, high, critical] }
+              status: { type: string }
+              governanceStage: { $ref: '#/components/schemas/GovernanceStage' }
+              metrics: { type: object, additionalProperties: true }
+        resolutionCases:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            required: [id, exceptionId, status, governanceStage, ownerRole]
+            properties:
+              id: { type: string }
+              exceptionId: { type: string }
+              status: { type: string }
+              governanceStage: { $ref: '#/components/schemas/GovernanceStage' }
+              ownerRole: { type: string }
         truthfulness: { type: object, additionalProperties: true }
         defaultExceptionId: { type: string, nullable: true }
     SolutionPackManifest:
@@ -1352,10 +1376,11 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [manifest, installed]
+            required: [manifest, installed, supportedActions]
             properties:
               manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
               installed: { type: boolean }
+              supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }
     SolutionPackInstalledList:
       type: object
       required: [installations]
@@ -1365,21 +1390,45 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [installation, manifest]
+            required: [installation, manifest, supportedActions, boundContexts]
             properties:
               installation: { $ref: '#/components/schemas/SolutionPackInstallation' }
               manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+              supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }
+              boundContexts: { type: array, items: { $ref: '#/components/schemas/PackBoundContext' } }
     SolutionPackManifestResponse:
       type: object
-      required: [manifest]
+      required: [manifest, supportedActions]
       properties:
         manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+        supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }
     SolutionPackInstallationResponse:
       type: object
-      required: [installation, manifest]
+      required: [installation, manifest, supportedActions]
       properties:
         installation: { $ref: '#/components/schemas/SolutionPackInstallation' }
         manifest: { $ref: '#/components/schemas/SolutionPackManifest' }
+        supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }
+    PackSupportedAction:
+      type: object
+      additionalProperties: false
+      required: [type, label]
+      properties:
+        type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        label: { type: string }
+    PackBoundContext:
+      type: object
+      additionalProperties: false
+      required: [contextId, businessKey, contextType, status, updatedAt, exceptionCount, resolutionCaseCount, workbenchPath]
+      properties:
+        contextId: { type: string }
+        businessKey: { type: string }
+        contextType: { type: string }
+        status: { type: string }
+        updatedAt: { type: string, format: date-time }
+        exceptionCount: { type: integer }
+        resolutionCaseCount: { type: integer }
+        workbenchPath: { type: string }
     PackWorkbenchResponse:
       type: object
       additionalProperties: false
@@ -1388,13 +1437,14 @@ components:
         pack:
           type: object
           additionalProperties: false
-          required: [id, version, name, contextLabel, workbenchPath]
+          required: [id, version, name, contextLabel, workbenchPath, supportedActions]
           properties:
             id: { type: string }
             version: { type: string }
             name: { type: string }
             contextLabel: { type: string }
             workbenchPath: { type: string }
+            supportedActions: { type: array, items: { $ref: '#/components/schemas/PackSupportedAction' } }
         context:
           type: object
           additionalProperties: true
@@ -1595,9 +1645,13 @@ components:
           type: array
           items:
             type: object
-            required: [bucket, exceptionCount, contextsWithException]
+            additionalProperties: false
+            required: [bucket, label, from, to, exceptionCount, contextsWithException]
             properties:
               bucket: { type: string }
+              label: { type: string }
+              from: { type: string, format: date-time }
+              to: { type: string, format: date-time }
               exceptionCount: { type: integer }
               contextsWithException: { type: integer }
         exceptionBreakdown:
@@ -2376,6 +2430,37 @@ components:
       required: [currentActor]
       properties:
         currentActor: { $ref: '#/components/schemas/CurrentActorContext' }
+        demoWorkspace: { $ref: '#/components/schemas/DemoWorkspaceProjection' }
+    GovernanceStage:
+      type: string
+      enum: [not_started, review, proposal, proposal_draft, pending_approval, approved, executed, closed, rejected]
+    DemoWorkspaceProjection:
+      type: object
+      additionalProperties: false
+      required: [organizations]
+      properties:
+        organizations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [organization, tenantId, packs, contexts, defaultPath]
+            properties:
+              organization: { type: string }
+              tenantId: { type: string }
+              packs:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [packId, version, name, contexts]
+                  properties:
+                    packId: { type: string }
+                    version: { type: string }
+                    name: { type: string }
+                    contexts: { type: array, items: { $ref: '#/components/schemas/PackBoundContext' } }
+              contexts: { type: array, items: { $ref: '#/components/schemas/PackBoundContext' } }
+              defaultPath: { type: string }
     CapabilityDecision:
       type: object
       additionalProperties: false

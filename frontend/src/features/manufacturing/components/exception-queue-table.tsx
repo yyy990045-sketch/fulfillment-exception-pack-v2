@@ -11,7 +11,7 @@ import {
   primaryExceptionDifference,
   type ExceptionQueueFilters,
 } from "../exception-queue.js";
-import type { ExceptionView, ResolutionCaseSummaryView, ThreadStage } from "../types.js";
+import type { ExceptionView, ThreadStage } from "../types.js";
 import { exceptionStatusLabel, formatShortDateTime } from "../utils.js";
 
 function FilterSelect({
@@ -43,12 +43,10 @@ function FilterSelect({
 
 export function ExceptionQueueTable({
   exceptions,
-  resolutionCases,
   stages,
   onOpen,
 }: {
   exceptions: ExceptionView[];
-  resolutionCases: ResolutionCaseSummaryView[];
   stages: ThreadStage[];
   onOpen: (exception: ExceptionView) => void;
 }) {
@@ -61,8 +59,8 @@ export function ExceptionQueueTable({
     governanceStage: searchParams.get("governanceStage") ?? "",
     unresolvedFirst: searchParams.get("unresolvedFirst") !== "false",
   };
-  const options = exceptionQueueOptions(exceptions, stages, resolutionCases);
-  const results = filterAndSortExceptions(exceptions, resolutionCases, filters);
+  const options = exceptionQueueOptions(exceptions, stages);
+  const results = filterAndSortExceptions(exceptions, filters);
   const activeFilterCount = [
     filters.query,
     filters.severity,

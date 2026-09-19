@@ -64,7 +64,7 @@ export function EvidencePreview({
         <div className="flex justify-end">
           <Button variant="outline" size="sm" onClick={() => onOpenTechnical(item.evidenceId)}>
             <Info className="size-3.5" aria-hidden="true" />
-            技术详情
+            审计详情
           </Button>
         </div>
       </div>

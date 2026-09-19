@@ -88,16 +88,11 @@ test("operations, solution pack, and finance workspace keep the shared product s
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 
-  await page.route("**/api/v2/**", async (route) => {
-    await route.continue({
-      headers: {
-        ...route.request().headers(),
-        "x-tenant-id": "demo-finance",
-      },
-    });
-  });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/workspace/ctx-fin-rec-001");
+  await page.goto("/workspace");
+  await page.getByLabel("账户与设置").click();
+  await page.getByLabel("切换演示组织").selectOption("demo-finance");
+  await expect(page).toHaveURL(/\/workspace\/ctx-fin-rec-001$/);
   await expect(page.getByRole("heading", { name: "REC-FIN-001" })).toBeVisible();
   await expect(page.getByText(/财务对账上下文/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -137,7 +132,7 @@ test("manufacturing governance confirms high-impact actions and reports success"
   await expect(executeConfirmation).toContainText("执行已批准方案");
   await expect(executeConfirmation).toContainText("销售总监");
   await executeConfirmation.getByRole("button", { name: "确认执行" }).click();
-  await expect(page.getByText("执行结果已登记")).toBeVisible();
+  await expect(page.getByText("执行结果已登记", { exact: true })).toBeVisible();
 
   const receiptStep = page.getByTestId("process-step-receipt");
   const closeAction = receiptStep.getByRole("button", { name: "核验回执并结案", exact: true });
@@ -148,4 +143,75 @@ test("manufacturing governance confirms high-impact actions and reports success"
   await expect(page.getByTestId("governance-confirmation-sheet")).toContainText("确认核验并结案");
   await page.getByTestId("governance-confirmation-sheet").getByRole("button", { name: "确认结案" }).click();
   await expect(page.getByText("治理已结案")).toBeVisible();
+});
+
+test("customer pilot flow keeps confirmation failures retryable and switches demo organizations without header overrides", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/operations");
+  await page.getByRole("button", { name: "SO-MFG-001" }).first().click();
+  await page.getByLabel("搜索异常").fill("客户收货");
+  await page.getByTestId("exception-item").click();
+  await expect(page.getByTestId("selected-exception-header")).toBeVisible();
+  await page.getByRole("link", { name: "证据", exact: true }).click();
+  await expect(page.getByTestId("evidence-row")).toHaveCount(2);
+  await page.getByRole("link", { name: "分析", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
+  await page.getByRole("link", { name: "决策", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "决策建议" })).toBeVisible();
+
+  await page.goto("/operations");
+  await page.getByLabel("账户与设置").click();
+  await page.getByLabel("切换业务角色").selectOption("general-manager");
+  await page.getByRole("button", { name: "SO-OPS-005" }).click();
+  await page.getByLabel("搜索异常").fill("回款");
+  await expect(page.getByTestId("exception-item")).toHaveCount(1);
+  await page.getByTestId("exception-item").click();
+  await page.getByRole("link", { name: "治理", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "处理进程" })).toBeVisible();
+
+  let approveAttempts = 0;
+  await page.route("**/api/v2/resolution-cases/*/approve", async (route) => {
+    approveAttempts += 1;
+    if (approveAttempts === 1) {
+      await route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "resolution_approval_not_allowed" }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  const approvalStep = page.getByTestId("process-step-approval");
+  await approvalStep.getByRole("button", { name: "批准方案" }).click();
+  const approvalSheet = page.getByTestId("governance-confirmation-sheet");
+  await approvalSheet.getByRole("button", { name: "确认批准" }).click();
+  await expect(approvalSheet).toBeVisible();
+  await expect(approvalSheet.getByRole("alert")).toContainText("当前状态不能审批该方案");
+  await approvalSheet.getByRole("button", { name: "确认批准" }).click();
+  await expect(approvalSheet).toHaveCount(0);
+  await expect(page.getByText("方案已批准")).toBeVisible();
+  expect(approveAttempts).toBe(2);
+
+  const executionStep = page.getByTestId("process-step-execution");
+  await executionStep.getByRole("button", { name: "执行已批准方案", exact: true }).click();
+  const executeSheet = page.getByTestId("governance-confirmation-sheet");
+  await executeSheet.getByRole("button", { name: "确认执行" }).click();
+  await expect(page.getByText("执行结果已登记", { exact: true })).toBeVisible();
+
+  const receiptStep = page.getByTestId("process-step-receipt");
+  await receiptStep.getByRole("button", { name: "核验回执并结案", exact: true }).click();
+  const closeSheet = page.getByTestId("governance-confirmation-sheet");
+  await closeSheet.getByRole("button", { name: "确认结案" }).click();
+  await expect(page.getByText("治理已结案")).toBeVisible();
+  await expect(page.getByTestId("process-step-outcome")).toContainText("结果");
+
+  await page.goto("/workspace");
+  await page.getByLabel("账户与设置").click();
+  await page.getByLabel("切换演示组织").selectOption("demo-finance");
+  await expect(page).toHaveURL(/\/workspace\/ctx-fin-rec-001$/);
+  await expect(page.getByRole("heading", { name: "REC-FIN-001" })).toBeVisible();
+  await expect(page.getByText(/财务对账上下文/)).toBeVisible();
 });

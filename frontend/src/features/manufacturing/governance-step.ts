@@ -34,6 +34,26 @@ export function resolveGovernanceStep(
   return "outcome";
 }
 
+export function governanceStageToStep(stage: string): GovernanceStepId {
+  if (stage === "review" || stage === "proposal" || stage === "proposal_draft") return "governance";
+  if (stage === "pending_approval") return "approval";
+  if (stage === "approved") return "execution";
+  if (stage === "executed") return "receipt";
+  if (stage === "closed") return "outcome";
+  if (stage === "rejected") return "governance";
+  return "governance";
+}
+
+export function governanceStageToCompactStep(stage: string) {
+  if (stage === "review") return "review";
+  if (stage === "proposal" || stage === "proposal_draft" || stage === "rejected") return "propose";
+  if (stage === "pending_approval") return "approval";
+  if (stage === "approved") return "execution";
+  if (stage === "executed") return "receipt";
+  if (stage === "closed") return "outcome";
+  return "accept";
+}
+
 export function governanceStepStatus(
   step: GovernanceStepId,
   current: GovernanceStepId,

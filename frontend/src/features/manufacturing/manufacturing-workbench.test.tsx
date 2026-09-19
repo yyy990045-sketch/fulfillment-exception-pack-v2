@@ -247,7 +247,8 @@ describe("Manufacturing information architecture", () => {
   it("supports Evidence deep links and closes the Inspector", async () => {
     mockApi();
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/evidence?evidence=evidence-claim");
-    await userEvent.setup().click(await screen.findByRole("button", { name: "技术详情" }));
+    const auditButtons = await screen.findAllByRole("button", { name: "审计详情" });
+    await userEvent.setup().click(auditButtons.at(-1)!);
     expect(await screen.findByTestId("evidence-inspector")).toHaveTextContent("Evidence ID");
     const close = screen.getByRole("button", { name: "关闭" });
     await userEvent.setup().click(close);

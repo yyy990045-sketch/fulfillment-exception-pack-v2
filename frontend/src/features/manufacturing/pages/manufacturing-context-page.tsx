@@ -66,7 +66,6 @@ export function ManufacturingContextPage() {
         <div ref={queueRef}>
           <ExceptionQueueTable
             exceptions={view.exceptions}
-            resolutionCases={view.resolutionCases}
             stages={view.thread}
             onOpen={openException}
           />

@@ -12,25 +12,35 @@ export const DEMO_ACTORS = [
 
 type DemoSettingsValue = {
   identity: ApiIdentity;
+  tenantId: string;
   actorId: string;
+  setTenantId: (tenantId: string) => void;
   setActorId: (actorId: string) => void;
 };
 
 const DemoSettingsContext = createContext<DemoSettingsValue | null>(null);
 
 export function DemoSettingsProvider({ children }: { children: ReactNode }) {
+  const [tenantId, setTenantIdState] = useState(() =>
+    window.localStorage.getItem("demoTenantId") || "demo-manufacturing",
+  );
   const [actorId, setActorIdState] = useState(() => {
     const saved = window.localStorage.getItem("demoActorId");
     return saved && DEMO_ACTORS.some((actor) => actor.id === saved) ? saved : "quality-owner";
   });
   const value = useMemo<DemoSettingsValue>(() => ({
-    identity: { tenantId: "demo-manufacturing", actorId },
+    identity: { tenantId, actorId },
+    tenantId,
     actorId,
+    setTenantId: (nextTenantId) => {
+      window.localStorage.setItem("demoTenantId", nextTenantId);
+      setTenantIdState(nextTenantId);
+    },
     setActorId: (nextActorId) => {
       window.localStorage.setItem("demoActorId", nextActorId);
       setActorIdState(nextActorId);
     },
-  }), [actorId]);
+  }), [actorId, tenantId]);
   return <DemoSettingsContext.Provider value={value}>{children}</DemoSettingsContext.Provider>;
 }
 
