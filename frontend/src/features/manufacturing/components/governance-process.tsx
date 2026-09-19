@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
-import { useGovernanceMutations, useOutcomeEvaluations, usePolicyEvaluations, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
-import type { DecisionRecommendationView, OutcomeEvaluationView, PolicyEvaluationView, ResolutionCaseView } from "../analysis-types.js";
+import {
+  useGovernanceMutations,
+  useOutcomeEvaluations,
+  usePolicyEvaluations,
+  useResolutionCapabilities,
+  useResolutionProcess,
+} from "../../../hooks/use-manufacturing.js";
+import type {
+  CapabilityDecisionView,
+  DecisionRecommendationView,
+  OutcomeEvaluationView,
+  PolicyEvaluationView,
+  ResolutionCaseView,
+} from "../analysis-types.js";
 import { governanceStepStatus, isResolutionApprovalSubmitted, resolveGovernanceStep } from "../governance-step.js";
 import { governanceErrorMessage } from "../governance-errors.js";
 import {
@@ -24,9 +36,6 @@ const actionLabels: Record<string, string> = {
   review_quotation: "复核报价",
   create_task: "创建任务",
 };
-
-// COMMERCIAL_GAP: Production assignable roles must come from backend RBAC.
-const DEMO_ASSIGNABLE_OWNER_ROLES = ["品质负责人", "销售总监", "工程师", "财务", "总经理", "管理员"];
 
 const outcomeLabels = {
   target_met: "目标达成",
@@ -71,17 +80,55 @@ function ActionList({ resolution }: { resolution: ResolutionCaseView }) {
   );
 }
 
+function CapabilityReason({ capability }: { capability: CapabilityDecisionView }) {
+  if (!capability.applicable || capability.allowed) return null;
+  return <p className="text-xs text-warning">{capability.reason}</p>;
+}
+
+function CapabilityButton({
+  capability,
+  pending,
+  pendingLabel,
+  onClick,
+  variant,
+  children,
+}: {
+  capability: CapabilityDecisionView;
+  pending: boolean;
+  pendingLabel: string;
+  onClick: () => void;
+  variant?: "outline";
+  children: string;
+}) {
+  if (!capability.applicable) return null;
+  return (
+    <>
+      <Button variant={variant} disabled={pending || !capability.allowed} onClick={onClick}>
+        {pending ? pendingLabel : children}
+      </Button>
+      <CapabilityReason capability={capability} />
+    </>
+  );
+}
+
 function AcceptanceForm({
+  ownership,
+  ownerRoles,
   pending,
   error,
   onSubmit,
 }: {
+  ownership: CapabilityDecisionView;
+  ownerRoles: string[];
   pending: boolean;
   error: string | null;
   onSubmit: (ownerRole: string, rationale: string) => void;
 }) {
-  const [ownerRole, setOwnerRole] = useState("品质负责人");
+  const [ownerRole, setOwnerRole] = useState(ownerRoles[0] ?? "");
   const [rationale, setRationale] = useState("");
+  useEffect(() => {
+    setOwnerRole(ownerRoles[0] ?? "");
+  }, [ownerRoles]);
   return (
     <form className="space-y-3" onSubmit={(event) => {
       event.preventDefault();
@@ -93,9 +140,12 @@ function AcceptanceForm({
           <select
             className="h-9 w-full rounded-md border border-border-strong bg-surface px-2 text-sm"
             value={ownerRole}
+            disabled={!ownerRoles.length || !ownership.allowed}
             onChange={(event) => setOwnerRole(event.target.value)}
           >
-            {DEMO_ASSIGNABLE_OWNER_ROLES.map((role) => <option key={role}>{role}</option>)}
+            {ownerRoles.length
+              ? ownerRoles.map((role) => <option key={role}>{role}</option>)
+              : <option value="">无可用负责人角色</option>}
           </select>
         </label>
         <label className="space-y-1 text-xs text-text-muted">
@@ -108,8 +158,10 @@ function AcceptanceForm({
           />
         </label>
       </div>
+      {!ownerRoles.length && <p className="text-xs text-warning">后端未提供可指派负责人角色。</p>}
+      <CapabilityReason capability={ownership} />
       {error && <p className="text-xs text-danger">{error}</p>}
-      <Button type="submit" disabled={pending || !rationale.trim()}>
+      <Button type="submit" disabled={pending || !rationale.trim() || !ownerRole || !ownership.allowed}>
         {pending ? "正在进入治理..." : "进入人工治理"}
       </Button>
     </form>
@@ -117,10 +169,12 @@ function AcceptanceForm({
 }
 
 function ReviewForm({
+  capability,
   pending,
   error,
   onSubmit,
 }: {
+  capability: CapabilityDecisionView;
   pending: boolean;
   error: string | null;
   onSubmit: (decision: "confirm" | "needs_evidence" | "reject", rationale: string) => void;
@@ -152,8 +206,9 @@ function ReviewForm({
           onChange={(event) => setRationale(event.target.value)}
         />
       </label>
+      <CapabilityReason capability={capability} />
       {error && <p className="text-xs text-danger">{error}</p>}
-      <Button type="submit" disabled={pending || !rationale.trim()}>
+      <Button type="submit" disabled={pending || !rationale.trim() || !capability.allowed}>
         {pending ? "正在提交复核..." : "提交复核"}
       </Button>
     </form>
@@ -163,12 +218,14 @@ function ReviewForm({
 function ProposalForm({
   recommendation,
   selectedOptionId,
+  capability,
   pending,
   error,
   onSubmit,
 }: {
   recommendation: DecisionRecommendationView | undefined;
   selectedOptionId: string | undefined;
+  capability: CapabilityDecisionView;
   pending: boolean;
   error: string | null;
   onSubmit: (actions: Array<{ type: string; summary: string }>) => void;
@@ -208,8 +265,9 @@ function ProposalForm({
           />
         </label>
       </div>
+      <CapabilityReason capability={capability} />
       {error && <p className="text-xs text-danger">{error}</p>}
-      <Button type="submit" disabled={pending || !summary.trim()}>
+      <Button type="submit" disabled={pending || !summary.trim() || !capability.allowed}>
         {pending ? "正在拟定方案..." : "拟定处置方案"}
       </Button>
     </form>
@@ -230,6 +288,7 @@ export function GovernanceProcess({
   const policy = usePolicyEvaluations(contextId, exceptionId);
   const resolution = useResolutionProcess(contextId, exceptionId);
   const outcomes = useOutcomeEvaluations(contextId, exceptionId);
+  const capabilities = useResolutionCapabilities(contextId, exceptionId);
   const mutations = useGovernanceMutations(contextId, exceptionId);
   const resolutionCase = resolution.detail.data?.resolutionCase;
   const receipts = resolution.detail.data?.receipts ?? [];
@@ -249,12 +308,21 @@ export function GovernanceProcess({
 
   const invocationError = (mutation: { error: unknown }) => mutation.error ? governanceErrorMessage(mutation.error) : null;
 
-  if (resolution.list.isLoading || (resolution.summary && resolution.detail.isLoading) || policy.isLoading || outcomes.isLoading) {
+  if (resolution.list.isLoading || (resolution.summary && resolution.detail.isLoading) || policy.isLoading || outcomes.isLoading || capabilities.isLoading) {
     return <SectionSkeleton />;
   }
-  if (resolution.list.isError || resolution.detail.isError || policy.isError || outcomes.isError) {
-    return <InlineError title="治理进程加载失败" detail="Policy、Resolution 或 Outcome 数据无法读取。" />;
+  const resolutionCapabilities = capabilities.data?.resolutionCapabilities;
+  if (
+    resolution.list.isError ||
+    resolution.detail.isError ||
+    policy.isError ||
+    outcomes.isError ||
+    capabilities.isError ||
+    !resolutionCapabilities
+  ) {
+    return <InlineError title="治理进程加载失败" detail="Policy、Resolution、Capability 或 Outcome 数据无法读取。" />;
   }
+  const assignableOwnerRoles = capabilities.data?.assignableOwnerRoles ?? [];
 
   const policyDone = Boolean(currentPolicy && !currentPolicy.stale);
   const rejected = resolutionCase?.status === "rejected";
@@ -353,9 +421,11 @@ export function GovernanceProcess({
 
           <div className="border-t border-border pt-4">
             <h3 className="text-xs font-semibold text-text-muted">人工治理</h3>
-            {!resolutionCase ? (
+            {resolutionCapabilities.canAccept.applicable ? (
               <div className="mt-3">
                 <AcceptanceForm
+                  ownership={resolutionCapabilities.canAccept}
+                  ownerRoles={assignableOwnerRoles}
                   pending={mutations.accept.mutation.isPending}
                   error={invocationError(mutations.accept.mutation)}
                   onSubmit={(ownerRole, rationale) => {
@@ -364,9 +434,10 @@ export function GovernanceProcess({
                   }}
                 />
               </div>
-            ) : resolutionCase.status === "triaged" ? (
+            ) : resolutionCapabilities.canReview.applicable && resolutionCase ? (
               <div className="mt-3">
                 <ReviewForm
+                  capability={resolutionCapabilities.canReview}
                   pending={mutations.review.mutation.isPending}
                   error={invocationError(mutations.review.mutation)}
                   onSubmit={(decision, rationale) => {
@@ -375,33 +446,38 @@ export function GovernanceProcess({
                   }}
                 />
               </div>
-            ) : resolutionCase.status === "confirmed" ? (
+            ) : resolutionCapabilities.canPropose.applicable && resolutionCase ? (
               <div className="mt-3">
                 <ProposalForm
                   recommendation={recommendation}
                   selectedOptionId={selectedOptionId}
+                  capability={resolutionCapabilities.canPropose}
                   pending={mutations.propose.mutation.isPending}
                   error={invocationError(mutations.propose.mutation)}
                   onSubmit={(actions) => void mutations.propose.run({ caseId: resolutionCase.id, actions })}
                 />
               </div>
-            ) : (
+            ) : resolutionCase ? (
               <div className="mt-3 space-y-3">
                 <ActionList resolution={resolutionCase} />
                 <div className="flex flex-wrap items-center gap-3">
-                  {resolutionCase.status === "proposed" && resolutionCase.runtime.actions.every((action) => action.status === "draft") && (
-                    <Button
-                      disabled={mutations.submit.mutation.isPending}
+                  {resolutionCapabilities.canSubmit.applicable && (
+                    <CapabilityButton
+                      capability={resolutionCapabilities.canSubmit}
+                      pending={mutations.submit.mutation.isPending}
+                      pendingLabel="正在提交..."
                       onClick={() => void mutations.submit.run({ caseId: resolutionCase.id })}
                     >
-                      {mutations.submit.mutation.isPending ? "正在提交..." : "提交审批"}
-                    </Button>
+                      提交审批
+                    </CapabilityButton>
                   )}
                   {approvalSubmitted && <Badge variant="warning">等待独立审批</Badge>}
                   {resolutionCase.status === "rejected" && <Badge variant="danger">治理已终止</Badge>}
                   {invocationError(mutations.submit.mutation) && <span className="text-xs text-danger">{invocationError(mutations.submit.mutation)}</span>}
                 </div>
               </div>
+            ) : (
+              <InlineEmpty message="当前没有可执行的治理操作" />
             )}
           </div>
         </div>
@@ -417,7 +493,7 @@ export function GovernanceProcess({
         expanded={expandedStep === "approval"}
         onToggle={() => setExpandedStep(expandedStep === "approval" ? "" : "approval")}
       >
-        {resolutionCase?.status === "proposed" && resolutionCase.runtime.actions.every((action) => action.status === "pending_approval") ? (
+        {resolutionCapabilities.canApprove.applicable && resolutionCase ? (
           <div className="space-y-3">
             <p className="text-xs text-text-muted">
               复核人：{resolutionCase.review?.actor || "—"}；方案提出人：{resolutionCase.proposedBy || "—"}。后端将执行 SoD 与角色校验。
@@ -430,12 +506,14 @@ export function GovernanceProcess({
                 {invocationError(mutations.approve.mutation)}
               </p>
             )}
-            <Button
-              disabled={mutations.approve.mutation.isPending}
+            <CapabilityButton
+              capability={resolutionCapabilities.canApprove}
+              pending={mutations.approve.mutation.isPending}
+              pendingLabel="正在审批..."
               onClick={() => void mutations.approve.run({ caseId: resolutionCase.id })}
             >
-              {mutations.approve.mutation.isPending ? "正在审批..." : "批准方案"}
-            </Button>
+              批准方案
+            </CapabilityButton>
           </div>
         ) : approvalDone ? (
           <dl className="grid gap-2 text-xs sm:grid-cols-3">
@@ -458,16 +536,18 @@ export function GovernanceProcess({
         expanded={expandedStep === "execution"}
         onToggle={() => setExpandedStep(expandedStep === "execution" ? "" : "execution")}
       >
-        {resolutionCase?.status === "approved" ? (
+        {resolutionCapabilities.canExecute.applicable && resolutionCase ? (
           <div className="space-y-3">
             <ActionList resolution={resolutionCase} />
             {mutations.execute.mutation.error && <p className="text-xs text-danger">{invocationError(mutations.execute.mutation)}</p>}
-            <Button
-              disabled={mutations.execute.mutation.isPending}
+            <CapabilityButton
+              capability={resolutionCapabilities.canExecute}
+              pending={mutations.execute.mutation.isPending}
+              pendingLabel="正在执行..."
               onClick={() => void mutations.execute.run({ caseId: resolutionCase.id })}
             >
-              {mutations.execute.mutation.isPending ? "正在执行..." : "执行已批准方案"}
-            </Button>
+              执行已批准方案
+            </CapabilityButton>
           </div>
         ) : executionDone && resolutionCase ? (
           <ActionList resolution={resolutionCase} />
@@ -503,21 +583,23 @@ export function GovernanceProcess({
               })}
             </div>
             <p className="text-xs text-text-muted">回执成功表示内部执行结果已登记，不代表 Resolution 已结案。</p>
-            {resolutionCase?.status === "executed" && (
-              <div className="space-y-2">
-                {mutations.close.mutation.error && <p className="text-xs text-danger">{invocationError(mutations.close.mutation)}</p>}
-                <Button
-                  variant="outline"
-                  disabled={mutations.close.mutation.isPending}
-                  onClick={() => void mutations.close.run({ caseId: resolutionCase.id })}
-                >
-                  {mutations.close.mutation.isPending ? "正在核验结案..." : "核验回执并结案"}
-                </Button>
-              </div>
-            )}
           </div>
         ) : (
           <InlineEmpty message="暂无执行回执" />
+        )}
+        {resolutionCapabilities.canClose.applicable && resolutionCase && (
+          <div className="mt-3 space-y-2">
+            {mutations.close.mutation.error && <p className="text-xs text-danger">{invocationError(mutations.close.mutation)}</p>}
+            <CapabilityButton
+              capability={resolutionCapabilities.canClose}
+              pending={mutations.close.mutation.isPending}
+              pendingLabel="正在核验结案..."
+              variant="outline"
+              onClick={() => void mutations.close.run({ caseId: resolutionCase.id })}
+            >
+              核验回执并结案
+            </CapabilityButton>
+          </div>
         )}
       </ProcessStep>
 

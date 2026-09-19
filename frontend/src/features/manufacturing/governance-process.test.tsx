@@ -2,15 +2,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DemoSettingsProvider } from "../../app/demo-settings.js";
+import { DemoSettingsProvider, useDemoSettings } from "../../app/demo-settings.js";
 import { decisionFixture } from "../../test/fixtures/manufacturing.js";
 import {
   outcomeListFixture,
   policyListFixture,
+  resolutionCapabilitiesFixture,
   resolutionQueryFixture,
   resolutionReceiptFixture,
 } from "../../test/fixtures/governance.js";
-import type { ResolutionCaseQueryView } from "./analysis-types.js";
+import type { ResolutionCapabilitiesResponseView, ResolutionCaseQueryView } from "./analysis-types.js";
 import { GovernanceProcess } from "./components/governance-process.js";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -27,19 +28,56 @@ function mockGovernanceApi(options: {
   holdExecution?: boolean;
   resolutionError?: boolean;
   outcomes?: typeof outcomeListFixture;
+  resolutionListEmpty?: boolean;
+  capabilities?: ResolutionCapabilitiesResponseView;
+  capabilitiesByActor?: Record<string, ResolutionCapabilitiesResponseView>;
 } ) {
   let resolution = structuredClone(options.initial);
   const calls: string[] = [];
+  const currentCapabilities = () => options.capabilities ?? resolutionCapabilitiesFixture({
+    status: options.resolutionListEmpty
+      ? undefined
+      : resolution.resolutionCase.status as "triaged" | "confirmed" | "proposed" | "approved" | "executed" | "closed" | "rejected",
+    submitted: resolution.resolutionCase.runtime.actions.length > 0 &&
+      resolution.resolutionCase.runtime.actions.every((action) => action.status === "pending_approval"),
+  });
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     const pathname = new URL(url, window.location.origin).pathname;
     const method = init?.method ?? "GET";
     calls.push(`${method} ${pathname}`);
+    const headers = new Headers(init?.headers);
+    if (method === "GET" && pathname === "/api/v2/auth/context") {
+      const actorId = headers.get("x-actor") ?? "quality-owner";
+      const actor = {
+        "quality-owner": { user: "品质负责人", roles: ["品质负责人"] },
+        "sales-director": { user: "销售总监", roles: ["销售总监"] },
+        "general-manager": { user: "总经理", roles: ["总经理"] },
+        admin: { user: "管理员", roles: ["管理员"] },
+      }[actorId] ?? { user: actorId, roles: [] };
+      return jsonResponse({
+        currentActor: {
+          tenantId: "demo-manufacturing",
+          organization: "示例制造企业",
+          user: actor.user,
+          subjectId: `demo-${actorId}`,
+          roles: actor.roles,
+          authnMethod: "demo-header",
+        },
+      });
+    }
+    if (method === "GET" && pathname.endsWith("/resolution-capabilities")) {
+      const actorId = headers.get("x-actor") ?? "quality-owner";
+      return jsonResponse(options.capabilitiesByActor?.[actorId] ?? currentCapabilities());
+    }
     if (method === "GET" && pathname.endsWith("/policy-evaluations")) return jsonResponse(policyListFixture(options.mode));
     if (method === "GET" && pathname.endsWith("/outcome-evaluations")) return jsonResponse(options.outcomes ?? outcomeListFixture);
     if (method === "GET" && pathname.endsWith("/resolution-cases")) {
       if (options.resolutionError) return jsonResponse({ error: "resolution_unavailable" }, 500);
-      return jsonResponse({ contextId: "ctx-fixture", resolutionCases: [resolution.resolutionCase] });
+      return jsonResponse({
+        contextId: "ctx-fixture",
+        resolutionCases: options.resolutionListEmpty ? [] : [resolution.resolutionCase],
+      });
     }
     if (method === "GET" && pathname.endsWith("/resolution-cases/resolution-fixture")) return jsonResponse(resolution);
     if (method === "POST" && pathname.endsWith("/review")) {
@@ -85,6 +123,7 @@ function renderProcess(selectedOptionId = "option-evidence") {
   const tree = (optionId: string) => (
     <QueryClientProvider client={queryClient}>
       <DemoSettingsProvider>
+        <ActorSwitch />
         <GovernanceProcess
           contextId="ctx-fixture"
           exceptionId="exception-claim"
@@ -101,6 +140,11 @@ function renderProcess(selectedOptionId = "option-evidence") {
       view.rerender(tree(optionId));
     },
   };
+}
+
+function ActorSwitch() {
+  const { setActorId } = useDemoSettings();
+  return <button type="button" onClick={() => setActorId("sales-director")}>切换销售总监</button>;
 }
 
 beforeEach(() => {
@@ -182,6 +226,181 @@ describe("governance process", () => {
     expect(screen.getByTestId("process-step-outcome")).toHaveTextContent("已有后续测量");
     await user.click(screen.getByRole("button", { name: "批准方案" }));
     expect(await screen.findByText(/复核\/方案提出人与审批人必须分离/)).toBeInTheDocument();
+  });
+
+  it("disables approval before click when the backend denies the current role", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("proposed", { submitted: true }),
+      capabilities: resolutionCapabilitiesFixture({
+        status: "proposed",
+        submitted: true,
+        overrides: {
+          canApprove: {
+            applicable: true,
+            allowed: false,
+            reasonCode: "ROLE_NOT_ALLOWED",
+            reason: "当前角色没有审批权限",
+          },
+        },
+      }),
+    });
+    renderProcess();
+
+    expect(await screen.findByRole("button", { name: "批准方案" })).toBeDisabled();
+    expect(screen.getByText("当前角色没有审批权限")).toBeInTheDocument();
+  });
+
+  it("shows the segregation-of-duties reason before approval is clicked", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("proposed", { submitted: true }),
+      capabilities: resolutionCapabilitiesFixture({
+        status: "proposed",
+        submitted: true,
+        overrides: {
+          canApprove: {
+            applicable: true,
+            allowed: false,
+            reasonCode: "SEGREGATION_OF_DUTIES_VIOLATION",
+            reason: "方案提出人与审批人必须分离",
+          },
+        },
+      }),
+    });
+    renderProcess();
+
+    expect(await screen.findByRole("button", { name: "批准方案" })).toBeDisabled();
+    expect(screen.getByText("方案提出人与审批人必须分离")).toBeInTheDocument();
+  });
+
+  it("executes a real approve mutation when the backend capability allows it", async () => {
+    const user = userEvent.setup();
+    const calls = mockGovernanceApi({
+      initial: resolutionQueryFixture("proposed", { submitted: true }),
+      capabilities: resolutionCapabilitiesFixture({
+        status: "proposed",
+        submitted: true,
+        overrides: {
+          canApprove: {
+            applicable: true,
+            allowed: true,
+            reasonCode: "ALLOWED",
+            reason: "允许执行",
+          },
+        },
+      }),
+    });
+    renderProcess();
+
+    await user.click(await screen.findByRole("button", { name: "批准方案" }));
+    await waitFor(() => expect(calls).toContain("POST /api/v2/resolution-cases/resolution-fixture/approve"));
+    await waitFor(() => expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "done"));
+  });
+
+  it("disables execution when the backend denies the current role", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("approved"),
+      capabilities: resolutionCapabilitiesFixture({
+        status: "approved",
+        overrides: {
+          canExecute: {
+            applicable: true,
+            allowed: false,
+            reasonCode: "ROLE_NOT_ALLOWED",
+            reason: "当前角色没有执行已批准方案的权限",
+          },
+        },
+      }),
+    });
+    renderProcess();
+
+    expect(await screen.findByRole("button", { name: "执行已批准方案" })).toBeDisabled();
+    expect(screen.getByText("当前角色没有执行已批准方案的权限")).toBeInTheDocument();
+  });
+
+  it("disables closure when the backend denies the current role", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("executed", { receipts: [resolutionReceiptFixture()] }),
+      capabilities: resolutionCapabilitiesFixture({
+        status: "executed",
+        overrides: {
+          canClose: {
+            applicable: true,
+            allowed: false,
+            reasonCode: "ROLE_NOT_ALLOWED",
+            reason: "当前角色没有核验结案的权限",
+          },
+        },
+      }),
+    });
+    renderProcess();
+
+    expect(await screen.findByRole("button", { name: "核验回执并结案" })).toBeDisabled();
+    expect(screen.getByText("当前角色没有核验结案的权限")).toBeInTheDocument();
+  });
+
+  it("renders only assignable owner roles returned by the backend", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("triaged"),
+      resolutionListEmpty: true,
+      capabilities: resolutionCapabilitiesFixture({ ownerRoles: ["财务"] }),
+    });
+    renderProcess();
+
+    const ownerRole = await screen.findByLabelText("处置负责人");
+    expect(ownerRole).toHaveValue("财务");
+    expect(screen.getByRole("option", { name: "财务" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "品质负责人" })).not.toBeInTheDocument();
+  });
+
+  it("disables owner assignment when the backend provides no assignable roles", async () => {
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("triaged"),
+      resolutionListEmpty: true,
+      capabilities: resolutionCapabilitiesFixture({ ownerRoles: [] }),
+    });
+    renderProcess();
+
+    expect(await screen.findByLabelText("处置负责人")).toBeDisabled();
+    expect(screen.getByText("后端未提供可指派负责人角色。")).toBeInTheDocument();
+  });
+
+  it("refreshes capabilities when the demo actor changes", async () => {
+    const user = userEvent.setup();
+    mockGovernanceApi({
+      initial: resolutionQueryFixture("proposed", { submitted: true }),
+      capabilitiesByActor: {
+        "quality-owner": resolutionCapabilitiesFixture({
+          status: "proposed",
+          submitted: true,
+          overrides: {
+            canApprove: {
+              applicable: true,
+              allowed: false,
+              reasonCode: "ROLE_NOT_ALLOWED",
+              reason: "当前角色没有审批权限",
+            },
+          },
+        }),
+        "sales-director": resolutionCapabilitiesFixture({
+          status: "proposed",
+          submitted: true,
+          overrides: {
+            canApprove: {
+              applicable: true,
+              allowed: true,
+              reasonCode: "ALLOWED",
+              reason: "允许执行",
+            },
+          },
+        }),
+      },
+    });
+    renderProcess();
+
+    expect(await screen.findByRole("button", { name: "批准方案" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "切换销售总监" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "批准方案" })).toBeEnabled());
+    expect(screen.queryByText("当前角色没有审批权限")).not.toBeInTheDocument();
   });
 
   it("executes, shows receipts, then closes without conflating receipt with closure", async () => {

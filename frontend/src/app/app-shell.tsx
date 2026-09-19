@@ -2,6 +2,7 @@ import { Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, 
 import { useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../components/ui/button.js";
+import { useAccountContext } from "../hooks/use-manufacturing.js";
 import { cn } from "../lib/utils.js";
 import { DEMO_ACTORS, useDemoSettings } from "./demo-settings.js";
 
@@ -13,13 +14,19 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { actorId, setActorId } = useDemoSettings();
+  const accountContext = useAccountContext();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hasToken = Boolean(window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken"));
-  const actor = DEMO_ACTORS.find((item) => item.id === actorId) ?? DEMO_ACTORS[0];
-  // COMMERCIAL_GAP: Production organization, user, role, and role-switching data must come from backend auth/RBAC.
-  const account = hasToken
-    ? { organization: "当前企业", user: "已认证用户", role: "由后端权限决定" }
-    : { organization: "示例制造企业", user: actor.label, role: actor.label };
+  const currentActor = accountContext.data?.currentActor;
+  const account = currentActor
+    ? {
+      organization: currentActor.organization,
+      user: currentActor.user,
+      role: currentActor.roles.join("、") || "角色未记录",
+    }
+    : null;
+  const accountSummary = account?.organization ?? (accountContext.isLoading ? "正在读取账户信息" : "账户信息暂不可用");
+  const accountUser = account?.user ?? (accountContext.isLoading ? "正在读取当前用户" : "用户信息不可用");
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
@@ -56,8 +63,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Building2 className="size-3.5" aria-hidden="true" />
                 </span>
                 <span className="hidden min-w-0 md:block">
-                  <span className="block truncate text-xs font-medium text-text-secondary">{account.organization}</span>
-                  <span className="block truncate text-[11px] text-text-muted">{account.user}</span>
+                  <span className="block truncate text-xs font-medium text-text-secondary">{accountSummary}</span>
+                  <span className="block truncate text-[11px] text-text-muted">{accountUser}</span>
                 </span>
                 <ChevronDown className="size-3.5 text-text-muted" aria-hidden="true" />
               </summary>
@@ -67,8 +74,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <UserRound className="size-4" aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate text-xs font-semibold text-text-secondary">{account.organization}</div>
-                    <div className="mt-0.5 text-xs text-text-muted">{account.user} · {account.role}</div>
+                    <div className="truncate text-xs font-semibold text-text-secondary">{accountSummary}</div>
+                    <div className="mt-0.5 text-xs text-text-muted">
+                      {account ? `${account.user} · ${account.role}` : accountUser}
+                    </div>
                   </div>
                 </div>
                 {!hasToken && (

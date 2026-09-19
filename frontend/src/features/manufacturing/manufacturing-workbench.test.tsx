@@ -15,6 +15,7 @@ import {
   rootCauseListFixture,
   workbenchFixture,
 } from "../../test/fixtures/manufacturing.js";
+import { resolutionCapabilitiesFixture } from "../../test/fixtures/governance.js";
 import { ManufacturingWorkbenchPage } from "./pages/manufacturing-workbench-page.js";
 import type { EvidenceBundleView } from "./types.js";
 import { businessFactLabel, governanceActionStatusLabel, sourceSystemLabel } from "./utils.js";
@@ -37,11 +38,25 @@ function mockApi(options: {
   decision?: unknown;
   error?: boolean;
   analysisError?: boolean;
+  explanationListError?: boolean;
+  holdExplanationList?: boolean;
 } = {}) {
   vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
     const url = String(input);
     const pathname = new URL(url, window.location.origin).pathname;
     if (options.error) return jsonResponse({ error: "not_found" }, 500);
+    if (pathname === "/api/v2/auth/context") {
+      return jsonResponse({
+        currentActor: {
+          tenantId: "demo-manufacturing",
+          organization: "示例制造企业",
+          user: "品质负责人",
+          subjectId: "demo-quality-owner",
+          roles: ["品质负责人"],
+          authnMethod: "demo-header",
+        },
+      });
+    }
     if (options.analysisError && (
       pathname.includes("/explanations") ||
       pathname.includes("/root-cause-analyses") ||
@@ -49,7 +64,15 @@ function mockApi(options: {
     )) return jsonResponse({ error: "provider_failure" }, 500);
     if (pathname.endsWith("/workbench")) return jsonResponse(options.workbench ?? workbenchFixture);
     if (pathname.endsWith("/bundle")) return jsonResponse(options.evidence ?? evidenceBundleFixture);
-    if (pathname.endsWith("/explanations")) return jsonResponse(options.explanationList ?? explanationListFixture);
+    if (pathname.endsWith("/resolution-capabilities")) return jsonResponse(resolutionCapabilitiesFixture());
+    if (pathname.endsWith("/resolution-cases")) return jsonResponse({ contextId: "ctx-fixture", resolutionCases: [] });
+    if (pathname.endsWith("/policy-evaluations")) return jsonResponse({ contextId: "ctx-fixture", exceptionId: "exception-claim", evaluations: [] });
+    if (pathname.endsWith("/outcome-evaluations")) return jsonResponse({ contextId: "ctx-fixture", exceptionId: "exception-claim", evaluations: [] });
+    if (pathname.endsWith("/explanations")) {
+      if (options.holdExplanationList) return new Promise(() => {});
+      if (options.explanationListError) return jsonResponse({ error: "explanation_unavailable" }, 500);
+      return jsonResponse(options.explanationList ?? explanationListFixture);
+    }
     if (pathname.includes("/explanations/")) return jsonResponse(options.explanation ?? explanationFixture);
     if (pathname.endsWith("/root-cause-analyses")) return jsonResponse(options.rootCauseList ?? rootCauseListFixture);
     if (pathname.includes("/root-cause-analyses/")) return jsonResponse(options.rootCause ?? rootCauseFixture);
@@ -151,6 +174,18 @@ describe("Manufacturing decision workbench", () => {
     });
     renderAt("/manufacturing/ctx-fixture");
     expect(await screen.findByText("暂无明确待核实事项")).toBeInTheDocument();
+  });
+
+  it("distinguishes loading and error states while reading verification questions", async () => {
+    mockApi({ holdExplanationList: true });
+    renderAt("/manufacturing/ctx-fixture");
+    await screen.findByRole("heading", { name: "SO-FIXTURE-001" });
+    expect(screen.getByText("正在读取待核实事项")).toBeInTheDocument();
+    cleanup();
+
+    mockApi({ explanationListError: true });
+    renderAt("/manufacturing/ctx-fixture");
+    expect(await screen.findByText("待核实事项暂不可用")).toBeInTheDocument();
   });
 
   it("keeps raw identifiers and fact keys inside the page-level details sheet", async () => {

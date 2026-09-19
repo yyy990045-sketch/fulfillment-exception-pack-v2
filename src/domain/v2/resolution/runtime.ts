@@ -9,6 +9,15 @@ import type {
 } from "./types.js";
 
 const nowIso = () => new Date().toISOString();
+const RESOLUTION_APPROVER_ROLES = ["总经理", "管理员", "销售总监", "财务", "工程师"] as const;
+
+export function isResolutionApprover(actor: string, actorRoles: string[]) {
+  return RESOLUTION_APPROVER_ROLES.some((role) => actor === role || actorRoles.includes(role));
+}
+
+export function hasResolutionSegregationOfDutiesViolation(current: ResolutionCase, actor: string) {
+  return current.review?.actor === actor || current.proposedBy === actor;
+}
 
 function withResolutionRuntime(current: ResolutionCase, runtime: ResolutionCase["runtime"], updatedAt: string): ResolutionCase {
   return {
@@ -178,7 +187,7 @@ export function approveResolution(
   if (!current.runtime.actions.length || current.runtime.actions.some((action) => action.status !== "pending_approval")) {
     throw new Error("resolution_approval_not_submitted");
   }
-  if (current.review?.actor === actor || current.proposedBy === actor) {
+  if (hasResolutionSegregationOfDutiesViolation(current, actor)) {
     throw new Error("SEGREGATION_OF_DUTIES_VIOLATION");
   }
   const approved = approve(current.runtime, actor, undefined, actorRoles);
@@ -214,7 +223,7 @@ export function executeResolution(
     current.runtime.actions.every((action) => action.receipt && ["succeeded", "verified"].includes(action.status))
   ) return current;
   if (current.status !== "approved") throw new Error("resolution_execution_not_allowed");
-  if (!actorRoles.some((role) => ["总经理", "管理员", "销售总监", "财务", "工程师"].includes(role)) && !["总经理", "管理员", "销售总监", "财务", "工程师"].includes(actor)) {
+  if (!isResolutionApprover(actor, actorRoles)) {
     throw new Error("forbidden_approver");
   }
   const executed = execute(current.runtime, actor, operationKey, (action, operation) =>
@@ -229,7 +238,7 @@ export function executeResolution(
 export function closeResolution(current: ResolutionCase, actor: string, actorRoles: string[], closedAt = nowIso()) {
   if (current.status === "closed" && current.runtime.status === "closed") return current;
   if (current.status !== "executed") throw new Error("resolution_close_not_allowed");
-  if (!actorRoles.some((role) => ["总经理", "管理员", "销售总监", "财务", "工程师"].includes(role)) && !["总经理", "管理员", "销售总监", "财务", "工程师"].includes(actor)) {
+  if (!isResolutionApprover(actor, actorRoles)) {
     throw new Error("forbidden_approver");
   }
   const closed = verifyAndClose(current.runtime, actor);

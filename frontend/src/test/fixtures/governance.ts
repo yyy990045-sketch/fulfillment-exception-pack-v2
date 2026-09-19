@@ -1,11 +1,61 @@
 import type {
   OutcomeEvaluationListResponse,
   PolicyEvaluationListResponse,
+  ResolutionCapabilitiesResponseView,
+  ResolutionCapabilitiesView,
   ResolutionCaseQueryView,
   ResolutionReceiptView,
 } from "../../features/manufacturing/analysis-types.js";
 
 const createdAt = "2026-09-19T00:00:00.000Z";
+
+const capability = (applicable: boolean, allowed = false, reasonCode = "ACTION_NOT_APPLICABLE", reason = "当前流程不适用") => ({
+  applicable,
+  allowed,
+  reasonCode,
+  reason,
+});
+
+export function resolutionCapabilitiesFixture(options: {
+  status?: "triaged" | "confirmed" | "proposed" | "approved" | "executed" | "closed" | "rejected";
+  submitted?: boolean;
+  ownerRoles?: string[];
+  overrides?: Partial<ResolutionCapabilitiesView>;
+} = {}): ResolutionCapabilitiesResponseView {
+  const status = options.status;
+  const submitted = options.submitted ?? false;
+  const defaultCapabilities: ResolutionCapabilitiesView = status === undefined
+    ? {
+      canAccept: capability(true, true, "ALLOWED", "允许执行"),
+      canReview: capability(false),
+      canPropose: capability(false),
+      canSubmit: capability(false),
+      canApprove: capability(false),
+      canExecute: capability(false),
+      canClose: capability(false),
+    }
+    : {
+      canAccept: capability(false),
+      canReview: capability(status === "triaged", status === "triaged", "ALLOWED", "允许执行"),
+      canPropose: capability(status === "confirmed", status === "confirmed", "ALLOWED", "允许执行"),
+      canSubmit: capability(status === "proposed" && !submitted, status === "proposed" && !submitted, "ALLOWED", "允许执行"),
+      canApprove: capability(status === "proposed" && submitted, status === "proposed" && submitted, "ALLOWED", "允许执行"),
+      canExecute: capability(status === "approved", status === "approved", "ALLOWED", "允许执行"),
+      canClose: capability(status === "executed", status === "executed", "ALLOWED", "允许执行"),
+    };
+  return {
+    currentActor: {
+      tenantId: "demo-manufacturing",
+      organization: "示例制造企业",
+      user: "品质负责人",
+      subjectId: "demo-quality-owner",
+      roles: ["品质负责人"],
+      authnMethod: "demo-header",
+    },
+    resolutionCapabilities: { ...defaultCapabilities, ...options.overrides },
+    assignableOwnerRoles: options.ownerRoles ?? ["品质负责人", "销售总监", "工程师", "财务", "总经理", "管理员"],
+  };
+}
 
 export function policyListFixture(mode: "human_only" | "approval_required" | "auto_eligible" = "approval_required"): PolicyEvaluationListResponse {
   return {

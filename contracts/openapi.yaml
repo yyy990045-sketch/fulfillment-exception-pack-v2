@@ -907,6 +907,31 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ExceptionEvidenceBundle' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/auth/context:
+    parameters:
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Current authenticated or demo actor projected by the backend
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/CurrentActorContextResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/resolution-capabilities:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Backend-derived Resolution action capabilities and assignable owner roles
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/ResolutionCapabilitiesResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/resolution-case:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -2330,6 +2355,52 @@ components:
             properties:
               type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
               summary: { type: string, minLength: 1 }
+    CurrentActorContext:
+      type: object
+      additionalProperties: false
+      required: [tenantId, organization, user, subjectId, roles, authnMethod]
+      properties:
+        tenantId: { type: string }
+        organization: { type: string }
+        user: { type: string }
+        subjectId: { type: string }
+        roles: { type: array, items: { type: string } }
+        authnMethod: { type: string, enum: [demo-header, jwt-hs256] }
+    CurrentActorContextResponse:
+      type: object
+      additionalProperties: false
+      required: [currentActor]
+      properties:
+        currentActor: { $ref: '#/components/schemas/CurrentActorContext' }
+    CapabilityDecision:
+      type: object
+      additionalProperties: false
+      required: [applicable, allowed, reasonCode, reason]
+      properties:
+        applicable: { type: boolean }
+        allowed: { type: boolean }
+        reasonCode: { type: string }
+        reason: { type: string }
+    ResolutionCapabilities:
+      type: object
+      additionalProperties: false
+      required: [canAccept, canReview, canPropose, canSubmit, canApprove, canExecute, canClose]
+      properties:
+        canAccept: { $ref: '#/components/schemas/CapabilityDecision' }
+        canReview: { $ref: '#/components/schemas/CapabilityDecision' }
+        canPropose: { $ref: '#/components/schemas/CapabilityDecision' }
+        canSubmit: { $ref: '#/components/schemas/CapabilityDecision' }
+        canApprove: { $ref: '#/components/schemas/CapabilityDecision' }
+        canExecute: { $ref: '#/components/schemas/CapabilityDecision' }
+        canClose: { $ref: '#/components/schemas/CapabilityDecision' }
+    ResolutionCapabilitiesResponse:
+      type: object
+      additionalProperties: false
+      required: [currentActor, resolutionCapabilities, assignableOwnerRoles]
+      properties:
+        currentActor: { $ref: '#/components/schemas/CurrentActorContext' }
+        resolutionCapabilities: { $ref: '#/components/schemas/ResolutionCapabilities' }
+        assignableOwnerRoles: { type: array, items: { type: string } }
     ResolutionCase:
       type: object
       additionalProperties: true

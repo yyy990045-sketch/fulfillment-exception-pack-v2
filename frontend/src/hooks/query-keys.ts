@@ -1,4 +1,5 @@
 export const queryKeys = {
+  accountContext: (tenantId: string, actorId: string) => ["account-context", tenantId, actorId] as const,
   workbench: (tenantId: string, contextId: string) => ["workbench", tenantId, contextId] as const,
   exceptionEvidence: (tenantId: string, contextId: string, exceptionId: string) =>
     ["exception-evidence", tenantId, contextId, exceptionId] as const,
@@ -20,6 +21,8 @@ export const queryKeys = {
     ["resolution-cases", tenantId, contextId] as const,
   resolutionCase: (tenantId: string, caseId: string) =>
     ["resolution-case", tenantId, caseId] as const,
+  resolutionCapabilities: (tenantId: string, actorId: string, contextId: string, exceptionId: string) =>
+    ["resolution-capabilities", tenantId, actorId, contextId, exceptionId] as const,
   outcomeEvaluations: (tenantId: string, contextId: string, exceptionId: string) =>
     ["outcome-evaluations", tenantId, contextId, exceptionId] as const,
 };

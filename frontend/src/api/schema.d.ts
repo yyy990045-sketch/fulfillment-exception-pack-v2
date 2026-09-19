@@ -2881,6 +2881,105 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/auth/context": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                "x-actor"?: components["parameters"]["DemoActorHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                    "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                    /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                    "x-actor"?: components["parameters"]["DemoActorHeader"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Current authenticated or demo actor projected by the backend */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CurrentActorContextResponse"];
+                    };
+                };
+                401: components["responses"]["Unauthorized"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/contexts/{contextId}/exceptions/{exceptionId}/resolution-capabilities": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                "x-actor"?: components["parameters"]["DemoActorHeader"];
+            };
+            path: {
+                contextId: components["parameters"]["V2ContextId"];
+                exceptionId: components["parameters"]["V2ExceptionId"];
+            };
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                    "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                    /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                    "x-actor"?: components["parameters"]["DemoActorHeader"];
+                };
+                path: {
+                    contextId: components["parameters"]["V2ContextId"];
+                    exceptionId: components["parameters"]["V2ExceptionId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Backend-derived Resolution action capabilities and assignable owner roles */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ResolutionCapabilitiesResponse"];
+                    };
+                };
+                401: components["responses"]["Unauthorized"];
+                404: components["responses"]["NotFound"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/contexts/{contextId}/exceptions/{exceptionId}/resolution-case": {
         parameters: {
             query?: never;
@@ -4372,6 +4471,38 @@ export interface components {
                 type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
                 summary: string;
             }[];
+        };
+        CurrentActorContext: {
+            tenantId: string;
+            organization: string;
+            user: string;
+            subjectId: string;
+            roles: string[];
+            /** @enum {string} */
+            authnMethod: "demo-header" | "jwt-hs256";
+        };
+        CurrentActorContextResponse: {
+            currentActor: components["schemas"]["CurrentActorContext"];
+        };
+        CapabilityDecision: {
+            applicable: boolean;
+            allowed: boolean;
+            reasonCode: string;
+            reason: string;
+        };
+        ResolutionCapabilities: {
+            canAccept: components["schemas"]["CapabilityDecision"];
+            canReview: components["schemas"]["CapabilityDecision"];
+            canPropose: components["schemas"]["CapabilityDecision"];
+            canSubmit: components["schemas"]["CapabilityDecision"];
+            canApprove: components["schemas"]["CapabilityDecision"];
+            canExecute: components["schemas"]["CapabilityDecision"];
+            canClose: components["schemas"]["CapabilityDecision"];
+        };
+        ResolutionCapabilitiesResponse: {
+            currentActor: components["schemas"]["CurrentActorContext"];
+            resolutionCapabilities: components["schemas"]["ResolutionCapabilities"];
+            assignableOwnerRoles: string[];
         };
         ResolutionCase: {
             [key: string]: unknown;

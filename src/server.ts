@@ -69,6 +69,7 @@ import { EvidenceError, parseCsv } from "./evidence/extract.js";
 import {
   acceptExceptionForResolution,
   approveResolutionCase,
+  buildResolutionCapabilities,
   closeResolutionCase,
   evaluateContextRules,
   executeResolutionCase,
@@ -223,6 +224,17 @@ function requireActor(req: import("node:http").IncomingMessage) {
 }
 
 function authOf(req: import("node:http").IncomingMessage): AuthContext { return authenticate(req.headers); }
+
+function currentActorProjection(auth: AuthContext) {
+  return {
+    tenantId: auth.tenantId,
+    organization: auth.authnMethod === "demo-header" ? "示例制造企业" : auth.tenantId,
+    user: auth.displayName,
+    subjectId: auth.subjectId,
+    roles: auth.roles,
+    authnMethod: auth.authnMethod,
+  };
+}
 
 function authorizeCase(req: import("node:http").IncomingMessage, g: GoldCase) {
   const auth = authOf(req);
@@ -388,6 +400,9 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true });
+    if (req.method === "GET" && url.pathname === "/api/v2/auth/context") {
+      return json(res, 200, { currentActor: currentActorProjection(authOf(req)) });
+    }
     if (req.method === "GET" && url.pathname === "/api/v2/analytics/operational") {
       const tenantId = authOf(req).tenantId;
       const analytics = buildOperationalAnalytics(getV2Store(), tenantId, {
@@ -892,6 +907,24 @@ const server = createServer(async (req, res) => {
       const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
       if (!bundle || bundle.contextId !== contextId) return json(res, 404, { error: "not_found" });
       return json(res, 200, bundle);
+    }
+    const v2ResolutionCapabilitiesMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-capabilities$/);
+    if (req.method === "GET" && v2ResolutionCapabilitiesMatch) {
+      const auth = authOf(req);
+      const contextId = decodeURIComponent(v2ResolutionCapabilitiesMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(v2ResolutionCapabilitiesMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.getContext(auth.tenantId, contextId)) return json(res, 404, { error: "not_found" });
+      const exception = store.listExceptions(auth.tenantId, contextId).find((item) => item.id === exceptionId);
+      if (!exception) return json(res, 404, { error: "not_found" });
+      const resolutionCase = store.getResolutionCaseByException(auth.tenantId, exceptionId);
+      const bundle = store.getExceptionEvidenceBundle(auth.tenantId, exceptionId);
+      return json(res, 200, buildResolutionCapabilities({
+        currentActor: currentActorProjection(auth),
+        exception,
+        hasEvidenceBundle: Boolean(bundle),
+        ...(resolutionCase ? { resolutionCase } : {}),
+      }));
     }
     const v2ResolutionCreateMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-case$/);
     if (req.method === "POST" && v2ResolutionCreateMatch) {

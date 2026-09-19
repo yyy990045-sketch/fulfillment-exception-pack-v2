@@ -5,6 +5,7 @@ import { useDemoSettings } from "../app/demo-settings.js";
 import type {
   DecisionRecommendationListResponse,
   DecisionRecommendationView,
+  CurrentActorContextView,
   ExplanationListResponse,
   ExplanationResponse,
   RootCauseAnalysisListResponse,
@@ -13,6 +14,7 @@ import type {
   PolicyEvaluationListResponse,
   PolicyEvaluationView,
   ResolutionCaseListResponse,
+  ResolutionCapabilitiesResponseView,
   ResolutionCaseQueryView,
 } from "../features/manufacturing/analysis-types.js";
 import type { EvidenceBundleView, WorkbenchView } from "../features/manufacturing/types.js";
@@ -27,6 +29,29 @@ export function useWorkbenchView(contextId: string) {
       { identity, signal },
     ),
     enabled: Boolean(contextId),
+  });
+}
+
+export function useAccountContext() {
+  const { identity } = useDemoSettings();
+  return useQuery({
+    queryKey: queryKeys.accountContext(identity.tenantId, identity.actorId),
+    queryFn: ({ signal }) => apiRequest<{ currentActor: CurrentActorContextView }>(
+      "/api/v2/auth/context",
+      { identity, signal },
+    ),
+  });
+}
+
+export function useResolutionCapabilities(contextId: string, exceptionId: string | undefined) {
+  const { identity } = useDemoSettings();
+  return useQuery({
+    queryKey: queryKeys.resolutionCapabilities(identity.tenantId, identity.actorId, contextId, exceptionId ?? ""),
+    queryFn: ({ signal }) => apiRequest<ResolutionCapabilitiesResponseView>(
+      `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId ?? "")}/resolution-capabilities`,
+      { identity, signal },
+    ),
+    enabled: Boolean(contextId && exceptionId),
   });
 }
 
@@ -79,6 +104,7 @@ export function useOutcomeEvaluations(contextId: string, exceptionId: string | u
 async function invalidateGovernanceQueries(
   queryClient: QueryClient,
   tenantId: string,
+  actorId: string,
   contextId: string,
   exceptionId: string,
 ) {
@@ -87,6 +113,7 @@ async function invalidateGovernanceQueries(
     queryClient.invalidateQueries({ queryKey: queryKeys.policyEvaluations(tenantId, contextId, exceptionId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.resolutionList(tenantId, contextId) }),
     queryClient.invalidateQueries({ queryKey: ["resolution-case", tenantId] }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.resolutionCapabilities(tenantId, actorId, contextId, exceptionId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.outcomeEvaluations(tenantId, contextId, exceptionId) }),
   ]);
 }
@@ -114,7 +141,7 @@ function useGuardedMutation<TInput, TResult>(
 export function useGovernanceMutations(contextId: string, exceptionId: string) {
   const { identity } = useDemoSettings();
   const queryClient = useQueryClient();
-  const invalidate = () => invalidateGovernanceQueries(queryClient, identity.tenantId, contextId, exceptionId);
+  const invalidate = () => invalidateGovernanceQueries(queryClient, identity.tenantId, identity.actorId, contextId, exceptionId);
   const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
 
   const policy = useGuardedMutation(

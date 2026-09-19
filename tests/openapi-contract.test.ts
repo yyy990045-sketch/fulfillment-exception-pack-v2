@@ -72,4 +72,14 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("causalAttribution: { type: boolean, enum: [false] }");
     expect(openapi).toContain("outcomes: { $ref: '#/components/schemas/OutcomeAnalyticsSummary' }");
   });
+
+  it("defines strict backend-owned Resolution capability contracts", () => {
+    expect(openapi).toContain("    CurrentActorContext:");
+    expect(openapi).toContain("    CapabilityDecision:");
+    expect(openapi).toContain("    ResolutionCapabilities:");
+    expect(openapi).toContain("    ResolutionCapabilitiesResponse:");
+    expect(openapi).toContain("additionalProperties: false");
+    expect(openapi).toContain("canApprove: { $ref: '#/components/schemas/CapabilityDecision' }");
+    expect(openapi).toContain("assignableOwnerRoles: { type: array, items: { type: string } }");
+  });
 });
