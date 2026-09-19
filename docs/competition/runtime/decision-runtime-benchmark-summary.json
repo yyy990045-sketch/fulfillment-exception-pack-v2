@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "decision-runtime-benchmark/v1",
+  "generatedAt": "2026-09-19T07:56:15.382Z",
+  "dataset": {
+    "synthetic": true,
+    "cases": 51,
+    "suites": {
+      "next_action": 21,
+      "human_governance_gate": 15,
+      "automation_risk_score": 15
+    },
+    "domains": {
+      "manufacturing": 22,
+      "finance": 19,
+      "generic": 10
+    },
+    "labelSource": "synthetic product rubric derived from the current Action Catalog and human-governance boundary"
+  },
+  "providers": {
+    "deterministic": {
+      "provider": "deterministic",
+      "model": "deterministic-decision-v1",
+      "status": "verified",
+      "verified": true,
+      "warmupUsed": false,
+      "overall": {
+        "caseCount": 51,
+        "successfulCases": 51,
+        "failedCases": 0,
+        "schemaValidRate": 1,
+        "exactAccuracy": 1,
+        "binaryBrierScore": 0,
+        "multiclassBrierScore": 0,
+        "scoreMae": 0,
+        "exactLevelAccuracy": 1,
+        "withinOneLevelAccuracy": 1,
+        "latencyP50Ms": 0.006583000000006223,
+        "latencyP95Ms": 0.07012499999999022,
+        "errorRate": 0,
+        "unsafeDecisionRate": 0,
+        "confidenceKindBreakdown": {
+          "deterministic": 51,
+          "provider_reported_calibrated": 0,
+          "self_reported": 0,
+          "probability_only": 0,
+          "none": 0
+        },
+        "thresholds": [
+          {
+            "threshold": 0.6,
+            "eligibleCases": 51,
+            "coverage": 1,
+            "selectiveAccuracy": 1
+          },
+          {
+            "threshold": 0.75,
+            "eligibleCases": 51,
+            "coverage": 1,
+            "selectiveAccuracy": 1
+          },
+          {
+            "threshold": 0.9,
+            "eligibleCases": 51,
+            "coverage": 1,
+            "selectiveAccuracy": 1
+          }
+        ],
+        "usage": {
+          "inputTokens": null,
+          "outputTokens": null,
+          "estimatedCostUsd": null
+        }
+      },
+      "suites": {
+        "next_action": {
+          "caseCount": 21,
+          "successfulCases": 21,
+          "failedCases": 0,
+          "schemaValidRate": 1,
+          "exactAccuracy": 1,
+          "binaryBrierScore": null,
+          "multiclassBrierScore": 0,
+          "scoreMae": null,
+          "exactLevelAccuracy": null,
+          "withinOneLevelAccuracy": null,
+          "latencyP50Ms": 0.025624999999990905,
+          "latencyP95Ms": 0.11591699999999605,
+          "errorRate": 0,
+          "unsafeDecisionRate": 0,
+          "confidenceKindBreakdown": {
+            "deterministic": 21,
+            "provider_reported_calibrated": 0,
+            "self_reported": 0,
+            "probability_only": 0,
+            "none": 0
+          },
+          "thresholds": [
+            {
+              "threshold": 0.6,
+              "eligibleCases": 21,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.75,
+              "eligibleCases": 21,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.9,
+              "eligibleCases": 21,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            }
+          ],
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "estimatedCostUsd": null
+          }
+        },
+        "human_governance_gate": {
+          "caseCount": 15,
+          "successfulCases": 15,
+          "failedCases": 0,
+          "schemaValidRate": 1,
+          "exactAccuracy": 1,
+          "binaryBrierScore": 0,
+          "multiclassBrierScore": null,
+          "scoreMae": null,
+          "exactLevelAccuracy": null,
+          "withinOneLevelAccuracy": null,
+          "latencyP50Ms": 0.0037920000000042364,
+          "latencyP95Ms": 0.023917000000011512,
+          "errorRate": 0,
+          "unsafeDecisionRate": 0,
+          "confidenceKindBreakdown": {
+            "deterministic": 15,
+            "provider_reported_calibrated": 0,
+            "self_reported": 0,
+            "probability_only": 0,
+            "none": 0
+          },
+          "thresholds": [
+            {
+              "threshold": 0.6,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.75,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.9,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            }
+          ],
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "estimatedCostUsd": null
+          }
+        },
+        "automation_risk_score": {
+          "caseCount": 15,
+          "successfulCases": 15,
+          "failedCases": 0,
+          "schemaValidRate": 1,
+          "exactAccuracy": 1,
+          "binaryBrierScore": null,
+          "multiclassBrierScore": 0,
+          "scoreMae": 0,
+          "exactLevelAccuracy": 1,
+          "withinOneLevelAccuracy": 1,
+          "latencyP50Ms": 0.003791000000006761,
+          "latencyP95Ms": 0.06308299999997757,
+          "errorRate": 0,
+          "unsafeDecisionRate": 0,
+          "confidenceKindBreakdown": {
+            "deterministic": 15,
+            "provider_reported_calibrated": 0,
+            "self_reported": 0,
+            "probability_only": 0,
+            "none": 0
+          },
+          "thresholds": [
+            {
+              "threshold": 0.6,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.75,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            },
+            {
+              "threshold": 0.9,
+              "eligibleCases": 15,
+              "coverage": 1,
+              "selectiveAccuracy": 1
+            }
+          ],
+          "usage": {
+            "inputTokens": null,
+            "outputTokens": null,
+            "estimatedCostUsd": null
+          }
+        }
+      }
+    },
+    "openai": {
+      "provider": "openai",
+      "model": null,
+      "status": "not_configured",
+      "verified": false,
+      "warmupUsed": false,
+      "reason": "DECISION_PROVIDER_NOT_CONFIGURED",
+      "overall": null,
+      "suites": {}
+    },
+    "jev": {
+      "provider": "jev",
+      "model": "jev-latest",
+      "status": "not_configured",
+      "verified": false,
+      "warmupUsed": false,
+      "reason": "DECISION_PROVIDER_NOT_CONFIGURED",
+      "overall": null,
+      "suites": {}
+    }
+  },
+  "truthfulness": {
+    "DECISION_RUNTIME_IMPLEMENTED": true,
+    "PROVIDER_NEUTRAL_RUNTIME": true,
+    "DETERMINISTIC_PROVIDER_IMPLEMENTED": true,
+    "OPENAI_DECISION_PROVIDER_IMPLEMENTED": true,
+    "JEV_PROVIDER_IMPLEMENTED": true,
+    "SYNTHETIC_BENCHMARK_DATA": true,
+    "PRODUCTION_DECISION_ROUTING_CHANGED": false,
+    "POLICY_ENGINE_CHANGED": false,
+    "AI_EXECUTION_PERMISSION": false,
+    "REAL_OPENAI_BENCHMARK_VERIFIED": false,
+    "REAL_JEV_BENCHMARK_VERIFIED": false,
+    "JEV_STATUS": "not_configured"
+  },
+  "productionIntegration": false
+}

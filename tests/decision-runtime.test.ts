@@ -168,6 +168,19 @@ describe("Provider-neutral Decision Runtime", () => {
       .rejects.toMatchObject({ code: "DECISION_PROVIDER_TIMEOUT", status: 504 });
   });
 
+  it("maps Jev timeout to a stable provider error", async () => {
+    const provider = new JevDecisionRuntimeProvider({
+      apiKey: "test",
+      model: "jev-latest",
+      timeoutMs: 1,
+      fetchImpl: async (_input, init) => new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(new Error("aborted")));
+      }),
+    });
+    await expect(provider.evaluateBatch({ taskId: "task-a", state: {}, questions }))
+      .rejects.toMatchObject({ code: "DECISION_PROVIDER_TIMEOUT", status: 504 });
+  });
+
   it("does not fall back when the explicitly selected provider fails", async () => {
     const failing: DecisionRuntimeProvider = {
       name: "failing",
