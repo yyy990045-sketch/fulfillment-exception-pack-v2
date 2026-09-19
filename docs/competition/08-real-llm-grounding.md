@@ -82,6 +82,23 @@ validateGroundedExplanation()
 
 Citation errors, numeric errors, unsupported causal or liability claims, and hidden-reasoning fields fail closed.
 
+Provider-specific adversarial regression coverage now includes:
+
+- OpenAI-shaped Customer Claim and Quality Hero outputs
+- wrong citation
+- wrong expected, actual, and metric values
+- prompt injection through Evidence quote
+- causal quality-to-shipment trap
+- customer claim vs actual receipt trap
+- responsibility conclusion
+- hidden reasoning structural rejection
+- provider failure with no rejected Explanation row
+- API key redaction
+- deterministic fallback prohibition
+- rejected Explanation idempotency
+
+These are CI-safe mock tests. They do not claim that a real OpenAI model was called.
+
 # 10 Customer Claim Result
 
 The contract test uses the Customer Claim exception:
