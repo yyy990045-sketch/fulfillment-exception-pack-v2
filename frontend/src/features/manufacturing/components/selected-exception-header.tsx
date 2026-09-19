@@ -2,9 +2,13 @@ import { ChevronDown } from "lucide-react";
 import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
-import { useGovernanceMutations, useResolutionCapabilities, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
+import { useResolutionCapabilities, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
 import type { CapabilityDecisionView } from "../analysis-types.js";
 import { governanceErrorMessage } from "../governance-errors.js";
+import {
+  governanceActionSuccessMessages,
+  useGovernanceActionController,
+} from "../governance-action-controller.js";
 import { exceptionStatusLabel, formatMetricValue, metricLabel } from "../utils.js";
 import type { ExceptionView, WorkbenchView } from "../types.js";
 import { ExceptionDetailsSheet } from "./exception-details-sheet.js";
@@ -26,7 +30,7 @@ export function SelectedExceptionHeader({
 }) {
   const capabilities = useResolutionCapabilities(contextId, exception.id);
   const resolution = useResolutionProcess(contextId, exception.id);
-  const mutations = useGovernanceMutations(contextId, exception.id);
+  const { mutations, requestAction } = useGovernanceActionController();
   const caps = capabilities.data?.resolutionCapabilities;
   const metrics = Object.entries(exception.metrics ?? {}).slice(0, 3);
   const primary: PrimaryAction | undefined = caps ? [
@@ -47,9 +51,12 @@ export function SelectedExceptionHeader({
     }
     const caseId = resolution.detail.data?.resolutionCase.id;
     if (!caseId) return;
-    const mutation = mutations[primary.mutation];
     if (primary.mutation === "submit" || primary.mutation === "approve" || primary.mutation === "execute" || primary.mutation === "close") {
-      void mutation.run({ caseId });
+      requestAction(
+        primary.mutation,
+        { caseId },
+        governanceActionSuccessMessages[primary.mutation],
+      );
     }
   };
   const mutationError = primary?.kind === "mutation"

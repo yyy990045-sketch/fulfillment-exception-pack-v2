@@ -11,18 +11,20 @@
 - Generic Workspace separates rules, exceptions, governance, and outcomes instead of mixing them into one indistinguishable list.
 - Existing light B2B loading, error, no-result, and empty states now use one reusable component.
 
+## Resolved In Commercial Delivery Polish
+
+- Header and governance workspace now share one page-level mutation controller, so pending, error, success, and capability refresh state stay synchronized.
+- Approve, execute, and close now require a compact confirmation Sheet with object, exception, action, actor, and risk context.
+- Enter governance, review, proposal, submit, approve, execute, and close now emit non-blocking success feedback.
+- Manufacturing governance copy no longer exposes Resolution, SoD, Policy, runtime, backend, or provider terms in the primary workflow.
+- Product Shell now uses the neutral product name `履约异常治理平台`; the demo environment is identified as `演示环境 · 示例组织`.
+- Demo resolution action copy now uses business Chinese instead of seeded English synthetic text.
+
 ## P0
 
 当前无阻塞 Manufacturing 主工作区使用的 P0 问题。
 
 ## P1
-
-### Cross-component mutation coordination
-
-- 位置：`SelectedExceptionHeader` 与 `GovernanceProcess`
-- 问题：同一 Resolution mutation 可能同时存在于 Header 主动作和治理工作区按钮中，两边拥有独立的 in-flight guard。
-- 影响：快速切换或连续点击可能触发重复请求；后端虽然会最终校验，但前端可能显示相互冲突的 pending/error 状态。
-- 建议：集中成一个页面级 mutation controller，或让 Header 主动作只导航、不直接执行治理 mutation。
 
 ### Resolution summary contract gap
 
@@ -44,13 +46,6 @@
 - 问题：Evidence ID、source ID、hash、provider 等技术字段仍在多个次级入口重复出现。
 - 影响：审计入口不统一，用户不确定应该从哪里查看完整技术上下文。
 - 建议：定义唯一 Technical Details 入口，Evidence Inspector 只保留原文、定位和来源。
-
-### High-impact quick actions
-
-- 位置：Selected Exception Header 的 submit / approve / execute / close 主动作
-- 问题：从 Header 直接执行重要动作时，没有二次确认或操作摘要。
-- 影响：高频日常使用中可能误触，尤其 execute 和 close 的业务影响较大。
-- 建议：保留快捷入口，但增加紧凑确认 Sheet，确认对象、动作和当前状态。
 
 ### Solution Pack context binding contract
 
@@ -96,13 +91,6 @@
 - 影响：在超长 Evidence 或 Analysis 页面切回时，恢复位置可能与用户预期略有偏差。
 - 建议：为 Rail 和主工作面分别维护滚动容器和恢复策略。
 
-### Global success feedback
-
-- 位置：Resolution mutation 完成后
-- 问题：成功主要依赖状态刷新体现，没有统一、短暂的成功反馈。
-- 影响：用户可能不确定操作是否已经生效，尤其是页面局部变化不明显时。
-- 建议：后续增加统一的轻量 toast 或状态过渡提示，不使用弹窗打断流程。
-
 ### Legacy static surface retention
 
 - 位置：`workbench/operations`、`workbench/workspace` 与 `manufacturing-legacy`
@@ -123,3 +111,10 @@
 - 问题：这些区域已经复用共享 Badge 与 Local State，但仍保留各自手写的 section/header 容器。
 - 影响：主流程已一致，但深度工作面仍有少量样式迁移空间。
 - 建议：后续只迁移仍有真实重复的面板，不为统一而重写全部 Manufacturing 组件。
+
+### Formal product brand not defined
+
+- 位置：App Shell 产品品牌
+- 问题：当前仓库没有可确认的正式产品名称，只能使用中性名称 `履约异常治理平台`。
+- 影响：客户演示可用，但长期品牌识别和产品命名仍需正式决定。
+- 建议：产品命名确定后，只替换共享产品名称常量，不在页面中散落硬编码。

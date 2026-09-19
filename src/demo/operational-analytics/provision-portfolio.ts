@@ -213,7 +213,7 @@ function ensureResolutionTarget(store: V2SqliteStore, contextId: string, spec: O
   if (spec.resolutionTarget === "rejected" || spec.resolutionTarget === "confirmed") return;
   resolutionCase = proposeResolutionCase(store, tenantId, resolutionCase.id, {
     actor: qualityActor,
-    actions: [{ type: "supplement_evidence", summary: "Synthetic evidence follow-up." }],
+    actions: [{ type: "supplement_evidence", summary: "补充客户签收与物流记录。" }],
   })!;
   if (spec.resolutionTarget === "proposed_draft") return;
   resolutionCase = submitResolutionCase(store, tenantId, resolutionCase.id, qualityActor)!;

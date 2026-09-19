@@ -79,10 +79,10 @@ export function governanceActionStatusLabel(status: string) {
 export function policyModeLabel(mode: string) {
   const labels: Record<string, string> = {
     human_only: "仅人工决策",
-    approval_required: "需要人工审批",
-    auto_eligible: "自动化候选，仍需运行安全门",
+    approval_required: "需人工审批",
+    auto_eligible: "可进入自动执行评估",
   };
-  return labels[mode] ?? mode;
+  return labels[mode] ?? "处理方式未记录";
 }
 
 export function contextTypeLabel(contextType: string) {

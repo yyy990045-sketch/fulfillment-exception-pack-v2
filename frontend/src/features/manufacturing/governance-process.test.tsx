@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DemoSettingsProvider, useDemoSettings } from "../../app/demo-settings.js";
@@ -12,6 +12,7 @@ import {
   resolutionReceiptFixture,
 } from "../../test/fixtures/governance.js";
 import type { ResolutionCapabilitiesResponseView, ResolutionCaseQueryView } from "./analysis-types.js";
+import { GovernanceActionControllerProvider } from "./governance-action-controller.js";
 import { GovernanceProcess } from "./components/governance-process.js";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -125,12 +126,19 @@ function renderProcess(selectedOptionId = "option-evidence") {
     <QueryClientProvider client={queryClient}>
       <DemoSettingsProvider>
         <ActorSwitch />
-        <GovernanceProcess
+        <GovernanceActionControllerProvider
           contextId="ctx-fixture"
           exceptionId="exception-claim"
-          recommendation={decisionFixture}
-          selectedOptionId={optionId}
-        />
+          businessKey="SO-FIXTURE-001"
+          exceptionLabel="客户签收主张差异"
+        >
+          <GovernanceProcess
+            contextId="ctx-fixture"
+            exceptionId="exception-claim"
+            recommendation={decisionFixture}
+            selectedOptionId={optionId}
+          />
+        </GovernanceActionControllerProvider>
       </DemoSettingsProvider>
     </QueryClientProvider>
   );
@@ -188,6 +196,7 @@ describe("governance process", () => {
 
     await user.click(await screen.findByRole("button", { name: "提交审批" }));
     expect(await screen.findByText("等待审批")).toBeInTheDocument();
+    expect(await screen.findByText("已提交审批")).toBeInTheDocument();
   });
 
   it("keeps draft proposals as 未提交审批 and submitted proposals as 等待审批", async () => {
@@ -218,14 +227,21 @@ describe("governance process", () => {
     });
     renderProcess();
 
-    expect(await screen.findByText(/需要人工审批/)).toBeInTheDocument();
-    expect(screen.getByText(/策略资格：需要人工审批/)).toBeInTheDocument();
-    expect(screen.getByText(/审批来自 Resolution 状态机/)).toBeInTheDocument();
+    expect(await screen.findByText(/需人工审批/)).toBeInTheDocument();
+    expect(screen.getByText(/处理资格：需人工审批/)).toBeInTheDocument();
     expect(screen.getByText("总经理")).toBeInTheDocument();
     expect(screen.getByText(/复核人：品质负责人；方案提出人：工程师/)).toBeInTheDocument();
+    expect(screen.getByText(/复核人与方案提出人不能由同一人担任/)).toBeInTheDocument();
     expect(screen.getByTestId("process-step-outcome")).toHaveAttribute("data-status", "pending");
     expect(screen.getByTestId("process-step-outcome")).toHaveTextContent("已有后续测量");
     await user.click(screen.getByRole("button", { name: "批准方案" }));
+    const confirmation = await screen.findByTestId("governance-confirmation-sheet");
+    expect(within(confirmation).getByText("SO-FIXTURE-001")).toBeInTheDocument();
+    expect(within(confirmation).getByText("客户签收主张差异")).toBeInTheDocument();
+    expect(within(confirmation).getByText("批准当前治理方案")).toBeInTheDocument();
+    expect(within(confirmation).getByText(/品质负责人 · 品质负责人/)).toBeInTheDocument();
+    expect(within(confirmation).getByText(/批准后方案将进入可执行状态/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "确认批准" }));
     expect(await screen.findByText(/复核\/方案提出人与审批人必须分离/)).toBeInTheDocument();
   });
 
@@ -293,8 +309,10 @@ describe("governance process", () => {
     renderProcess();
 
     await user.click(await screen.findByRole("button", { name: "批准方案" }));
+    await user.click(await screen.findByRole("button", { name: "确认批准" }));
     await waitFor(() => expect(calls).toContain("POST /api/v2/resolution-cases/resolution-fixture/approve"));
     await waitFor(() => expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "done"));
+    expect(await screen.findByText("方案已批准")).toBeInTheDocument();
   });
 
   it("disables execution when the backend denies the current role", async () => {
@@ -362,7 +380,7 @@ describe("governance process", () => {
     renderProcess();
 
     expect(await screen.findByLabelText("处置负责人")).toBeDisabled();
-    expect(screen.getByText("后端未提供可指派负责人角色。")).toBeInTheDocument();
+    expect(screen.getByText("当前没有可指派负责人角色。")).toBeInTheDocument();
   });
 
   it("refreshes capabilities when the demo actor changes", async () => {
@@ -412,11 +430,13 @@ describe("governance process", () => {
     const executeButton = await screen.findByRole("button", { name: "执行已批准方案" });
     expect(await screen.findByText("已授权")).toBeInTheDocument();
     await user.click(executeButton);
+    await user.click(await screen.findByRole("button", { name: "确认执行" }));
     expect(await screen.findByText("1 条回执")).toBeInTheDocument();
-    expect(await screen.findByText("回执成功表示内部执行结果已登记，不代表 Resolution 已结案。")).toBeInTheDocument();
+    expect(await screen.findByText("回执表示执行结果已登记，治理仍需核验后结案。")).toBeInTheDocument();
     expect(screen.queryByText(/local-ledger/)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "核验回执并结案" }));
+    await user.click(await screen.findByRole("button", { name: "确认结案" }));
     expect(await screen.findByText("治理：已结案")).toBeInTheDocument();
   });
 
@@ -429,8 +449,8 @@ describe("governance process", () => {
 
     expect(await screen.findByText("目标达成")).toBeInTheDocument();
     expect(screen.getByText("结果测量证据")).toBeInTheDocument();
-    expect(screen.getByText(/该结果不证明因果关系/)).toBeInTheDocument();
-    expect(screen.getByText("Resolution 已结案不等于业务结果已经达成。")).toBeInTheDocument();
+    expect(screen.getByText(/该测量用于观察后续业务状态/)).toBeInTheDocument();
+    expect(screen.getByText("治理流程已结案，业务结果仍需以后续测量为准。")).toBeInTheDocument();
     expect(screen.queryByText(/2026-09-19T/)).not.toBeInTheDocument();
     expect(screen.queryByText(/outcome-demo/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Synthetic Outcome Evidence/)).not.toBeInTheDocument();
@@ -452,9 +472,11 @@ describe("governance process", () => {
     const calls = mockGovernanceApi({ initial: resolutionQueryFixture("approved"), holdExecution: true });
     renderProcess();
     const execute = await screen.findByRole("button", { name: "执行已批准方案" });
+    fireEvent.click(execute);
+    const confirm = await screen.findByRole("button", { name: "确认执行" });
     act(() => {
-      fireEvent.click(execute);
-      fireEvent.click(execute);
+      fireEvent.click(confirm);
+      fireEvent.click(confirm);
     });
     expect(await screen.findByRole("button", { name: "正在执行..." })).toBeDisabled();
     expect(calls.filter((call) => call === "POST /api/v2/resolution-cases/resolution-fixture/execute")).toHaveLength(1);

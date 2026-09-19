@@ -53,6 +53,7 @@ describe("B2B account area", () => {
     })));
     renderShell();
 
+    expect(screen.getByText("履约异常治理平台")).toBeInTheDocument();
     expect(await screen.findByRole("link", { name: "运营视图" })).toHaveAttribute("href", "/operations");
     expect(screen.getByRole("link", { name: "方案包" })).toHaveAttribute("href", "/workspace");
   });
@@ -124,6 +125,7 @@ describe("B2B account area", () => {
     renderShell();
 
     expect(await screen.findByText("品质负责人 · 品质负责人")).toBeInTheDocument();
+    expect(screen.getByText("演示环境 · 示例组织")).toBeInTheDocument();
     await userEvent.setup().selectOptions(screen.getByLabelText("切换业务角色"), "sales-director");
     await waitFor(() => expect(screen.getByText("销售总监 · 销售总监")).toBeInTheDocument());
   });

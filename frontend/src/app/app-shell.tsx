@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button.js";
 import { useAccountContext } from "../hooks/use-manufacturing.js";
 import { cn } from "../lib/utils.js";
 import { DEMO_ACTORS, useDemoSettings } from "./demo-settings.js";
+import { PRODUCT_NAME } from "./product.js";
 
 const navItems = [
   { to: "/manufacturing/ctx-so-mfg-001", label: "履约风险", icon: ShieldAlert },
@@ -37,7 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-md bg-interactive text-sm font-semibold text-white">履</span>
-              <strong className="truncate text-sm font-semibold">履约风险</strong>
+              <strong className="truncate text-sm font-semibold">{PRODUCT_NAME}</strong>
             </div>
             <nav aria-label="主导航" className="hidden items-center gap-1 lg:flex">
               {navItems.map((item) => (
@@ -99,7 +100,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         {DEMO_ACTORS.map((demoActor) => <option key={demoActor.id} value={demoActor.id}>{demoActor.label}</option>)}
                       </select>
                     </label>
-                    <p className="mt-2 text-[11px] text-text-muted">示例组织，仅供本地试点演示。</p>
+                    <p className="mt-2 text-[11px] text-text-muted">演示环境 · 示例组织</p>
                   </>
                 )}
               </div>

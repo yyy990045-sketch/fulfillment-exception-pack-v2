@@ -4,7 +4,6 @@ import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { outcomeStatusLabel } from "../../../lib/presentation.js";
 import {
-  useGovernanceMutations,
   useOutcomeEvaluations,
   usePolicyEvaluations,
   useResolutionCapabilities,
@@ -18,6 +17,10 @@ import type {
 } from "../analysis-types.js";
 import { governanceStepStatus, isResolutionApprovalSubmitted, resolveGovernanceStep } from "../governance-step.js";
 import { governanceErrorMessage } from "../governance-errors.js";
+import {
+  governanceActionSuccessMessages,
+  useGovernanceActionController,
+} from "../governance-action-controller.js";
 import {
   actionTypeLabel,
   fieldLabel,
@@ -143,7 +146,7 @@ function AcceptanceForm({
           />
         </label>
       </div>
-      {!ownerRoles.length && <p className="text-xs text-warning">后端未提供可指派负责人角色。</p>}
+      {!ownerRoles.length && <p className="text-xs text-warning">当前没有可指派负责人角色。</p>}
       <CapabilityReason capability={ownership} />
       {error && <p className="text-xs text-danger">{error}</p>}
       <Button type="submit" disabled={pending || !rationale.trim() || !ownerRole || !ownership.allowed}>
@@ -274,7 +277,7 @@ export function GovernanceProcess({
   const resolution = useResolutionProcess(contextId, exceptionId);
   const outcomes = useOutcomeEvaluations(contextId, exceptionId);
   const capabilities = useResolutionCapabilities(contextId, exceptionId);
-  const mutations = useGovernanceMutations(contextId, exceptionId);
+  const { mutations, requestAction } = useGovernanceActionController();
   const resolutionCase = resolution.detail.data?.resolutionCase;
   const receipts = resolution.detail.data?.receipts ?? [];
   const policyEvaluations = policy.data?.evaluations ?? [];
@@ -305,7 +308,7 @@ export function GovernanceProcess({
     capabilities.isError ||
     !resolutionCapabilities
   ) {
-    return <InlineError title="治理进程加载失败" detail="Policy、Resolution、Capability 或 Outcome 数据无法读取。" />;
+    return <InlineError title="治理进程加载失败" detail="当前治理、审批、权限或结果数据无法读取。" />;
   }
   const assignableOwnerRoles = capabilities.data?.assignableOwnerRoles ?? [];
 
@@ -356,7 +359,7 @@ export function GovernanceProcess({
         id="governance"
         title="治理"
         status={stepStatus("governance")}
-        summary={policyDone ? `策略资格：${policyModeLabel(currentPolicy!.decision.mode)}` : "等待选择候选并完成策略评估与人工治理"}
+        summary={policyDone ? `处理资格：${policyModeLabel(currentPolicy!.decision.mode)}` : "等待选择候选并完成处理资格确认与人工治理"}
         owner={resolutionCase?.ownerRole ?? "待指定负责人"}
         result={governanceResult}
         expanded={expandedStep === "governance"}
@@ -365,9 +368,9 @@ export function GovernanceProcess({
         <div className="space-y-5">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-xs font-semibold text-text-muted">策略资格结论</h3>
+              <h3 className="text-xs font-semibold text-text-muted">处理资格</h3>
               {currentPolicy && !currentPolicy.stale && <Badge variant="info">{policyModeLabel(currentPolicy.decision.mode)}</Badge>}
-              {currentPolicy?.stale && <Badge variant="warning">策略评估已过期</Badge>}
+              {currentPolicy?.stale && <Badge variant="warning">处理资格已变化</Badge>}
             </div>
             {!selectedOptionId ? (
               <p className="mt-2 text-sm text-text-muted">请先在上方处置建议中选择一个治理候选。</p>
@@ -379,18 +382,22 @@ export function GovernanceProcess({
                   disabled={mutations.policy.mutation.isPending}
                   onClick={() => {
                     if (!recommendation) return;
-                    void mutations.policy.run({ recommendationId: recommendation.id, optionId: selectedOptionId });
+                    void requestAction(
+                      "policy",
+                      { recommendationId: recommendation.id, optionId: selectedOptionId },
+                      governanceActionSuccessMessages.policy,
+                    );
                   }}
                 >
-                  {mutations.policy.mutation.isPending ? "正在评估..." : currentPolicy ? "重新评估策略" : "评估治理策略"}
+                  {mutations.policy.mutation.isPending ? "正在评估..." : currentPolicy ? "重新确认资格" : "确认处理资格"}
                 </Button>
                 {mutations.policy.mutation.error && <span className="text-xs text-danger">{invocationError(mutations.policy.mutation)}</span>}
               </div>
             )}
             {currentPolicy && (
               <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
-                <div><dt className="text-text-muted">策略模式</dt><dd className="mt-0.5 text-text-secondary">{policyModeLabel(currentPolicy.decision.mode)}</dd></div>
-                <div><dt className="text-text-muted">责任角色</dt><dd className="mt-0.5 text-text-secondary">{currentPolicy.decision.requiredRoles.join("、") || "无"}</dd></div>
+                <div><dt className="text-text-muted">处理方式</dt><dd className="mt-0.5 text-text-secondary">{policyModeLabel(currentPolicy.decision.mode)}</dd></div>
+                <div><dt className="text-text-muted">审批角色</dt><dd className="mt-0.5 text-text-secondary">{currentPolicy.decision.requiredRoles.join("、") || "无"}</dd></div>
                 <div><dt className="text-text-muted">候选动作</dt><dd className="mt-0.5 text-text-secondary">{actionLabels[currentPolicy.candidateActionType] ?? currentPolicy.candidateActionType}</dd></div>
               </dl>
             )}
@@ -400,7 +407,7 @@ export function GovernanceProcess({
               </ul>
             ) : null}
             <p className="mt-3 text-xs text-text-muted">
-              策略资格只说明授权与自动化边界，不等于 Resolution 已经审批或执行。
+              处理资格不代表方案已经完成审批或执行。
             </p>
           </div>
 
@@ -415,7 +422,7 @@ export function GovernanceProcess({
                   error={invocationError(mutations.accept.mutation)}
                   onSubmit={(ownerRole, rationale) => {
                     if (!rationale) return;
-                    void mutations.accept.run({ ownerRole, rationale });
+                    void requestAction("accept", { ownerRole, rationale }, governanceActionSuccessMessages.accept);
                   }}
                 />
               </div>
@@ -427,7 +434,11 @@ export function GovernanceProcess({
                   error={invocationError(mutations.review.mutation)}
                   onSubmit={(decision, rationale) => {
                     if (!rationale) return;
-                    void mutations.review.run({ caseId: resolutionCase.id, decision, rationale });
+                    void requestAction(
+                      "review",
+                      { caseId: resolutionCase.id, decision, rationale },
+                      governanceActionSuccessMessages.review,
+                    );
                   }}
                 />
               </div>
@@ -439,7 +450,11 @@ export function GovernanceProcess({
                   capability={resolutionCapabilities.canPropose}
                   pending={mutations.propose.mutation.isPending}
                   error={invocationError(mutations.propose.mutation)}
-                  onSubmit={(actions) => void mutations.propose.run({ caseId: resolutionCase.id, actions })}
+                  onSubmit={(actions) => void requestAction(
+                    "propose",
+                    { caseId: resolutionCase.id, actions },
+                    governanceActionSuccessMessages.propose,
+                  )}
                 />
               </div>
             ) : resolutionCase ? (
@@ -451,7 +466,11 @@ export function GovernanceProcess({
                       capability={resolutionCapabilities.canSubmit}
                       pending={mutations.submit.mutation.isPending}
                       pendingLabel="正在提交..."
-                      onClick={() => void mutations.submit.run({ caseId: resolutionCase.id })}
+                      onClick={() => void requestAction(
+                        "submit",
+                        { caseId: resolutionCase.id },
+                        governanceActionSuccessMessages.submit,
+                      )}
                     >
                       提交审批
                     </CapabilityButton>
@@ -472,7 +491,7 @@ export function GovernanceProcess({
         id="approval"
         title="审批"
         status={stepStatus("approval")}
-        summary="Resolution 审批要求：独立审批人确认已提交的治理方案"
+        summary="独立审批人确认已提交的治理方案"
         owner={approvalOwner}
         result={approvalResult}
         expanded={expandedStep === "approval"}
@@ -481,10 +500,7 @@ export function GovernanceProcess({
         {resolutionCapabilities.canApprove.applicable && resolutionCase ? (
           <div className="space-y-3">
             <p className="text-xs text-text-muted">
-              复核人：{resolutionCase.review?.actor || "—"}；方案提出人：{resolutionCase.proposedBy || "—"}。后端将执行 SoD 与角色校验。
-            </p>
-            <p className="text-xs text-text-muted">
-              审批来自 Resolution 状态机；策略资格结论与实际审批要求分别记录。
+              复核人：{resolutionCase.review?.actor || "—"}；方案提出人：{resolutionCase.proposedBy || "—"}。复核人与方案提出人不能由同一人担任。
             </p>
             {mutations.approve.mutation.error && (
               <p className="border border-danger/25 bg-danger/5 px-3 py-2 text-xs text-danger">
@@ -495,7 +511,11 @@ export function GovernanceProcess({
               capability={resolutionCapabilities.canApprove}
               pending={mutations.approve.mutation.isPending}
               pendingLabel="正在审批..."
-              onClick={() => void mutations.approve.run({ caseId: resolutionCase.id })}
+              onClick={() => requestAction(
+                "approve",
+                { caseId: resolutionCase.id },
+                governanceActionSuccessMessages.approve,
+              )}
             >
               批准方案
             </CapabilityButton>
@@ -504,7 +524,7 @@ export function GovernanceProcess({
           <dl className="grid gap-2 text-xs sm:grid-cols-3">
             <div><dt className="text-text-muted">审批状态</dt><dd className="mt-0.5 text-success">已完成</dd></div>
             <div><dt className="text-text-muted">审批人</dt><dd className="mt-0.5">{approvalOwner}</dd></div>
-            <div><dt className="text-text-muted">审批时间</dt><dd className="mt-0.5">{approvalEvent?.at ?? "未记录"}</dd></div>
+            <div><dt className="text-text-muted">审批时间</dt><dd className="mt-0.5">{approvalEvent?.at ? formatShortDateTime(approvalEvent.at) : "未记录"}</dd></div>
           </dl>
         ) : (
           <InlineEmpty message="尚未进入审批步骤" />
@@ -515,7 +535,7 @@ export function GovernanceProcess({
         id="execution"
         title="执行"
         status={stepStatus("execution")}
-        summary="仅执行已批准方案，结果由后端登记"
+        summary="仅执行已批准方案，执行结果由系统登记"
         owner={resolutionCase?.ownerRole ?? "待指定执行主体"}
         result={executionDone ? "已执行" : "未执行"}
         expanded={expandedStep === "execution"}
@@ -529,7 +549,11 @@ export function GovernanceProcess({
               capability={resolutionCapabilities.canExecute}
               pending={mutations.execute.mutation.isPending}
               pendingLabel="正在执行..."
-              onClick={() => void mutations.execute.run({ caseId: resolutionCase.id })}
+              onClick={() => requestAction(
+                "execute",
+                { caseId: resolutionCase.id },
+                governanceActionSuccessMessages.execute,
+              )}
             >
               执行已批准方案
             </CapabilityButton>
@@ -545,7 +569,7 @@ export function GovernanceProcess({
         id="receipt"
         title="回执"
         status={stepStatus("receipt")}
-        summary="执行回执不等于治理结案"
+        summary="回执登记不等于治理结案"
         owner={receipts.length ? "内部台账回执" : "执行记录"}
         result={receipts.length ? `${receipts.length} 条回执` : "暂无回执"}
         expanded={expandedStep === "receipt"}
@@ -567,7 +591,7 @@ export function GovernanceProcess({
                 );
               })}
             </div>
-            <p className="text-xs text-text-muted">回执成功表示内部执行结果已登记，不代表 Resolution 已结案。</p>
+            <p className="text-xs text-text-muted">回执表示执行结果已登记，治理仍需核验后结案。</p>
           </div>
         ) : (
           <InlineEmpty message="暂无执行回执" />
@@ -580,7 +604,11 @@ export function GovernanceProcess({
               pending={mutations.close.mutation.isPending}
               pendingLabel="正在核验结案..."
               variant="outline"
-              onClick={() => void mutations.close.run({ caseId: resolutionCase.id })}
+              onClick={() => requestAction(
+                "close",
+                { caseId: resolutionCase.id },
+                governanceActionSuccessMessages.close,
+              )}
             >
               核验回执并结案
             </CapabilityButton>
@@ -592,7 +620,7 @@ export function GovernanceProcess({
         id="outcome"
         title="结果"
         status={stepStatus("outcome")}
-        summary="只展示后续业务状态，不证明前序动作导致变化"
+        summary="后续业务状态测量"
         owner={latestOutcome ? "结果测量" : "待测量"}
         result={latestOutcome ? "已有后续测量" : "暂无结果"}
         expanded={expandedStep === "outcome"}
@@ -608,10 +636,8 @@ export function GovernanceProcess({
             <p className="text-sm">
               基准{metricLabel(latestOutcome.baseline.metricKey)} = {String(latestOutcome.baseline.value)}；{fieldLabel(latestOutcome.current.field)} = {String(latestOutcome.current.value ?? "—")}；目标 = {String(latestOutcome.targetValue)}
             </p>
-            <p className="text-xs text-text-muted">
-              关联观察：{latestOutcome.resolutionCaseId ? "治理处置" : latestOutcome.automationRunId ? "自动化执行" : "未关联"}。该结果不证明因果关系。
-            </p>
             <p className="text-xs text-text-muted">测量时间：{formatShortDateTime(latestOutcome.evaluatedAt)}</p>
+            <p className="text-xs text-text-muted">该测量用于观察后续业务状态，不代表前序动作直接导致结果变化。</p>
             {historicalOutcomes.length > 0 && (
               <details className="border-t border-border pt-3">
                 <summary className="cursor-pointer text-xs font-medium text-text-secondary">
@@ -627,12 +653,12 @@ export function GovernanceProcess({
                 </div>
               </details>
             )}
-            {resolutionCase?.status === "closed" && <p className="text-xs text-warning">Resolution 已结案不等于业务结果已经达成。</p>}
+            {resolutionCase?.status === "closed" && <p className="text-xs text-warning">治理流程已结案，业务结果仍需以后续测量为准。</p>}
           </div>
         ) : (
           <div className="space-y-2">
             <InlineEmpty message="暂无业务结果测量" />
-            {resolutionCase?.status === "closed" && <p className="text-xs text-warning">Resolution 已结案不等于业务结果已经达成。</p>}
+            {resolutionCase?.status === "closed" && <p className="text-xs text-warning">治理流程已结案，业务结果仍需以后续测量为准。</p>}
           </div>
         )}
       </ProcessStep>

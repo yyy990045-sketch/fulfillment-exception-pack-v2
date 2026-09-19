@@ -159,3 +159,48 @@ test("generic finance workspace uses the same product shell without enum leaks",
     expect(visibleText).not.toContain("示例数据");
   }
 });
+
+test("commercial governance flow confirms high-impact actions and reports success", async ({ page }) => {
+  for (const viewport of desktopViewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/manufacturing/ctx-so-ops-006");
+    await expect(page.getByRole("heading", { name: "SO-OPS-006" })).toBeVisible();
+    await page.getByRole("tab", { name: "决策" }).click();
+    await expect(page.getByRole("heading", { name: "处理进程" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByLabel("账户与设置").click();
+  await page.getByLabel("切换业务角色").selectOption("sales-director");
+  await page.keyboard.press("Escape");
+
+  const governanceText = await page.locator("body").innerText();
+  expect(governanceText).not.toMatch(/\b(?:Resolution|SoD|runtime|backend|Policy|provider|internal)\b/i);
+  expect(governanceText).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
+  expect(governanceText).not.toMatch(/Synthetic|sample|本地演示/);
+
+  const executionStep = page.getByTestId("process-step-execution");
+  const executeAction = executionStep.getByRole("button", { name: "执行已批准方案", exact: true });
+  if (!(await executeAction.isVisible().catch(() => false))) {
+    await executionStep.getByRole("button").first().click();
+  }
+  await executeAction.click();
+  const executeConfirmation = page.getByTestId("governance-confirmation-sheet");
+  await expect(executeConfirmation).toBeVisible();
+  await expect(executeConfirmation).toContainText("SO-OPS-006");
+  await expect(executeConfirmation).toContainText("执行已批准方案");
+  await expect(executeConfirmation).toContainText("销售总监");
+  await executeConfirmation.getByRole("button", { name: "确认执行" }).click();
+  await expect(page.getByText("执行结果已登记")).toBeVisible();
+
+  const receiptStep = page.getByTestId("process-step-receipt");
+  const closeAction = receiptStep.getByRole("button", { name: "核验回执并结案", exact: true });
+  if (!(await closeAction.isVisible().catch(() => false))) {
+    await receiptStep.getByRole("button").first().click();
+  }
+  await closeAction.click();
+  await expect(page.getByTestId("governance-confirmation-sheet")).toContainText("确认核验并结案");
+  await page.getByTestId("governance-confirmation-sheet").getByRole("button", { name: "确认结案" }).click();
+  await expect(page.getByText("治理已结案")).toBeVisible();
+});

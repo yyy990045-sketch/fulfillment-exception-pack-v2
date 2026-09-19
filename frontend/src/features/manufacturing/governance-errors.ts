@@ -20,7 +20,7 @@ const messages: Record<string, string> = {
 export function governanceErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
     if (error.status === 403 && error.code === "scope_forbidden") return messages.scope_forbidden;
-    return messages[error.code] ?? `治理操作失败：${error.code}`;
+    return messages[error.code] ?? "治理操作失败，请稍后重试。";
   }
   if (error instanceof Error) return error.message;
   return "治理操作失败。";

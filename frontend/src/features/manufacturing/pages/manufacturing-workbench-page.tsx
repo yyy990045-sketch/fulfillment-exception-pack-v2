@@ -12,6 +12,7 @@ import { EvidenceInspector } from "../components/evidence-inspector.js";
 import { EvidenceWorkspace } from "../components/evidence-workspace.js";
 import { ExceptionOverview } from "../components/exception-overview.js";
 import { ExceptionRail } from "../components/exception-rail.js";
+import { GovernanceActionControllerProvider } from "../governance-action-controller.js";
 import { SelectedExceptionHeader } from "../components/selected-exception-header.js";
 import type { EvidenceItem, ExceptionView } from "../types.js";
 
@@ -123,69 +124,76 @@ export function ManufacturingWorkbenchPage() {
         {!selectedException ? (
           <LocalError title="暂无异常" detail="当前履约上下文没有可展示的异常。" />
         ) : (
-          <div className="grid overflow-hidden border border-border bg-surface lg:grid-cols-[300px_minmax(0,1fr)]">
-            <ExceptionRail
-              exceptions={view.exceptions}
-              resolutionCases={view.resolutionCases}
-              stages={view.thread}
-              selectedExceptionId={selectedException.id}
-              onSelect={openException}
-            />
-            <section className="min-w-0">
-              <SelectedExceptionHeader
-                exception={selectedException}
-                contextId={contextId}
-                context={view.context}
-                onNavigateTab={setTab}
+          <GovernanceActionControllerProvider
+            contextId={contextId}
+            exceptionId={selectedException.id}
+            businessKey={view.context.businessKey}
+            exceptionLabel={selectedException.label}
+          >
+            <div className="grid overflow-hidden border border-border bg-surface lg:grid-cols-[300px_minmax(0,1fr)]">
+              <ExceptionRail
+                exceptions={view.exceptions}
+                resolutionCases={view.resolutionCases}
+                stages={view.thread}
+                selectedExceptionId={selectedException.id}
+                onSelect={openException}
               />
-              <DecisionProcessBar contextId={contextId} exceptionId={selectedException.id} />
-              <Tabs value={workspaceTab} onValueChange={setTab}>
-                <div className="px-4 pt-2 lg:px-5">
-                  <TabsList aria-label="异常工作面">
-                    <TabsTrigger value="overview">概览</TabsTrigger>
-                    <TabsTrigger value="evidence">证据</TabsTrigger>
-                    <TabsTrigger value="analysis">分析</TabsTrigger>
-                    <TabsTrigger value="decision">决策</TabsTrigger>
-                  </TabsList>
-                </div>
-                <div className="p-4 lg:p-5">
-                  {workspaceTab === "evidence" ? (
-                    evidence.isLoading ? (
-                      <div className="space-y-2">
-                        <Skeleton className="h-9 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                      </div>
-                    ) : evidence.isError || !evidence.data ? (
-                      <LocalError title="证据加载失败" detail="当前异常暂时无法读取 Evidence。" />
-                    ) : (
-                      <EvidenceWorkspace
-                        bundle={evidence.data}
-                        {...(selectedEvidenceId ? { selectedEvidenceId } : {})}
-                        onSelect={openEvidence}
+              <section className="min-w-0">
+                <SelectedExceptionHeader
+                  exception={selectedException}
+                  contextId={contextId}
+                  context={view.context}
+                  onNavigateTab={setTab}
+                />
+                <DecisionProcessBar contextId={contextId} exceptionId={selectedException.id} />
+                <Tabs value={workspaceTab} onValueChange={setTab}>
+                  <div className="px-4 pt-2 lg:px-5">
+                    <TabsList aria-label="异常工作面">
+                      <TabsTrigger value="overview">概览</TabsTrigger>
+                      <TabsTrigger value="evidence">证据</TabsTrigger>
+                      <TabsTrigger value="analysis">分析</TabsTrigger>
+                      <TabsTrigger value="decision">决策</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="p-4 lg:p-5">
+                    {workspaceTab === "evidence" ? (
+                      evidence.isLoading ? (
+                        <div className="space-y-2">
+                          <Skeleton className="h-9 w-full" />
+                          <Skeleton className="h-12 w-full" />
+                          <Skeleton className="h-12 w-full" />
+                        </div>
+                      ) : evidence.isError || !evidence.data ? (
+                        <LocalError title="证据加载失败" detail="当前异常暂时无法读取证据资料。" />
+                      ) : (
+                        <EvidenceWorkspace
+                          bundle={evidence.data}
+                          {...(selectedEvidenceId ? { selectedEvidenceId } : {})}
+                          onSelect={openEvidence}
+                        />
+                      )
+                    ) : workspaceTab === "analysis" ? (
+                      <AnalysisWorkspace
+                        contextId={contextId}
+                        exceptionId={selectedException.id}
+                        evidence={evidence.data}
+                        onOpenEvidence={openEvidenceById}
                       />
-                    )
-                  ) : workspaceTab === "analysis" ? (
-                    <AnalysisWorkspace
-                      contextId={contextId}
-                      exceptionId={selectedException.id}
-                      evidence={evidence.data}
-                      onOpenEvidence={openEvidenceById}
-                    />
-                  ) : workspaceTab === "decision" ? (
-                    <DecisionWorkspace
-                      contextId={contextId}
-                      exceptionId={selectedException.id}
-                      evidence={evidence.data}
-                      onOpenEvidence={openEvidenceById}
-                    />
-                  ) : (
-                    <ExceptionOverview contextId={contextId} exception={selectedException} rules={view.rules} stages={view.thread} />
-                  )}
-                </div>
-              </Tabs>
-            </section>
-          </div>
+                    ) : workspaceTab === "decision" ? (
+                      <DecisionWorkspace
+                        contextId={contextId}
+                        exceptionId={selectedException.id}
+                        evidence={evidence.data}
+                        onOpenEvidence={openEvidenceById}
+                      />
+                    ) : (
+                      <ExceptionOverview contextId={contextId} exception={selectedException} rules={view.rules} stages={view.thread} />
+                    )}
+                  </div>
+                </Tabs>
+              </section>
+            </div>
+          </GovernanceActionControllerProvider>
         )}
       </ProductPage>
       {evidence.data && (

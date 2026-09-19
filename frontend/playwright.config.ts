@@ -16,7 +16,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "PACK_STORE_DIR=.playwright/f1 npm run demo:packs:prepare && PACK_STORE_DIR=.playwright/f1 npm run demo:operations:prepare && npm run frontend:build && PORT=3510 HOST=127.0.0.1 DEMO_MODE=true PACK_STORE_DIR=.playwright/f1 npm run demo",
+    command: "STORE=.playwright/f1-$$; PACK_STORE_DIR=$STORE npm run demo:packs:prepare && PACK_STORE_DIR=$STORE npm run demo:operations:prepare && npm run frontend:build && PORT=3510 HOST=127.0.0.1 DEMO_MODE=true PACK_STORE_DIR=$STORE npm run demo",
     url: "http://127.0.0.1:3510/api/health",
     reuseExistingServer: false,
     timeout: 120_000,
