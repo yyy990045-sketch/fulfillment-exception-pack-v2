@@ -1,4 +1,4 @@
-import { ChevronRight, ExternalLink } from "lucide-react";
+import { CheckCircle2, ChevronRight, ExternalLink } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   LocalState,
@@ -17,7 +17,7 @@ import {
   resolutionStatusLabel,
 } from "../../../lib/presentation.js";
 import { contextTypeLabel, formatBusinessValue } from "../../manufacturing/utils.js";
-import type { OperationalContextView, SolutionPackManifestView } from "../../operations/types.js";
+import type { OperationalContextView, PackWorkbenchView, SolutionPackManifestView } from "../../operations/types.js";
 
 function contextLink(context: OperationalContextView) {
   return context.contextType === "sales_order"
@@ -44,6 +44,36 @@ function packPresentation(manifest: SolutionPackManifestView) {
   return builtInPackPresentation[manifest.id] ?? {
     name: manifest.name,
     purpose: manifest.description,
+  };
+}
+
+const stageFactKeys: Record<string, string[]> = {
+  quote: ["qty"],
+  sales_order: ["qty"],
+  production_order: ["plannedQty", "completedQty"],
+  quality_event: ["inspectedQty", "passedQty"],
+  shipment: ["qty"],
+  receivable: ["amount"],
+  payment: ["amount"],
+  complaint: ["claimedReceivedQty"],
+};
+
+function presentStage(stage: PackWorkbenchView["thread"][number]) {
+  const preferred = stageFactKeys[stage.key] ?? [];
+  const selected = preferred.flatMap((key) => {
+    const fact = stage.facts.find((item) => item.key === key);
+    return fact ? [fact] : [];
+  });
+  return {
+    label: stage.label,
+    facts: (selected.length ? selected : stage.facts.slice(0, 2)).map((fact) => {
+      const unit = typeof fact.value === "number" && fact.valueType !== "currency" ? " 件" : "";
+      return {
+        key: fact.key,
+        label: fact.label,
+        value: `${formatBusinessValue(fact)}${unit}`,
+      };
+    }),
   };
 }
 
@@ -88,10 +118,7 @@ function PackList({
                 </Badge>
               </div>
               <div className="mt-1.5 text-[11px] leading-5 text-text-secondary">{presentation.purpose}</div>
-              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-text-muted">
-                <span>{manifest.contextTypes.map(contextTypeLabel).join("、")}</span>
-                <span className="text-[10px]">v{installation.packVersion}</span>
-              </div>
+              <div className="mt-2 text-[11px] text-text-muted">{manifest.contextTypes.map(contextTypeLabel).join("、")}</div>
             </button>
           );
         })}
@@ -182,7 +209,7 @@ export function SolutionPackPage() {
         footer={selectedPack && `当前版本 v${selectedPack.installation.packVersion}`}
       />
 
-      <ProductSection className="mt-4 grid lg:grid-cols-[250px_minmax(0,1fr)]">
+      <ProductSection className="mt-4 grid overflow-hidden lg:grid-cols-[minmax(280px,20%)_minmax(0,1fr)]">
         <PackList packs={installed} selectedPackId={manifest?.id} onSelect={selectPack} />
         {!manifest || !selectedPack ? (
           <div className="p-4"><LocalState kind="empty" title="请选择一个已安装方案包" /></div>
@@ -195,15 +222,18 @@ export function SolutionPackPage() {
                   <p className="mt-1 max-w-[78ch] text-[12px] text-text-secondary">{presentation?.purpose}</p>
                   <p className="mt-1 text-[10px] text-text-muted">{manifest.name}</p>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                   {businessCapabilities.map(([key]) => (
-                    <Badge key={key} variant="info">{packCapabilityLabel(key)}</Badge>
+                    <span key={key} className="inline-flex items-center gap-1 text-[12px] text-text-secondary">
+                      <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
+                      {packCapabilityLabel(key)}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="grid xl:grid-cols-[300px_minmax(0,1fr)]">
+            <div className="grid xl:grid-cols-[minmax(340px,31%)_minmax(0,1fr)]">
               <div className="border-b border-border xl:border-b-0 xl:border-r">
                 <SectionHeader title="业务上下文" meta={packContexts.length} className="min-h-[46px]" />
                 {packContexts.length ? (
@@ -264,27 +294,42 @@ export function SolutionPackPage() {
                     <div className="border-b border-border px-4 py-3">
                       <h3 className="text-xs font-semibold text-text-muted">业务线程</h3>
                       <div className="mt-2 overflow-x-auto">
-                        <div className="grid min-w-[760px] grid-cols-8 border-y border-border">
-                          {activeWorkbench.thread.map((stage) => (
-                            <div
-                              key={stage.key}
-                              className={cn(
-                                "min-w-0 border-r border-border px-2.5 py-2 last:border-r-0",
-                                stage.state === "exception" && "bg-warning/5",
-                              )}
-                            >
-                              <div className="truncate text-xs font-medium">{stage.label}</div>
-                              <div className="mt-0.5 truncate text-[11px] text-text-muted">{stage.businessKey}</div>
-                              <div className="mt-1.5 space-y-0.5">
-                                {stage.facts.slice(0, 2).map((fact) => (
-                                  <div key={fact.key} className="truncate text-[11px]">
-                                    {fact.label} <strong>{formatBusinessValue(fact)}</strong>
-                                  </div>
-                                ))}
+                        <div className="grid min-w-[820px] grid-cols-8 border-y border-border/70">
+                          {activeWorkbench.thread.map((stage) => {
+                            const presentation = presentStage(stage);
+                            return (
+                              <div
+                                key={stage.key}
+                                className={cn(
+                                  "min-w-0 border-r border-border/60 px-2.5 py-2.5 last:border-r-0",
+                                  stage.state === "exception" && "bg-warning/[0.025]",
+                                )}
+                              >
+                                <div className={cn("truncate text-[12px] font-medium", stage.state === "exception" && "text-warning")}>
+                                  {presentation.label}
+                                </div>
+                                <div className="mt-2 space-y-1">
+                                  {presentation.facts.map((fact) => (
+                                    <div key={fact.key} className="min-w-0">
+                                      <div className="truncate text-[10px] text-text-muted">{fact.label}</div>
+                                      <strong className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums">
+                                        {fact.value}
+                                      </strong>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
+                        <details className="mt-2 text-[11px] text-text-muted">
+                          <summary className="cursor-pointer hover:text-text-secondary">技术详情</summary>
+                          <div className="mt-1.5 grid gap-x-4 gap-y-1 sm:grid-cols-2">
+                            {activeWorkbench.thread.map((stage) => (
+                              <div key={stage.key}>{stage.label}：{stage.businessKey}</div>
+                            ))}
+                          </div>
+                        </details>
                       </div>
                     </div>
 

@@ -36,7 +36,7 @@ export function ProductHeader({
         <div className="min-w-0">
           {leading}
           <div className="flex min-h-7 flex-wrap items-center gap-2">
-            <h1 data-testid={titleTestId} className="text-[22px] font-semibold leading-7 tracking-normal">{title}</h1>
+            <h1 data-testid={titleTestId} className="text-[23px] font-semibold leading-8 tracking-normal">{title}</h1>
             {badges}
           </div>
           {description && <div className="mt-1 max-w-[88ch] text-[13px] text-text-secondary">{description}</div>}
@@ -68,7 +68,7 @@ export function SectionHeader({
   return (
     <div className={cn("flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border/75 px-4 py-2.5", className)}>
       <div className="min-w-0">
-        <h2 className="text-[14px] font-semibold leading-5">{title}</h2>
+        <h2 className="text-[15px] font-semibold leading-5">{title}</h2>
         {description && <p className="mt-0.5 text-[11px] leading-4 text-text-muted">{description}</p>}
       </div>
       {(meta || actions) && <div className="flex items-center gap-2 text-xs text-text-muted">{meta}{actions}</div>}
@@ -84,7 +84,7 @@ export function SummaryItem({ label, value }: { label: string; value: string | n
   return (
     <div className="min-w-0 px-3.5 py-2.5">
       <dt className="text-[11px] text-text-muted">{label}</dt>
-      <dd className="mt-0.5 text-[17px] font-semibold leading-6 tabular-nums">{value}</dd>
+      <dd className="mt-0.5 text-[20px] font-semibold leading-7 tabular-nums">{value}</dd>
     </div>
   );
 }

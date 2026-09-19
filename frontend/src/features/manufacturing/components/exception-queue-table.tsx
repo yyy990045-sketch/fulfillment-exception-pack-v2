@@ -90,7 +90,7 @@ export function ExceptionQueueTable({
         description="定位需要进入治理的异常，再打开独立异常记录。"
         meta={`${results.length} / ${exceptions.length}`}
       />
-      <div className="grid gap-2 border-b border-border/75 bg-surface-subtle/60 p-3 lg:grid-cols-[minmax(220px,1.5fr)_140px_140px_150px_150px_auto]">
+      <div className="grid gap-2 border-b border-border/60 bg-surface-subtle/45 p-3 lg:grid-cols-[minmax(320px,420px)_repeat(4,minmax(110px,140px))_auto]">
         <label className="relative min-w-0">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
           <input
@@ -155,7 +155,7 @@ export function ExceptionQueueTable({
         <div className="p-3"><LocalState kind="no-results" title="没有匹配当前条件的异常" compact /></div>
       ) : (
         <div className="overflow-x-auto">
-          <table data-testid="exception-queue-table" className="w-full min-w-[900px] text-left text-[12px]">
+        <table data-testid="exception-queue-table" className="w-full min-w-[900px] text-left text-[13px]">
             <thead className="bg-surface-subtle/60 text-text-muted">
               <tr>
                 <th className="border-b border-border/70 px-4 py-2 font-medium">异常</th>
@@ -166,14 +166,14 @@ export function ExceptionQueueTable({
                 <th className="border-b border-border/70 px-4 py-2 font-medium">最近更新</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/65">
+        <tbody className="divide-y divide-border/45">
               {results.map(({ exception, governanceStage }) => (
-                <tr key={exception.id} className="h-[50px] transition-colors duration-150 hover:bg-surface-subtle focus-within:bg-interactive/[0.035]">
+                <tr key={exception.id} className="h-[51px] transition-colors duration-150 hover:bg-surface-subtle focus-within:bg-interactive/[0.035]">
                   <td className="px-4 py-3">
                     <button
                       type="button"
                       data-testid="exception-item"
-                      className="text-left text-[13px] font-semibold text-text-primary hover:text-interactive focus-visible:rounded-sm"
+                      className="text-left text-[14px] font-semibold text-text-primary hover:text-interactive focus-visible:rounded-sm"
                       onClick={() => onOpen(exception)}
                     >
                       {exception.label}

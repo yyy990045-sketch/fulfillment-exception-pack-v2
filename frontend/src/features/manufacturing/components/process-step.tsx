@@ -38,8 +38,8 @@ export function ProcessStep({
       data-testid={`process-step-${id}`}
       data-status={status}
       className={cn(
-        "overflow-hidden rounded-lg border border-border/80 bg-surface transition-colors",
-        status === "current" && "border-interactive/25 bg-interactive/[0.015]",
+        "overflow-hidden border-b border-border/70 bg-transparent transition-colors",
+        status === "current" && "rounded-lg border border-interactive/25 bg-interactive/[0.015]",
         status === "error" && "border-danger/25",
       )}
     >

@@ -61,10 +61,10 @@ export function DigitalThread({
             {rules.length} 条唯一规则评估 · {rules.filter((rule) => rule.matched).length} 命中 · {rules.filter((rule) => rule.status === "not_matched").length} 未命中
           </p>
         </div>
-        <div className="mt-3 overflow-x-auto pb-1">
+        <div className="mt-2.5 overflow-x-auto pb-1">
           <div
             data-testid="digital-thread-track"
-            className="flex min-w-[1240px] items-stretch"
+            className="flex min-w-[1180px] items-stretch border-y border-border/60"
             role="list"
             aria-label="履约阶段"
           >
@@ -89,9 +89,9 @@ export function DigitalThread({
                     aria-current={highlightedStage === stage.key ? "step" : undefined}
                     onClick={() => onStageSelect(stage)}
                     className={cn(
-                      "min-w-[132px] flex-1 rounded-lg border border-border/80 bg-surface px-3 py-3 text-left transition-all duration-150 hover:-translate-y-px hover:border-border-strong hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-interactive/35",
-                      stage.state === "exception" && "border-warning/15 bg-warning/[0.035]",
-                      highlightedStage === stage.key && "border-interactive/30 bg-interactive/[0.04]",
+                      "min-w-[128px] flex-1 border-r border-border/55 px-3 py-2.5 text-left transition-all duration-150 hover:bg-surface-subtle/70 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-interactive/35 last:border-r-0",
+                      stage.state === "normal" && "opacity-65",
+                      highlightedStage === stage.key && "bg-interactive/[0.04] opacity-100",
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -107,7 +107,10 @@ export function DigitalThread({
                     <div className="mt-2">
                       {fact ? (
                         <>
-                          <strong className="block text-[19px] font-semibold leading-6 tabular-nums">{formatBusinessValue(fact)}</strong>
+                          <strong className={cn(
+                            "block text-[20px] font-semibold leading-7 tabular-nums",
+                            stage.state === "exception" && "text-warning",
+                          )}>{formatBusinessValue(fact)}</strong>
                           <span className="mt-0.5 block truncate text-[11px] text-text-muted">{fact.label}</span>
                         </>
                       ) : <span className="text-[11px] text-text-muted">暂无核心事实</span>}

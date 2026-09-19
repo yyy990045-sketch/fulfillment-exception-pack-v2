@@ -1,0 +1,12 @@
+{
+  "id": "screenshot-driven-visual-correction",
+  "title": "Apply screenshot-driven visual corrections to the enterprise UI",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "Archived after regression verification, commit, and push",
+  "createdAt": "2026-09-19T17:00:00Z",
+  "branch": "main"
+}

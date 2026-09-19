@@ -115,7 +115,7 @@ export function ExceptionRecordHeader({
         <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[22px] font-semibold leading-7">{exception.label}</h1>
+              <h1 className="text-[23px] font-semibold leading-8">{exception.label}</h1>
               <SeverityBadge severity={exception.severity} className="px-1.5 py-0 text-[10px]" />
               <Badge>{exceptionStatusLabel(exception.status)}</Badge>
             </div>
@@ -123,7 +123,7 @@ export function ExceptionRecordHeader({
               {metrics.map(([key, value]) => (
                 <div key={key} className="bg-surface px-3 py-2.5">
                   <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
-                  <dd className="mt-1 text-[18px] font-semibold leading-6 tabular-nums">{formatMetricValue(value)}</dd>
+                  <dd className="mt-1 text-[20px] font-semibold leading-7 tabular-nums">{formatMetricValue(value)}</dd>
                 </div>
               ))}
               <div className="bg-surface px-3 py-2.5">

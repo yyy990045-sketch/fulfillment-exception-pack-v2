@@ -46,7 +46,7 @@ export function EvidencePreview({
             {item.quote}
           </blockquote>
         </div>
-        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border/80 bg-border/60">
+        <dl className="space-y-2.5 border-t border-border/70 pt-4">
           {[
             ["角色", evidenceRoleLabels[item.role] ?? item.role],
             ["字段", fieldLabel(item.field)],
@@ -55,9 +55,9 @@ export function EvidencePreview({
             ["业务时间", formatShortDateTime(item.observedAt)],
             ["定位", locator.map((entry) => `${entry.label} ${entry.value}`).join(" · ") || "未记录"],
           ].map(([label, value]) => (
-            <div key={label} className="bg-surface px-3 py-2.5">
+            <div key={label} className="grid grid-cols-[84px_minmax(0,1fr)] gap-3">
               <dt className="text-[11px] text-text-muted">{label}</dt>
-              <dd className="mt-1 text-[12px] font-medium text-text-secondary">{value}</dd>
+              <dd className="text-[12px] font-medium text-text-secondary">{value}</dd>
             </div>
           ))}
         </dl>

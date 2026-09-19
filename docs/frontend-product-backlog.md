@@ -43,6 +43,9 @@
 - Added a compact Governance stepper with only the current step expanded.
 - Refined Operations summary/table density and Solution Pack's three-level workspace.
 - Added centralized Chinese presentation names for built-in Solution Packs.
+- Raised the Chinese body baseline to 14px and reduced legacy 10/11px metadata usage in primary surfaces.
+- Reduced Context, Governance, Overview, and Evidence border/card stacking through dividers and background contrast.
+- Converted Solution Pack capabilities from badges to lightweight checks and removed raw business keys from the primary Thread.
 
 ## P0
 

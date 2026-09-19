@@ -146,8 +146,11 @@ function PortfolioTable({
               <td className="px-3.5 py-3">
                 <div className="flex max-w-[240px] flex-wrap gap-1">
                   {context.resolutionStatuses.length
-                    ? context.resolutionStatuses.slice(0, 3).map((status) => <ResolutionStatusBadge key={status} status={status} />)
+                    ? context.resolutionStatuses.slice(0, 2).map((status) => <ResolutionStatusBadge key={status} status={status} />)
                     : <ResolutionStatusBadge status="no_case" />}
+                  {context.resolutionStatuses.length > 2 && (
+                    <span className="self-center text-[10px] text-text-muted">+{context.resolutionStatuses.length - 2}</span>
+                  )}
                 </div>
               </td>
               <td className="max-w-[150px] truncate px-3.5 py-3">{context.resolutionOwnerRoles.join("、") || "未指派"}</td>

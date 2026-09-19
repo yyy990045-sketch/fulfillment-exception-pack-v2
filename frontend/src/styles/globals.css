@@ -21,10 +21,10 @@
 }
 
 :root {
-  --background: #f4f5f7;
+  --background: #f7f8fa;
   --surface: #ffffff;
   --surface-muted: #f8f9fa;
-  --surface-subtle: #f1f3f5;
+  --surface-subtle: #f3f5f7;
   --border: #e3e6ea;
   --border-strong: #ccd2da;
   --text-primary: #17202a;
@@ -52,7 +52,7 @@ body {
   background: var(--background);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
   text-rendering: optimizeLegibility;
