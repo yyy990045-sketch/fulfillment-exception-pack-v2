@@ -227,6 +227,19 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ReplayResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/workbench:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Pure-query V2 manufacturing workbench projection
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/V2ManufacturingWorkbenchResponse' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/contexts/{contextId}/exceptions:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -673,6 +686,21 @@ components:
         evidence: { type: array, items: { type: object, additionalProperties: true } }
         sourceDocuments: { type: array, items: { type: object, additionalProperties: true } }
         sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
+    V2ManufacturingWorkbenchResponse:
+      type: object
+      required: [context, stats, thread, rules, exceptions, resolutionCases, truthfulness]
+      properties:
+        context: { type: object, additionalProperties: true }
+        stats:
+          type: object
+          additionalProperties: true
+          required: [sourceSystems, entities, documents, events, evidence, ruleEvaluations, matchedRules, notMatchedRules, exceptions, resolutionCases]
+        thread: { type: array, items: { type: object, additionalProperties: true } }
+        rules: { type: array, items: { type: object, additionalProperties: true } }
+        exceptions: { type: array, items: { type: object, additionalProperties: true } }
+        resolutionCases: { type: array, items: { type: object, additionalProperties: true } }
+        truthfulness: { type: object, additionalProperties: true }
+        defaultExceptionId: { type: string, nullable: true }
     GroundedExplanation:
       type: object
       required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, output, validation, createdBy, createdAt]

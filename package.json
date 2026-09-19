@@ -13,6 +13,8 @@
     "open-supos:inbound": "tsx src/integrations/open-supos/run-inbound.ts",
     "open-supos:verify": "tsx src/integrations/open-supos/runtime-verify.ts",
     "grounded-ai:verify": "tsx src/ai/grounded/verify-real-provider.ts",
+    "demo:manufacturing:prepare": "tsx src/workbench/manufacturing/prepare-demo.ts",
+    "demo:manufacturing": "npm run demo:manufacturing:prepare && npm run demo",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

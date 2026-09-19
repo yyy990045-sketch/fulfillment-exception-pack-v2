@@ -10,6 +10,7 @@ import type { ConflictReviewInput } from "./case/runtime.js";
 import { getCase, listCapabilityReceipts, recordCapabilityReceipt, saveCase } from "./store.js";
 import type { GoldCase } from "./types.js";
 import { buildReport } from "./report/build.js";
+import { buildV2WorkbenchView } from "./application/v2-workbench.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -214,6 +215,23 @@ function readJson(req: import("node:http").IncomingMessage) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://127.0.0.1");
   try {
+    const manufacturingFile = req.method === "GET"
+      ? (
+        url.pathname === "/manufacturing" || url.pathname === "/manufacturing/"
+          ? { path: "index.html", contentType: "text/html; charset=utf-8" }
+          : url.pathname === "/manufacturing/styles.css"
+            ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
+            : url.pathname === "/manufacturing/app.js"
+              ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
+              : undefined
+      )
+      : undefined;
+    if (manufacturingFile) {
+      const body = readFileSync(join(ROOT, "workbench", "manufacturing", manufacturingFile.path), "utf8");
+      res.writeHead(200, { "content-type": manufacturingFile.contentType, "cache-control": "no-store" });
+      res.end(body);
+      return;
+    }
     if (req.method === "GET" && url.pathname === "/") {
       const html = readFileSync(join(ROOT, "workbench", "index.html"), "utf8");
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
@@ -221,6 +239,14 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true });
+    const manufacturingWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/workbench$/);
+    if (req.method === "GET" && manufacturingWorkbenchMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(manufacturingWorkbenchMatch[1] ?? "");
+      const view = buildV2WorkbenchView(getV2Store(), tenantId, contextId);
+      if (!view) return json(res, 404, { error: "not_found" });
+      return json(res, 200, view);
+    }
     if (req.method === "GET" && url.pathname === "/api/cases") {
       const auth = authOf(req);
       const tenantId = auth.tenantId;

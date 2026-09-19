@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
+  <title>履约风险治理台 · Manufacturing</title>
+  <link rel="stylesheet" href="/manufacturing/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">履</div>
+        <div>
+          <strong>履约风险治理台</strong>
+          <span>Manufacturing Fulfillment Governance</span>
+        </div>
+      </div>
+      <div class="topbar-context">
+        <span class="context-chip" id="header-business-key">SO-MFG-001</span>
+        <span class="context-chip muted">演示数据</span>
+        <span class="context-chip muted">确定性规则</span>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="context-hero" aria-labelledby="context-title">
+        <div>
+          <p class="eyebrow">MANUFACTURING CONTEXT / <span id="header-context-id">ctx-so-mfg-001</span></p>
+          <h1 id="context-title">制造订单履约上下文</h1>
+          <p class="hero-description" id="context-description">报价、订单、生产、质检、发货、资金和客诉已归并到同一履约上下文。</p>
+        </div>
+        <div class="context-status">
+          <span class="status-pill" id="context-status">履约进行中</span>
+          <span class="hero-meta" id="context-meta">加载中</span>
+        </div>
+      </section>
+
+      <div class="state-banner" id="state-banner" role="status" aria-live="polite"></div>
+
+      <section class="workbench-grid">
+        <section class="panel thread-panel" aria-labelledby="thread-heading">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">FULFILLMENT DIGITAL THREAD</p>
+              <h2 id="thread-heading">制造履约数字线程</h2>
+            </div>
+            <span class="panel-note">流程顺序 · 非因果关系</span>
+          </div>
+          <div class="thread-scroll" id="thread-scroll">
+            <div class="thread-track" id="thread-track"></div>
+          </div>
+          <div class="thread-legend">
+            <span><i class="legend-dot normal"></i>已归并记录</span>
+            <span><i class="legend-dot exception"></i>存在确定性异常</span>
+            <span>连接线仅表示流程顺序</span>
+          </div>
+        </section>
+
+        <aside class="panel exception-panel" aria-labelledby="exception-heading">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">EXCEPTION RAIL</p>
+              <h2 id="exception-heading">当前异常</h2>
+            </div>
+            <span class="count-badge" id="exception-count">0</span>
+          </div>
+          <div class="exception-list" id="exception-list" role="list"></div>
+        </aside>
+      </section>
+
+      <section class="panel detail-panel" aria-labelledby="detail-heading">
+        <div class="detail-head">
+          <div>
+            <p class="eyebrow">SELECTED EXCEPTION</p>
+            <h2 id="detail-heading">异常明细</h2>
+          </div>
+          <div class="detail-meta" id="detail-meta"></div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="异常明细视图">
+          <button class="tab active" id="tab-evidence" role="tab" aria-selected="true" aria-controls="panel-evidence" tabindex="0">Evidence</button>
+          <button class="tab" id="tab-ai" role="tab" aria-selected="false" aria-controls="panel-ai" tabindex="-1">AI 解释</button>
+          <button class="tab" id="tab-resolution" role="tab" aria-selected="false" aria-controls="panel-resolution" tabindex="-1">处置状态</button>
+        </div>
+        <div class="tab-panel active" id="panel-evidence" role="tabpanel" aria-labelledby="tab-evidence"></div>
+        <div class="tab-panel" id="panel-ai" role="tabpanel" aria-labelledby="tab-ai"></div>
+        <div class="tab-panel" id="panel-resolution" role="tabpanel" aria-labelledby="tab-resolution"></div>
+      </section>
+
+      <footer class="truth-strip" id="truth-strip"><span>当前演示边界</span></footer>
+    </main>
+  </div>
+  <script src="/manufacturing/app.js" type="module"></script>
+</body>
+</html>
