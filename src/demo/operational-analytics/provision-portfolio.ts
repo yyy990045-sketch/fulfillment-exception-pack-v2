@@ -19,6 +19,9 @@ import {
 import { OPERATIONAL_PORTFOLIO, type OperationalPortfolioSpec } from "./portfolio-spec.js";
 
 const tenantId = "demo-manufacturing";
+const qualityActor = { subjectId: "demo-quality-owner", displayName: "品质负责人", roles: ["品质负责人"] };
+const salesDirectorActor = { subjectId: "demo-sales-director", displayName: "销售总监", roles: ["销售总监"] };
+const generalManagerActor = { subjectId: "demo-general-manager", displayName: "总经理", roles: ["总经理"] };
 const sourceSystems = [
   { id: "CRM-OPS", systemType: "crm" as const, authorityLevel: "authoritative" as const },
   { id: "ERP-OPS", systemType: "erp" as const, authorityLevel: "system_of_record" as const },
@@ -199,27 +202,27 @@ function ensureResolutionTarget(store: V2SqliteStore, contextId: string, spec: O
   let resolutionCase = acceptExceptionForResolution(store, tenantId, contextId, exception.id, {
     ownerRole: "品质负责人",
     rationale: "Synthetic governance-state example.",
-    actor: "销售总监",
+    actor: qualityActor,
   });
   if (spec.resolutionTarget === "triaged") return;
   resolutionCase = reviewResolution(store, tenantId, resolutionCase.id, {
     decision: spec.resolutionTarget === "rejected" ? "reject" : "confirm",
     rationale: spec.resolutionTarget === "rejected" ? "Synthetic rejected example." : "Synthetic confirmed example.",
-    actor: "品质负责人",
+    actor: qualityActor,
   })!;
   if (spec.resolutionTarget === "rejected" || spec.resolutionTarget === "confirmed") return;
   resolutionCase = proposeResolutionCase(store, tenantId, resolutionCase.id, {
-    actor: "品质负责人",
+    actor: qualityActor,
     actions: [{ type: "supplement_evidence", summary: "Synthetic evidence follow-up." }],
   })!;
   if (spec.resolutionTarget === "proposed_draft") return;
-  resolutionCase = submitResolutionCase(store, tenantId, resolutionCase.id, "品质负责人")!;
+  resolutionCase = submitResolutionCase(store, tenantId, resolutionCase.id, qualityActor)!;
   if (spec.resolutionTarget === "pending_approval") return;
-  resolutionCase = approveResolutionCase(store, tenantId, resolutionCase.id, "general-manager", ["总经理"])!;
+  resolutionCase = approveResolutionCase(store, tenantId, resolutionCase.id, generalManagerActor)!;
   if (spec.resolutionTarget === "approved") return;
-  resolutionCase = executeResolutionCase(store, tenantId, resolutionCase.id, "sales-director", ["销售总监"])!;
+  resolutionCase = executeResolutionCase(store, tenantId, resolutionCase.id, salesDirectorActor)!;
   if (spec.resolutionTarget === "executed") return;
-  closeResolutionCase(store, tenantId, resolutionCase.id, "sales-director", ["销售总监"]);
+  closeResolutionCase(store, tenantId, resolutionCase.id, salesDirectorActor);
 }
 
 export function provisionOperationalPortfolio(store: V2SqliteStore) {

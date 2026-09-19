@@ -108,11 +108,9 @@ describe("manufacturing resolution governance HTTP", () => {
     const executed = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "sales-director");
     const executedAgain = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "sales-director");
     expect(executed.status).toBe(200);
-    expect(executedAgain.status).toBe(200);
+    expect(executedAgain.status).toBe(409);
+    expect(executedAgain.json.error).toBe("ACTION_NOT_APPLICABLE");
     expect(executed.json.status).toBe("executed");
-    expect(executedAgain.json.runtime.actions[0].receipt).toBe(executed.json.runtime.actions[0].receipt);
-    expect(executedAgain.json.runtime.actions[0].externalRequestId).toBe(executed.json.runtime.actions[0].externalRequestId);
-    expect(executedAgain.json.runtime.actions[0].receiptAt).toBe(executed.json.runtime.actions[0].receiptAt);
 
     const receiptsBeforeClose = await call("GET", `/api/v2/resolution-cases/${caseId}`);
     expect(receiptsBeforeClose.json.receipts).toHaveLength(1);
@@ -179,7 +177,7 @@ describe("manufacturing resolution governance HTTP", () => {
       actions: [{ type: "supplement_evidence", summary: "过早方案" }],
     }, "quality-owner");
     expect(proposeEarly.status).toBe(409);
-    expect(proposeEarly.json.error).toBe("resolution_proposal_not_allowed");
+    expect(proposeEarly.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     await call("POST", `/api/v2/resolution-cases/${caseId}/review`, {
       decision: "confirm",
@@ -187,29 +185,29 @@ describe("manufacturing resolution governance HTTP", () => {
     }, "quality-owner");
     const approveBeforeProposal = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "general-manager");
     expect(approveBeforeProposal.status).toBe(409);
-    expect(approveBeforeProposal.json.error).toBe("resolution_approval_not_allowed");
+    expect(approveBeforeProposal.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     await call("POST", `/api/v2/resolution-cases/${caseId}/propose`, {
       actions: [{ type: "supplement_evidence", summary: "补充 QC 核验记录" }],
     }, "quality-owner");
     const approveDraft = await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "general-manager");
     expect(approveDraft.status).toBe(409);
-    expect(approveDraft.json.error).toBe("resolution_approval_not_submitted");
+    expect(approveDraft.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     await call("POST", `/api/v2/resolution-cases/${caseId}/submit`, {}, "quality-owner");
     const executePending = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "sales-director");
     expect(executePending.status).toBe(409);
-    expect(executePending.json.error).toBe("resolution_execution_not_allowed");
+    expect(executePending.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     await call("POST", `/api/v2/resolution-cases/${caseId}/approve`, {}, "general-manager");
     const closeApproved = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, "sales-director");
     expect(closeApproved.status).toBe(409);
-    expect(closeApproved.json.error).toBe("resolution_close_not_allowed");
+    expect(closeApproved.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "sales-director");
     await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, "sales-director");
     const executeClosed = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, {}, "sales-director");
     expect(executeClosed.status).toBe(409);
-    expect(executeClosed.json.error).toBe("resolution_execution_not_allowed");
+    expect(executeClosed.json.error).toBe("ACTION_NOT_APPLICABLE");
   });
 });

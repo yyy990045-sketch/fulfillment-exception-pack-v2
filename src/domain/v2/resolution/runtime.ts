@@ -4,9 +4,12 @@ import { approve, assertTransition, execute, submitForApproval, verifyAndClose }
 import { isAssignableOwnerRole } from "../../../authorization.js";
 import type { V2Exception, ExceptionEvidenceBundle } from "../rule-types.js";
 import {
+  assertResolutionActorContext,
+  assertResolutionActionAllowed,
   canApproveResolution,
   canCloseResolution,
   canExecuteResolution,
+  type ResolutionActorContext,
 } from "./authorization.js";
 import type {
   ResolutionActionInput,
@@ -43,17 +46,17 @@ export function acceptExceptionCase(input: {
   bundle: ExceptionEvidenceBundle;
   ownerRole: string;
   rationale: string;
-  actor: string;
+  actor: ResolutionActorContext;
   acceptedAt?: string;
 }): ResolutionCase {
+  assertResolutionActorContext(input.actor);
   assertHumanText(input.ownerRole, "resolution_owner_role_required");
   if (!isAssignableOwnerRole(input.ownerRole)) throw new Error("resolution_owner_role_not_assignable");
   assertHumanText(input.rationale, "resolution_acceptance_rationale_required");
-  assertHumanText(input.actor, "human_actor_required");
   if (input.exception.status !== "detected") throw new Error("resolution_exception_not_detected");
   const id = resolutionCaseId(input.exception.id);
   const at = input.acceptedAt ?? nowIso();
-  assertTransition("new", "triaged", input.actor, "接受异常进入处置");
+  assertTransition("new", "triaged", input.actor.displayName, "接受异常进入处置");
   const runtime: ResolutionCase["runtime"] = {
     id,
     title: input.exception.title,
@@ -65,7 +68,7 @@ export function acceptExceptionCase(input: {
     actions: [],
     events: [
       { at, to: "new", actor: "system", reason: "v2_exception_intake" },
-      { at, from: "new", to: "triaged", actor: input.actor, reason: "接受异常进入处置" },
+      { at, from: "new", to: "triaged", actor: input.actor.displayName, reason: "接受异常进入处置" },
     ],
   };
   return {
@@ -84,7 +87,7 @@ export function acceptExceptionCase(input: {
       ruleId: input.exception.ruleId,
       ruleVersionId: input.exception.ruleVersionId,
       sourceRuleEvaluationId: input.exception.latestRuleEvaluationId,
-      acceptedBy: input.actor,
+      acceptedBy: input.actor.displayName,
       acceptedAt: at,
       acceptanceRationale: input.rationale,
       evidenceRefs: input.bundle.evidence.map((item) => ({ evidenceId: item.evidenceId, role: item.role })),
@@ -97,13 +100,19 @@ export function acceptExceptionCase(input: {
 
 export function reviewResolutionCase(
   current: ResolutionCase,
-  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string; actorId?: string; reviewedAt?: string },
+  input: { decision: ResolutionReview["decision"]; rationale: string; actor: ResolutionActorContext; reviewedAt?: string },
 ): ResolutionCase {
+  assertResolutionActorContext(input.actor);
   assertHumanText(input.rationale, "resolution_review_rationale_required");
-  assertHumanText(input.actor, "human_actor_required");
   if (current.status !== "triaged") throw new Error("resolution_review_not_allowed");
   const at = input.reviewedAt ?? nowIso();
-  const review: ResolutionReview = { ...input, actorSubjectId: input.actorId ?? input.actor, at };
+  const review: ResolutionReview = {
+    decision: input.decision,
+    rationale: input.rationale,
+    actor: input.actor.displayName,
+    actorSubjectId: input.actor.subjectId,
+    at,
+  };
   if (input.decision === "needs_evidence") {
     return {
       ...current,
@@ -111,12 +120,12 @@ export function reviewResolutionCase(
       updatedAt: at,
       runtime: {
         ...current.runtime,
-        events: [...current.runtime.events, { at, from: "triaged", to: "triaged", actor: input.actor, reason: "仍需补充材料" }],
+        events: [...current.runtime.events, { at, from: "triaged", to: "triaged", actor: input.actor.displayName, reason: "仍需补充材料" }],
       },
     };
   }
   const to = input.decision === "confirm" ? "confirmed" : "rejected";
-  assertTransition("triaged", to, input.actor, input.decision === "confirm" ? "确认异常进入处置" : "拒绝异常继续处置");
+  assertTransition("triaged", to, input.actor.displayName, input.decision === "confirm" ? "确认异常进入处置" : "拒绝异常继续处置");
   return {
     ...current,
     status: to,
@@ -125,16 +134,16 @@ export function reviewResolutionCase(
     runtime: {
       ...current.runtime,
       status: to,
-      events: [...current.runtime.events, { at, from: "triaged", to, actor: input.actor, reason: input.decision === "confirm" ? "确认异常进入处置" : "拒绝异常继续处置" }],
+      events: [...current.runtime.events, { at, from: "triaged", to, actor: input.actor.displayName, reason: input.decision === "confirm" ? "确认异常进入处置" : "拒绝异常继续处置" }],
     },
   };
 }
 
 export function proposeResolution(
   current: ResolutionCase,
-  input: { actions: ResolutionActionInput[]; actor: string; actorId?: string; proposedAt?: string },
+  input: { actions: ResolutionActionInput[]; actor: ResolutionActorContext; proposedAt?: string },
 ): ResolutionCase {
-  assertHumanText(input.actor, "human_actor_required");
+  assertResolutionActorContext(input.actor);
   if (current.status !== "confirmed") throw new Error("resolution_proposal_not_allowed");
   if (!input.actions.length) throw new Error("resolution_actions_required");
   const at = input.proposedAt ?? nowIso();
@@ -151,30 +160,30 @@ export function proposeResolution(
       requiresApproval: true,
     };
   });
-  assertTransition("confirmed", "proposed", input.actor, "提交处置方案");
+  assertTransition("confirmed", "proposed", input.actor.displayName, "提交处置方案");
   return {
     ...current,
     status: "proposed",
-    proposedBy: input.actor,
+    proposedBy: input.actor.displayName,
     updatedAt: at,
     runtime: {
       ...current.runtime,
       status: "proposed",
       actions,
-      proposedBySubjectId: input.actorId ?? input.actor,
-      events: [...current.runtime.events, { at, from: "confirmed", to: "proposed", actor: input.actor, reason: "提交处置方案" }],
+      proposedBySubjectId: input.actor.subjectId,
+      events: [...current.runtime.events, { at, from: "confirmed", to: "proposed", actor: input.actor.displayName, reason: "提交处置方案" }],
     },
   };
 }
 
 export function submitResolution(
   current: ResolutionCase,
-  actor: string,
+  actor: ResolutionActorContext,
   submittedAt = nowIso(),
-  _actorId?: string,
 ): ResolutionCase {
+  assertResolutionActorContext(actor);
   if (current.status !== "proposed") throw new Error("resolution_submit_not_allowed");
-  const submitted = submitForApproval(current.runtime, actor);
+  const submitted = submitForApproval(current.runtime, actor.displayName);
   return assertStatusSync(withResolutionRuntime(current, {
     ...submitted,
     events: [...submitted.events.slice(0, -1), { ...submitted.events.at(-1)!, at: submittedAt }],
@@ -183,19 +192,17 @@ export function submitResolution(
 
 export function approveResolution(
   current: ResolutionCase,
-  actor: string,
-  actorRoles: string[],
+  actor: ResolutionActorContext,
   approvedAt = nowIso(),
-  actorId = actor,
 ) {
+  assertResolutionActorContext(actor);
   if (current.status !== "proposed") throw new Error("resolution_approval_not_allowed");
   if (!current.runtime.actions.length || current.runtime.actions.some((action) => action.status !== "pending_approval")) {
     throw new Error("resolution_approval_not_submitted");
   }
-  const subject = { subjectId: actorId, roles: actorRoles };
-  const decision = canApproveResolution(subject, current);
-  if (!decision.allowed) throw new Error(decision.reasonCode);
-  const approved = approve(current.runtime, actor, undefined, actorRoles);
+  const decision = canApproveResolution(actor, current);
+  assertResolutionActionAllowed(decision);
+  const approved = approve(current.runtime, actor.displayName, undefined, actor.roles);
   return assertStatusSync(withResolutionRuntime(current, approved, approvedAt));
 }
 
@@ -216,22 +223,21 @@ type ResolutionReceiptResult = {
 
 export function executeResolution(
   current: ResolutionCase,
-  actor: string,
-  actorRoles: string[],
+  actor: ResolutionActorContext,
   operationKey: string,
   receiptFactory: (action: ActionRecord, operationKey: string, payloadHash: string) => ResolutionReceiptResult,
   executedAt = nowIso(),
-  actorId = actor,
 ) {
+  assertResolutionActorContext(actor);
   if (
     ["executed", "verified"].includes(current.status) &&
     current.runtime.actions.length > 0 &&
     current.runtime.actions.every((action) => action.receipt && ["succeeded", "verified"].includes(action.status))
   ) return current;
   if (current.status !== "approved") throw new Error("resolution_execution_not_allowed");
-  const decision = canExecuteResolution({ subjectId: actorId, roles: actorRoles }, current);
-  if (!decision.allowed) throw new Error(decision.reasonCode);
-  const executed = execute(current.runtime, actor, operationKey, (action, operation) =>
+  const decision = canExecuteResolution(actor, current);
+  assertResolutionActionAllowed(decision);
+  const executed = execute(current.runtime, actor.displayName, operationKey, (action, operation) =>
     receiptFactory(action, operation, resolutionExecutionPayloadHash({
       resolutionCaseId: current.id,
       action,
@@ -240,11 +246,12 @@ export function executeResolution(
   return assertStatusSync(withResolutionRuntime(current, executed, executedAt));
 }
 
-export function closeResolution(current: ResolutionCase, actor: string, actorRoles: string[], closedAt = nowIso(), actorId = actor) {
+export function closeResolution(current: ResolutionCase, actor: ResolutionActorContext, closedAt = nowIso()) {
+  assertResolutionActorContext(actor);
   if (current.status === "closed" && current.runtime.status === "closed") return current;
   if (current.status !== "executed") throw new Error("resolution_close_not_allowed");
-  const decision = canCloseResolution({ subjectId: actorId, roles: actorRoles }, current);
+  const decision = canCloseResolution(actor, current);
   if (!decision.allowed) throw new Error(decision.reasonCode === "RECEIPT_REQUIRED" ? "receipt_required" : decision.reasonCode);
-  const closed = verifyAndClose(current.runtime, actor);
+  const closed = verifyAndClose(current.runtime, actor.displayName);
   return assertStatusSync(withResolutionRuntime(current, closed, closedAt));
 }

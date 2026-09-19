@@ -67,6 +67,26 @@ describe("B2B account area", () => {
     expect(screen.queryByLabelText("切换业务角色")).not.toBeInTheDocument();
   });
 
+  it("labels tenant fallback as an unconfigured organization", async () => {
+    window.localStorage.setItem("authToken", "bearer-token");
+    vi.stubGlobal("fetch", vi.fn(() => jsonResponse({
+      currentActor: {
+        tenantId: "tenant-acme",
+        organization: "tenant-acme",
+        organizationSource: "tenant_fallback",
+        user: "Alice",
+        subjectId: "user-alice",
+        roles: ["审批人"],
+        authnMethod: "jwt-hs256",
+      },
+    })));
+    renderShell();
+
+    expect((await screen.findAllByText("租户：tenant-acme")).length).toBeGreaterThan(0);
+    expect(screen.getByText("组织名称未配置")).toBeInTheDocument();
+    expect(screen.queryByText("tenant-acme")).not.toBeInTheDocument();
+  });
+
   it("refreshes the demo account role from the backend after actor switching", async () => {
     vi.stubGlobal("fetch", vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
       const actorId = new Headers(init?.headers).get("x-actor") ?? "quality-owner";

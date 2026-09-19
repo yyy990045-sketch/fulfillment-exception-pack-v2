@@ -146,6 +146,20 @@ describe("Resolution capabilities HTTP projection", () => {
     );
     expect(accepted.status).toBe(200);
     const caseId = accepted.json.id as string;
+    const afterAccept = await getCapabilities("quality-owner");
+    expect(afterAccept.resolutionCapabilities.canAccept).toMatchObject({
+      applicable: false,
+      allowed: false,
+      reasonCode: "ACTION_NOT_APPLICABLE",
+    });
+    const duplicateAccept = await call(
+      "POST",
+      `/api/v2/contexts/ctx-so-mfg-001/exceptions/${encodeURIComponent(exceptionId)}/resolution-case`,
+      { ownerRole: "品质负责人", rationale: "重复受理。" },
+      "quality-owner",
+    );
+    expect(duplicateAccept.status).toBe(409);
+    expect(duplicateAccept.json.error).toBe("ACTION_NOT_APPLICABLE");
 
     const reviewed = await call("POST", `/api/v2/resolution-cases/${caseId}/review`, {
       decision: "confirm",

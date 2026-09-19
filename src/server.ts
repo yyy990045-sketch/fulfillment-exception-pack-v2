@@ -239,7 +239,10 @@ function requireMutationAuth(req: import("node:http").IncomingMessage): AuthCont
 }
 
 function assertResolutionPermission(decision: { applicable: boolean; allowed: boolean; reasonCode: string }) {
-  if (!decision.applicable || decision.allowed) return;
+  if (decision.allowed) return;
+  if (!decision.applicable) {
+    throw new HttpError(409, "ACTION_NOT_APPLICABLE");
+  }
   if (decision.reasonCode === "SEGREGATION_OF_DUTIES_VIOLATION") {
     throw new HttpError(409, decision.reasonCode);
   }
@@ -959,8 +962,7 @@ const server = createServer(async (req, res) => {
     const v2ResolutionCreateMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-case$/);
     if (req.method === "POST" && v2ResolutionCreateMatch) {
       const auth = requireMutationAuth(req);
-      const actor = auth.displayName;
-      const actorId = auth.subjectId;
+      const actor = { subjectId: auth.subjectId, displayName: auth.displayName, roles: auth.roles };
       const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ResolutionCreateMatch[1] ?? "");
       const exceptionId = decodeURIComponent(v2ResolutionCreateMatch[2] ?? "");
@@ -974,7 +976,7 @@ const server = createServer(async (req, res) => {
       const store = getV2Store();
       const exception = store.listExceptions(tenantId, contextId).find((item) => item.id === exceptionId);
       const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
-      const decision = canAcceptResolution({ subjectId: actorId, roles: auth.roles }, {
+      const decision = canAcceptResolution(actor, {
         hasResolutionCase: Boolean(store.getResolutionCaseByException(tenantId, exceptionId)),
         exceptionStatus: exception?.status ?? "not_found",
         hasEvidenceBundle: Boolean(bundle),
@@ -984,7 +986,6 @@ const server = createServer(async (req, res) => {
         ownerRole,
         rationale,
         actor,
-        actorId,
       });
       return json(res, 200, resolution);
     }
@@ -1018,10 +1019,8 @@ const server = createServer(async (req, res) => {
     const v2ResolutionActionMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)\/(review|propose|submit|approve|execute|close)$/);
     if (req.method === "POST" && v2ResolutionActionMatch) {
       const auth = requireMutationAuth(req);
-      const actor = auth.displayName;
-      const actorId = auth.subjectId;
+      const actor = { subjectId: auth.subjectId, displayName: auth.displayName, roles: auth.roles };
       const tenantId = auth.tenantId;
-      const subject = { subjectId: actorId, roles: auth.roles };
       const caseId = decodeURIComponent(v2ResolutionActionMatch[1] ?? "");
       const action = v2ResolutionActionMatch[2];
       const input = await readJson(req);
@@ -1034,8 +1033,8 @@ const server = createServer(async (req, res) => {
         const rationale = typeof input.rationale === "string" ? input.rationale.trim() : "";
         if (!["confirm", "needs_evidence", "reject"].includes(decision)) return json(res, 422, { error: "invalid_resolution_review_decision" });
         if (!rationale) return json(res, 422, { error: "resolution_review_rationale_required" });
-        assertResolutionPermission(canReviewResolution(subject, current));
-        const resolution = reviewResolution(store, tenantId, caseId, { decision: decision as "confirm" | "needs_evidence" | "reject", rationale, actor, actorId });
+        assertResolutionPermission(canReviewResolution(actor, current));
+        const resolution = reviewResolution(store, tenantId, caseId, { decision: decision as "confirm" | "needs_evidence" | "reject", rationale, actor });
         return json(res, 200, resolution);
       }
       if (action === "propose") {
@@ -1043,30 +1042,30 @@ const server = createServer(async (req, res) => {
         const actions: ResolutionActionInput[] = input.actions
           .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
           .map((item) => ({ type: String(item.type || "") as ResolutionActionInput["type"], summary: String(item.summary || "") }));
-        assertResolutionPermission(canProposeResolution(subject, current));
-        const resolution = proposeResolutionCase(store, tenantId, caseId, { actions, actor, actorId });
+        assertResolutionPermission(canProposeResolution(actor, current));
+        const resolution = proposeResolutionCase(store, tenantId, caseId, { actions, actor });
         return json(res, 200, resolution);
       }
       if (action === "submit") {
-        assertResolutionPermission(canSubmitResolution(subject, current));
-        const resolution = submitResolutionCase(store, tenantId, caseId, actor, actorId);
+        assertResolutionPermission(canSubmitResolution(actor, current));
+        const resolution = submitResolutionCase(store, tenantId, caseId, actor);
         return json(res, 200, resolution);
       }
       if (action === "approve") {
         if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
-        assertResolutionPermission(canApproveResolution(subject, current));
-        const resolution = approveResolutionCase(store, tenantId, caseId, actor, auth.roles, actorId);
+        assertResolutionPermission(canApproveResolution(actor, current));
+        const resolution = approveResolutionCase(store, tenantId, caseId, actor);
         return json(res, 200, resolution);
       }
       if (action === "execute") {
         if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
-        assertResolutionPermission(canExecuteResolution(subject, current));
+        assertResolutionPermission(canExecuteResolution(actor, current));
         const idempotencyKey = typeof input.idempotencyKey === "string" && input.idempotencyKey.trim() ? input.idempotencyKey.trim() : undefined;
-        const resolution = executeResolutionCase(store, tenantId, caseId, actor, auth.roles, idempotencyKey, actorId);
+        const resolution = executeResolutionCase(store, tenantId, caseId, actor, idempotencyKey);
         return json(res, 200, resolution);
       }
-      assertResolutionPermission(canCloseResolution(subject, current));
-      const resolution = closeResolutionCase(store, tenantId, caseId, actor, auth.roles, actorId);
+      assertResolutionPermission(canCloseResolution(actor, current));
+      const resolution = closeResolutionCase(store, tenantId, caseId, actor);
       return json(res, 200, resolution);
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);
@@ -1230,6 +1229,11 @@ const server = createServer(async (req, res) => {
       return json(res, status, { error: error.code });
     }
     const message = error instanceof Error ? error.message : String(error);
+    if (message === "ACTION_NOT_APPLICABLE") return json(res, 409, { error: message });
+    if (message === "ROLE_NOT_ALLOWED" || message === "read_only_principal") return json(res, 403, { error: message });
+    if (message === "APPROVAL_SUBJECT_IDENTITY_REQUIRED") return json(res, 409, { error: message });
+    if (message === "RESOLUTION_SUBJECT_ID_REQUIRED") return json(res, 422, { error: message });
+    if (message === "resolution_owner_role_not_assignable") return json(res, 422, { error: message });
     const conflictCodes = new Set([
       "proposal_not_allowed",
       "approval_not_pending",

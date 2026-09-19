@@ -11,6 +11,7 @@ import {
   reviewResolution,
   submitResolutionCase,
 } from "../src/domain/v2/index.js";
+import { resolutionActor } from "./helpers/resolution-actors.js";
 
 type DatabaseSyncLike = {
   exec(sql: string): void;
@@ -55,12 +56,7 @@ describe("V2 Exception to Resolution Case bridge", () => {
     const first = acceptExceptionForResolution(store, "demo-industrial", "ctx-so-demo-001", exception.id, {
       ownerRole: "品质负责人",
       rationale: "确认需要进入人工处置",
-      actor: "销售总监",
-    });
-    const second = acceptExceptionForResolution(store, "demo-industrial", "ctx-so-demo-001", exception.id, {
-      ownerRole: "品质负责人",
-      rationale: "重复提交",
-      actor: "销售总监",
+      actor: resolutionActor("销售总监"),
     });
 
     expect(first.id).toBe("resolution-case-exc-" + first.exceptionId.slice(4));
@@ -71,7 +67,11 @@ describe("V2 Exception to Resolution Case bridge", () => {
       { evidenceId: "evidence-order-qty", role: "expected" },
       { evidenceId: "evidence-shipment-qty", role: "actual" },
     ]);
-    expect(second.id).toBe(first.id);
+    expect(() => acceptExceptionForResolution(store, "demo-industrial", "ctx-so-demo-001", exception.id, {
+      ownerRole: "品质负责人",
+      rationale: "重复提交",
+      actor: resolutionActor("销售总监"),
+    })).toThrow(/ACTION_NOT_APPLICABLE/);
     expect(store.listResolutionCases("demo-industrial", "ctx-so-demo-001")).toHaveLength(1);
   });
 
@@ -81,28 +81,28 @@ describe("V2 Exception to Resolution Case bridge", () => {
     let resolution = acceptExceptionForResolution(store, "demo-industrial", "ctx-so-demo-001", exception.id, {
       ownerRole: "品质负责人",
       rationale: "确认需要进入人工处置",
-      actor: "销售总监",
+      actor: resolutionActor("销售总监"),
     });
     resolution = reviewResolution(store, "demo-industrial", resolution.id, {
       decision: "needs_evidence",
       rationale: "先补充签收材料",
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
     })!;
     expect(resolution.status).toBe("triaged");
     resolution = reviewResolution(store, "demo-industrial", resolution.id, {
       decision: "confirm",
       rationale: "证据足够进入处置",
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
     })!;
     expect(resolution.status).toBe("confirmed");
     expect(() => reviewResolution(store, "demo-industrial", resolution.id, {
       decision: "reject",
       rationale: "不能复活",
-      actor: "品质负责人",
-    })).toThrow(/resolution_review_not_allowed/);
+      actor: resolutionActor("品质负责人"),
+    })).toThrow(/ACTION_NOT_APPLICABLE/);
 
     resolution = proposeResolutionCase(store, "demo-industrial", resolution.id, {
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
       actions: [{ type: "supplement_evidence", summary: "核对订单、发货及后续签收材料，确认数量差异原因。" }],
     })!;
     expect(resolution.status).toBe("proposed");
@@ -113,12 +113,12 @@ describe("V2 Exception to Resolution Case bridge", () => {
       requiresApproval: true,
       idempotencyKey: `${resolution.id}:supplement_evidence:1`,
     });
-    expect(proposeResolutionCase(store, "demo-industrial", resolution.id, {
-      actor: "品质负责人",
+    expect(() => proposeResolutionCase(store, "demo-industrial", resolution.id, {
+      actor: resolutionActor("品质负责人"),
       actions: [{ type: "supplement_evidence", summary: "不应重复" }],
-    })!.runtime.actions).toHaveLength(1);
+    })).toThrow(/ACTION_NOT_APPLICABLE/);
 
-    resolution = submitResolutionCase(store, "demo-industrial", resolution.id, "品质负责人")!;
+    resolution = submitResolutionCase(store, "demo-industrial", resolution.id, resolutionActor("品质负责人"))!;
     expect(resolution.runtime.actions[0]?.status).toBe("pending_approval");
   });
 
@@ -128,18 +128,18 @@ describe("V2 Exception to Resolution Case bridge", () => {
     let resolution = acceptExceptionForResolution(store, "demo-industrial", "ctx-so-demo-001", exception.id, {
       ownerRole: "品质负责人",
       rationale: "进入人工判断",
-      actor: "销售总监",
+      actor: resolutionActor("销售总监"),
     });
     resolution = reviewResolution(store, "demo-industrial", resolution.id, {
       decision: "reject",
       rationale: "无需继续处置",
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
     })!;
     expect(resolution.status).toBe("rejected");
     expect(() => reviewResolution(store, "demo-industrial", resolution.id, {
       decision: "confirm",
       rationale: "不能复活",
-      actor: "品质负责人",
-    })).toThrow(/resolution_review_not_allowed/);
+      actor: resolutionActor("品质负责人"),
+    })).toThrow(/ACTION_NOT_APPLICABLE/);
   });
 });

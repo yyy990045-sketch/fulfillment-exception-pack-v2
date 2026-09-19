@@ -17,6 +17,7 @@ import {
   startConfiguredOpenSupOSInbound,
   type OpenSupOSUnsEnvelope,
 } from "../src/integrations/open-supos/index.js";
+import { resolutionActor } from "./helpers/resolution-actors.js";
 
 type DatabaseSyncLike = {
   exec(sql: string): void;
@@ -173,7 +174,7 @@ describe("Open supOS final seal", () => {
     const resolution = acceptExceptionForResolution(store, "demo-manufacturing", "ctx-so-mfg-001", exception.id, {
       ownerRole: "品质负责人",
       rationale: "进入处置",
-      actor: "制造经理",
+      actor: resolutionActor("制造经理", ["品质负责人"], "subject-manufacturing-manager"),
     });
     const resolutionMessage = mapResolutionCaseToUnsMessage(resolution, "SO-MFG-001", false);
     expect(resolutionMessage.topic).toContain("/resolution/");

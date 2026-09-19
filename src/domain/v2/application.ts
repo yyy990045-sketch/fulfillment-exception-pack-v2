@@ -10,6 +10,18 @@ import {
   submitResolution,
 } from "./resolution/runtime.js";
 import type { ResolutionActionInput, ResolutionReview } from "./resolution/types.js";
+import {
+  assertResolutionActionAllowed,
+  assertResolutionActorContext,
+  canAcceptResolution,
+  canApproveResolution,
+  canCloseResolution,
+  canExecuteResolution,
+  canProposeResolution,
+  canReviewResolution,
+  canSubmitResolution,
+  type ResolutionActorContext,
+} from "./resolution/authorization.js";
 import { registerBuiltInSolutionPacks, resolveInstalledPackForContext, solutionPackRegistry } from "../../solution-packs/index.js";
 
 export function evaluateContextRules(store: V2SqliteStore, tenantId: string, contextId: string) {
@@ -50,14 +62,18 @@ export function acceptExceptionForResolution(
   tenantId: string,
   contextId: string,
   exceptionId: string,
-  input: { ownerRole: string; rationale: string; actor: string; actorId?: string },
+  input: { ownerRole: string; rationale: string; actor: ResolutionActorContext },
 ) {
+  assertResolutionActorContext(input.actor);
   const existing = store.getResolutionCaseByException(tenantId, exceptionId);
-  if (existing) return existing;
   const exception = store.listExceptions(tenantId, contextId).find((item) => item.id === exceptionId);
-  if (!exception || exception.status !== "detected") throw new Error("resolution_exception_not_detected");
   const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
-  if (!bundle) throw new Error("resolution_exception_bundle_required");
+  assertResolutionActionAllowed(canAcceptResolution(input.actor, {
+    hasResolutionCase: Boolean(existing),
+    exceptionStatus: exception?.status ?? "not_found",
+    hasEvidenceBundle: Boolean(bundle),
+  }));
+  if (!exception || !bundle) throw new Error("resolution_exception_bundle_required");
   return store.saveResolutionCase(acceptExceptionCase({ exception, bundle, ...input }));
 }
 
@@ -65,10 +81,12 @@ export function reviewResolution(
   store: V2SqliteStore,
   tenantId: string,
   caseId: string,
-  input: { decision: ResolutionReview["decision"]; rationale: string; actor: string; actorId?: string },
+  input: { decision: ResolutionReview["decision"]; rationale: string; actor: ResolutionActorContext },
 ) {
+  assertResolutionActorContext(input.actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
+  assertResolutionActionAllowed(canReviewResolution(input.actor, current));
   return store.saveResolutionCase(reviewResolutionCase(current, input));
 }
 
@@ -76,39 +94,44 @@ export function proposeResolutionCase(
   store: V2SqliteStore,
   tenantId: string,
   caseId: string,
-  input: { actions: ResolutionActionInput[]; actor: string; actorId?: string },
+  input: { actions: ResolutionActionInput[]; actor: ResolutionActorContext },
 ) {
+  assertResolutionActorContext(input.actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  if (current.status === "proposed") return current;
+  assertResolutionActionAllowed(canProposeResolution(input.actor, current));
   return store.saveResolutionCase(proposeResolution(current, input));
 }
 
-export function submitResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorId?: string) {
+export function submitResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: ResolutionActorContext) {
+  assertResolutionActorContext(actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(submitResolution(current, actor, undefined, actorId));
+  assertResolutionActionAllowed(canSubmitResolution(actor, current));
+  return store.saveResolutionCase(submitResolution(current, actor));
 }
 
-export function approveResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[], actorId?: string) {
+export function approveResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: ResolutionActorContext) {
+  assertResolutionActorContext(actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(approveResolution(current, actor, actorRoles, undefined, actorId));
+  assertResolutionActionAllowed(canApproveResolution(actor, current));
+  return store.saveResolutionCase(approveResolution(current, actor));
 }
 
 export function executeResolutionCase(
   store: V2SqliteStore,
   tenantId: string,
   caseId: string,
-  actor: string,
-  actorRoles: string[],
+  actor: ResolutionActorContext,
   idempotencyKey?: string,
-  actorId?: string,
 ) {
+  assertResolutionActorContext(actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
+  assertResolutionActionAllowed(canExecuteResolution(actor, current));
   const operationKey = idempotencyKey || `${tenantId}:${caseId}:execute`;
-  return store.saveResolutionCase(executeResolution(current, actor, actorRoles, operationKey, (action, operation, payloadHash) => {
+  return store.saveResolutionCase(executeResolution(current, actor, operationKey, (action, operation, payloadHash) => {
     const receipt = store.recordResolutionReceipt({
       tenantId,
       resolutionCaseId: caseId,
@@ -122,13 +145,15 @@ export function executeResolutionCase(
       receiptSource: receipt.receiptSource,
       receiptAt: receipt.createdAt,
     };
-  }, undefined, actorId));
+  }));
 }
 
-export function closeResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: string, actorRoles: string[], actorId?: string) {
+export function closeResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string, actor: ResolutionActorContext) {
+  assertResolutionActorContext(actor);
   const current = store.getResolutionCase(tenantId, caseId);
   if (!current) return undefined;
-  return store.saveResolutionCase(closeResolution(current, actor, actorRoles, undefined, actorId));
+  assertResolutionActionAllowed(canCloseResolution(actor, current));
+  return store.saveResolutionCase(closeResolution(current, actor));
 }
 
 export function queryResolutionCase(store: V2SqliteStore, tenantId: string, caseId: string) {

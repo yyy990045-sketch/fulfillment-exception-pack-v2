@@ -18,6 +18,7 @@ import {
   reviewResolution,
   submitResolutionCase,
 } from "../src/domain/v2/index.js";
+import { resolutionActor } from "./helpers/resolution-actors.js";
 
 type DatabaseSyncLike = {
   exec(sql: string): void;
@@ -101,21 +102,21 @@ describe("Outcome Analytics", () => {
     let resolution = acceptExceptionForResolution(store, "demo-manufacturing", "ctx-so-mfg-001", customer.id, {
       ownerRole: "品质负责人",
       rationale: "进入处置",
-      actor: "销售总监",
+      actor: resolutionActor("销售总监"),
     });
     resolution = reviewResolution(store, "demo-manufacturing", resolution.id, {
       decision: "confirm",
       rationale: "确认异常",
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
     })!;
     resolution = proposeResolutionCase(store, "demo-manufacturing", resolution.id, {
-      actor: "品质负责人",
+      actor: resolutionActor("品质负责人"),
       actions: [{ type: "supplement_evidence", summary: "补充核验。" }],
     })!;
-    resolution = submitResolutionCase(store, "demo-manufacturing", resolution.id, "品质负责人")!;
-    resolution = approveResolutionCase(store, "demo-manufacturing", resolution.id, "销售总监", ["销售总监"])!;
-    resolution = executeResolutionCase(store, "demo-manufacturing", resolution.id, "销售总监", ["销售总监"], "outcome-analytics-close")!;
-    closeResolutionCase(store, "demo-manufacturing", resolution.id, "销售总监", ["销售总监"]);
+    resolution = submitResolutionCase(store, "demo-manufacturing", resolution.id, resolutionActor("品质负责人"))!;
+    resolution = approveResolutionCase(store, "demo-manufacturing", resolution.id, resolutionActor("销售总监"))!;
+    resolution = executeResolutionCase(store, "demo-manufacturing", resolution.id, resolutionActor("销售总监"), "outcome-analytics-close")!;
+    closeResolutionCase(store, "demo-manufacturing", resolution.id, resolutionActor("销售总监"));
 
     const analytics = buildOutcomeAnalytics(store, "demo-manufacturing");
     expect(analytics.summary.measuredOutcomeCount).toBe(3);

@@ -255,7 +255,8 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
       { ownerRole: "品质负责人", rationale: "重复提交" },
       { "x-tenant-id": "demo-industrial" },
     );
-    expect((duplicate.json as { id: string }).id).toBe(caseId);
+    expect(duplicate.status).toBe(409);
+    expect(duplicate.json).toEqual({ error: "ACTION_NOT_APPLICABLE" });
 
     const confirmed = await call("POST", `/api/v2/resolution-cases/${caseId}/review`, {
       decision: "confirm",
@@ -281,8 +282,8 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     const executed = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, { idempotencyKey: "http-resolution-execute" }, approverHeaders);
     const executedAgain = await call("POST", `/api/v2/resolution-cases/${caseId}/execute`, { idempotencyKey: "http-resolution-execute" }, approverHeaders);
     expect((executed.json as { status: string }).status).toBe("executed");
-    expect((executedAgain.json as { runtime: { actions: Array<{ receipt?: string }> } }).runtime.actions[0]?.receipt)
-      .toBe((executed.json as { runtime: { actions: Array<{ receipt?: string }> } }).runtime.actions[0]?.receipt);
+    expect(executedAgain.status).toBe(409);
+    expect(executedAgain.json).toEqual({ error: "ACTION_NOT_APPLICABLE" });
 
     const query = await call("GET", `/api/v2/resolution-cases/${caseId}`, undefined, { "x-tenant-id": "demo-industrial" });
     expect(query.status).toBe(200);
@@ -295,9 +296,8 @@ describe("http closed loop (demo mode, 127.0.0.1)", () => {
     const closed = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, approverHeaders);
     const closedAgain = await call("POST", `/api/v2/resolution-cases/${caseId}/close`, {}, approverHeaders);
     expect((closed.json as { status: string }).status).toBe("closed");
-    expect((closedAgain.json as { status: string }).status).toBe("closed");
-    expect((closedAgain.json as { runtime: { events: unknown[] } }).runtime.events.length)
-      .toBe((closed.json as { runtime: { events: unknown[] } }).runtime.events.length);
+    expect(closedAgain.status).toBe(409);
+    expect(closedAgain.json).toEqual({ error: "ACTION_NOT_APPLICABLE" });
     const audit = (closed.json as { runtime: { events: Array<{ actor?: string; at?: string; from?: string; to?: string; reason?: string }> } }).runtime.events;
     expect(audit.map((event) => event.reason)).toEqual([
       "v2_exception_intake",

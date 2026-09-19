@@ -12,6 +12,10 @@ export type ResolutionActionDecision = {
   reason: string;
 };
 
+export type ResolutionActorContext = AuthorizationSubject & {
+  displayName: string;
+};
+
 const notApplicable = (): ResolutionActionDecision => ({
   applicable: false,
   allowed: false,
@@ -32,6 +36,17 @@ const denied = (reasonCode: string, reason: string): ResolutionActionDecision =>
   reasonCode,
   reason,
 });
+
+export function assertResolutionActorContext(actor: ResolutionActorContext) {
+  if (!actor.subjectId.trim()) throw new Error("RESOLUTION_SUBJECT_ID_REQUIRED");
+  if (!actor.displayName.trim()) throw new Error("RESOLUTION_DISPLAY_NAME_REQUIRED");
+  if (!actor.roles.length) throw new Error("RESOLUTION_ROLES_REQUIRED");
+}
+
+export function assertResolutionActionAllowed(decision: ResolutionActionDecision) {
+  if (decision.allowed) return;
+  throw new Error(decision.applicable ? decision.reasonCode : "ACTION_NOT_APPLICABLE");
+}
 
 function ownerDenied() {
   return denied("ROLE_NOT_ALLOWED", "当前角色没有治理操作权限");

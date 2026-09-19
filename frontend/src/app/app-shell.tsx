@@ -18,9 +18,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hasToken = Boolean(window.localStorage.getItem("authToken") || window.sessionStorage.getItem("authToken"));
   const currentActor = accountContext.data?.currentActor;
+  const organizationFallback = currentActor?.organizationSource === "tenant_fallback";
   const account = currentActor
     ? {
-      organization: currentActor.organization,
+      organization: organizationFallback ? `租户：${currentActor.organization}` : currentActor.organization,
+      organizationNote: organizationFallback ? "组织名称未配置" : null,
       user: currentActor.user,
       role: currentActor.roles.join("、") || "角色未记录",
     }
@@ -75,6 +77,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </span>
                   <div className="min-w-0">
                     <div className="truncate text-xs font-semibold text-text-secondary">{accountSummary}</div>
+                    {account?.organizationNote && (
+                      <div className="mt-0.5 text-[11px] text-text-muted">{account.organizationNote}</div>
+                    )}
                     <div className="mt-0.5 text-xs text-text-muted">
                       {account ? `${account.user} · ${account.role}` : accountUser}
                     </div>
