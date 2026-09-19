@@ -14,11 +14,11 @@ export const financeReconciliationPack: SolutionPack = {
   outcomeDefinitions: financeOutcomeDefinitions,
   presentation: financePresentation,
   decisionEligibilityResolver: financeEligibility,
-  install(store: V2SqliteStore, tenantId: string, actor: string) {
-    installSolutionPack(store, financeReconciliationPack, tenantId, actor);
+  install(store: V2SqliteStore, tenantId: string, actor: string, config = {}) {
+    installSolutionPack(store, financeReconciliationPack, tenantId, actor, config);
   },
-  provisionDemo(store: V2SqliteStore) {
-    return provisionFinanceReconciliationDemo(store);
+  provisionDemo(store: V2SqliteStore, tenantId: string) {
+    return provisionFinanceReconciliationDemo(store, tenantId);
   },
 };
 

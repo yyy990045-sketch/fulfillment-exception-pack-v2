@@ -1,4 +1,4 @@
-import type { BusinessEntityType, FulfillmentContextType, RuleDefinition, RuleVersion, V2SqliteStore } from "../../domain/v2/index.js";
+import type { BusinessEntityType, ExceptionCode, FulfillmentContextType, RuleVersion, V2SqliteStore } from "../../domain/v2/index.js";
 import type { ActionType } from "../../types.js";
 import type { OutcomeDefinitionInput } from "../../outcomes/index.js";
 
@@ -42,16 +42,35 @@ export type PackDecisionEligibilityContribution = {
   reason: string;
 };
 
+export type PackRuleDefinitionTemplate = {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  exceptionType: ExceptionCode;
+  enabled: boolean;
+  metadata: Record<string, unknown>;
+};
+
+export type PackRuleVersionTemplate = {
+  id: string;
+  ruleId: string;
+  version: string;
+  status: RuleVersion["status"];
+  config: RuleVersion["config"];
+  contentHash: string;
+};
+
 export interface SolutionPack {
   manifest: SolutionPackManifest;
   ruleContributions: {
-    definitions: RuleDefinition[];
-    versions: RuleVersion[];
+    definitions: PackRuleDefinitionTemplate[];
+    versions: PackRuleVersionTemplate[];
   };
   outcomeDefinitions: OutcomeDefinitionInput[];
   presentation: PackPresentation;
   decisionEligibilityResolver?: (exceptionCode: string) => PackDecisionEligibilityContribution[] | undefined;
-  install(store: V2SqliteStore, tenantId: string, actor: string): void;
+  install(store: V2SqliteStore, tenantId: string, actor: string, config?: Record<string, unknown>): void;
   provisionDemo?(store: V2SqliteStore, tenantId: string, actor: string): unknown;
 }
 

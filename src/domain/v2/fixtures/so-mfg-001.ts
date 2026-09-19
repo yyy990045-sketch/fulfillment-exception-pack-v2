@@ -21,7 +21,7 @@ export const SO_MFG_001_CONTEXT: FulfillmentContext = {
   status: "active",
   openedAt: "2026-09-01T00:00:00.000Z",
   updatedAt: receivedAt,
-  metadata: { fixture: "SO-MFG-001", purpose: "manufacturing_competition_demo" },
+  metadata: { fixture: "SO-MFG-001", purpose: "manufacturing_competition_demo", ruleProfile: "manufacturing" },
 };
 
 export const SO_MFG_001_SOURCE_SYSTEMS: SourceSystem[] = [

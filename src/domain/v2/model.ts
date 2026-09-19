@@ -7,7 +7,6 @@ import type {
   SourceSystem,
   V2Evidence,
 } from "./types.js";
-import { FULFILLMENT_EVENT_TYPES } from "./types.js";
 
 export type DomainErrorCode =
   | "DOMAIN_ID_REQUIRED"
@@ -181,7 +180,7 @@ export function createFulfillmentEvent(input: FulfillmentEvent): FulfillmentEven
   required(input.contextId, "DOMAIN_CONTEXT_ID_REQUIRED");
   required(input.entityId, "DOMAIN_ENTITY_ID_REQUIRED");
   required(input.sourceSystemId, "DOMAIN_SOURCE_SYSTEM_ID_REQUIRED");
-  if (!FULFILLMENT_EVENT_TYPES.includes(input.eventType)) throw new DomainError("DOMAIN_EVENT_TYPE_INVALID");
+  required(input.eventType, "DOMAIN_EVENT_TYPE_INVALID");
   timestamp(input.occurredAt, "DOMAIN_EVENT_OCCURRED_AT_REQUIRED");
   timestamp(input.recordedAt, "DOMAIN_EVENT_RECORDED_AT_REQUIRED");
   required(input.idempotencyKey, "DOMAIN_EVENT_IDEMPOTENCY_KEY_REQUIRED");

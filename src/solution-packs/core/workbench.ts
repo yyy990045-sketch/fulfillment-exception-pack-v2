@@ -15,6 +15,8 @@ export function buildPackWorkbenchView(store: V2SqliteStore, tenantId: string, c
   const evaluations = store.listRuleEvaluations(tenantId, contextId);
   const exceptions = store.listExceptions(tenantId, contextId);
   const exceptionEntityIds = new Set(exceptions.flatMap((item) => item.entityIds));
+  const syntheticDemoData = replay.context.metadata.synthetic === true
+    || replay.evidence.some((item) => item.metadata.synthetic === true);
   const thread = pack.presentation.stages.flatMap((stage) => {
     const entity = replay.entities.find((item) => item.entityType === stage.entityType);
     if (!entity) return [];
@@ -86,7 +88,7 @@ export function buildPackWorkbenchView(store: V2SqliteStore, tenantId: string, c
         }))
       : [],
     truthfulness: {
-      syntheticDemoData: true,
+      syntheticDemoData,
       packBound: true,
       causalAttribution: false,
     },

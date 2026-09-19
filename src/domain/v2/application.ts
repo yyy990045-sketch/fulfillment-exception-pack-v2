@@ -18,13 +18,20 @@ export function evaluateContextRules(store: V2SqliteStore, tenantId: string, con
   registerBuiltInSolutionPacks();
   const pack = resolveInstalledPackForContext(store, context);
   const registeredPack = solutionPackRegistry.resolveByContextType(context.contextType);
+  const ruleProfile = typeof context.metadata.ruleProfile === "string"
+    ? context.metadata.ruleProfile
+    : pack?.manifest.id === "manufacturing-fulfillment"
+      ? "manufacturing"
+      : pack?.manifest.id;
   const allowedRuleIds = pack
-    ? new Set(pack.ruleContributions.definitions.filter((item) => item.tenantId === tenantId).map((item) => item.id))
+    ? new Set(pack.ruleContributions.definitions
+      .filter((item) => !ruleProfile || item.metadata.profile === ruleProfile)
+      .map((item) => item.id))
     : undefined;
-  const definitions = registeredPack && !pack
+  const definitions = !pack
     ? []
     : store.listEnabledRuleDefinitions(tenantId).filter((item) => !allowedRuleIds || allowedRuleIds.has(item.id));
-  const versions = registeredPack && !pack
+  const versions = !pack
     ? []
     : store.listActiveRuleVersions(tenantId).filter((item) => !allowedRuleIds || allowedRuleIds.has(item.ruleId));
   const replay = store.replayContext(tenantId, contextId);

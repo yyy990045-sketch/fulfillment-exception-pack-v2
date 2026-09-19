@@ -28,8 +28,8 @@ export function parseUnsTopic(topic: string): OpenSupOSTopicParts {
   const segments = topic.split("/");
   if (segments.length !== 6 || segments[0] !== "fulfillment") throw new OpenSupOSIntegrationError("INVALID_UNS_TOPIC", topic);
   const [, tenantKey, contextBusinessKey, entityType, entityBusinessKey, eventType] = segments.map(decodeTopicSegment);
-  if (!ENTITY_TYPES.includes(entityType as BusinessEntityType)) throw new OpenSupOSIntegrationError("UNSUPPORTED_ENTITY_TYPE", entityType);
-  if (!FULFILLMENT_EVENT_TYPES.includes(eventType as FulfillmentEvent["eventType"])) throw new OpenSupOSIntegrationError("UNSUPPORTED_EVENT_TYPE", eventType);
+  if (!entityType?.trim()) throw new OpenSupOSIntegrationError("UNSUPPORTED_ENTITY_TYPE", entityType);
+  if (!eventType?.trim()) throw new OpenSupOSIntegrationError("UNSUPPORTED_EVENT_TYPE", eventType);
   return {
     tenantKey: tenantKey!,
     contextBusinessKey: contextBusinessKey!,

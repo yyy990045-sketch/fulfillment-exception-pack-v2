@@ -8,7 +8,7 @@ export type RuleDefinition = {
   code: string;
   name: string;
   description: string;
-  exceptionType: FulfillmentExceptionCode;
+  exceptionType: ExceptionCode;
   enabled: boolean;
   createdAt: string;
   metadata: Record<string, unknown>;
@@ -91,17 +91,8 @@ export type RuleEvaluation = {
   metadata: Record<string, unknown>;
 };
 
-export type FulfillmentExceptionCode =
-  | "SHIPMENT_QUANTITY_SHORTFALL"
-  | "PAYMENT_BALANCE_OUTSTANDING"
-  | "CUSTOMER_RECEIPT_CLAIM_MISMATCH"
-  | "QUOTE_ORDER_QUANTITY_MISMATCH"
-  | "ORDER_PRODUCTION_COMPLETION_SHORTFALL"
-  | "QUALITY_NONCONFORMING_QUANTITY_DETECTED"
-  | "QUALITY_SHIPMENT_QUANTITY_MISMATCH"
-  | "FINANCE.INVOICE_RECEIVABLE_AMOUNT_MISMATCH"
-  | "FINANCE.RECEIVABLE_PAYMENT_BALANCE_OUTSTANDING"
-  | "FINANCE.INVOICE_PAYMENT_AMOUNT_MISMATCH";
+export type ExceptionCode = string;
+export type FulfillmentExceptionCode = ExceptionCode;
 
 export type V2Exception = {
   id: string;
@@ -111,7 +102,7 @@ export type V2Exception = {
   ruleVersionId: string;
   ruleEvaluationId: string;
   latestRuleEvaluationId: string;
-  code: FulfillmentExceptionCode;
+  code: ExceptionCode;
   status: "detected";
   severity: "low" | "medium" | "high" | "critical";
   title: string;

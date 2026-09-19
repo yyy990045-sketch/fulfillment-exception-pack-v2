@@ -61,8 +61,8 @@ export function parseOpenSupOSUnsEnvelope(input: unknown): OpenSupOSUnsEnvelope 
   const entityType = string(entity.entityType, "entity.entityType") as BusinessEntityType;
   const eventType = string(event.eventType, "event.eventType") as OpenSupOSUnsEnvelope["event"]["eventType"];
   if (!SOURCE_TYPES.includes(systemType)) throw new OpenSupOSIntegrationError("UNSUPPORTED_SOURCE_SYSTEM_TYPE", systemType);
-  if (!ENTITY_TYPES.includes(entityType)) throw new OpenSupOSIntegrationError("UNSUPPORTED_ENTITY_TYPE", entityType);
-  if (!FULFILLMENT_EVENT_TYPES.includes(eventType)) throw new OpenSupOSIntegrationError("UNSUPPORTED_EVENT_TYPE", eventType);
+  if (!entityType.trim()) throw new OpenSupOSIntegrationError("UNSUPPORTED_ENTITY_TYPE", entityType);
+  if (!eventType.trim()) throw new OpenSupOSIntegrationError("UNSUPPORTED_EVENT_TYPE", eventType);
 
   const facts = record(envelope.facts, "facts");
   const parsedFacts = Object.fromEntries(Object.entries(facts).map(([key, value]) => {

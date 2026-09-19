@@ -43,7 +43,11 @@ describe("V2 rule persistence", () => {
     provisionV2DemoData(store);
     for (const definition of DEMO_RULE_DEFINITIONS) store.saveRuleDefinition(definition);
     for (const version of DEMO_RULE_VERSIONS) store.saveRuleVersion(version);
-    for (const version of DEMO_RULE_VERSIONS) expect(store.saveRuleVersion(version)).toEqual(version);
+    for (const version of DEMO_RULE_VERSIONS) {
+      const { createdAt: _createdAt, ...stable } = version;
+      expect(store.saveRuleVersion(version)).toMatchObject(stable);
+      expect(store.saveRuleVersion(version).createdAt).toEqual(expect.any(String));
+    }
 
     const changedConfig = {
       ...DEMO_RULE_VERSIONS[0]!.config,

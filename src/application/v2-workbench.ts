@@ -150,7 +150,7 @@ export function buildV2WorkbenchView(
   const thread = THREAD_ORDER.map((stage) => {
     const entity = replay.entities.find((item) => item.entityType === stage);
     if (!entity) return undefined;
-    const facts = STAGE_FACTS[stage].flatMap((fact) => {
+    const facts = (STAGE_FACTS[stage] ?? []).flatMap((fact) => {
       const evidence = latestEvidence(store, tenantId, contextId, entity.id, fact.field);
       return evidence ? [{
         key: fact.key,

@@ -9,11 +9,10 @@ import {
   type V2SqliteStore,
 } from "../../domain/v2/index.js";
 
-const tenantId = "demo-finance";
 const contextId = "ctx-fin-rec-001";
 const receivedAt = "2026-09-20T00:00:00.000Z";
 
-export function provisionFinanceReconciliationDemo(store: V2SqliteStore) {
+export function provisionFinanceReconciliationDemo(store: V2SqliteStore, tenantId = "demo-finance") {
   const context = createFulfillmentContext({
     id: contextId,
     tenantId,
@@ -22,7 +21,7 @@ export function provisionFinanceReconciliationDemo(store: V2SqliteStore) {
     status: "active",
     openedAt: receivedAt,
     updatedAt: receivedAt,
-    metadata: { synthetic: true },
+    metadata: { synthetic: true, ruleProfile: "finance" },
   });
   const systems = [
     createSourceSystem({ id: "FIN-ERP-DEMO", tenantId, name: "Finance ERP Demo", systemType: "erp", authorityLevel: "system_of_record", status: "active", metadata: { synthetic: true } }),

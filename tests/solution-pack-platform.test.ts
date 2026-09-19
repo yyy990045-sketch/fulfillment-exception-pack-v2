@@ -9,11 +9,13 @@ import {
   solutionPackManifestHash,
   solutionPackRegistry,
   manufacturingFulfillmentPack,
+  financeReconciliationPack,
   buildPackWorkbenchView,
 } from "../src/solution-packs/index.js";
 import { directionStatus } from "../src/outcomes/measurement.js";
 import {
   V2SqliteStore,
+  createFulfillmentContext,
   evaluateContextRules,
   provisionV2ManufacturingDemoData,
 } from "../src/domain/v2/index.js";
@@ -96,5 +98,59 @@ describe("Solution Pack Platform", () => {
   it("hardens non-numeric outcome comparison against implicit improvement", () => {
     expect(directionStatus("open", "open", "toward_target", "closed")).toBe("unchanged");
     expect(directionStatus("open", "pending", "toward_target", "closed")).toBe("insufficient_evidence");
+  });
+
+  it("materializes Finance rules for an arbitrary tenant without pack source changes", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    installSolutionPack(store, financeReconciliationPack, "tenant-customer-a", "admin", { ruleProfile: "finance" });
+    financeReconciliationPack.provisionDemo?.(store, "tenant-customer-a", "admin");
+    const evaluated = evaluateContextRules(store, "tenant-customer-a", "ctx-fin-rec-001")!;
+    expect(evaluated.evaluations).toHaveLength(3);
+    expect(evaluated.evaluations.filter((item) => item.status === "matched")).toHaveLength(2);
+    expect(evaluated.evaluations.filter((item) => item.status === "not_matched")).toHaveLength(1);
+    expect(evaluated.exceptions).toHaveLength(2);
+  });
+
+  it("materializes Manufacturing rules for a second arbitrary tenant", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    installSolutionPack(store, manufacturingFulfillmentPack, "tenant-customer-b", "admin", { ruleProfile: "manufacturing" });
+    expect(store.listEnabledRuleDefinitions("tenant-customer-b").length).toBeGreaterThanOrEqual(7);
+  });
+
+  it("default-denies unknown ContextTypes instead of running all installed rules", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    installSolutionPack(store, financeReconciliationPack, "tenant-customer-a", "admin");
+    store.saveContext(createFulfillmentContext({
+      id: "ctx-unknown-001",
+      tenantId: "tenant-customer-a",
+      businessKey: "UNKNOWN-001",
+      contextType: "some_future_domain",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: {},
+    }));
+    const evaluated = evaluateContextRules(store, "tenant-customer-a", "ctx-unknown-001")!;
+    expect(evaluated.evaluations).toHaveLength(0);
+  });
+
+  it("derives synthetic truthfulness from context/evidence rather than hardcoding it", () => {
+    const store = openStore();
+    registerBuiltInSolutionPacks();
+    installSolutionPack(store, financeReconciliationPack, "tenant-real", "admin");
+    store.saveContext(createFulfillmentContext({
+      id: "ctx-real-fin-001",
+      tenantId: "tenant-real",
+      businessKey: "REAL-FIN-001",
+      contextType: "finance_reconciliation",
+      status: "active",
+      openedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      metadata: { synthetic: false },
+    }));
+    expect(buildPackWorkbenchView(store, "tenant-real", "ctx-real-fin-001")?.truthfulness.syntheticDemoData).toBe(false);
   });
 });

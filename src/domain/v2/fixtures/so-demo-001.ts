@@ -21,7 +21,7 @@ export const SO_DEMO_001_CONTEXT: FulfillmentContext = {
   status: "active",
   openedAt: "2026-09-01T00:00:00.000Z",
   updatedAt: recordedAt,
-  metadata: { fixture: "SO-DEMO-001" },
+  metadata: { fixture: "SO-DEMO-001", ruleProfile: "industrial" },
 };
 
 export const SO_DEMO_001_SOURCE_SYSTEMS: SourceSystem[] = [

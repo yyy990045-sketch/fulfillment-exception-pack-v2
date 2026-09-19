@@ -1,18 +1,8 @@
-export type FulfillmentContextType = "sales_order" | "project" | "contract" | "finance_reconciliation";
+export type FulfillmentContextType = string;
 
 export type FulfillmentContextStatus = "open" | "active" | "on_hold" | "closed" | "cancelled";
 
-export type BusinessEntityType =
-  | "quote"
-  | "contract"
-  | "sales_order"
-  | "production_order"
-  | "quality_event"
-  | "shipment"
-  | "receivable"
-  | "invoice"
-  | "payment"
-  | "complaint";
+export type BusinessEntityType = string;
 
 export type SourceSystemType = "erp" | "mes" | "qms" | "wms" | "crm" | "finance" | "manual" | "file" | "demo";
 
@@ -20,7 +10,7 @@ export type SourceSystemAuthorityLevel = "system_of_record" | "authoritative" | 
 
 export type SourceSystemStatus = "active" | "inactive";
 
-export const FULFILLMENT_EVENT_TYPES = [
+export const KNOWN_CORE_EVENT_TYPES = [
   "QUOTE_CREATED",
   "QUOTE_CHANGED",
   "ORDER_CREATED",
@@ -41,7 +31,9 @@ export const FULFILLMENT_EVENT_TYPES = [
   "COMPLAINT_UPDATED",
 ] as const;
 
-export type FulfillmentEventType = (typeof FULFILLMENT_EVENT_TYPES)[number];
+export const FULFILLMENT_EVENT_TYPES = KNOWN_CORE_EVENT_TYPES;
+
+export type FulfillmentEventType = string;
 
 export type EvidenceValueType = "string" | "number" | "boolean" | "date" | "datetime" | "currency" | "json" | "null";
 

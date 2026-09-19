@@ -14,14 +14,17 @@ export function installSolutionPack(
   assertCompatibleManifest(pack.manifest);
   const now = new Date().toISOString();
   const manifestHash = solutionPackManifestHash(pack.manifest);
+  const profile = typeof config.ruleProfile === "string" ? config.ruleProfile : undefined;
   return store.transaction(() => {
-    for (const definition of pack.ruleContributions.definitions) {
-      if (definition.tenantId !== tenantId) continue;
-      store.saveRuleDefinition(definition);
+    const definitions = profile
+      ? pack.ruleContributions.definitions.filter((item) => item.metadata.profile === profile)
+      : pack.ruleContributions.definitions;
+    const definitionIds = new Set(definitions.map((item) => item.id));
+    for (const definition of definitions) {
+      store.saveRuleDefinition({ ...definition, tenantId, createdAt: now });
     }
-    for (const version of pack.ruleContributions.versions) {
-      if (version.tenantId !== tenantId) continue;
-      store.saveRuleVersion(version);
+    for (const version of pack.ruleContributions.versions.filter((item) => definitionIds.has(item.ruleId))) {
+      store.saveRuleVersion({ ...version, tenantId, createdAt: now });
     }
     for (const definition of pack.outcomeDefinitions) {
       store.saveOutcomeDefinition({

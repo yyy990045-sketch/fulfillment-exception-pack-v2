@@ -14,8 +14,8 @@ export const manufacturingFulfillmentPack: SolutionPack = {
   outcomeDefinitions: manufacturingOutcomeDefinitions,
   presentation: manufacturingPresentation,
   decisionEligibilityResolver: manufacturingEligibility,
-  install(store: V2SqliteStore, tenantId: string, actor: string) {
-    installSolutionPack(store, manufacturingFulfillmentPack, tenantId, actor);
+  install(store: V2SqliteStore, tenantId: string, actor: string, config = {}) {
+    installSolutionPack(store, manufacturingFulfillmentPack, tenantId, actor, config);
   },
   provisionDemo(store: V2SqliteStore) {
     return provisionManufacturingPackDemo(store);
