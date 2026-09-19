@@ -112,8 +112,17 @@ describe("Manufacturing decision workbench", () => {
     renderAt("/manufacturing/ctx-fixture");
     expect(await screen.findByRole("heading", { name: "SO-FIXTURE-001" })).toBeInTheDocument();
     expect(screen.getAllByTestId("thread-stage")).toHaveLength(8);
-    expect(screen.getByText("7 条规则评估 · 4 命中 · 3 未命中")).toBeInTheDocument();
+    expect(screen.getByText("7 条唯一规则评估 · 4 命中 · 3 未命中")).toBeInTheDocument();
+    const ruleIds = screen.getAllByTestId("rule-chip").map((item) => item.getAttribute("data-rule-id"));
+    expect(new Set(ruleIds).size).toBe(ruleIds.length);
     expect(screen.getAllByTestId("exception-item")).toHaveLength(4);
+    const exceptionOrder = screen.getAllByTestId("exception-item").map((item) => item.textContent ?? "");
+    expect(exceptionOrder.findIndex((item) => item.includes("客户签收主张差异"))).toBeLessThan(
+      exceptionOrder.findIndex((item) => item.includes("回款未结清")),
+    );
+    expect(exceptionOrder.findIndex((item) => item.includes("发货数量短少"))).toBeLessThan(
+      exceptionOrder.findIndex((item) => item.includes("质检未通过数量")),
+    );
     expect(screen.getByRole("button", { name: /客户签收主张差异/ })).toHaveAttribute("aria-current", "true");
   });
 
@@ -136,6 +145,8 @@ describe("Manufacturing decision workbench", () => {
     const inspector = await screen.findByTestId("evidence-inspector");
     expect(inspector).toHaveTextContent("客户主张收到");
     expect(inspector).toHaveTextContent("客户主张收到=8");
+    expect(screen.getByText("仓储系统")).toBeInTheDocument();
+    expect(screen.getByText("客户服务记录")).toBeInTheDocument();
   });
 
   it("supports evidence deep links and browser back behavior", async () => {
@@ -174,14 +185,14 @@ describe("Manufacturing decision workbench", () => {
     expect(screen.getByText("签收记录缺失可能导致主张数量未被确认。")).toBeInTheDocument();
     expect(screen.getByText("支持证据")).toBeInTheDocument();
     expect(screen.getByText("反证或矛盾证据")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "evidence-claim" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: "evidence-shipment" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "客户主张 8" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "系统记录 10" }).length).toBeGreaterThan(0);
   });
 
   it("renders decision options and humanDecisionRequired without presenting execution", async () => {
     mockApi();
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/decision");
-    expect(await screen.findByRole("heading", { name: "处置建议" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "决策建议" })).toBeInTheDocument();
     expect(await screen.findByText("需要人工决策")).toBeInTheDocument();
     expect(screen.getByText("建议不是执行结果")).toBeInTheDocument();
     expect(screen.getByText("补充签收证据")).toBeInTheDocument();

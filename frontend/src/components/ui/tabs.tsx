@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils.js";
 export const Tabs = TabsPrimitive.Root;
 
 export function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.List>) {
-  return <TabsPrimitive.List className={cn("inline-flex h-9 items-center border-b border-border", className)} {...props} />;
+  return <TabsPrimitive.List className={cn("inline-flex h-9 max-w-full items-center overflow-x-auto border-b border-border", className)} {...props} />;
 }
 
 export function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsPrimitive.Trigger>) {

@@ -32,6 +32,9 @@ export function metricLabel(key: string) {
     shippedQty: "发货数量",
     expected: "规则期望",
     actual: "系统记录",
+    verifiedReceiptDifference: "已验证差异",
+    openNonconformingQty: "待处理不合格数量",
+    baselineDifference: "基准差异",
   };
   return labels[key] ?? key;
 }
@@ -47,6 +50,85 @@ export function exceptionStatusLabel(status: string) {
   return labels[status] ?? status;
 }
 
+export function actionTypeLabel(actionType: string) {
+  const labels: Record<string, string> = {
+    supplement_evidence: "补充证据",
+    urge_follow_up: "跟进催办",
+    reject_overclaim: "驳回超额主张",
+    review_quotation: "复核报价",
+    create_task: "创建任务",
+  };
+  return labels[actionType] ?? actionType;
+}
+
+export function resolutionStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    triaged: "待复核",
+    confirmed: "已确认",
+    proposed: "待审批",
+    approved: "已批准",
+    executed: "已执行",
+    closed: "已结案",
+    rejected: "已终止",
+  };
+  return labels[status] ?? status;
+}
+
+export function policyModeLabel(mode: string) {
+  const labels: Record<string, string> = {
+    human_only: "仅人工决策",
+    approval_required: "需要人工审批",
+    auto_eligible: "自动化候选，仍需运行安全门",
+  };
+  return labels[mode] ?? mode;
+}
+
+export function contextTypeLabel(contextType: string) {
+  const labels: Record<string, string> = {
+    sales_order: "销售订单",
+    finance_reconciliation: "财务对账",
+  };
+  return labels[contextType] ?? contextType;
+}
+
+export function formatShortDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+export function sourceSystemLabel(systemType: string, fallback: string) {
+  const labels: Record<string, string> = {
+    erp: "订单系统",
+    mes: "生产系统",
+    qms: "质量系统",
+    wms: "仓储系统",
+    crm: "客户系统",
+    finance: "财务系统",
+    service: "客户服务记录",
+    manual: "客户服务记录",
+    file: "文件来源",
+  };
+  return labels[systemType] ?? fallback;
+}
+
+export function exceptionBadgeLabel(ruleCode: string) {
+  const code = ruleCode.toUpperCase();
+  if (code.includes("CUSTOMER_RECEIPT_CLAIM_MISMATCH") || code.includes("CUSTOMER_CLAIM")) return "签收差异";
+  if (code.includes("PAYMENT_BALANCE_OUTSTANDING") || code.includes("PAYMENT")) return "回款未清";
+  if (code.includes("QUALITY_NONCONFORMING") || code.includes("QUALITY")) return "质量异常";
+  if (code.includes("SHIPMENT_QUANTITY_SHORTFALL") || code.includes("SHIPMENT")) return "发货短少";
+  if (code.includes("QUOTE_ORDER")) return "报价订单差异";
+  if (code.includes("PRODUCTION")) return "生产短少";
+  return "需要关注";
+}
+
 export function fieldLabel(field: string) {
   const labels: Record<string, string> = {
     qty: "数量",
@@ -58,6 +140,8 @@ export function fieldLabel(field: string) {
     failedQty: "未通过数量",
     claimedReceivedQty: "客户主张收到",
     outstandingAmount: "未结清金额",
+    verifiedReceiptDifference: "已验证差异",
+    openNonconformingQty: "待处理不合格数量",
   };
   return labels[field] ?? field;
 }

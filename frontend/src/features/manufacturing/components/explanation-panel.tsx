@@ -1,16 +1,18 @@
 import { Badge } from "../../../components/ui/badge.js";
 import { useGroundedExplanation } from "../../../hooks/use-manufacturing.js";
+import type { EvidenceBundleView } from "../types.js";
 import { CitationStatementList } from "./citation-list.js";
 import { InlineEmpty, InlineError, SectionSkeleton } from "./query-state.js";
-import { TechnicalMetadataSheet } from "./technical-metadata-sheet.js";
 
 export function ExplanationPanel({
   contextId,
   exceptionId,
+  evidence,
   onOpenEvidence,
 }: {
   contextId: string;
   exceptionId: string;
+  evidence: EvidenceBundleView | undefined;
   onOpenEvidence: (evidenceId: string) => void;
 }) {
   const query = useGroundedExplanation(contextId, exceptionId);
@@ -28,18 +30,6 @@ export function ExplanationPanel({
           )}
           {explanation && stale && <Badge variant="warning">基于旧证据快照</Badge>}
         </div>
-        {explanation && (
-          <TechnicalMetadataSheet
-            title="AI 解释技术信息"
-            metadata={[
-              { label: "Provider", value: explanation.provider },
-              { label: "Model", value: explanation.model },
-              { label: "Explanation ID", value: explanation.id },
-              { label: "Snapshot hash", value: explanation.inputSnapshotHash },
-              { label: "Created at", value: explanation.createdAt },
-            ]}
-          />
-        )}
       </div>
       {(query.list.isLoading || (query.latest && query.detail.isLoading)) ? <SectionSkeleton /> : null}
       {(!query.list.isLoading && (query.list.isError || query.detail.isError)) ? (
@@ -58,13 +48,13 @@ export function ExplanationPanel({
             <div>
               <h3 className="text-xs font-semibold text-text-muted">已确认事实</h3>
               <div className="mt-2">
-                <CitationStatementList items={explanation.output.facts} onOpenEvidence={onOpenEvidence} />
+                <CitationStatementList items={explanation.output.facts} bundle={evidence} onOpenEvidence={onOpenEvidence} />
               </div>
             </div>
             <div>
               <h3 className="text-xs font-semibold text-text-muted">未知</h3>
               <div className="mt-2">
-                <CitationStatementList items={explanation.output.uncertainties} onOpenEvidence={onOpenEvidence} />
+                <CitationStatementList items={explanation.output.uncertainties} bundle={evidence} onOpenEvidence={onOpenEvidence} />
               </div>
             </div>
             <div>

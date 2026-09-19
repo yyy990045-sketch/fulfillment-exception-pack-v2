@@ -49,3 +49,84 @@ export type RootCauseAnalysisListResponse = components["schemas"]["RootCauseAnal
 export type DecisionRecommendationView = GeneratedDecision;
 export type DecisionRecommendationSummaryView = components["schemas"]["DecisionRecommendationSummary"];
 export type DecisionRecommendationListResponse = components["schemas"]["DecisionRecommendationList"];
+
+export type PolicyEvaluationView = components["schemas"]["PolicyEvaluation"];
+export type PolicyEvaluationListResponse = components["schemas"]["PolicyEvaluationList"];
+export type OutcomeEvaluationView = components["schemas"]["OutcomeEvaluation"];
+export type OutcomeEvaluationListResponse = components["schemas"]["OutcomeEvaluationList"];
+
+export type ResolutionActionView = {
+  id: string;
+  type: string;
+  summary: string;
+  status: string;
+};
+
+export type ResolutionRuntimeEventView = {
+  at: string;
+  actor: string;
+  from?: string;
+  to?: string;
+  reason?: string;
+};
+
+export type ResolutionCaseView = {
+  id: string;
+  tenantId: string;
+  contextId: string;
+  exceptionId: string;
+  status: string;
+  ownerRole: string;
+  createdAt: string;
+  updatedAt: string;
+  proposedBy?: string;
+  review?: {
+    decision: string;
+    rationale: string;
+    actor: string;
+    at: string;
+  };
+  origin: {
+    acceptedBy: string;
+    acceptedAt: string;
+    acceptanceRationale: string;
+    sourceRuleEvaluationId: string;
+    evidenceRefs: Array<{ evidenceId: string; role: string }>;
+  };
+  runtime: {
+    title: string;
+    actions: ResolutionActionView[];
+    events: ResolutionRuntimeEventView[];
+  };
+};
+
+export type ResolutionReceiptView = {
+  actionId: string;
+  status: string;
+  externalRequestId: string;
+  receiptSource: string;
+  payloadHash: string;
+  createdAt: string;
+};
+
+export type ResolutionCaseQueryView = {
+  resolutionCase: ResolutionCaseView;
+  sourceException: { id: string; status: string };
+  sourceChanged: boolean;
+  intakeEvaluationId: string;
+  currentEvaluationId: string;
+  receipts: ResolutionReceiptView[];
+};
+
+export type ResolutionCaseListResponse = {
+  contextId: string;
+  resolutionCases: Array<{
+    id: string;
+    exceptionId: string;
+    status: string;
+    ownerRole: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+};

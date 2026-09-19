@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs.js";
 import { useWorkbenchView, useExceptionEvidence } from "../../../hooks/use-manufacturing.js";
 import { ContextHeader } from "../components/context-header.js";
 import { AnalysisWorkspace, DecisionWorkspace } from "../components/analysis-workspace.js";
+import { DecisionProcessBar } from "../components/decision-process-bar.js";
 import { DigitalThread } from "../components/digital-thread.js";
 import { EvidenceInspector } from "../components/evidence-inspector.js";
 import { EvidenceWorkspace } from "../components/evidence-workspace.js";
@@ -117,14 +118,15 @@ export function ManufacturingWorkbenchPage() {
               onSelect={openException}
             />
             <section className="min-w-0">
-              <SelectedExceptionHeader exception={selectedException} />
+              <SelectedExceptionHeader exception={selectedException} contextId={contextId} context={view.context} />
+              <DecisionProcessBar contextId={contextId} exceptionId={selectedException.id} />
               <Tabs value={workspaceTab} onValueChange={setTab}>
                 <div className="px-4 pt-2 lg:px-5">
                   <TabsList aria-label="异常工作面">
                     <TabsTrigger value="overview">概览</TabsTrigger>
                     <TabsTrigger value="evidence">证据</TabsTrigger>
                     <TabsTrigger value="analysis">分析</TabsTrigger>
-                    <TabsTrigger value="decision">处置建议</TabsTrigger>
+                    <TabsTrigger value="decision">决策</TabsTrigger>
                   </TabsList>
                 </div>
                 <div className="p-4 lg:p-5">

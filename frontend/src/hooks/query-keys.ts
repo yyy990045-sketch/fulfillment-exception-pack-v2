@@ -14,4 +14,12 @@ export const queryKeys = {
     ["decision-recommendations", tenantId, contextId, exceptionId] as const,
   decision: (tenantId: string, contextId: string, exceptionId: string, recommendationId: string) =>
     ["decision-recommendation", tenantId, contextId, exceptionId, recommendationId] as const,
+  policyEvaluations: (tenantId: string, contextId: string, exceptionId: string) =>
+    ["policy-evaluations", tenantId, contextId, exceptionId] as const,
+  resolutionList: (tenantId: string, contextId: string) =>
+    ["resolution-cases", tenantId, contextId] as const,
+  resolutionCase: (tenantId: string, caseId: string) =>
+    ["resolution-case", tenantId, caseId] as const,
+  outcomeEvaluations: (tenantId: string, contextId: string, exceptionId: string) =>
+    ["outcome-evaluations", tenantId, contextId, exceptionId] as const,
 };

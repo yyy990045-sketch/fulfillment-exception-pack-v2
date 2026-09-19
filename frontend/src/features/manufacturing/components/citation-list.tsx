@@ -1,11 +1,26 @@
 import { Button } from "../../../components/ui/button.js";
 import type { CitationStatement } from "../analysis-types.js";
+import type { EvidenceBundleView } from "../types.js";
+import { evidenceRoleLabels, fieldLabel, formatBusinessValue } from "../utils.js";
+
+function evidenceLabel(evidenceId: string, bundle: EvidenceBundleView | undefined) {
+  const item = bundle?.evidence.find((evidence) => evidence.evidenceId === evidenceId);
+  if (!item) return "关联证据";
+  return `${evidenceRoleLabels[item.role] ?? item.role} ${formatBusinessValue(item)}`;
+}
+
+function evidenceTitle(evidenceId: string, bundle: EvidenceBundleView | undefined) {
+  const item = bundle?.evidence.find((evidence) => evidence.evidenceId === evidenceId);
+  return item ? `${fieldLabel(item.field)} · ${evidenceId}` : evidenceId;
+}
 
 export function CitationStatementList({
   items,
+  bundle,
   onOpenEvidence,
 }: {
   items: CitationStatement[];
+  bundle: EvidenceBundleView | undefined;
   onOpenEvidence: (evidenceId: string) => void;
 }) {
   if (!items.length) return <p className="text-sm text-text-muted">无</p>;
@@ -21,10 +36,11 @@ export function CitationStatementList({
                   key={evidenceId}
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-1.5 font-mono text-xs"
+                  className="h-auto min-h-6 max-w-full px-1.5 py-0.5 text-xs"
+                  title={evidenceTitle(evidenceId, bundle)}
                   onClick={() => onOpenEvidence(evidenceId)}
                 >
-                  {evidenceId}
+                  {evidenceLabel(evidenceId, bundle)}
                 </Button>
               ))}
             </div>
@@ -37,9 +53,11 @@ export function CitationStatementList({
 
 export function EvidenceReferenceList({
   evidenceIds,
+  bundle,
   onOpenEvidence,
 }: {
   evidenceIds: string[];
+  bundle: EvidenceBundleView | undefined;
   onOpenEvidence: (evidenceId: string) => void;
 }) {
   if (!evidenceIds.length) return <span className="text-xs text-text-muted">无</span>;
@@ -50,10 +68,11 @@ export function EvidenceReferenceList({
           key={evidenceId}
           variant="ghost"
           size="sm"
-          className="h-6 px-1.5 font-mono text-xs"
+          className="h-auto min-h-6 max-w-full px-1.5 py-0.5 text-xs"
+          title={evidenceTitle(evidenceId, bundle)}
           onClick={() => onOpenEvidence(evidenceId)}
         >
-          {evidenceId}
+          {evidenceLabel(evidenceId, bundle)}
         </Button>
       ))}
     </div>

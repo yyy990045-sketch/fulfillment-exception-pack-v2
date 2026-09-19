@@ -1,16 +1,18 @@
 import { Badge } from "../../../components/ui/badge.js";
 import { useRootCauseAnalysis } from "../../../hooks/use-manufacturing.js";
+import type { EvidenceBundleView } from "../types.js";
 import { EvidenceReferenceList } from "./citation-list.js";
 import { InlineEmpty, InlineError, SectionSkeleton } from "./query-state.js";
-import { TechnicalMetadataSheet } from "./technical-metadata-sheet.js";
 
 export function RootCausePanel({
   contextId,
   exceptionId,
+  evidence,
   onOpenEvidence,
 }: {
   contextId: string;
   exceptionId: string;
+  evidence: EvidenceBundleView | undefined;
   onOpenEvidence: (evidenceId: string) => void;
 }) {
   const query = useRootCauseAnalysis(contextId, exceptionId);
@@ -25,18 +27,6 @@ export function RootCausePanel({
           {analysis?.output.humanVerificationRequired && <Badge>需要人工验证</Badge>}
           {analysis && stale && <Badge variant="warning">基于旧证据快照</Badge>}
         </div>
-        {analysis && (
-          <TechnicalMetadataSheet
-            title="根因假设技术信息"
-            metadata={[
-              { label: "Provider", value: analysis.provider },
-              { label: "Model", value: analysis.model },
-              { label: "Analysis ID", value: analysis.id },
-              { label: "Snapshot hash", value: analysis.inputSnapshotHash },
-              { label: "Created at", value: analysis.createdAt },
-            ]}
-          />
-        )}
       </div>
       {(query.list.isLoading || (query.latest && query.detail.isLoading)) ? <SectionSkeleton /> : null}
       {(!query.list.isLoading && (query.list.isError || query.detail.isError)) ? (
@@ -56,20 +46,19 @@ export function RootCausePanel({
               <article key={hypothesis.id} className="py-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="warning">待验证假设</Badge>
-                  <span className="text-xs text-text-muted">{hypothesis.id}</span>
                 </div>
                 <p className="mt-2 text-sm font-medium leading-6">{hypothesis.statement}</p>
                 <dl className="mt-3 grid gap-3 text-xs xl:grid-cols-2">
                   <div>
                     <dt className="text-text-muted">支持证据</dt>
                     <dd className="mt-1">
-                      <EvidenceReferenceList evidenceIds={hypothesis.supportingEvidenceIds} onOpenEvidence={onOpenEvidence} />
+                      <EvidenceReferenceList evidenceIds={hypothesis.supportingEvidenceIds} bundle={evidence} onOpenEvidence={onOpenEvidence} />
                     </dd>
                   </div>
                   <div>
                     <dt className="text-text-muted">反证或矛盾证据</dt>
                     <dd className="mt-1">
-                      <EvidenceReferenceList evidenceIds={hypothesis.contradictingEvidenceIds} onOpenEvidence={onOpenEvidence} />
+                      <EvidenceReferenceList evidenceIds={hypothesis.contradictingEvidenceIds} bundle={evidence} onOpenEvidence={onOpenEvidence} />
                     </dd>
                   </div>
                 </dl>
