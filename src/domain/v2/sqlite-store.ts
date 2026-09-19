@@ -54,6 +54,7 @@ import type {
   ConnectorOutboxRecord,
   ConnectorReceiptRecord,
 } from "./connector-types.js";
+import type { DecisionRuntimeCallRecord } from "./decision-runtime-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -2119,6 +2120,58 @@ export class V2SqliteStore {
              status,payload_hash as payloadHash,created_at as createdAt
       FROM connector_receipts WHERE tenant_id=? AND outbox_id=?
     `).get(tenantId,outboxId) as ConnectorReceiptRecord | undefined;
+  }
+
+  saveDecisionRuntimeCall(input: DecisionRuntimeCallRecord): DecisionRuntimeCallRecord {
+    this.db.prepare(`
+      INSERT INTO decision_runtime_calls
+        (tenant_id,id,task_id,provider,model,state_hash,question_hash,answer_json,
+         latency_ms,usage_json,status,error_code,created_by,created_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `).run(
+      input.tenantId,input.id,input.taskId,input.provider,input.model,
+      input.stateHash,input.questionHash,json(input.answer),input.latencyMs,
+      input.usage ? json(input.usage) : null,input.status,input.errorCode ?? null,
+      input.createdBy,input.createdAt,
+    );
+    return input;
+  }
+
+  getDecisionRuntimeCall(tenantId: string, callId: string): DecisionRuntimeCallRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId,id,task_id as taskId,provider,model,
+             state_hash as stateHash,question_hash as questionHash,
+             answer_json as answerJson,latency_ms as latencyMs,
+             usage_json as usageJson,status,error_code as errorCode,
+             created_by as createdBy,created_at as createdAt
+      FROM decision_runtime_calls WHERE tenant_id=? AND id=?
+    `).get(tenantId,callId) as {
+      tenantId: string; id: string; taskId: string; provider: string; model: string;
+      stateHash: string; questionHash: string; answerJson: string; latencyMs: number;
+      usageJson: string | null; status: DecisionRuntimeCallRecord["status"];
+      errorCode: string | null; createdBy: string; createdAt: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,id:row.id,taskId:row.taskId,provider:row.provider,model:row.model,
+      stateHash:row.stateHash,questionHash:row.questionHash,
+      answer:parseJson<unknown>(row.answerJson),latencyMs:row.latencyMs,
+      ...(row.usageJson ? { usage: parseJson<Record<string, unknown>>(row.usageJson) } : {}),
+      status:row.status,
+      ...(row.errorCode ? { errorCode: row.errorCode } : {}),
+      createdBy:row.createdBy,createdAt:row.createdAt,
+    } : undefined;
+  }
+
+  listDecisionRuntimeCalls(tenantId: string, taskId?: string): DecisionRuntimeCallRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM decision_runtime_calls
+      WHERE tenant_id=? ${taskId ? "AND task_id=?" : ""}
+      ORDER BY created_at,id
+    `).all(...(taskId ? [tenantId,taskId] : [tenantId])) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const call = this.getDecisionRuntimeCall(tenantId,row.id);
+      return call ? [call] : [];
+    });
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

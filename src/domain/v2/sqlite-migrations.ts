@@ -771,6 +771,31 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
       );
     `,
   },
+  {
+    version: "014_decision_runtime_audit",
+    sql: `
+      CREATE TABLE IF NOT EXISTS decision_runtime_calls (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        task_id TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        state_hash TEXT NOT NULL,
+        question_hash TEXT NOT NULL,
+        answer_json TEXT NOT NULL,
+        latency_ms INTEGER NOT NULL,
+        usage_json TEXT,
+        status TEXT NOT NULL,
+        error_code TEXT,
+        created_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS decision_runtime_calls_task_idx
+        ON decision_runtime_calls (tenant_id, task_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(
