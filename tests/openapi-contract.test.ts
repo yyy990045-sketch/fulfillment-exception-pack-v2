@@ -38,4 +38,12 @@ describe("OpenAPI 502 ownership", () => {
     expect(summary).not.toContain("output: { type: object");
     expect(openapi).toContain("items: { $ref: '#/components/schemas/DecisionRecommendationSummary' }");
   });
+
+  it("defines strict root cause hypothesis and review contracts", () => {
+    expect(openapi).toContain("    RootCauseAnalysisSummary:");
+    expect(openapi).toContain("    RootCauseAnalysis:");
+    expect(openapi).toContain("    RootCauseHypothesisReview:");
+    expect(openapi).toContain("epistemicStatus: { type: string, enum: [hypothesis] }");
+    expect(openapi).toContain("analyses: { type: array, items: { $ref: '#/components/schemas/RootCauseAnalysisSummary' } }");
+  });
 });

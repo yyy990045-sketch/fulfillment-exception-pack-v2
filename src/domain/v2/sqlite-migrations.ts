@@ -423,6 +423,57 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         ON decision_recommendation_dispositions (tenant_id, recommendation_id, created_at, id);
     `,
   },
+  {
+    version: "008_root_cause_hypotheses",
+    sql: `
+      CREATE TABLE IF NOT EXISTS root_cause_analyses (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        rule_evaluation_id TEXT NOT NULL,
+        input_snapshot_hash TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        status TEXT NOT NULL,
+        output_json TEXT NOT NULL,
+        validation_json TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, exception_id, input_snapshot_hash, provider, model),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, rule_evaluation_id)
+          REFERENCES rule_evaluations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS root_cause_analyses_exception_idx
+        ON root_cause_analyses (tenant_id, context_id, exception_id, created_at, id);
+
+      CREATE TABLE IF NOT EXISTS root_cause_hypothesis_reviews (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        analysis_id TEXT NOT NULL,
+        hypothesis_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        decision TEXT NOT NULL,
+        rationale TEXT NOT NULL,
+        actor TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, analysis_id)
+          REFERENCES root_cause_analyses (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS root_cause_hypothesis_reviews_idx
+        ON root_cause_hypothesis_reviews (tenant_id, analysis_id, hypothesis_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

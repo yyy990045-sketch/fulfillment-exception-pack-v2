@@ -50,6 +50,9 @@ const state = {
   activeTab: "evidence",
   bundle: null,
   explanations: [],
+  rootCauseAnalyses: [],
+  rootCauseReviews: [],
+  selectedRootCause: null,
   decisionRecommendations: [],
   decisionDispositions: [],
   selectedDecision: null,
@@ -264,7 +267,7 @@ function renderSelectedException() {
 }
 
 function clearPanels() {
-  for (const id of ["panel-evidence", "panel-ai", "panel-decision", "panel-resolution"]) clear(document.getElementById(id));
+  for (const id of ["panel-evidence", "panel-ai", "panel-root-cause", "panel-decision", "panel-resolution"]) clear(document.getElementById(id));
 }
 
 function renderLoadingPanel(id) {
@@ -367,6 +370,141 @@ function renderAIPanel(explanations) {
     return;
   }
   renderExplanation(explanations[0]);
+}
+
+function hypothesisCard(hypothesis, analysisId, reviews) {
+  const card = node("article", "evidence-card");
+  card.append(
+    node("span", "evidence-role", "待验证假设"),
+    node("strong", "exception-title", hypothesis.id),
+    node("p", "explanation-summary", hypothesis.statement),
+  );
+  if (hypothesis.supportingEvidenceIds?.length) {
+    const row = node("div", "evidence-meta");
+    row.append(node("span", "", "支持证据"), citationButtons(hypothesis.supportingEvidenceIds));
+    card.append(row);
+  }
+  if (hypothesis.contradictingEvidenceIds?.length) {
+    const row = node("div", "evidence-meta");
+    row.append(node("span", "", "反证"), citationButtons(hypothesis.contradictingEvidenceIds));
+    card.append(row);
+  }
+  if (hypothesis.missingEvidence?.length) card.append(node("div", "inline-notice", `缺失材料：${hypothesis.missingEvidence.join("、")}`));
+  if (hypothesis.verificationSteps?.length) {
+    const section = node("section", "explanation-block");
+    section.append(node("h4", "", "验证步骤"));
+    const list = node("ul", "explanation-list");
+    for (const step of hypothesis.verificationSteps) list.append(node("li", "", step));
+    section.append(list);
+    card.append(section);
+  }
+  const form = node("form", "governance-form");
+  form.append(node("h4", "", "人工假设复核"));
+  const rationale = node("textarea");
+  rationale.placeholder = "说明是否值得进一步调查，以及需要哪些证据。";
+  form.append(rationale);
+  const actions = node("div", "form-actions");
+  for (const [decision, label] of [["investigate", "进入调查"], ["needs_evidence", "需要更多证据"], ["rejected", "不采纳"]]) {
+    actions.append(button(label, decision === "rejected" ? "danger" : "secondary", async () => {
+      if (!rationale.value.trim()) return showState("假设复核说明不能为空。", true);
+      try {
+        const path = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/root-cause-analyses/${encodeURIComponent(analysisId)}/hypotheses/${encodeURIComponent(hypothesis.id)}/reviews`;
+        await api(path, { method: "POST", body: { decision, rationale: rationale.value.trim() } });
+        showState("假设复核已记录，未确认根因或责任。");
+        await selectException(state.selectedExceptionId);
+        switchTab("root-cause");
+      } catch (error) {
+        showState(friendlyError(error), true);
+      }
+    }));
+  }
+  form.append(actions);
+  form.addEventListener("submit", (event) => event.preventDefault());
+  card.append(form);
+  if (reviews.length) {
+    const history = node("section", "explanation-block");
+    history.append(node("h4", "", "复核记录"));
+    const list = node("ul", "explanation-list");
+    for (const review of reviews) list.append(node("li", "", `${review.decision} · ${review.actor} · ${review.createdAt}`));
+    history.append(list);
+    card.append(history);
+  }
+  return card;
+}
+
+function renderRootCausePanel(analyses, reviews = []) {
+  const panel = document.getElementById("panel-root-cause");
+  clear(panel);
+  if (!analyses.length) {
+    panel.append(node("div", "empty-state", "尚未生成原因假设。"));
+    panel.append(button("生成原因假设", "", async () => {
+      showState("正在生成原因假设...");
+      try {
+        const result = await api(`/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/root-cause-analyses`, { method: "POST", body: {} });
+        await selectException(state.selectedExceptionId);
+        switchTab("root-cause");
+        showState(result.status === "rejected" ? "原因假设已被 Grounding Guard 拒绝。" : "原因假设已生成。");
+      } catch (error) {
+        const analysis = error.payload?.analysis;
+        if (analysis) {
+          state.rootCauseAnalyses = [analysis];
+          renderRootCausePanel([analysis]);
+          showState("原因假设已被 Grounding Guard 拒绝。", true);
+        } else showState(friendlyError(error), true);
+      }
+    }));
+    return;
+  }
+  const analysis = analyses[0];
+  state.selectedRootCause = analysis;
+  const meta = node("div", "explanation-meta");
+  meta.append(
+    node("span", "provider-badge", analysis.provider === "root-cause-deterministic-demo" ? "演示假设器" : analysis.provider),
+    node("span", "provider-badge", analysis.model),
+    node("span", "provider-badge", analysis.createdAt),
+    node("span", "provider-badge", analysis.status),
+  );
+  if (analysis.stale) meta.append(node("span", "provider-badge stale", "该原因假设基于旧证据快照，请以当前事实为准。"));
+  panel.append(meta, node("p", "explanation-summary", analysis.output.summary));
+  if (analysis.status === "rejected") {
+    panel.append(node("div", "inline-notice error", "该原因假设未通过 Grounding 校验，仅保留审计记录，不能进入调查。"));
+    return;
+  }
+  panel.append(node("div", "inline-notice", "以下内容均为待验证假设，不代表根因、事实或责任结论。"));
+  const grid = node("div", "evidence-grid");
+  for (const hypothesis of analysis.output.hypotheses) {
+    const hypothesisReviews = reviews.filter((item) => item.hypothesisId === hypothesis.id);
+    grid.append(hypothesisCard(hypothesis, analysis.id, hypothesisReviews));
+  }
+  panel.append(grid);
+  if (analysis.output.uncertainties?.length) {
+    const section = node("section", "explanation-block");
+    section.append(node("h4", "", "尚不确定"));
+    const list = node("ul", "explanation-list");
+    for (const item of analysis.output.uncertainties) list.append(node("li", "", item));
+    section.append(list);
+    panel.append(section);
+  }
+}
+
+async function loadRootCause(exceptionId) {
+  const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}/root-cause-analyses`;
+  const result = await api(base);
+  const summaries = result.analyses || [];
+  const latest = summaries.at(-1);
+  if (!latest) {
+    state.rootCauseAnalyses = [];
+    state.selectedRootCause = null;
+    renderRootCausePanel([]);
+    return;
+  }
+  state.selectedRootCause = await api(`${base}/${encodeURIComponent(latest.id)}`);
+  state.rootCauseAnalyses = [state.selectedRootCause];
+  const reviewResults = await Promise.all(state.selectedRootCause.output.hypotheses.map((hypothesis) =>
+    api(`${base}/${encodeURIComponent(latest.id)}/hypotheses/${encodeURIComponent(hypothesis.id)}/reviews`).catch(() => ({ reviews: [] })),
+  ));
+  state.rootCauseReviews = reviewResults.flatMap((item) => item.reviews || []);
+  renderRootCausePanel(state.rootCauseAnalyses, state.rootCauseReviews);
 }
 
 function decisionOptionCard(option, recommended) {
@@ -894,6 +1032,9 @@ async function selectException(exceptionId) {
   state.selectedExceptionId = exceptionId;
   state.bundle = null;
   state.explanations = [];
+  state.rootCauseAnalyses = [];
+  state.rootCauseReviews = [];
+  state.selectedRootCause = null;
   state.decisionRecommendations = [];
   state.decisionDispositions = [];
   state.selectedDecision = null;
@@ -904,12 +1045,14 @@ async function selectException(exceptionId) {
   clearPanels();
   renderLoadingPanel("panel-evidence");
   renderLoadingPanel("panel-ai");
+  renderLoadingPanel("panel-root-cause");
   renderLoadingPanel("panel-decision");
   renderLoadingPanel("panel-resolution");
   const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
-  const [bundleResult, explanationResult, decisionResult] = await Promise.allSettled([
+  const [bundleResult, explanationResult, rootCauseResult, decisionResult] = await Promise.allSettled([
     api(`${base}/bundle`),
     api(`${base}/explanations`),
+    api(`${base}/root-cause-analyses`),
     api(`${base}/decision-recommendations`),
   ]);
   if (bundleResult.status === "fulfilled") {
@@ -920,6 +1063,23 @@ async function selectException(exceptionId) {
   }
   if (explanationResult.status === "fulfilled") renderAIPanel(explanationResult.value.explanations || []);
   else renderEmptyPanel("panel-ai", "解释加载失败，未自动生成新解释。");
+  if (rootCauseResult.status === "fulfilled") {
+    const summaries = rootCauseResult.value.analyses || [];
+    const latest = summaries.at(-1);
+    if (!latest) {
+      state.rootCauseAnalyses = [];
+      state.selectedRootCause = null;
+      renderRootCausePanel([]);
+    } else {
+      state.selectedRootCause = await api(`${base}/root-cause-analyses/${encodeURIComponent(latest.id)}`);
+      state.rootCauseAnalyses = [state.selectedRootCause];
+      const reviewResults = await Promise.all(state.selectedRootCause.output.hypotheses.map((hypothesis) =>
+        api(`${base}/root-cause-analyses/${encodeURIComponent(latest.id)}/hypotheses/${encodeURIComponent(hypothesis.id)}/reviews`).catch(() => ({ reviews: [] })),
+      ));
+      state.rootCauseReviews = reviewResults.flatMap((item) => item.reviews || []);
+      renderRootCausePanel(state.rootCauseAnalyses, state.rootCauseReviews);
+    }
+  } else renderEmptyPanel("panel-root-cause", "原因假设加载失败，未自动生成。");
   if (decisionResult.status === "fulfilled") {
     const summaries = decisionResult.value.recommendations || [];
     const latest = summaries.at(-1);

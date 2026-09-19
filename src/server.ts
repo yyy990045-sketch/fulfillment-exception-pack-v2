@@ -22,6 +22,16 @@ import {
   recordDecisionRecommendationDisposition,
   resolveDecisionRecommendationProvider,
 } from "./ai/decision/index.js";
+import {
+  RootCauseAiError,
+  generateRootCauseAnalysis,
+  getRootCauseAnalysis,
+  listRootCauseAnalyses,
+  listRootCauseHypothesisReviews,
+  recordRootCauseHypothesisReview,
+  resolveRootCauseProvider,
+  rootCauseValidationErrorCode,
+} from "./ai/root-cause/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -281,6 +291,68 @@ const server = createServer(async (req, res) => {
         resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
       });
       return json(res, 200, analytics);
+    }
+    const rootCauseReviewMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses\/([^/]+)\/hypotheses\/([^/]+)\/reviews$/);
+    if (rootCauseReviewMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(rootCauseReviewMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(rootCauseReviewMatch[2] ?? "");
+      const analysisId = decodeURIComponent(rootCauseReviewMatch[3] ?? "");
+      const hypothesisId = decodeURIComponent(rootCauseReviewMatch[4] ?? "");
+      const store = getV2Store();
+      if (req.method === "GET") {
+        const analysis = getRootCauseAnalysis(store, tenantId, contextId, exceptionId, analysisId);
+        if (!analysis) return json(res, 404, { error: "not_found" });
+        return json(res, 200, {
+          analysisId,
+          hypothesisId,
+          reviews: listRootCauseHypothesisReviews(store, tenantId, analysisId, hypothesisId),
+        });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined || input.actor !== undefined || input.roles !== undefined) {
+        return json(res, 400, { error: "actor_and_tenant_from_auth_required" });
+      }
+      const decision = String(input.decision || "");
+      if (!["investigate", "needs_evidence", "rejected"].includes(decision)) return json(res, 422, { error: "invalid_root_cause_review" });
+      const review = recordRootCauseHypothesisReview(store, tenantId, contextId, exceptionId, analysisId, hypothesisId, {
+        decision: decision as "investigate" | "needs_evidence" | "rejected",
+        rationale: typeof input.rationale === "string" ? input.rationale : "",
+        actor,
+      });
+      return json(res, 200, review);
+    }
+    const rootCauseItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses\/([^/]+)$/);
+    if (req.method === "GET" && rootCauseItemMatch) {
+      const analysis = getRootCauseAnalysis(
+        getV2Store(),
+        authOf(req).tenantId,
+        decodeURIComponent(rootCauseItemMatch[1] ?? ""),
+        decodeURIComponent(rootCauseItemMatch[2] ?? ""),
+        decodeURIComponent(rootCauseItemMatch[3] ?? ""),
+      );
+      if (!analysis) return json(res, 404, { error: "not_found" });
+      return json(res, 200, analysis);
+    }
+    const rootCauseCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses$/);
+    if (rootCauseCollectionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(rootCauseCollectionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(rootCauseCollectionMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.listExceptions(tenantId, contextId).some((item) => item.id === exceptionId)) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") return json(res, 200, { contextId, exceptionId, analyses: listRootCauseAnalyses(store, tenantId, contextId, exceptionId) });
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (input.tenant !== undefined || input.tenantId !== undefined || input.actor !== undefined || input.roles !== undefined) {
+        return json(res, 400, { error: "actor_and_tenant_from_auth_required" });
+      }
+      const analysis = await generateRootCauseAnalysis(store, resolveRootCauseProvider(), tenantId, contextId, exceptionId, actor);
+      if (analysis.status === "rejected") {
+        return json(res, 422, { error: rootCauseValidationErrorCode(analysis.validation), analysis });
+      }
+      return json(res, 200, analysis);
     }
     const decisionDispositionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)\/dispositions$/);
     if (decisionDispositionMatch && (req.method === "GET" || req.method === "POST")) {
@@ -691,6 +763,12 @@ const server = createServer(async (req, res) => {
     if (error instanceof DecisionAiError) {
       const code = error.code.startsWith("DECISION_PROVIDER_INVALID_OUTPUT")
         ? "DECISION_PROVIDER_INVALID_OUTPUT"
+        : error.code;
+      return json(res, error.status, { error: code });
+    }
+    if (error instanceof RootCauseAiError) {
+      const code = error.code.startsWith("ROOT_CAUSE_PROVIDER_INVALID_OUTPUT")
+        ? "ROOT_CAUSE_PROVIDER_INVALID_OUTPUT"
         : error.code;
       return json(res, error.status, { error: code });
     }

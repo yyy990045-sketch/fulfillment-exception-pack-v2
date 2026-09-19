@@ -37,6 +37,7 @@ import { ruleVersionContentHash } from "./rule-engine.js";
 import type { ResolutionCase, ResolutionReceipt } from "./resolution/types.js";
 import type { GroundedExplanationRecord } from "./grounded-types.js";
 import type { DecisionRecommendationDisposition, DecisionRecommendationRecord } from "./decision-types.js";
+import type { RootCauseAnalysisRecord, RootCauseHypothesisReview } from "./root-cause-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -983,6 +984,142 @@ export class V2SqliteStore {
       actor: row.actor,
       createdAt: row.createdAt,
     }));
+  }
+
+  saveRootCauseAnalysis(input: RootCauseAnalysisRecord): RootCauseAnalysisRecord {
+    const existing = this.getRootCauseAnalysisBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    );
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO root_cause_analyses
+        (tenant_id, id, context_id, exception_id, rule_evaluation_id, input_snapshot_hash,
+         provider, model, status, output_json, validation_json, created_by, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (tenant_id, exception_id, input_snapshot_hash, provider, model) DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.ruleEvaluationId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+      input.status,
+      json(input.output),
+      json(input.validation),
+      input.createdBy,
+      input.createdAt,
+    );
+    return this.getRootCauseAnalysisBySnapshot(
+      input.tenantId,
+      input.exceptionId,
+      input.inputSnapshotHash,
+      input.provider,
+      input.model,
+    ) ?? input;
+  }
+
+  getRootCauseAnalysis(tenantId: string, analysisId: string): RootCauseAnalysisRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             rule_evaluation_id as ruleEvaluationId, input_snapshot_hash as inputSnapshotHash,
+             provider, model, status, output_json as outputJson, validation_json as validationJson,
+             created_by as createdBy, created_at as createdAt
+      FROM root_cause_analyses
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, analysisId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      ruleEvaluationId: string;
+      inputSnapshotHash: string;
+      provider: string;
+      model: string;
+      status: RootCauseAnalysisRecord["status"];
+      outputJson: string;
+      validationJson: string;
+      createdBy: string;
+      createdAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      ruleEvaluationId: row.ruleEvaluationId,
+      inputSnapshotHash: row.inputSnapshotHash,
+      provider: row.provider,
+      model: row.model,
+      status: row.status,
+      output: parseJson<unknown>(row.outputJson),
+      validation: parseJson<unknown>(row.validationJson),
+      createdBy: row.createdBy,
+      createdAt: row.createdAt,
+    };
+  }
+
+  getRootCauseAnalysisBySnapshot(
+    tenantId: string,
+    exceptionId: string,
+    inputSnapshotHash: string,
+    provider: string,
+    model: string,
+  ): RootCauseAnalysisRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT id FROM root_cause_analyses
+      WHERE tenant_id = ? AND exception_id = ? AND input_snapshot_hash = ? AND provider = ? AND model = ?
+    `).get(tenantId, exceptionId, inputSnapshotHash, provider, model) as { id: string } | undefined;
+    return row ? this.getRootCauseAnalysis(tenantId, row.id) : undefined;
+  }
+
+  listRootCauseAnalyses(tenantId: string, contextId: string, exceptionId: string): RootCauseAnalysisRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM root_cause_analyses
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const record = this.getRootCauseAnalysis(tenantId, row.id);
+      return record ? [record] : [];
+    });
+  }
+
+  saveRootCauseHypothesisReview(input: RootCauseHypothesisReview): RootCauseHypothesisReview {
+    this.db.prepare(`
+      INSERT INTO root_cause_hypothesis_reviews
+        (tenant_id, id, analysis_id, hypothesis_id, exception_id, decision, rationale, actor, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId,
+      input.id,
+      input.analysisId,
+      input.hypothesisId,
+      input.exceptionId,
+      input.decision,
+      input.rationale,
+      input.actor,
+      input.createdAt,
+    );
+    return input;
+  }
+
+  listRootCauseHypothesisReviews(tenantId: string, analysisId: string, hypothesisId?: string): RootCauseHypothesisReview[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, analysis_id as analysisId, hypothesis_id as hypothesisId,
+             exception_id as exceptionId, decision, rationale, actor, created_at as createdAt
+      FROM root_cause_hypothesis_reviews
+      WHERE tenant_id = ? AND analysis_id = ? ${hypothesisId ? "AND hypothesis_id = ?" : ""}
+      ORDER BY created_at, id
+    `).all(...(hypothesisId ? [tenantId, analysisId, hypothesisId] : [tenantId, analysisId])) as RootCauseHypothesisReview[];
+    return rows;
   }
 
   getResolutionReceiptByOperation(tenantId: string, resolutionCaseId: string, actionId: string, operationKey: string): ResolutionReceipt | undefined {

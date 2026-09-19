@@ -46,7 +46,7 @@ describe("V2 SQLite persistence", () => {
     const second = runV2Migrations(db);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>;
 
-    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations"]);
+    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses"]);
     expect(second).toEqual([]);
     expect(tables.map((row) => row.name)).toEqual(expect.arrayContaining([
       "business_entities",
@@ -60,6 +60,8 @@ describe("V2 SQLite persistence", () => {
       "grounded_ai_explanations",
       "decision_recommendations",
       "decision_recommendation_dispositions",
+      "root_cause_analyses",
+      "root_cause_hypothesis_reviews",
     ]));
   });
 
@@ -76,13 +78,18 @@ describe("V2 SQLite persistence", () => {
     expect(applied).toBeUndefined();
   });
 
-  it("upgrades an existing migration 006 database to decision recommendation tables", () => {
+  it("upgrades an existing migration 006 database through decision and root cause tables", () => {
     const db = openDatabase();
-    const preDecision = V2_MIGRATIONS.filter((migration) => migration.version !== "007_decision_recommendations");
-    expect(runV2Migrations(db, preDecision)).not.toContain("007_decision_recommendations");
-    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations"]);
-    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'decision_recommendation%' ORDER BY name").all() as Array<{ name: string }>;
-    expect(tables.map((row) => row.name)).toEqual(["decision_recommendation_dispositions", "decision_recommendations"]);
+    const preDecisionAndRootCause = V2_MIGRATIONS.filter((migration) => !["007_decision_recommendations", "008_root_cause_hypotheses"].includes(migration.version));
+    expect(runV2Migrations(db, preDecisionAndRootCause)).not.toContain("007_decision_recommendations");
+    expect(runV2Migrations(db)).toEqual(["007_decision_recommendations", "008_root_cause_hypotheses"]);
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'decision_recommendation%' OR name LIKE 'root_cause_%') ORDER BY name").all() as Array<{ name: string }>;
+    expect(tables.map((row) => row.name)).toEqual([
+      "decision_recommendation_dispositions",
+      "decision_recommendations",
+      "root_cause_analyses",
+      "root_cause_hypothesis_reviews",
+    ]);
   });
 
   it("preserves V1 cases and capability receipts while adding V2 tables", () => {

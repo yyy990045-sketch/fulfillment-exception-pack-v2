@@ -375,6 +375,86 @@ paths:
         '502': { $ref: '#/components/responses/AIProviderFailure' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
         '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/root-cause-analyses:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Root Cause Hypothesis summaries
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RootCauseAnalysisList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: false
+        content:
+          application/json: { schema: { type: object, additionalProperties: false } }
+      responses:
+        '200':
+          description: Generated or idempotently reused Root Cause Hypothesis analysis
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RootCauseAnalysis' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '502': { $ref: '#/components/responses/AIProviderFailure' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/root-cause-analyses/{analysisId}:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: analysisId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Root Cause Hypothesis analysis detail with stale status
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RootCauseAnalysis' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/root-cause-analyses/{analysisId}/hypotheses/{hypothesisId}/reviews:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: analysisId, in: path, required: true, schema: { type: string } }
+      - { name: hypothesisId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Append-only human reviews for a hypothesis
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RootCauseHypothesisReviewList' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision, rationale]
+              properties:
+                decision: { type: string, enum: [investigate, needs_evidence, rejected] }
+                rationale: { type: string, minLength: 1 }
+      responses:
+        '200':
+          description: Append-only hypothesis review
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/RootCauseHypothesisReview' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/decision-recommendations/{recommendationId}:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1001,6 +1081,102 @@ components:
         contextId: { type: string }
         exceptionId: { type: string }
         explanations: { type: array, items: { $ref: '#/components/schemas/GroundedExplanationSummary' } }
+    RootCauseHypothesis:
+      type: object
+      additionalProperties: false
+      required: [id, statement, epistemicStatus, supportingEvidenceIds, contradictingEvidenceIds, missingEvidence, verificationSteps]
+      properties:
+        id: { type: string }
+        statement: { type: string }
+        epistemicStatus: { type: string, enum: [hypothesis] }
+        supportingEvidenceIds: { type: array, items: { type: string } }
+        contradictingEvidenceIds: { type: array, items: { type: string } }
+        missingEvidence: { type: array, items: { type: string } }
+        verificationSteps: { type: array, items: { type: string } }
+    RootCauseValidation:
+      type: object
+      additionalProperties: false
+      required: [valid, citationErrors, numericErrors, unsupportedClaims, schemaErrors, validatedAt]
+      properties:
+        valid: { type: boolean }
+        citationErrors: { type: array, items: { type: string } }
+        numericErrors: { type: array, items: { type: string } }
+        unsupportedClaims: { type: array, items: { type: string } }
+        schemaErrors: { type: array, items: { type: string } }
+        validatedAt: { type: string, format: date-time }
+    RootCauseAnalysisSummary:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, createdBy, createdAt, stale]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        ruleEvaluationId: { type: string }
+        inputSnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        provider: { type: string }
+        model: { type: string }
+        status: { type: string, enum: [generated, rejected] }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        stale: { type: boolean }
+    RootCauseAnalysis:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, output, validation, createdBy, createdAt, stale]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        ruleEvaluationId: { type: string }
+        inputSnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        provider: { type: string }
+        model: { type: string }
+        status: { type: string, enum: [generated, rejected] }
+        output:
+          type: object
+          additionalProperties: false
+          required: [summary, hypotheses, uncertainties, humanVerificationRequired, prohibitedConclusions]
+          properties:
+            summary: { type: string }
+            hypotheses: { type: array, minItems: 1, maxItems: 3, items: { $ref: '#/components/schemas/RootCauseHypothesis' } }
+            uncertainties: { type: array, items: { type: string } }
+            humanVerificationRequired: { type: boolean, enum: [true] }
+            prohibitedConclusions: { type: array, items: { type: string } }
+        validation: { $ref: '#/components/schemas/RootCauseValidation' }
+        stale: { type: boolean }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+    RootCauseAnalysisList:
+      type: object
+      required: [contextId, exceptionId, analyses]
+      properties:
+        contextId: { type: string }
+        exceptionId: { type: string }
+        analyses: { type: array, items: { $ref: '#/components/schemas/RootCauseAnalysisSummary' } }
+    RootCauseHypothesisReview:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, analysisId, hypothesisId, exceptionId, decision, rationale, actor, createdAt]
+      properties:
+        id: { type: string }
+        tenantId: { type: string }
+        analysisId: { type: string }
+        hypothesisId: { type: string }
+        exceptionId: { type: string }
+        decision: { type: string, enum: [investigate, needs_evidence, rejected] }
+        rationale: { type: string }
+        actor: { type: string }
+        createdAt: { type: string, format: date-time }
+    RootCauseHypothesisReviewList:
+      type: object
+      required: [analysisId, hypothesisId, reviews]
+      properties:
+        analysisId: { type: string }
+        hypothesisId: { type: string }
+        reviews: { type: array, items: { $ref: '#/components/schemas/RootCauseHypothesisReview' } }
     DecisionRecommendationSupportingFact:
       type: object
       additionalProperties: false
