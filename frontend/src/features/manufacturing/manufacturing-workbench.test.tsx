@@ -1,11 +1,20 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppShell } from "../../app/app-shell.js";
 import { DemoSettingsProvider } from "../../app/demo-settings.js";
-import { evidenceBundleFixture, workbenchFixture } from "../../test/fixtures/manufacturing.js";
+import {
+  decisionFixture,
+  decisionListFixture,
+  evidenceBundleFixture,
+  explanationFixture,
+  explanationListFixture,
+  rootCauseFixture,
+  rootCauseListFixture,
+  workbenchFixture,
+} from "../../test/fixtures/manufacturing.js";
 import { ManufacturingWorkbenchPage } from "./pages/manufacturing-workbench-page.js";
 import type { EvidenceBundleView } from "./types.js";
 
@@ -16,12 +25,35 @@ function jsonResponse(body: unknown, status = 200) {
   }));
 }
 
-function mockApi(options: { workbench?: unknown; evidence?: EvidenceBundleView | unknown; error?: boolean } = {}) {
+function mockApi(options: {
+  workbench?: unknown;
+  evidence?: EvidenceBundleView | unknown;
+  explanationList?: unknown;
+  explanation?: unknown;
+  rootCauseList?: unknown;
+  rootCause?: unknown;
+  decisionList?: unknown;
+  decision?: unknown;
+  error?: boolean;
+  analysisError?: boolean;
+} = {}) {
   vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
     const url = String(input);
+    const pathname = new URL(url, window.location.origin).pathname;
     if (options.error) return jsonResponse({ error: "not_found" }, 500);
-    if (url.includes("/workbench")) return jsonResponse(options.workbench ?? workbenchFixture);
-    if (url.includes("/bundle")) return jsonResponse(options.evidence ?? evidenceBundleFixture);
+    if (options.analysisError && (
+      pathname.includes("/explanations") ||
+      pathname.includes("/root-cause-analyses") ||
+      pathname.includes("/decision-recommendations")
+    )) return jsonResponse({ error: "provider_failure" }, 500);
+    if (pathname.endsWith("/workbench")) return jsonResponse(options.workbench ?? workbenchFixture);
+    if (pathname.endsWith("/bundle")) return jsonResponse(options.evidence ?? evidenceBundleFixture);
+    if (pathname.endsWith("/explanations")) return jsonResponse(options.explanationList ?? explanationListFixture);
+    if (pathname.includes("/explanations/")) return jsonResponse(options.explanation ?? explanationFixture);
+    if (pathname.endsWith("/root-cause-analyses")) return jsonResponse(options.rootCauseList ?? rootCauseListFixture);
+    if (pathname.includes("/root-cause-analyses/")) return jsonResponse(options.rootCause ?? rootCauseFixture);
+    if (pathname.endsWith("/decision-recommendations")) return jsonResponse(options.decisionList ?? decisionListFixture);
+    if (pathname.includes("/decision-recommendations/")) return jsonResponse(options.decision ?? decisionFixture);
     return jsonResponse({});
   }));
 }
@@ -41,6 +73,8 @@ function renderAt(initialEntry: string, options: { resetHistory?: boolean } = {}
               <Route path="/manufacturing/:contextId" element={<ManufacturingWorkbenchPage />} />
               <Route path="/manufacturing/:contextId/exceptions/:exceptionId" element={<ManufacturingWorkbenchPage />} />
               <Route path="/manufacturing/:contextId/exceptions/:exceptionId/evidence" element={<ManufacturingWorkbenchPage />} />
+              <Route path="/manufacturing/:contextId/exceptions/:exceptionId/analysis" element={<ManufacturingWorkbenchPage />} />
+              <Route path="/manufacturing/:contextId/exceptions/:exceptionId/decision" element={<ManufacturingWorkbenchPage />} />
             </Routes>
           </AppShell>
         </BrowserRouter>
@@ -56,6 +90,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
 });
 
@@ -117,5 +152,79 @@ describe("Manufacturing decision workbench", () => {
     mockApi({ evidence: { ...evidenceBundleFixture, evidenceIds: [], evidence: [] } });
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/evidence");
     expect(await screen.findByText("暂无相关证据")).toBeInTheDocument();
+  });
+
+  it("renders grounded facts, unknowns, and verification questions", async () => {
+    mockApi();
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    expect(await screen.findByRole("heading", { name: "AI 解释" })).toBeInTheDocument();
+    expect(await screen.findByText("已确认事实")).toBeInTheDocument();
+    expect(screen.getByText("系统记录的发货数量为 10。")).toBeInTheDocument();
+    expect(screen.getByText("未知")).toBeInTheDocument();
+    expect(screen.getByText("当前不能确认客户实际签收数量。")).toBeInTheDocument();
+    expect(screen.getByText("待核实")).toBeInTheDocument();
+    expect(screen.getByText("是否存在客户签收单或其他独立签收证据？")).toBeInTheDocument();
+  });
+
+  it("marks root cause results as hypotheses and exposes supporting and contradicting evidence", async () => {
+    mockApi();
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    expect(await screen.findByRole("heading", { name: "根因假设" })).toBeInTheDocument();
+    expect(await screen.findByText("均为待验证假设")).toBeInTheDocument();
+    expect(screen.getByText("签收记录缺失可能导致主张数量未被确认。")).toBeInTheDocument();
+    expect(screen.getByText("支持证据")).toBeInTheDocument();
+    expect(screen.getByText("反证或矛盾证据")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "evidence-claim" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "evidence-shipment" }).length).toBeGreaterThan(0);
+  });
+
+  it("renders decision options and humanDecisionRequired without presenting execution", async () => {
+    mockApi();
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/decision");
+    expect(await screen.findByRole("heading", { name: "处置建议" })).toBeInTheDocument();
+    expect(await screen.findByText("需要人工决策")).toBeInTheDocument();
+    expect(screen.getByText("建议不是执行结果")).toBeInTheDocument();
+    expect(screen.getByText("补充签收证据")).toBeInTheDocument();
+    expect(screen.getByText("人工复核")).toBeInTheDocument();
+    expect(screen.queryByText("自动化执行")).not.toBeInTheDocument();
+  });
+
+  it("surfaces stale analysis snapshots", async () => {
+    mockApi({
+      explanationList: { ...explanationListFixture, explanations: explanationListFixture.explanations.map((item) => ({ ...item, stale: true })) },
+      explanation: { ...explanationFixture, stale: true, explanation: { ...explanationFixture.explanation, stale: true } },
+      rootCauseList: { ...rootCauseListFixture, analyses: rootCauseListFixture.analyses.map((item) => ({ ...item, stale: true })) },
+      rootCause: { ...rootCauseFixture, stale: true },
+    });
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    expect(await screen.findByRole("heading", { name: "AI 解释" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText("基于旧证据快照").length).toBeGreaterThanOrEqual(2));
+  });
+
+  it("shows explicit empty states when no analysis result exists", async () => {
+    mockApi({
+      explanationList: { contextId: "ctx-fixture", exceptionId: "exception-claim", explanations: [] },
+      rootCauseList: { contextId: "ctx-fixture", exceptionId: "exception-claim", analyses: [] },
+      decisionList: { contextId: "ctx-fixture", exceptionId: "exception-claim", recommendations: [] },
+    });
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    await waitFor(() => expect(screen.getAllByText("暂无生成结果")).toHaveLength(2));
+  });
+
+  it("supports analysis deep links and browser back behavior", async () => {
+    mockApi();
+    window.history.replaceState({}, "", "/manufacturing/ctx-fixture/exceptions/exception-claim");
+    window.history.pushState({}, "", "/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis", { resetHistory: false });
+    expect(await screen.findByRole("heading", { name: "AI 解释" })).toBeInTheDocument();
+    act(() => window.history.back());
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "AI 解释" })).not.toBeInTheDocument());
+  });
+
+  it("keeps analysis errors local to each section", async () => {
+    mockApi({ analysisError: true });
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/analysis");
+    expect(await screen.findByText("AI 解释加载失败")).toBeInTheDocument();
+    expect(screen.getByText("根因假设加载失败")).toBeInTheDocument();
   });
 });

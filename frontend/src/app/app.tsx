@@ -10,6 +10,8 @@ export const appRoutes: RouteObject[] = [{
     { path: "/manufacturing/:contextId", element: <ManufacturingWorkbenchPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId", element: <ManufacturingWorkbenchPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/evidence", element: <ManufacturingWorkbenchPage /> },
+    { path: "/manufacturing/:contextId/exceptions/:exceptionId/analysis", element: <ManufacturingWorkbenchPage /> },
+    { path: "/manufacturing/:contextId/exceptions/:exceptionId/decision", element: <ManufacturingWorkbenchPage /> },
     { path: "*", element: <Navigate to="/manufacturing/ctx-so-mfg-001" replace /> },
   ],
 }];

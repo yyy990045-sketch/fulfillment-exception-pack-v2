@@ -1,4 +1,12 @@
 import type { EvidenceBundleView, WorkbenchView } from "../../features/manufacturing/types.js";
+import type {
+  DecisionRecommendationListResponse,
+  DecisionRecommendationView,
+  ExplanationListResponse,
+  ExplanationResponse,
+  RootCauseAnalysisListResponse,
+  RootCauseAnalysisView,
+} from "../../features/manufacturing/analysis-types.js";
 
 const createdAt = "2026-09-19T00:00:00.000Z";
 
@@ -72,4 +80,200 @@ export const evidenceBundleFixture: EvidenceBundleView = {
     { id: "wms", name: "WMS", systemType: "wms" },
     { id: "service", name: "Service", systemType: "manual" },
   ],
+};
+
+export const explanationListFixture: ExplanationListResponse = {
+  contextId: "ctx-fixture",
+  exceptionId: "exception-claim",
+  explanations: [{
+    id: "explanation-fixture",
+    tenantId: "demo-manufacturing",
+    contextId: "ctx-fixture",
+    exceptionId: "exception-claim",
+    ruleEvaluationId: "evaluation-fixture",
+    inputSnapshotHash: "a".repeat(64),
+    provider: "deterministic-demo",
+    model: "grounded-fixture-v1",
+    status: "generated",
+    createdBy: "tester",
+    createdAt,
+    stale: false,
+  }],
+};
+
+export const explanationFixture: ExplanationResponse = {
+  stale: false,
+  explanation: {
+    id: "explanation-fixture",
+    tenantId: "demo-manufacturing",
+    contextId: "ctx-fixture",
+    exceptionId: "exception-claim",
+    ruleEvaluationId: "evaluation-fixture",
+    inputSnapshotHash: "a".repeat(64),
+    provider: "deterministic-demo",
+    model: "grounded-fixture-v1",
+    status: "generated",
+    output: {
+      executiveSummary: "当前记录之间存在数量差异。",
+      facts: [{ statement: "系统记录的发货数量为 10。", evidenceIds: ["evidence-shipment"] }],
+      discrepancy: { statement: "客户主张数量低于当前记录。", evidenceIds: ["evidence-claim"] },
+      uncertainties: [{ statement: "当前不能确认客户实际签收数量。", evidenceIds: ["evidence-claim"] }],
+      questionsToVerify: ["是否存在客户签收单或其他独立签收证据？"],
+      prohibitedConclusions: ["不能确认责任归属。"],
+    },
+    validation: { valid: true },
+    createdBy: "tester",
+    createdAt,
+    stale: false,
+  },
+};
+
+export const rootCauseListFixture: RootCauseAnalysisListResponse = {
+  contextId: "ctx-fixture",
+  exceptionId: "exception-claim",
+  analyses: [{
+    id: "root-cause-fixture",
+    tenantId: "demo-manufacturing",
+    contextId: "ctx-fixture",
+    exceptionId: "exception-claim",
+    ruleEvaluationId: "evaluation-fixture",
+    inputSnapshotHash: "b".repeat(64),
+    provider: "root-cause-deterministic-demo",
+    model: "root-cause-fixture-v1",
+    status: "generated",
+    createdBy: "tester",
+    createdAt,
+    stale: false,
+  }],
+};
+
+export const rootCauseFixture: RootCauseAnalysisView = {
+  id: "root-cause-fixture",
+  tenantId: "demo-manufacturing",
+  contextId: "ctx-fixture",
+  exceptionId: "exception-claim",
+  ruleEvaluationId: "evaluation-fixture",
+  inputSnapshotHash: "b".repeat(64),
+  provider: "root-cause-deterministic-demo",
+  model: "root-cause-fixture-v1",
+  status: "generated",
+  output: {
+    summary: "存在多个需要人工验证的原因假设。",
+    hypotheses: [{
+      id: "hypothesis-fixture",
+      statement: "签收记录缺失可能导致主张数量未被确认。",
+      epistemicStatus: "hypothesis",
+      supportingEvidenceIds: ["evidence-claim"],
+      contradictingEvidenceIds: ["evidence-shipment"],
+      missingEvidence: ["客户签收单"],
+      verificationSteps: ["核对客户签收单与物流签收记录。"],
+    }],
+    uncertainties: ["当前证据不能确认实际签收数量。"],
+    humanVerificationRequired: true,
+    prohibitedConclusions: ["不能确认责任归属。"],
+  },
+  validation: {
+    valid: true,
+    citationErrors: [],
+    numericErrors: [],
+    unsupportedClaims: [],
+    schemaErrors: [],
+    validatedAt: createdAt,
+  },
+  stale: false,
+  createdBy: "tester",
+  createdAt,
+};
+
+export const decisionListFixture: DecisionRecommendationListResponse = {
+  contextId: "ctx-fixture",
+  exceptionId: "exception-claim",
+  recommendations: [{
+    id: "decision-fixture",
+    tenantId: "demo-manufacturing",
+    contextId: "ctx-fixture",
+    exceptionId: "exception-claim",
+    ruleEvaluationId: "evaluation-fixture",
+    inputSnapshotHash: "c".repeat(64),
+    provider: "decision-deterministic-demo",
+    model: "decision-fixture-v1",
+    status: "generated",
+    createdBy: "tester",
+    createdAt,
+    stale: false,
+  }],
+};
+
+export const decisionFixture: DecisionRecommendationView = {
+  id: "decision-fixture",
+  tenantId: "demo-manufacturing",
+  contextId: "ctx-fixture",
+  exceptionId: "exception-claim",
+  ruleEvaluationId: "evaluation-fixture",
+  inputSnapshotHash: "c".repeat(64),
+  provider: "decision-deterministic-demo",
+  model: "decision-fixture-v1",
+  status: "generated",
+  output: {
+    executiveSummary: "建议先补齐签收证据，再由人工决定后续动作。",
+    recommendedOptionId: "option-evidence",
+    options: [
+      {
+        id: "option-evidence",
+        actionType: "supplement_evidence",
+        title: "补充签收证据",
+        actionSummary: "收集客户签收单和物流记录。",
+        rationale: "当前证据不足以确认客户实际签收数量。",
+        evidenceIds: ["evidence-claim"],
+        supportingFacts: [{ kind: "actual", key: "qty", value: 10, evidenceIds: ["evidence-shipment"] }],
+        historyClaims: [],
+        assumptions: ["客户仍有可提供的签收凭证。"],
+        missingEvidence: ["客户签收单"],
+      },
+      {
+        id: "option-review",
+        actionType: "review_quotation",
+        title: "人工复核",
+        actionSummary: "由业务人员复核当前差异。",
+        rationale: "需要人工确认后续处理边界。",
+        evidenceIds: ["evidence-shipment", "evidence-claim"],
+        supportingFacts: [],
+        historyClaims: [],
+        assumptions: [],
+        missingEvidence: [],
+      },
+    ],
+    uncertainties: ["客户签收证据可能仍不完整。"],
+    humanDecisionRequired: true,
+    prohibitedConclusions: ["不能确认责任归属。"],
+  },
+  validation: {
+    valid: true,
+    citationErrors: [],
+    numericErrors: [],
+    historyErrors: [],
+    eligibilityErrors: [],
+    unsupportedClaims: [],
+    schemaErrors: [],
+    validatedAt: createdAt,
+  },
+  historySnapshot: {
+    sameExceptionCount: 0,
+    sameExceptionWithResolutionCount: 0,
+    actionTypeCounts: {
+      supplement_evidence: 0,
+      urge_follow_up: 0,
+      reject_overclaim: 0,
+      review_quotation: 0,
+      create_task: 0,
+    },
+    resolutionStatusCounts: {},
+    closedResolutionCaseCount: 0,
+    rejectedResolutionCaseCount: 0,
+    outcomeMeasured: false,
+  },
+  eligibility: [],
+  stale: false,
+  createdBy: "tester",
+  createdAt,
 };

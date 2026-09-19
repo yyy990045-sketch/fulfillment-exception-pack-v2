@@ -4,6 +4,7 @@ import { Skeleton } from "../../../components/ui/skeleton.js";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs.js";
 import { useWorkbenchView, useExceptionEvidence } from "../../../hooks/use-manufacturing.js";
 import { ContextHeader } from "../components/context-header.js";
+import { AnalysisWorkspace, DecisionWorkspace } from "../components/analysis-workspace.js";
 import { DigitalThread } from "../components/digital-thread.js";
 import { EvidenceInspector } from "../components/evidence-inspector.js";
 import { EvidenceWorkspace } from "../components/evidence-workspace.js";
@@ -55,7 +56,13 @@ export function ManufacturingWorkbenchPage() {
     return <LocalError title="履约上下文加载失败" detail="当前 API 无法返回制造履约工作台。" />;
   }
 
-  const evidenceTab = location.pathname.endsWith("/evidence");
+  const workspaceTab = location.pathname.endsWith("/evidence")
+    ? "evidence"
+    : location.pathname.endsWith("/analysis")
+      ? "analysis"
+      : location.pathname.endsWith("/decision")
+        ? "decision"
+        : "overview";
   const highlightedStage = searchParams.get("stage") ?? undefined;
 
   const openException = (exception: ExceptionView) => {
@@ -70,12 +77,18 @@ export function ManufacturingWorkbenchPage() {
   const setTab = (tab: string) => {
     if (!selectedException) return;
     const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(selectedException.id)}`;
-    navigate(tab === "evidence" ? `${base}/evidence` : base);
+    if (tab === "evidence") return navigate(`${base}/evidence`);
+    if (tab === "analysis") return navigate(`${base}/analysis`);
+    if (tab === "decision") return navigate(`${base}/decision`);
+    return navigate(base);
+  };
+  const openEvidenceById = (evidenceId: string) => {
+    if (!selectedException) return;
+    const next = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(selectedException.id)}/evidence?evidence=${encodeURIComponent(evidenceId)}`;
+    navigate(next);
   };
   const openEvidence = (item: EvidenceItem) => {
-    const next = new URLSearchParams(searchParams);
-    next.set("evidence", item.evidenceId);
-    setSearchParams(next);
+    openEvidenceById(item.evidenceId);
   };
   const closeEvidence = (open: boolean) => {
     if (open) return;
@@ -105,15 +118,17 @@ export function ManufacturingWorkbenchPage() {
             />
             <section className="min-w-0">
               <SelectedExceptionHeader exception={selectedException} />
-              <Tabs value={evidenceTab ? "evidence" : "overview"} onValueChange={setTab}>
+              <Tabs value={workspaceTab} onValueChange={setTab}>
                 <div className="px-4 pt-2 lg:px-5">
                   <TabsList aria-label="异常工作面">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="evidence">Evidence</TabsTrigger>
+                    <TabsTrigger value="overview">概览</TabsTrigger>
+                    <TabsTrigger value="evidence">证据</TabsTrigger>
+                    <TabsTrigger value="analysis">分析</TabsTrigger>
+                    <TabsTrigger value="decision">处置建议</TabsTrigger>
                   </TabsList>
                 </div>
                 <div className="p-4 lg:p-5">
-                  {evidenceTab ? (
+                  {workspaceTab === "evidence" ? (
                     evidence.isLoading ? (
                       <div className="space-y-2">
                         <Skeleton className="h-9 w-full" />
@@ -129,6 +144,20 @@ export function ManufacturingWorkbenchPage() {
                         onSelect={openEvidence}
                       />
                     )
+                  ) : workspaceTab === "analysis" ? (
+                    <AnalysisWorkspace
+                      contextId={contextId}
+                      exceptionId={selectedException.id}
+                      evidence={evidence.data}
+                      onOpenEvidence={openEvidenceById}
+                    />
+                  ) : workspaceTab === "decision" ? (
+                    <DecisionWorkspace
+                      contextId={contextId}
+                      exceptionId={selectedException.id}
+                      evidence={evidence.data}
+                      onOpenEvidence={openEvidenceById}
+                    />
                   ) : (
                     <ExceptionOverview exception={selectedException} rules={view.rules} stages={view.thread} />
                   )}
