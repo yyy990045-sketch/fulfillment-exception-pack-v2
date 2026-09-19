@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { useGovernanceMutations, useResolutionCapabilities, useResolutionProcess } from "../../../hooks/use-manufacturing.js";
@@ -7,13 +8,6 @@ import { governanceErrorMessage } from "../governance-errors.js";
 import { exceptionStatusLabel, formatMetricValue, metricLabel } from "../utils.js";
 import type { ExceptionView, WorkbenchView } from "../types.js";
 import { ExceptionDetailsSheet } from "./exception-details-sheet.js";
-
-const severityLabels: Record<string, string> = {
-  low: "低",
-  medium: "中",
-  high: "高",
-  critical: "严重",
-};
 
 type PrimaryAction =
   | { kind: "navigate"; tab: "decision"; label: string; capability: CapabilityDecisionView }
@@ -69,9 +63,7 @@ export function SelectedExceptionHeader({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-base font-semibold">{exception.label}</h2>
-            <Badge variant={exception.severity === "high" || exception.severity === "critical" ? "danger" : "warning"}>
-              {severityLabels[exception.severity] ?? exception.severity}
-            </Badge>
+            <SeverityBadge severity={exception.severity} />
             <Badge>{exceptionStatusLabel(exception.status)}</Badge>
           </div>
           {metrics.length > 0 && (

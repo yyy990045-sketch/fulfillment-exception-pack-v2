@@ -73,6 +73,11 @@ describe("React Operations workspace", () => {
     const portfolio = screen.getByTestId("operations-portfolio-table");
     await waitFor(() => expect(within(portfolio).queryByText("SO-MFG-001")).not.toBeInTheDocument());
     expect(within(portfolio).getByText("FIN-REC-001")).toBeInTheDocument();
+    expect(screen.getByText("当前筛选")).toBeInTheDocument();
+    expect(screen.getByText("搜索：FIN")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "清除全部" }));
+    expect(screen.getByLabelText("搜索业务上下文")).toHaveValue("");
+    expect(screen.queryByText("当前筛选")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "动作" }));
     expect(await screen.findByText("补证请求")).toBeInTheDocument();

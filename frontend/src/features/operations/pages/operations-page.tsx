@@ -1,53 +1,38 @@
-import { AlertCircle, ChevronRight, RefreshCw, Search } from "lucide-react";
+import { ChevronRight, RefreshCw, Search, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Badge } from "../../../components/ui/badge.js";
+import {
+  LocalState,
+  ProductHeader,
+  ProductPage,
+  ProductSection,
+  SectionHeader,
+  SummaryItem,
+  SummaryStrip,
+} from "../../../components/product/page-layout.js";
+import {
+  OutcomeStatusBadge,
+  ResolutionStatusBadge,
+  SeverityBadge,
+} from "../../../components/product/status-badge.js";
 import { Button } from "../../../components/ui/button.js";
-import { Skeleton } from "../../../components/ui/skeleton.js";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs.js";
 import { useInstalledSolutionPacks, useInternalWorkItems, useOperationalAnalytics, type OperationalAnalyticsQuery } from "../../../hooks/use-operations.js";
 import { cn } from "../../../lib/utils.js";
+import {
+  resolutionStatusLabel,
+  resolutionStatusTone,
+  severityLabel,
+  severityTone,
+  type StatusTone,
+} from "../../../lib/presentation.js";
 import type { OperationalContextView } from "../types.js";
 import {
   actionTypeLabel,
   contextTypeLabel,
   exceptionStatusLabel,
   formatShortDateTime,
-  resolutionStatusLabel,
   sourceSystemLabel,
 } from "../../manufacturing/utils.js";
-
-const severityLabels: Record<string, string> = {
-  low: "低",
-  medium: "中",
-  high: "高",
-  critical: "严重",
-};
-
-const resolutionLabels: Record<string, string> = {
-  no_case: "未进入治理",
-  triaged: "待复核",
-  confirmed: "已确认",
-  proposed_draft: "方案草案",
-  pending_approval: "待审批",
-  approved: "已批准",
-  executed: "已执行",
-  closed: "已结案",
-  rejected: "已拒绝",
-};
-
-const outcomeLabels: Record<string, string> = {
-  target_met: "目标达成",
-  improved: "改善",
-  unchanged: "未变化",
-  worsened: "恶化",
-  insufficient_evidence: "证据不足",
-};
-
-const contextStatusLabels: Record<string, string> = {
-  active: "进行中",
-  closed: "已关闭",
-  archived: "已归档",
-};
 
 const bucketLabels: Record<string, string> = {
   day: "按日",
@@ -55,31 +40,8 @@ const bucketLabels: Record<string, string> = {
   month: "按月",
 };
 
-const sourceTypeLabels: Record<string, string> = {
-  erp: "订单系统",
-  mes: "生产系统",
-  qms: "质量系统",
-  wms: "仓储系统",
-  crm: "客户系统",
-  finance: "财务系统",
-  service: "客户服务记录",
-  manual: "人工记录",
-  file: "文件来源",
-  demo: "示例数据",
-};
-
-function severityVariant(severity: string | null | undefined) {
-  if (severity === "critical" || severity === "high") return "danger" as const;
-  if (severity === "medium") return "warning" as const;
-  return "default" as const;
-}
-
 function formatRate(value: number | null) {
   return value === null ? "—" : `${(value * 100).toFixed(1)}%`;
-}
-
-function statusList(statuses: string[]) {
-  return statuses.length ? statuses.map((status) => resolutionLabels[status] ?? status).join("、") : "未进入治理";
 }
 
 function contextDestination(context: OperationalContextView) {
@@ -88,39 +50,41 @@ function contextDestination(context: OperationalContextView) {
     : `/workspace/${encodeURIComponent(context.contextId)}`;
 }
 
-function SectionState({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="flex gap-3 border border-danger/25 bg-danger/5 p-4 text-sm">
-      <AlertCircle className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
-      <div><div className="font-medium text-danger">{title}</div><div className="mt-1 text-text-secondary">{detail}</div></div>
-    </div>
-  );
-}
-
-function SummaryItem({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="min-w-0 px-3 py-2">
-      <div className="text-[11px] text-text-muted">{label}</div>
-      <div className="mt-0.5 text-lg font-semibold leading-6">{value}</div>
-    </div>
-  );
-}
-
-function MiniBar({ label, value, max, onClick }: { label: string; value: number; max: number; onClick?: () => void }) {
+function MiniBar({
+  label,
+  value,
+  max,
+  tone = "interactive",
+  onClick,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  tone?: StatusTone | "interactive";
+  onClick?: () => void;
+}) {
   const width = max > 0 ? Math.max(3, Math.round((value / max) * 100)) : 0;
+  const toneClass = {
+    default: "bg-text-muted/45",
+    info: "bg-interactive/70",
+    interactive: "bg-interactive/70",
+    warning: "bg-warning/70",
+    danger: "bg-danger/70",
+    success: "bg-success/70",
+  }[tone];
   return (
     <button
       type="button"
-      className="grid w-full grid-cols-[minmax(0,1fr)_42px] items-center gap-2 py-1.5 text-left text-xs hover:text-interactive"
+      className="grid w-full grid-cols-[minmax(0,1fr)_42px] items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs transition-colors hover:bg-interactive/5 focus-visible:bg-interactive/5"
       onClick={onClick}
     >
       <span className="min-w-0">
         <span className="block truncate">{label}</span>
-        <span className="mt-1 block h-1.5 bg-interactive/15">
-          <span className="block h-full bg-interactive/70" style={{ width: `${width}%` }} />
+        <span className="mt-1 block h-1.5 bg-border">
+          <span className={cn("block h-full", toneClass)} style={{ width: `${width}%` }} />
         </span>
       </span>
-      <strong className="text-right font-semibold">{value}</strong>
+      <strong className="text-right font-semibold tabular-nums">{value}</strong>
     </button>
   );
 }
@@ -141,49 +105,62 @@ function PortfolioTable({
     contextTypeLabel(context.contextType).toLowerCase().includes(normalized) ||
     context.exceptionCodes.some((code) => code.toLowerCase().includes(normalized)),
   );
-  if (!rows.length) return <div className="py-10 text-center text-sm text-text-muted">没有匹配当前条件的业务上下文</div>;
+  if (!rows.length) {
+    return <div className="p-3"><LocalState kind="no-results" title="没有匹配当前条件的业务上下文" compact /></div>;
+  }
   return (
-    <div className="overflow-x-auto">
-      <table data-testid="operations-portfolio-table" className="w-full min-w-[920px] border-collapse text-left text-xs">
-        <thead className="bg-surface-muted text-text-muted">
+    <div className="max-h-[560px] overflow-auto">
+      <table data-testid="operations-portfolio-table" className="w-full min-w-[1040px] border-collapse text-left text-xs">
+        <thead className="sticky top-0 z-10 bg-surface-muted text-text-muted">
           <tr>
-            <th className="px-3 py-2 font-medium">业务上下文</th>
-            <th className="px-3 py-2 font-medium">类型</th>
-            <th className="px-3 py-2 font-medium">异常</th>
-            <th className="px-3 py-2 font-medium">最高等级</th>
-            <th className="px-3 py-2 font-medium">治理状态</th>
-            <th className="px-3 py-2 font-medium">负责人</th>
-            <th className="px-3 py-2 font-medium">最近变化</th>
-            <th className="px-3 py-2 font-medium">结果</th>
-            <th className="px-3 py-2" />
+            <th className="sticky left-0 z-20 border-b border-border bg-surface-muted px-3 py-2 font-medium">业务上下文</th>
+            <th className="border-b border-border px-3 py-2 font-medium">异常</th>
+            <th className="border-b border-border px-3 py-2 font-medium">等级</th>
+            <th className="border-b border-border px-3 py-2 font-medium">治理状态</th>
+            <th className="border-b border-border px-3 py-2 font-medium">负责人</th>
+            <th className="border-b border-border px-3 py-2 font-medium">最近变化</th>
+            <th className="border-b border-border px-3 py-2 font-medium">结果</th>
+            <th className="border-b border-border px-3 py-2 font-medium text-text-muted">类型</th>
+            <th className="border-b border-border px-3 py-2" />
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
           {rows.map((context) => (
-            <tr key={context.contextId} className="hover:bg-surface-muted">
-              <td className="px-3 py-2">
-                <button type="button" className="font-medium text-interactive hover:underline" onClick={() => onOpenContext(context)}>
+            <tr key={context.contextId} className="group transition-colors hover:bg-surface-muted focus-within:bg-interactive/5">
+              <td className="sticky left-0 z-10 bg-surface px-3 py-2 transition-colors group-hover:bg-surface-muted group-focus-within:bg-interactive/5">
+                <button
+                  type="button"
+                  className="font-medium text-interactive hover:underline focus-visible:rounded-sm"
+                  onClick={() => onOpenContext(context)}
+                >
                   {context.businessKey}
                 </button>
               </td>
-              <td className="px-3 py-2">{contextTypeLabel(context.contextType)}</td>
               <td className="px-3 py-2">
-                <span className="font-semibold">{context.exceptionCount}</span>
+                <span className="font-semibold tabular-nums">{context.exceptionCount}</span>
                 <span className="ml-1 text-text-muted">{context.exceptionCodes.length} 类</span>
               </td>
               <td className="px-3 py-2">
-                {context.highestSeverity
-                  ? <Badge variant={severityVariant(context.highestSeverity)}>{severityLabels[context.highestSeverity] ?? context.highestSeverity}</Badge>
-                  : "—"}
+                {context.highestSeverity ? <SeverityBadge severity={context.highestSeverity} /> : <span className="text-text-muted">—</span>}
               </td>
-              <td className="max-w-[220px] truncate px-3 py-2">{statusList(context.resolutionStatuses)}</td>
-              <td className="max-w-[150px] truncate px-3 py-2">{context.resolutionOwnerRoles.join("、") || "未指派"}</td>
-              <td className="px-3 py-2 text-text-muted">{formatShortDateTime(context.latestChangeAt)}</td>
               <td className="px-3 py-2">
-                {context.outcomeMeasurementCount
-                  ? `${context.outcomeMeasurementCount} 次 · ${context.outcomeStatuses.map((status) => outcomeLabels[status] ?? status).join("、")}`
-                  : "暂无测量"}
+                <div className="flex max-w-[240px] flex-wrap gap-1">
+                  {context.resolutionStatuses.length
+                    ? context.resolutionStatuses.slice(0, 3).map((status) => <ResolutionStatusBadge key={status} status={status} />)
+                    : <ResolutionStatusBadge status="no_case" />}
+                </div>
               </td>
+              <td className="max-w-[150px] truncate px-3 py-2">{context.resolutionOwnerRoles.join("、") || "未指派"}</td>
+              <td className="px-3 py-2 text-text-muted tabular-nums">{formatShortDateTime(context.latestChangeAt)}</td>
+              <td className="px-3 py-2">
+                {context.outcomeMeasurementCount ? (
+                  <div className="flex max-w-[170px] flex-wrap items-center gap-1">
+                    <span className="font-medium tabular-nums">{context.outcomeMeasurementCount} 次</span>
+                    {context.outcomeStatuses.slice(0, 2).map((status) => <OutcomeStatusBadge key={status} status={status} />)}
+                  </div>
+                ) : "暂无测量"}
+              </td>
+              <td className="px-3 py-2 text-text-muted">{contextTypeLabel(context.contextType)}</td>
               <td className="px-3 py-2 text-right"><ChevronRight className="ml-auto size-4 text-text-muted" aria-hidden="true" /></td>
             </tr>
           ))}
@@ -222,6 +199,11 @@ export function OperationsPage() {
     else next.delete(key);
     setSearchParams(next, { replace: true });
   };
+  const clearAllFilters = () => {
+    const next = new URLSearchParams(searchParams);
+    for (const key of ["q", "severity", "exceptionCode", "resolutionStatus", "from", "to"]) next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
   const applyRange = (nextFrom: string, nextTo: string) => {
     const next = new URLSearchParams(searchParams);
     if (nextFrom) next.set("from", nextFrom);
@@ -242,16 +224,23 @@ export function OperationsPage() {
 
   if (analytics.isLoading) {
     return (
-      <main className="mx-auto w-full max-w-[1720px] space-y-3 px-5 py-5">
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-80 w-full" />
-      </main>
+      <ProductPage className="space-y-3 py-5">
+        <LocalState kind="loading" title="正在读取运营视图" />
+        <div className="h-72 border border-border bg-surface" />
+      </ProductPage>
     );
   }
   if (analytics.isError || !analytics.data) {
-    return <main className="mx-auto w-full max-w-[1720px] px-5 py-5"><SectionState title="运营视图加载失败" detail="当前 API 无法返回经营治理分析。" /></main>;
+    return (
+      <ProductPage className="py-5">
+        <ProductHeader title="运营视图" description="跨业务上下文查看异常、治理进度和后续结果。" />
+        <div className="mt-4">
+          <LocalState kind="error" title="运营视图加载失败" detail="当前 API 无法返回经营治理分析。" />
+        </div>
+      </ProductPage>
+    );
   }
+
   const data = analytics.data;
   const maxTrend = Math.max(0, ...data.exceptionTrend.map((item) => item.exceptionCount));
   const maxException = Math.max(0, ...data.exceptionBreakdown.map((item) => item.count));
@@ -261,16 +250,22 @@ export function OperationsPage() {
   const taskCount = workItemsUnavailable ? "—" : openWorkItems.filter((item) => item.kind === "task").length;
   const evidenceRequestCount = workItemsUnavailable ? "—" : openWorkItems.filter((item) => item.kind === "evidence_request").length;
   const exceptionLabels = new Map(data.exceptionBreakdown.map((item) => [item.code, item.label]));
+  const activeFilters = [
+    query ? { key: "q", label: `搜索：${query}` } : null,
+    exceptionCode ? { key: "exceptionCode", label: `异常：${exceptionLabels.get(exceptionCode) ?? exceptionCode}` } : null,
+    severity ? { key: "severity", label: `等级：${severityLabel(severity)}` } : null,
+    resolutionStatus ? { key: "resolutionStatus", label: `治理：${resolutionStatusLabel(resolutionStatus)}` } : null,
+    from ? { key: "from", label: `开始：${from}` } : null,
+    to ? { key: "to", label: `结束：${to}` } : null,
+  ].filter((item): item is { key: string; label: string } => Boolean(item));
 
   return (
-    <main className="mx-auto w-full max-w-[1720px] px-5 py-4">
-      <header className="border-b border-border pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-semibold">运营视图</h1>
-            <p className="mt-1 text-sm text-text-secondary">跨业务上下文查看异常、治理进度和后续结果。</p>
-          </div>
-          <div className="flex flex-wrap items-end gap-2">
+    <ProductPage>
+      <ProductHeader
+        title="运营视图"
+        description="跨业务上下文查看异常、治理进度和后续结果。"
+        actions={(
+          <>
             <label className="space-y-1 text-[11px] text-text-muted">
               时间粒度
               <select className="block h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={bucket} onChange={(event) => updateParam("bucket", event.target.value)}>
@@ -291,30 +286,33 @@ export function OperationsPage() {
               <RefreshCw className={cn("size-3.5", analytics.isFetching && "animate-spin")} aria-hidden="true" />
               刷新
             </Button>
-          </div>
-        </div>
-        <p className="mt-2 text-[11px] text-text-muted">
-          {analytics.isFetching ? "正在刷新…" : `统计窗口：${data.window.from ?? "最早"} 至 ${data.window.to ?? "最新"} · ${bucketLabels[data.window.bucket] ?? data.window.bucket}`}
-          {" · "}已安装方案包 {packs.isPending || packs.isError ? "—" : packs.data?.installations.length ?? 0} 个
-        </p>
-      </header>
+          </>
+        )}
+        footer={(
+          <>
+            {analytics.isFetching ? "正在刷新…" : `统计窗口：${data.window.from ?? "最早"} 至 ${data.window.to ?? "最新"} · ${bucketLabels[data.window.bucket] ?? data.window.bucket}`}
+            {" · "}已安装方案包 {packs.isPending || packs.isError ? "—" : packs.data?.installations.length ?? 0} 个
+          </>
+        )}
+      />
 
-      <section className="grid grid-cols-2 divide-x divide-y divide-border border-x border-b border-border bg-surface sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
+      <SummaryStrip
+        className="border-t-0 sm:grid-cols-3 lg:grid-cols-5 lg:divide-x lg:divide-y-0"
+        label="运营摘要"
+      >
         <SummaryItem label="异常总数" value={data.summary.detectedExceptionCount} />
         <SummaryItem label="未进入治理" value={data.summary.exceptionsWithoutResolutionCase} />
         <SummaryItem label="待审批" value={data.resolutionFunnel.pending_approval} />
         <SummaryItem label="已执行" value={data.resolutionFunnel.executed} />
         <SummaryItem label="已结案" value={data.summary.closedResolutionCaseCount} />
-      </section>
+      </SummaryStrip>
 
-      <section className="mt-4 border border-border bg-surface">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border px-3 py-2.5">
-          <div>
-            <h2 className="text-sm font-semibold">业务上下文组合</h2>
-            <p className="mt-0.5 text-[11px] text-text-muted">先定位有风险的业务对象，再进入对应工作台。</p>
-          </div>
-          <span className="text-xs text-text-muted">{data.contexts.length} 个上下文</span>
-        </div>
+      <ProductSection className="mt-4">
+        <SectionHeader
+          title="业务上下文组合"
+          description="先定位有风险的业务对象，再进入对应工作台。"
+          meta={`${data.contexts.length} 个上下文`}
+        />
         <div className="grid gap-2 border-b border-border p-3 md:grid-cols-[minmax(200px,1fr)_150px_180px_170px]">
           <label className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
@@ -339,44 +337,90 @@ export function OperationsPage() {
           </select>
           <select aria-label="治理状态" className="h-8 rounded-md border border-border-strong bg-surface px-2 text-xs" value={resolutionStatus} onChange={(event) => updateParam("resolutionStatus", event.target.value)}>
             <option value="">全部治理状态</option>
-            {Object.entries(resolutionLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            {["no_case", "triaged", "confirmed", "proposed_draft", "pending_approval", "approved", "executed", "closed", "rejected"].map((value) => (
+              <option key={value} value={value}>{resolutionStatusLabel(value)}</option>
+            ))}
           </select>
         </div>
+        {activeFilters.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-border bg-surface-muted/50 px-3 py-2">
+            <span className="mr-1 text-[11px] text-text-muted">当前筛选</span>
+            {activeFilters.map((filter) => (
+              <button
+                key={filter.key}
+                type="button"
+                className="inline-flex h-6 items-center gap-1 rounded-sm border border-border bg-surface px-1.5 text-[11px] text-text-secondary hover:border-border-strong"
+                onClick={() => updateParam(filter.key, "")}
+              >
+                {filter.label}
+                <X className="size-3 text-text-muted" aria-hidden="true" />
+              </button>
+            ))}
+            <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[11px]" onClick={clearAllFilters}>
+              清除全部
+            </Button>
+          </div>
+        )}
         <PortfolioTable contexts={data.contexts} query={query} onOpenContext={(context) => navigate(contextDestination(context))} />
-      </section>
+      </ProductSection>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-3">
-        <div className="border border-border bg-surface p-3">
-          <h2 className="text-sm font-semibold">异常趋势</h2>
-          <p className="mt-0.5 text-[11px] text-text-muted">按业务发生时间聚合，点击柱形筛选时间窗口。</p>
-          <div className="mt-3 divide-y divide-border">
-            {data.exceptionTrend.map((item) => (
-              <MiniBar key={item.bucket} label={item.bucket} value={item.exceptionCount} max={maxTrend} onClick={() => drillTrendBucket(item.bucket)} />
-            ))}
-            {!data.exceptionTrend.length && <div className="py-6 text-xs text-text-muted">暂无趋势数据</div>}
+      <ProductSection className="mt-4">
+        <SectionHeader
+          title="经营信号"
+          description="点击异常类型或状态可直接缩小业务组合范围。"
+          meta="按当前时间范围"
+        />
+        <div className="grid divide-y divide-border xl:grid-cols-3 xl:divide-x xl:divide-y-0">
+          <div className="p-3.5">
+            <h3 className="text-sm font-semibold">异常趋势</h3>
+            <p className="mt-0.5 text-[11px] text-text-muted">按业务发生时间聚合，点击柱形筛选时间窗口。</p>
+            <div className="mt-3 border-t border-border">
+              {data.exceptionTrend.map((item) => (
+                <MiniBar key={item.bucket} label={item.bucket} value={item.exceptionCount} max={maxTrend} tone="interactive" onClick={() => drillTrendBucket(item.bucket)} />
+              ))}
+              {!data.exceptionTrend.length && <div className="pt-3"><LocalState kind="empty" title="暂无趋势数据" compact /></div>}
+            </div>
+          </div>
+          <div className="p-3.5">
+            <h3 className="text-sm font-semibold">异常类型</h3>
+            <p className="mt-0.5 text-[11px] text-text-muted">点击类型筛选业务组合。</p>
+            <div className="mt-3 border-t border-border">
+              {data.exceptionBreakdown.slice(0, 8).map((item) => {
+                const highestSeverity = ["critical", "high", "medium", "low"].find((severity) => Number(item.severityBreakdown[severity] ?? 0) > 0);
+                return (
+                  <MiniBar
+                    key={item.code}
+                    label={item.label}
+                    value={item.count}
+                    max={maxException}
+                    tone={severityTone(highestSeverity)}
+                    onClick={() => updateParam("exceptionCode", item.code)}
+                  />
+                );
+              })}
+              {!data.exceptionBreakdown.length && <div className="pt-3"><LocalState kind="empty" title="暂无异常类型数据" compact /></div>}
+            </div>
+          </div>
+          <div className="p-3.5">
+            <h3 className="text-sm font-semibold">治理状态</h3>
+            <p className="mt-0.5 text-[11px] text-text-muted">当前状态分布，不是概率漏斗。</p>
+            <div className="mt-3 border-t border-border">
+              {Object.entries(data.resolutionFunnel).map(([status, count]) => (
+                <MiniBar
+                  key={status}
+                  label={resolutionStatusLabel(status)}
+                  value={count}
+                  max={maxFunnel}
+                  tone={resolutionStatusTone(status)}
+                  onClick={() => updateParam("resolutionStatus", status)}
+                />
+              ))}
+            </div>
           </div>
         </div>
-        <div className="border border-border bg-surface p-3">
-          <h2 className="text-sm font-semibold">异常类型</h2>
-          <p className="mt-0.5 text-[11px] text-text-muted">点击类型筛选业务组合。</p>
-          <div className="mt-3 divide-y divide-border">
-            {data.exceptionBreakdown.slice(0, 8).map((item) => (
-              <MiniBar key={item.code} label={item.label} value={item.count} max={maxException} onClick={() => updateParam("exceptionCode", item.code)} />
-            ))}
-          </div>
-        </div>
-        <div className="border border-border bg-surface p-3">
-          <h2 className="text-sm font-semibold">治理状态</h2>
-          <p className="mt-0.5 text-[11px] text-text-muted">当前状态分布，不是概率漏斗。</p>
-          <div className="mt-3 divide-y divide-border">
-            {Object.entries(data.resolutionFunnel).map(([status, count]) => (
-              <MiniBar key={status} label={resolutionLabels[status] ?? status} value={count} max={maxFunnel} onClick={() => updateParam("resolutionStatus", status)} />
-            ))}
-          </div>
-        </div>
-      </section>
+      </ProductSection>
 
-      <section className="mt-4 border border-border bg-surface">
+      <ProductSection className="mt-4">
         <Tabs value={activeTab} onValueChange={(tab) => updateParam("tab", tab)}>
           <div className="border-b border-border px-3 pt-2">
             <TabsList aria-label="运营明细">
@@ -391,49 +435,49 @@ export function OperationsPage() {
             {activeTab === "exceptions" && (
               <table data-testid="operations-exceptions-table" className="w-full min-w-[760px] text-left text-xs">
                 <thead className="bg-surface-muted text-text-muted"><tr><th className="px-3 py-2 font-medium">业务上下文</th><th className="px-3 py-2 font-medium">异常类型</th><th className="px-3 py-2 font-medium">异常数</th><th className="px-3 py-2 font-medium">状态</th></tr></thead>
-                <tbody className="divide-y divide-border">{data.contexts.map((context) => <tr key={context.contextId}><td className="px-3 py-2 font-medium">{context.businessKey}</td><td className="px-3 py-2">{context.exceptionCodes.map((code) => exceptionLabels.get(code) ?? code).join("、") || "无"}</td><td className="px-3 py-2">{context.exceptionCount}</td><td className="px-3 py-2">{contextStatusLabels[context.status] ?? exceptionStatusLabel(context.status)}</td></tr>)}</tbody>
+                <tbody className="divide-y divide-border">{data.contexts.map((context) => <tr key={context.contextId}><td className="px-3 py-2 font-medium">{context.businessKey}</td><td className="px-3 py-2">{context.exceptionCodes.map((code) => exceptionLabels.get(code) ?? code).join("、") || "无"}</td><td className="px-3 py-2 tabular-nums">{context.exceptionCount}</td><td className="px-3 py-2">{exceptionStatusLabel(context.status)}</td></tr>)}</tbody>
               </table>
             )}
             {activeTab === "governance" && (
               <table className="w-full min-w-[820px] text-left text-xs">
                 <thead className="bg-surface-muted text-text-muted"><tr><th className="px-3 py-2 font-medium">规则</th><th className="px-3 py-2 font-medium">评估</th><th className="px-3 py-2 font-medium">命中</th><th className="px-3 py-2 font-medium">未命中</th><th className="px-3 py-2 font-medium">触发率</th></tr></thead>
-                <tbody className="divide-y divide-border">{data.rulePerformance.map((rule) => <tr key={rule.ruleId}><td className="px-3 py-2">{rule.label}</td><td className="px-3 py-2">{rule.evaluations}</td><td className="px-3 py-2">{rule.matched}</td><td className="px-3 py-2">{rule.notMatched}</td><td className="px-3 py-2">{formatRate(rule.triggerRate)}</td></tr>)}</tbody>
+                <tbody className="divide-y divide-border">{data.rulePerformance.map((rule) => <tr key={rule.ruleId}><td className="px-3 py-2">{rule.label}</td><td className="px-3 py-2 tabular-nums">{rule.evaluations}</td><td className="px-3 py-2 tabular-nums">{rule.matched}</td><td className="px-3 py-2 tabular-nums">{rule.notMatched}</td><td className="px-3 py-2 tabular-nums">{formatRate(rule.triggerRate)}</td></tr>)}</tbody>
               </table>
             )}
             {activeTab === "actions" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-3">
+                <SummaryStrip className="grid-cols-2 sm:grid-cols-3" label="动作摘要">
                   <SummaryItem label="未完成任务" value={taskCount} />
                   <SummaryItem label="补证请求" value={evidenceRequestCount} />
                   <SummaryItem label="动作总数" value={data.summary.actionCount} />
-                </div>
+                </SummaryStrip>
                 <table className="w-full min-w-[760px] text-left text-xs">
                   <thead className="bg-surface-muted text-text-muted"><tr><th className="px-3 py-2 font-medium">动作</th><th className="px-3 py-2 font-medium">总数</th><th className="px-3 py-2 font-medium">草稿</th><th className="px-3 py-2 font-medium">待审批</th><th className="px-3 py-2 font-medium">已执行</th><th className="px-3 py-2 font-medium">已核验</th></tr></thead>
-                  <tbody className="divide-y divide-border">{data.actionBreakdown.map((item) => <tr key={item.type}><td className="px-3 py-2">{actionTypeLabel(item.type)}</td><td className="px-3 py-2">{item.total}</td><td className="px-3 py-2">{item.draft}</td><td className="px-3 py-2">{item.pending_approval}</td><td className="px-3 py-2">{item.succeeded}</td><td className="px-3 py-2">{item.verified}</td></tr>)}</tbody>
+                  <tbody className="divide-y divide-border">{data.actionBreakdown.map((item) => <tr key={item.type}><td className="px-3 py-2">{actionTypeLabel(item.type)}</td><td className="px-3 py-2 tabular-nums">{item.total}</td><td className="px-3 py-2 tabular-nums">{item.draft}</td><td className="px-3 py-2 tabular-nums">{item.pending_approval}</td><td className="px-3 py-2 tabular-nums">{item.succeeded}</td><td className="px-3 py-2 tabular-nums">{item.verified}</td></tr>)}</tbody>
                 </table>
               </div>
             )}
             {activeTab === "sources" && (
-              <table className="w-full min-w-[620px] text-left text-xs">
-                <thead className="bg-surface-muted text-text-muted"><tr><th className="px-3 py-2 font-medium">来源系统</th><th className="px-3 py-2 font-medium">类型</th><th className="px-3 py-2 font-medium">涉及异常</th></tr></thead>
-                <tbody className="divide-y divide-border">{data.sourceSystemInvolvement.map((source) => <tr key={source.sourceSystemId}><td className="px-3 py-2">{sourceSystemLabel(source.systemType, source.name)}</td><td className="px-3 py-2">{sourceTypeLabels[source.systemType] ?? source.systemType}</td><td className="px-3 py-2">{source.involvedExceptionCount}</td></tr>)}</tbody>
+              <table className="w-full min-w-[520px] text-left text-xs">
+                <thead className="bg-surface-muted text-text-muted"><tr><th className="px-3 py-2 font-medium">来源系统</th><th className="px-3 py-2 font-medium">涉及异常</th></tr></thead>
+                <tbody className="divide-y divide-border">{data.sourceSystemInvolvement.map((source) => <tr key={source.sourceSystemId}><td className="px-3 py-2">{sourceSystemLabel(source.systemType, source.name)}</td><td className="px-3 py-2 tabular-nums">{source.involvedExceptionCount}</td></tr>)}</tbody>
               </table>
             )}
             {activeTab === "results" && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-5">
+                <SummaryStrip className="grid-cols-2 sm:grid-cols-5" label="结果摘要">
                   <SummaryItem label="已测量" value={data.outcomes.summary.measuredOutcomeCount} />
                   <SummaryItem label="目标达成" value={data.outcomes.summary.targetMetCount} />
                   <SummaryItem label="改善" value={data.outcomes.summary.improvedCount} />
                   <SummaryItem label="未变化" value={data.outcomes.summary.unchangedCount} />
                   <SummaryItem label="证据不足" value={data.outcomes.summary.insufficientEvidenceCount} />
-                </div>
+                </SummaryStrip>
                 <p className="text-xs text-text-muted">后续业务状态观察，不证明前序动作导致变化。</p>
               </div>
             )}
           </div>
         </Tabs>
-      </section>
-    </main>
+      </ProductSection>
+    </ProductPage>
   );
 }

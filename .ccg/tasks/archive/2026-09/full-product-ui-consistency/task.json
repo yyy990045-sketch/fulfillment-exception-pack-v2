@@ -1,0 +1,12 @@
+{
+  "id": "full-product-ui-consistency",
+  "title": "Unify Manufacturing, Operations, Solution Pack, and Generic Workspace UI",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "Commit and push archived task",
+  "createdAt": "2026-09-19T13:00:00Z",
+  "branch": "main"
+}

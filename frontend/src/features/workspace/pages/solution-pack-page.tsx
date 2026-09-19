@@ -1,27 +1,23 @@
-import { AlertCircle, ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import {
+  LocalState,
+  ProductHeader,
+  ProductPage,
+  ProductSection,
+  SectionHeader,
+} from "../../../components/product/page-layout.js";
+import { ContextStatusBadge, SeverityBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
-import { Skeleton } from "../../../components/ui/skeleton.js";
 import { useInstalledSolutionPacks, useOperationalAnalytics, usePackWorkbench } from "../../../hooks/use-operations.js";
 import { cn } from "../../../lib/utils.js";
-import { contextTypeLabel, formatBusinessValue, formatShortDateTime } from "../../manufacturing/utils.js";
+import {
+  isBusinessPackCapability,
+  packCapabilityLabel,
+  resolutionStatusLabel,
+} from "../../../lib/presentation.js";
+import { contextTypeLabel, formatBusinessValue } from "../../manufacturing/utils.js";
 import type { OperationalContextView, SolutionPackManifestView } from "../../operations/types.js";
-
-const contextStatusLabels: Record<string, string> = {
-  active: "进行中",
-  closed: "已关闭",
-  archived: "已归档",
-};
-
-function capabilityLabel(key: string) {
-  return {
-    rules: "规则能力",
-    outcomes: "结果测量",
-    presentation: "业务线程",
-    decisionEligibility: "决策资格",
-    demo: "示例数据",
-  }[key] ?? key;
-}
 
 function contextLink(context: OperationalContextView) {
   return context.contextType === "sales_order"
@@ -30,18 +26,7 @@ function contextLink(context: OperationalContextView) {
 }
 
 function statusList(statuses: string[]) {
-  const labels: Record<string, string> = {
-    no_case: "未进入治理",
-    triaged: "待复核",
-    confirmed: "已确认",
-    proposed_draft: "方案草案",
-    pending_approval: "待审批",
-    approved: "已批准",
-    executed: "已执行",
-    closed: "已结案",
-    rejected: "已拒绝",
-  };
-  return statuses.length ? statuses.map((status) => labels[status] ?? status).join("、") : "未进入治理";
+  return statuses.length ? statuses.map(resolutionStatusLabel).join("、") : "未进入治理";
 }
 
 function PackList({
@@ -55,10 +40,11 @@ function PackList({
 }) {
   return (
     <aside className="border-b border-border bg-surface lg:border-b-0 lg:border-r">
-      <div className="border-b border-border px-3 py-3">
-        <h2 className="text-sm font-semibold">已安装方案包</h2>
-        <p className="mt-0.5 text-[11px] text-text-muted">当前企业真实安装的解决方案。</p>
-      </div>
+      <SectionHeader
+        title="已安装方案包"
+        description="当前企业已安装的方案包"
+        className="min-h-[54px]"
+      />
       <div role="list">
         {packs.map(({ manifest, installation }) => {
           const active = manifest.id === selectedPackId;
@@ -68,7 +54,7 @@ function PackList({
               type="button"
               aria-current={active ? "true" : undefined}
               className={cn(
-                "w-full border-b border-l-2 border-l-transparent border-border px-3 py-3 text-left hover:bg-surface-muted",
+                "w-full border-b border-l-2 border-l-transparent border-border px-3 py-3 text-left transition-colors hover:bg-surface-muted focus-visible:bg-interactive/5",
                 active && "border-l-interactive bg-interactive/5",
               )}
               onClick={() => onSelect(manifest.id)}
@@ -79,11 +65,10 @@ function PackList({
                   {installation.status === "active" ? "已启用" : "已停用"}
                 </Badge>
               </div>
-              <div className="mt-1 text-xs text-text-secondary">{manifest.description}</div>
-              <div className="mt-2 flex items-center gap-2 text-[11px] text-text-muted">
+              <div className="mt-1 text-xs leading-5 text-text-secondary">{manifest.description}</div>
+              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-text-muted">
                 <span>{manifest.contextTypes.map(contextTypeLabel).join("、")}</span>
-                <span aria-hidden="true">·</span>
-                <span>v{installation.packVersion}</span>
+                <span className="text-[10px]">v{installation.packVersion}</span>
               </div>
             </button>
           );
@@ -119,22 +104,31 @@ export function SolutionPackPage() {
 
   if (packs.isLoading || analytics.isLoading) {
     return (
-      <main className="mx-auto w-full max-w-[1720px] space-y-3 px-5 py-5">
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-[520px] w-full" />
-      </main>
+      <ProductPage className="space-y-3 py-5">
+        <LocalState kind="loading" title="正在读取方案包" />
+        <div className="h-[520px] border border-border bg-surface" />
+      </ProductPage>
     );
   }
   if (packs.isError || analytics.isError || !packs.data || !analytics.data) {
-    return <main className="mx-auto w-full max-w-[1720px] px-5 py-5 text-sm text-danger">方案包信息加载失败。</main>;
+    return (
+      <ProductPage className="py-5">
+        <ProductHeader title="方案包" description="查看当前企业已安装的业务解决方案与可复用平台能力。" />
+        <div className="mt-4">
+          <LocalState kind="error" title="方案包信息加载失败" detail="当前 API 无法返回已安装方案包。" />
+        </div>
+      </ProductPage>
+    );
   }
   const installed = packs.data.installations;
   if (!installed.length) {
     return (
-      <main className="mx-auto w-full max-w-[1720px] px-5 py-5">
-        <h1 className="text-xl font-semibold">方案包</h1>
-        <p className="mt-3 text-sm text-text-muted">当前企业尚未安装方案包。</p>
-      </main>
+      <ProductPage className="py-5">
+        <ProductHeader title="方案包" description="查看当前企业已安装的业务解决方案与可复用平台能力。" />
+        <div className="mt-4">
+          <LocalState kind="empty" title="当前企业尚未安装方案包" />
+        </div>
+      </ProductPage>
     );
   }
 
@@ -144,31 +138,31 @@ export function SolutionPackPage() {
     : [];
   const activeContext = packContexts.find((item) => item.contextId === requestedContextId) ?? packContexts[0];
   const activeWorkbench = workbench.data;
-  const installationStatus = selectedPack?.installation.status === "active" ? "已启用" : "已停用";
+  const businessCapabilities = manifest
+    ? Object.entries(manifest.capabilities).filter(([key, enabled]) => enabled && isBusinessPackCapability(key))
+    : [];
 
   return (
-    <main className="mx-auto w-full max-w-[1720px] px-5 py-4">
-      <header className="border-b border-border pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold">方案包</h1>
-            <p className="mt-1 text-sm text-text-secondary">查看当前企业已安装的业务解决方案与可复用平台能力。</p>
-          </div>
-          {manifest && (
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <Badge variant="info">{manifest.name}</Badge>
-              <Badge>{manifest.contextTypes.map(contextTypeLabel).join("、")}</Badge>
-              <Badge>v{selectedPack?.installation.packVersion}</Badge>
-              <Badge variant={selectedPack?.installation.status === "active" ? "success" : "default"}>{installationStatus}</Badge>
-            </div>
-          )}
-        </div>
-      </header>
+    <ProductPage>
+      <ProductHeader
+        title="方案包"
+        description="查看当前企业已安装的业务解决方案与可复用平台能力。"
+        badges={manifest && (
+          <>
+            <Badge variant="info">{manifest.name}</Badge>
+            <Badge>{manifest.contextTypes.map(contextTypeLabel).join("、")}</Badge>
+            <Badge variant={selectedPack?.installation.status === "active" ? "success" : "default"}>
+              {selectedPack?.installation.status === "active" ? "已启用" : "已停用"}
+            </Badge>
+          </>
+        )}
+        footer={selectedPack && `当前版本 v${selectedPack.installation.packVersion}`}
+      />
 
-      <div className="mt-4 grid border border-border bg-surface lg:grid-cols-[280px_minmax(0,1fr)]">
+      <ProductSection className="mt-4 grid lg:grid-cols-[280px_minmax(0,1fr)]">
         <PackList packs={installed} selectedPackId={manifest?.id} onSelect={selectPack} />
         {!manifest || !selectedPack ? (
-          <div className="p-8 text-sm text-text-muted">请选择一个已安装方案包。</div>
+          <div className="p-4"><LocalState kind="empty" title="请选择一个已安装方案包" /></div>
         ) : (
           <section className="min-w-0">
             <div className="border-b border-border px-4 py-3">
@@ -178,8 +172,8 @@ export function SolutionPackPage() {
                   <p className="mt-1 max-w-[78ch] text-sm text-text-secondary">{manifest.description}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(manifest.capabilities).filter(([, enabled]) => enabled).map(([key]) => (
-                    <Badge key={key} variant="info">{capabilityLabel(key)}</Badge>
+                  {businessCapabilities.map(([key]) => (
+                    <Badge key={key} variant="info">{packCapabilityLabel(key)}</Badge>
                   ))}
                 </div>
               </div>
@@ -187,10 +181,7 @@ export function SolutionPackPage() {
 
             <div className="grid xl:grid-cols-[280px_minmax(0,1fr)]">
               <div className="border-b border-border xl:border-b-0 xl:border-r">
-                <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
-                  <h3 className="text-sm font-semibold">业务上下文</h3>
-                  <span className="text-xs text-text-muted">{packContexts.length}</span>
-                </div>
+                <SectionHeader title="业务上下文" meta={packContexts.length} className="min-h-[46px]" />
                 {packContexts.length ? (
                   <div role="list">
                     {packContexts.map((context) => (
@@ -199,7 +190,7 @@ export function SolutionPackPage() {
                         type="button"
                         aria-current={activeContext?.contextId === context.contextId ? "true" : undefined}
                         className={cn(
-                          "w-full border-b border-l-2 border-l-transparent border-border px-3 py-2.5 text-left hover:bg-surface-muted",
+                          "w-full border-b border-l-2 border-l-transparent border-border px-3 py-2.5 text-left transition-colors hover:bg-surface-muted focus-visible:bg-interactive/5",
                           activeContext?.contextId === context.contextId && "border-l-interactive bg-interactive/5",
                         )}
                         onClick={() => selectContext(context.contextId)}
@@ -215,22 +206,15 @@ export function SolutionPackPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 text-xs text-text-muted">该方案包暂无已绑定业务上下文。</div>
+                  <div className="p-3"><LocalState kind="empty" title="该方案包暂无已绑定业务上下文" compact /></div>
                 )}
               </div>
 
               <div className="min-w-0">
                 {workbench.isPending && queryContext ? (
-                  <div className="space-y-3 p-4">
-                    <Skeleton className="h-14 w-full" />
-                    <Skeleton className="h-28 w-full" />
-                    <Skeleton className="h-48 w-full" />
-                  </div>
+                  <div className="space-y-3 p-4"><LocalState kind="loading" title="正在读取当前业务能力" /></div>
                 ) : workbench.isError ? (
-                  <div className="flex gap-3 p-5 text-sm text-danger">
-                    <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                    当前业务上下文加载失败。
-                  </div>
+                  <div className="p-4"><LocalState kind="error" title="当前业务上下文加载失败" detail="请重新选择业务上下文或稍后重试。" /></div>
                 ) : activeWorkbench && activeContext ? (
                   <>
                     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-4 py-3">
@@ -238,9 +222,7 @@ export function SolutionPackPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-base font-semibold">{activeWorkbench.context.businessKey}</h3>
                           <Badge>{activeWorkbench.pack.contextLabel}</Badge>
-                          <Badge variant={activeWorkbench.context.status === "active" ? "info" : "default"}>
-                            {contextStatusLabels[activeWorkbench.context.status] ?? activeWorkbench.context.status}
-                          </Badge>
+                          <ContextStatusBadge status={activeWorkbench.context.status} />
                         </div>
                         <p className="mt-1 text-xs text-text-muted">
                           {activeWorkbench.stats.entities} 个业务对象 · {activeWorkbench.stats.evidence} 条证据 · {activeWorkbench.stats.exceptions} 个异常
@@ -284,9 +266,7 @@ export function SolutionPackPage() {
 
                     <div className="grid xl:grid-cols-2">
                       <section className="border-b border-border xl:border-b-0 xl:border-r">
-                        <div className="border-b border-border px-4 py-2.5">
-                          <h3 className="text-sm font-semibold">异常类型</h3>
-                        </div>
+                        <SectionHeader title="异常类型" className="min-h-[44px]" />
                         <div className="divide-y divide-border">
                           {activeWorkbench.exceptions.map((exception) => (
                             <div key={exception.id} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm">
@@ -294,18 +274,14 @@ export function SolutionPackPage() {
                                 <div className="font-medium">{exception.label}</div>
                                 <div className="mt-0.5 text-xs text-text-muted">{exception.title}</div>
                               </div>
-                              <Badge variant={exception.severity === "high" || exception.severity === "critical" ? "danger" : "warning"}>
-                                {exception.severity}
-                              </Badge>
+                              <SeverityBadge severity={exception.severity} />
                             </div>
                           ))}
-                          {!activeWorkbench.exceptions.length && <div className="px-4 py-6 text-xs text-text-muted">暂无异常。</div>}
+                          {!activeWorkbench.exceptions.length && <div className="p-3"><LocalState kind="empty" title="暂无异常" compact /></div>}
                         </div>
                       </section>
                       <section>
-                        <div className="border-b border-border px-4 py-2.5">
-                          <h3 className="text-sm font-semibold">规则能力</h3>
-                        </div>
+                        <SectionHeader title="规则能力" className="min-h-[44px]" />
                         <div className="divide-y divide-border">
                           {activeWorkbench.rules.map((rule) => (
                             <div key={rule.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
@@ -313,21 +289,19 @@ export function SolutionPackPage() {
                               <Badge variant={rule.matched ? "warning" : "success"}>{rule.matched ? "命中" : "未命中"}</Badge>
                             </div>
                           ))}
-                          {!activeWorkbench.rules.length && <div className="px-4 py-6 text-xs text-text-muted">暂无规则评估。</div>}
+                          {!activeWorkbench.rules.length && <div className="p-3"><LocalState kind="empty" title="暂无规则评估" compact /></div>}
                         </div>
                       </section>
                     </div>
                   </>
                 ) : (
-                  <div className="flex min-h-64 items-center justify-center p-8 text-sm text-text-muted">
-                    当前方案包没有可展示的业务上下文。
-                  </div>
+                  <div className="p-4"><LocalState kind="empty" title="当前方案包没有可展示的业务上下文" /></div>
                 )}
               </div>
             </div>
           </section>
         )}
-      </div>
-    </main>
+      </ProductSection>
+    </ProductPage>
   );
 }

@@ -1,8 +1,10 @@
 import { Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { Badge } from "../../../components/ui/badge.js";
+import { LocalState } from "../../../components/product/page-layout.js";
+import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { cn } from "../../../lib/utils.js";
+import { severityLabel } from "../../../lib/presentation.js";
 import {
   exceptionQueueOptions,
   filterAndSortExceptions,
@@ -12,13 +14,6 @@ import {
 } from "../exception-queue.js";
 import type { ExceptionView, ResolutionCaseSummaryView, ThreadStage } from "../types.js";
 import { exceptionStatusLabel, formatShortDateTime } from "../utils.js";
-
-const severityLabels: Record<string, string> = {
-  low: "低",
-  medium: "中",
-  high: "高",
-  critical: "严重",
-};
 
 function FilterSelect({
   label,
@@ -126,7 +121,7 @@ export function ExceptionRail({
             label="严重程度"
             value={filters.severity}
             onChange={(value) => updateFilter("severity", value)}
-            options={options.severities.map((value) => ({ value, label: severityLabels[value] ?? value }))}
+            options={options.severities.map((value) => ({ value, label: severityLabel(value) }))}
           />
           <FilterSelect
             label="异常状态"
@@ -166,9 +161,7 @@ export function ExceptionRail({
       </div>
 
       {results.length === 0 ? (
-        <div className="px-4 py-8 text-center text-xs text-text-muted">
-          没有匹配当前条件的异常
-        </div>
+        <div className="p-3"><LocalState kind="no-results" title="没有匹配当前条件的异常" compact /></div>
       ) : (
         <div role="list">
           {results.map(({ exception, governanceStage }) => {
@@ -187,9 +180,7 @@ export function ExceptionRail({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="min-w-0 truncate text-sm font-medium leading-5">{exception.label}</span>
-                    <Badge variant={exception.severity === "high" || exception.severity === "critical" ? "danger" : "warning"}>
-                      {severityLabels[exception.severity] ?? exception.severity}
-                    </Badge>
+                    <SeverityBadge severity={exception.severity} />
                   </div>
                   <div className="mt-1 truncate text-xs text-text-secondary">
                     {primaryExceptionDifference(exception)}

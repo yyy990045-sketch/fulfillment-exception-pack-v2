@@ -111,11 +111,51 @@ test("operations and solution pack keep product-shell density across desktop siz
     await page.goto("/operations");
     await expect(page.getByRole("heading", { name: "运营视图" })).toBeVisible();
     await expect(page.getByTestId("operations-portfolio-table")).toBeVisible();
+    const operationsHeading = await page.getByRole("heading", { name: "运营视图" }).boundingBox();
+    const operationsTable = await page.getByTestId("operations-portfolio-table").boundingBox();
+    expect(operationsHeading?.y ?? Infinity).toBeLessThan(160);
+    expect(operationsTable?.y ?? Infinity).toBeLessThan(viewport.height);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const operationsText = await page.locator("body").innerText();
+    expect(operationsText).not.toMatch(/\b(?:high|medium|low|critical|pending_approval|target_met)\b/);
 
     await page.goto("/workspace");
     await expect(page.getByRole("heading", { name: "方案包", exact: true })).toBeVisible();
     await expect(page.getByText("Manufacturing Fulfillment").first()).toBeVisible();
+    const workspaceHeading = await page.getByRole("heading", { name: "方案包", exact: true }).boundingBox();
+    expect(workspaceHeading?.y ?? Infinity).toBeLessThan(160);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const workspaceText = await page.locator("body").innerText();
+    expect(workspaceText).not.toContain("示例数据");
+    expect(workspaceText).not.toMatch(/\b(?:high|medium|low|critical)\b/);
+  }
+});
+
+test("generic finance workspace uses the same product shell without enum leaks", async ({ page }) => {
+  await page.route("**/api/v2/**", async (route) => {
+    await route.continue({
+      headers: {
+        ...route.request().headers(),
+        "x-tenant-id": "demo-finance",
+      },
+    });
+  });
+
+  for (const viewport of desktopViewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/workspace/ctx-fin-rec-001");
+    await expect(page.getByRole("heading", { name: "REC-FIN-001" })).toBeVisible();
+    await expect(page.getByText(/财务对账上下文/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "规则评估" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "异常" })).toBeVisible();
+    const heading = await page.getByRole("heading", { name: "REC-FIN-001" }).boundingBox();
+    const rules = await page.getByRole("heading", { name: "规则评估" }).boundingBox();
+    expect(heading?.y ?? Infinity).toBeLessThan(160);
+    expect(rules?.y ?? Infinity).toBeLessThan(viewport.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const visibleText = await page.locator("body").innerText();
+    expect(visibleText).not.toMatch(/\b(?:high|medium|low|critical)\b/);
+    expect(visibleText).not.toContain("Business Thread");
+    expect(visibleText).not.toContain("示例数据");
   }
 });

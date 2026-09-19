@@ -1,6 +1,7 @@
 import { Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+import { productWidthClass } from "../components/product/page-layout.js";
 import { Button } from "../components/ui/button.js";
 import { useAccountContext } from "../hooks/use-manufacturing.js";
 import { cn } from "../lib/utils.js";
@@ -32,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
-        <div className="mx-auto flex h-full w-full max-w-[1720px] items-center justify-between px-5">
+        <div className={`${productWidthClass} flex h-full items-center justify-between`}>
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-md bg-interactive text-sm font-semibold text-white">履</span>

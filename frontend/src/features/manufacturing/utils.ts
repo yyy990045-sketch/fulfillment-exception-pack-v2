@@ -1,5 +1,7 @@
 import type { EvidenceItem, EvidenceRole, ThreadFact } from "./types.js";
 
+export { resolutionStatusLabel } from "../../lib/presentation.js";
+
 export const evidenceRoleLabels: Record<EvidenceRole, string> = {
   expected: "规则期望",
   actual: "系统记录",
@@ -72,19 +74,6 @@ export function governanceActionStatusLabel(status: string) {
     verified: "已核验",
   };
   return labels[status] ?? "状态未记录";
-}
-
-export function resolutionStatusLabel(status: string) {
-  const labels: Record<string, string> = {
-    triaged: "待复核",
-    confirmed: "已确认",
-    proposed: "待审批",
-    approved: "已批准",
-    executed: "已执行",
-    closed: "已结案",
-    rejected: "已终止",
-  };
-  return labels[status] ?? status;
 }
 
 export function policyModeLabel(mode: string) {

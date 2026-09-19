@@ -2,6 +2,15 @@
 
 记录本 Sprint 中发现、但不阻塞当前页面交付的问题，统一留待集中评审和修复。
 
+## Resolved In Full Product UI Consistency Sprint
+
+- Manufacturing / Operations / Solution Pack / Generic Workspace now share page width, Header, Section, Summary Strip, Local State, and severity/status Badge components.
+- Generic Workspace and Solution Pack no longer expose raw severity or outcome enums in the primary UI.
+- Solution Pack capability badges now show only business capabilities; `demo` is excluded from the main visual layer.
+- Operations portfolio now has a sticky first column/header, lower-weight summary metrics, visible active filters, clear-all behavior, and unified insight drill-down styling.
+- Generic Workspace separates rules, exceptions, governance, and outcomes instead of mixing them into one indistinguishable list.
+- Existing light B2B loading, error, no-result, and empty states now use one reusable component.
+
 ## P0
 
 当前无阻塞 Manufacturing 主工作区使用的 P0 问题。
@@ -64,6 +73,13 @@
 - 影响：使用周粒度时，点击趋势桶可能不应用预期时间范围。
 - 建议：后端为每个趋势桶返回明确的 `from` / `to`，前端不解析展示标签。
 
+### Demo tenant cannot switch between installed Pack tenants
+
+- 位置：React Demo Account Area 与 Finance Generic Workspace
+- 问题：Demo frontend 固定请求 `demo-manufacturing` tenant，Finance Pack 实例位于 `demo-finance` tenant；E2E 只能通过路由层改写 tenant header 进入 Finance Workspace。
+- 影响：演示用户无法仅通过界面切换不同 Pack 的租户上下文，跨领域产品价值仍需更专业的身份/上下文切换入口。
+- 建议：后续由后端提供明确的 demo organization/context projection，前端只消费，不在 UI 中硬编码 tenant 映射。
+
 ## P2
 
 ### Queue filters are single-select
@@ -100,3 +116,10 @@
 - 问题：Vite 报告单个 chunk 超过 500 kB。
 - 影响：当前功能可用，但随着 Operations、Solution Pack 和 Manufacturing 继续扩展，首屏加载会逐渐变慢。
 - 建议：后续按路由 lazy-load，并把高频基础依赖拆成稳定 vendor chunk；本轮不改变产品行为。
+
+### Remaining Manufacturing section migration
+
+- 位置：Manufacturing 的若干次级分析、证据和治理面板
+- 问题：这些区域已经复用共享 Badge 与 Local State，但仍保留各自手写的 section/header 容器。
+- 影响：主流程已一致，但深度工作面仍有少量样式迁移空间。
+- 建议：后续只迁移仍有真实重复的面板，不为统一而重写全部 Manufacturing 组件。

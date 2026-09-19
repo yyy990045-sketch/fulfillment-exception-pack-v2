@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { OutcomeStatusBadge } from "../../../components/product/status-badge.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { Button } from "../../../components/ui/button.js";
+import { outcomeStatusLabel } from "../../../lib/presentation.js";
 import {
   useGovernanceMutations,
   useOutcomeEvaluations,
@@ -11,7 +13,6 @@ import {
 import type {
   CapabilityDecisionView,
   DecisionRecommendationView,
-  OutcomeEvaluationView,
   PolicyEvaluationView,
   ResolutionCaseView,
 } from "../analysis-types.js";
@@ -36,22 +37,6 @@ const actionLabels: Record<string, string> = {
   review_quotation: "复核报价",
   create_task: "创建任务",
 };
-
-const outcomeLabels = {
-  target_met: "目标达成",
-  improved: "改善",
-  unchanged: "未变化",
-  worsened: "恶化",
-  insufficient_evidence: "证据不足",
-} as const;
-
-function outcomeVariant(status: OutcomeEvaluationView["status"]) {
-  if (status === "target_met") return "success" as const;
-  if (status === "improved") return "info" as const;
-  if (status === "worsened") return "danger" as const;
-  if (status === "insufficient_evidence") return "warning" as const;
-  return "default" as const;
-}
 
 function latestPolicyForOption(
   evaluations: PolicyEvaluationView[],
@@ -617,7 +602,7 @@ export function GovernanceProcess({
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-medium text-text-secondary">最新测量</span>
-              <Badge variant={outcomeVariant(latestOutcome.status)}>{outcomeLabels[latestOutcome.status]}</Badge>
+              <OutcomeStatusBadge status={latestOutcome.status} />
               <Badge>结果测量证据</Badge>
             </div>
             <p className="text-sm">
@@ -635,7 +620,7 @@ export function GovernanceProcess({
                 <div className="mt-2 divide-y divide-border border-y border-border">
                   {historicalOutcomes.map((outcome) => (
                     <div key={outcome.id} className="flex items-center justify-between gap-3 py-2 text-xs">
-                      <span>{outcomeLabels[outcome.status]}</span>
+                      <span>{outcomeStatusLabel(outcome.status)}</span>
                       <span className="text-text-muted">{formatShortDateTime(outcome.evaluatedAt)}</span>
                     </div>
                   ))}

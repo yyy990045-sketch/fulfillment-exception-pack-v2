@@ -71,6 +71,10 @@ describe("React Solution Pack workspace", () => {
     expect((await screen.findAllByText("FIN-REC-001")).length).toBeGreaterThan(0);
     expect(screen.getByText("银行回款")).toBeInTheDocument();
     expect(screen.getByText("回款未结清")).toBeInTheDocument();
+    expect(screen.getByText("当前企业已安装的方案包")).toBeInTheDocument();
+    expect(screen.getAllByText("规则检测").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("结果测量").length).toBeGreaterThan(0);
+    expect(screen.queryByText("示例数据")).not.toBeInTheDocument();
   });
 
   it("renders a generic context workspace without manufacturing-specific labels", async () => {
@@ -78,13 +82,16 @@ describe("React Solution Pack workspace", () => {
     renderSurface("/workspace/ctx-fin");
 
     expect(await screen.findByText("FIN-REC-001")).toBeInTheDocument();
-    expect(screen.getByText("Finance Reconciliation")).toBeInTheDocument();
-    expect(screen.getByText("财务对账工作台")).toBeInTheDocument();
+    expect(screen.getAllByText(/Finance Reconciliation/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/财务对账上下文/)).toBeInTheDocument();
     expect(screen.getByText("业务线程")).toBeInTheDocument();
     expect(screen.getByText("证据")).toBeInTheDocument();
-    expect(screen.getByText("状态：进行中")).toBeInTheDocument();
+    expect(screen.getByText("进行中")).toBeInTheDocument();
     expect(screen.getByText("发票")).toBeInTheDocument();
     expect(screen.getByText("银行回款")).toBeInTheDocument();
+    expect(screen.getByText("中")).toBeInTheDocument();
+    expect(screen.queryByText("medium")).not.toBeInTheDocument();
+    expect(screen.queryByText("示例数据")).not.toBeInTheDocument();
     expect(screen.queryByText("Business Thread")).not.toBeInTheDocument();
     expect(screen.queryByText("evidence-fin-1")).not.toBeInTheDocument();
     expect(screen.queryByText("制造履约")).not.toBeInTheDocument();

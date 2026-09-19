@@ -1,6 +1,6 @@
-import { AlertCircle } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { LocalState, ProductLoading, ProductPage } from "../../../components/product/page-layout.js";
 import { Skeleton } from "../../../components/ui/skeleton.js";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs.js";
 import { useWorkbenchView, useExceptionEvidence } from "../../../hooks/use-manufacturing.js";
@@ -17,27 +17,14 @@ import type { EvidenceItem, ExceptionView } from "../types.js";
 
 function PageSkeleton() {
   return (
-    <main data-testid="workbench-loading" className="mx-auto w-full max-w-[1720px] space-y-3 px-5 py-5">
-      <Skeleton className="h-16 w-full" />
-      <Skeleton className="h-48 w-full" />
-      <div className="grid gap-3 lg:grid-cols-[320px_1fr]">
-        <Skeleton className="h-96" />
-        <Skeleton className="h-96" />
-      </div>
-    </main>
+    <div data-testid="workbench-loading">
+      <ProductLoading />
+    </div>
   );
 }
 
 function LocalError({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="m-5 flex gap-3 border border-danger/25 bg-danger/5 p-4 text-sm">
-      <AlertCircle className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
-      <div>
-        <div className="font-medium text-danger">{title}</div>
-        <div className="mt-1 text-text-secondary">{detail}</div>
-      </div>
-    </div>
-  );
+  return <div className="p-5"><LocalState kind="error" title={title} detail={detail} /></div>;
 }
 
 export function ManufacturingWorkbenchPage() {
@@ -132,7 +119,7 @@ export function ManufacturingWorkbenchPage() {
         {...(highlightedStage ? { highlightedStage } : {})}
         onStageSelect={openStage}
       />
-      <main className="mx-auto w-full max-w-[1720px] px-5 py-4">
+      <ProductPage>
         {!selectedException ? (
           <LocalError title="暂无异常" detail="当前履约上下文没有可展示的异常。" />
         ) : (
@@ -200,7 +187,7 @@ export function ManufacturingWorkbenchPage() {
             </section>
           </div>
         )}
-      </main>
+      </ProductPage>
       {evidence.data && (
         <EvidenceInspector
           bundle={evidence.data}

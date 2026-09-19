@@ -9,6 +9,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { productWidthClass } from "../../../components/product/page-layout.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { cn } from "../../../lib/utils.js";
 import type { RuleView, ThreadStage } from "../types.js";
@@ -49,7 +50,7 @@ export function DigitalThread({
   const visibleRuleIds = new Set<string>();
   return (
     <section className="border-b border-border bg-surface" aria-labelledby="digital-thread-title">
-      <div className="mx-auto w-full max-w-[1720px] px-5 py-3.5">
+      <div className={`${productWidthClass} py-3.5`}>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
           <h2 id="digital-thread-title" className="text-sm font-semibold">履约数字线程</h2>

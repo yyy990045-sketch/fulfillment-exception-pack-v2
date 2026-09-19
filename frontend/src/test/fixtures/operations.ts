@@ -183,7 +183,7 @@ export function packWorkbenchFixture(input: { id: string; businessKey: string; c
       id: input.packId,
       version: "1.0.0",
       name: finance ? "Finance Reconciliation" : "Manufacturing Fulfillment",
-      contextLabel: finance ? "财务对账" : "制造履约",
+      contextLabel: finance ? "财务对账上下文" : "制造履约",
       workbenchPath: finance ? "/workspace" : "/manufacturing",
     },
     context: {
