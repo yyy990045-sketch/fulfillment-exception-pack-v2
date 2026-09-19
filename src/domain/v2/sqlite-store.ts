@@ -858,6 +858,26 @@ export class V2SqliteStore {
     } : undefined;
   }
 
+  listContexts(tenantId: string): FulfillmentContext[] {
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, business_key as businessKey, context_type as contextType,
+             status, opened_at as openedAt, updated_at as updatedAt, metadata_json as metadataJson
+      FROM fulfillment_contexts
+      WHERE tenant_id = ?
+      ORDER BY opened_at, id
+    `).all(tenantId) as Array<Omit<FulfillmentContext, "metadata"> & { metadataJson: string }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      businessKey: row.businessKey,
+      contextType: row.contextType,
+      status: row.status,
+      openedAt: row.openedAt,
+      updatedAt: row.updatedAt,
+      metadata: parseJson<JsonRecord>(row.metadataJson),
+    }));
+  }
+
   getSourceSystem(tenantId: string, sourceSystemId: string): SourceSystem | undefined {
     const row = this.db.prepare(`
       SELECT tenant_id as tenantId, id, name, system_type as systemType,

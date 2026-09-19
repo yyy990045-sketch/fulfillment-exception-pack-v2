@@ -240,6 +240,27 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ManufacturingWorkbenchResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/analytics/operational:
+    parameters:
+      - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
+      - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+      - { name: bucket, in: query, required: false, schema: { type: string, enum: [day, week, month] } }
+      - { name: contextType, in: query, required: false, schema: { type: string } }
+      - { name: exceptionCode, in: query, required: false, schema: { type: string } }
+      - { name: severity, in: query, required: false, schema: { type: string, enum: [low, medium, high, critical] } }
+      - { name: resolutionStatus, in: query, required: false, schema: { type: string, enum: [no_case, triaged, confirmed, proposed_draft, pending_approval, approved, executed, closed, rejected] } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Pure-query cross-context Operational Intelligence projection
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/OperationalAnalyticsResponse' } }
+        '400':
+          description: Invalid analytics filter
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/v2/contexts/{contextId}/exceptions:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -708,6 +729,164 @@ components:
         resolutionCases: { type: array, items: { type: object, additionalProperties: true } }
         truthfulness: { type: object, additionalProperties: true }
         defaultExceptionId: { type: string, nullable: true }
+    OperationalAnalyticsResponse:
+      type: object
+      required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, metricDefinitions, truthfulness]
+      properties:
+        window:
+          type: object
+          required: [from, to, bucket, timeBasis, trendTimeBasis]
+          additionalProperties: false
+          properties:
+            from: { type: string, nullable: true }
+            to: { type: string, nullable: true }
+            bucket: { type: string, enum: [day, week, month] }
+            timeBasis: { type: string, enum: [context.openedAt] }
+            trendTimeBasis: { type: string, enum: [exceptionOccurrenceAt] }
+        summary:
+          type: object
+          required: [contextCount, ruleEvaluationCount, matchedRuleEvaluationCount, notMatchedRuleEvaluationCount, detectedExceptionCount, exceptionsWithResolutionCase, exceptionsWithoutResolutionCase, resolutionCaseCount, closedResolutionCaseCount, rejectedResolutionCaseCount, receiptCount, actionCount, verifiedActionCount, governanceCoverageRate, resolutionClosureRate]
+          additionalProperties: false
+          properties:
+            contextCount: { type: integer }
+            ruleEvaluationCount: { type: integer }
+            matchedRuleEvaluationCount: { type: integer }
+            notMatchedRuleEvaluationCount: { type: integer }
+            detectedExceptionCount: { type: integer }
+            exceptionsWithResolutionCase: { type: integer }
+            exceptionsWithoutResolutionCase: { type: integer }
+            resolutionCaseCount: { type: integer }
+            closedResolutionCaseCount: { type: integer }
+            rejectedResolutionCaseCount: { type: integer }
+            receiptCount: { type: integer }
+            actionCount: { type: integer }
+            verifiedActionCount: { type: integer }
+            governanceCoverageRate: { type: number, nullable: true }
+            resolutionClosureRate: { type: number, nullable: true }
+        exceptionTrend:
+          type: array
+          items:
+            type: object
+            required: [bucket, exceptionCount, contextsWithException]
+            properties:
+              bucket: { type: string }
+              exceptionCount: { type: integer }
+              contextsWithException: { type: integer }
+        exceptionBreakdown:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [code, label, count, severityBreakdown, contextsInvolved, resolutionCaseCount, closedResolutionCaseCount]
+            properties:
+              code: { type: string }
+              label: { type: string }
+              count: { type: integer }
+              severityBreakdown: { type: object, additionalProperties: true }
+              contextsInvolved: { type: array, items: { type: string } }
+              resolutionCaseCount: { type: integer }
+              closedResolutionCaseCount: { type: integer }
+        severityBreakdown:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [severity, count]
+            properties:
+              severity: { type: string, enum: [low, medium, high, critical] }
+              count: { type: integer }
+        resolutionFunnel:
+          type: object
+          required: [no_case, triaged, confirmed, proposed_draft, pending_approval, approved, executed, closed, rejected]
+          additionalProperties: false
+          properties:
+            no_case: { type: integer }
+            triaged: { type: integer }
+            confirmed: { type: integer }
+            proposed_draft: { type: integer }
+            pending_approval: { type: integer }
+            approved: { type: integer }
+            executed: { type: integer }
+            closed: { type: integer }
+            rejected: { type: integer }
+        rulePerformance:
+          type: array
+          items:
+            type: object
+            required: [ruleId, code, label, evaluations, matched, notMatched, triggerRate]
+            properties:
+              ruleId: { type: string }
+              code: { type: string }
+              label: { type: string }
+              evaluations: { type: integer }
+              matched: { type: integer }
+              notMatched: { type: integer }
+              triggerRate: { type: number, nullable: true }
+        actionBreakdown:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [type, total, draft, pending_approval, authorized, succeeded, verified, failed]
+            properties:
+              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+              total: { type: integer }
+              draft: { type: integer }
+              pending_approval: { type: integer }
+              authorized: { type: integer }
+              succeeded: { type: integer }
+              verified: { type: integer }
+              failed: { type: integer }
+        sourceSystemInvolvement:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [sourceSystemId, name, systemType, involvedExceptionCount]
+            properties:
+              sourceSystemId: { type: string }
+              name: { type: string }
+              systemType: { type: string }
+              involvedExceptionCount: { type: integer }
+        contexts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, sourceSystemIds]
+            properties:
+              contextId: { type: string }
+              businessKey: { type: string }
+              contextType: { type: string }
+              status: { type: string }
+              openedAt: { type: string, format: date-time }
+              ruleEvaluationCount: { type: integer }
+              exceptionCount: { type: integer }
+              exceptionCodes: { type: array, items: { type: string } }
+              resolutionCaseCount: { type: integer }
+              resolutionStatuses: { type: array, items: { type: string } }
+              sourceSystemIds: { type: array, items: { type: string } }
+        metricDefinitions:
+          type: object
+          additionalProperties: false
+          required: [governanceCoverageRate, resolutionClosureRate, ruleTriggerRate, exceptionOccurrenceAt, sourceSystemInvolvement]
+          properties:
+            governanceCoverageRate: { type: string }
+            resolutionClosureRate: { type: string }
+            ruleTriggerRate: { type: string }
+            exceptionOccurrenceAt: { type: string }
+            sourceSystemInvolvement: { type: string }
+        truthfulness:
+          type: object
+          additionalProperties: false
+          required: [derivedFromDomainFacts, realBusinessOutcomeMeasured, financialImpactMeasured, ruleAccuracyMeasured, aiDecisionQualityMeasured, realExternalExecutionMeasured]
+          properties:
+            derivedFromDomainFacts: { type: boolean }
+            realBusinessOutcomeMeasured: { type: boolean }
+            financialImpactMeasured: { type: boolean }
+            ruleAccuracyMeasured: { type: boolean }
+            aiDecisionQualityMeasured: { type: boolean }
+            realExternalExecutionMeasured: { type: boolean }
     GroundedExplanation:
       type: object
       required: [id, tenantId, contextId, exceptionId, ruleEvaluationId, inputSnapshotHash, provider, model, status, output, validation, createdBy, createdAt]

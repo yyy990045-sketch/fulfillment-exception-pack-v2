@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
+  <title>经营治理中心 · Operational Intelligence</title>
+  <link rel="stylesheet" href="/operations/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">治</div>
+        <div>
+          <strong>经营治理中心</strong>
+          <span>Operational Intelligence</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="nav-link" href="/manufacturing?context=ctx-so-mfg-001">订单工作台</a>
+        <span class="scope-chip">演示数据 · Synthetic Portfolio</span>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">CROSS-CONTEXT GOVERNANCE ANALYTICS</p>
+          <h1>从异常发现到治理执行，观察重复问题与处置效率。</h1>
+          <p>所有指标均由 Domain facts 只读派生；当前不计算投资回报、财务金额影响、规则命中质量或商业结果成功。</p>
+        </div>
+        <div class="window-chip" id="window-chip">加载中</div>
+      </section>
+
+      <div class="state-banner" id="state-banner" role="status" aria-live="polite"></div>
+      <section class="summary-strip" id="summary-strip"></section>
+
+      <section class="filters panel">
+        <form id="filters-form">
+          <div class="filter-field">
+            <label for="bucket">时间粒度</label>
+            <select id="bucket">
+              <option value="day">日</option>
+              <option value="week">周</option>
+              <option value="month" selected>月</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="from">开始日期</label>
+            <input id="from" type="date" />
+          </div>
+          <div class="filter-field">
+            <label for="to">结束日期</label>
+            <input id="to" type="date" />
+          </div>
+          <div class="filter-field">
+            <label for="exceptionCode">异常类型</label>
+            <select id="exceptionCode"><option value="">全部</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="severity">等级</label>
+            <select id="severity">
+              <option value="">全部</option>
+              <option value="low">低</option>
+              <option value="medium">中</option>
+              <option value="high">高</option>
+              <option value="critical">严重</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="resolutionStatus">治理状态</label>
+            <select id="resolutionStatus">
+              <option value="">全部</option>
+              <option value="no_case">未进入治理</option>
+              <option value="triaged">待复核</option>
+              <option value="confirmed">已确认</option>
+              <option value="proposed_draft">方案草案</option>
+              <option value="pending_approval">待审批</option>
+              <option value="approved">已批准</option>
+              <option value="executed">已执行</option>
+              <option value="closed">已结案</option>
+              <option value="rejected">已拒绝</option>
+            </select>
+          </div>
+          <button class="button" type="submit">应用筛选</button>
+        </form>
+      </section>
+
+      <div class="analytics-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">EXCEPTION TREND</p><h2>异常出现趋势</h2></div>
+            <span class="panel-note">按当前 Evidence 的业务发生时间聚合</span>
+          </div>
+          <div class="chart-host" id="trend-chart"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">EXCEPTION MIX</p><h2>异常类型分布</h2></div>
+            <span class="panel-note">点击后在上下文列表过滤</span>
+          </div>
+          <div class="chart-host" id="exception-bars"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">GOVERNANCE FUNNEL</p><h2>治理漏斗</h2></div>
+            <span class="panel-note">当前状态分布，不是概率漏斗</span>
+          </div>
+          <div class="chart-host" id="funnel-chart"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">RULE TRIGGER</p><h2>规则触发情况</h2></div>
+            <span class="panel-note">触发率不代表规则正确性</span>
+          </div>
+          <div class="table-wrap" id="rule-table"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">ACTION MIX</p><h2>动作分布</h2></div>
+            <span class="panel-note">来自 Resolution Action 状态</span>
+          </div>
+          <div class="table-wrap" id="action-table"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">SOURCE INVOLVEMENT</p><h2>来源系统涉及情况</h2></div>
+            <span class="panel-note">一起涉及多个系统的异常会重复计数</span>
+          </div>
+          <div class="table-wrap" id="source-table"></div>
+        </section>
+      </div>
+
+      <section class="panel context-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">CONTEXT DRILL-DOWN</p><h2>履约上下文</h2></div>
+          <span class="panel-note">点击销售订单进入单上下文工作台</span>
+        </div>
+        <div class="table-wrap" id="context-table"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/operations/charts.js" type="module"></script>
+  <script src="/operations/app.js" type="module"></script>
+</body>
+</html>

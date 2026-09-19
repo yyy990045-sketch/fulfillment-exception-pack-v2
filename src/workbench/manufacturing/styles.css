@@ -32,6 +32,7 @@ button:focus-visible { outline: 3px solid rgba(21, 94, 239, .25); outline-offset
 .brand strong { display: block; font-size: 17px; letter-spacing: .01em; }
 .brand span { display: block; margin-top: 1px; color: var(--muted); font-size: 12px; }
 .topbar-context { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.analysis-link { padding: 7px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; color: var(--blue-deep); text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .actor-control { display: flex; align-items: center; gap: 7px; margin-right: 4px; color: var(--muted); font-size: 11px; }
 .actor-control.hidden { display: none; }
 .actor-control select { min-height: 30px; padding: 4px 24px 4px 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; color: var(--ink-soft); font-size: 12px; }

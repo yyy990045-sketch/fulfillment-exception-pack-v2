@@ -11,6 +11,7 @@ import { getCase, listCapabilityReceipts, recordCapabilityReceipt, saveCase } fr
 import type { GoldCase } from "./types.js";
 import { buildReport } from "./report/build.js";
 import { buildV2WorkbenchView } from "./application/v2-workbench.js";
+import { buildOperationalAnalytics, OperationalAnalyticsError } from "./analytics/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -232,6 +233,25 @@ const server = createServer(async (req, res) => {
       res.end(body);
       return;
     }
+    const operationsFile = req.method === "GET"
+      ? (
+        url.pathname === "/operations" || url.pathname === "/operations/"
+          ? { path: "index.html", contentType: "text/html; charset=utf-8" }
+          : url.pathname === "/operations/styles.css"
+            ? { path: "styles.css", contentType: "text/css; charset=utf-8" }
+            : url.pathname === "/operations/app.js"
+              ? { path: "app.js", contentType: "text/javascript; charset=utf-8" }
+              : url.pathname === "/operations/charts.js"
+                ? { path: "charts.js", contentType: "text/javascript; charset=utf-8" }
+                : undefined
+      )
+      : undefined;
+    if (operationsFile) {
+      const body = readFileSync(join(ROOT, "workbench", "operations", operationsFile.path), "utf8");
+      res.writeHead(200, { "content-type": operationsFile.contentType, "cache-control": "no-store" });
+      res.end(body);
+      return;
+    }
     if (req.method === "GET" && url.pathname === "/") {
       const html = readFileSync(join(ROOT, "workbench", "index.html"), "utf8");
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
@@ -239,6 +259,19 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true });
+    if (req.method === "GET" && url.pathname === "/api/v2/analytics/operational") {
+      const tenantId = authOf(req).tenantId;
+      const analytics = buildOperationalAnalytics(getV2Store(), tenantId, {
+        from: url.searchParams.get("from") ?? undefined,
+        to: url.searchParams.get("to") ?? undefined,
+        bucket: (url.searchParams.get("bucket") as "day" | "week" | "month" | null) ?? undefined,
+        contextType: url.searchParams.get("contextType") ?? undefined,
+        exceptionCode: url.searchParams.get("exceptionCode") ?? undefined,
+        severity: (url.searchParams.get("severity") as "low" | "medium" | "high" | "critical" | null) ?? undefined,
+        resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
+      });
+      return json(res, 200, analytics);
+    }
     const manufacturingWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/workbench$/);
     if (req.method === "GET" && manufacturingWorkbenchMatch) {
       const tenantId = authOf(req).tenantId;
@@ -586,6 +619,7 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     if (error instanceof HttpError) return json(res, error.status, { error: error.code });
     if (error instanceof GroundedAiError) return json(res, error.status, { error: error.code });
+    if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {
       const status = error.code === "CROSS_TENANT_SOURCE" ? 403 : error.code === "NO_SCOPE" ? 409 : error.code === "NO_TENANT" || error.code === "INVALID_CSV" ? 422 : 409;
