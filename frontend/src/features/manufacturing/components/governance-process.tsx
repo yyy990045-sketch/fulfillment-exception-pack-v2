@@ -5,7 +5,15 @@ import { useGovernanceMutations, useOutcomeEvaluations, usePolicyEvaluations, us
 import type { DecisionRecommendationView, OutcomeEvaluationView, PolicyEvaluationView, ResolutionCaseView } from "../analysis-types.js";
 import { governanceStepStatus, isResolutionApprovalSubmitted, resolveGovernanceStep } from "../governance-step.js";
 import { governanceErrorMessage } from "../governance-errors.js";
-import { actionTypeLabel, fieldLabel, metricLabel, policyModeLabel, resolutionStatusLabel } from "../utils.js";
+import {
+  actionTypeLabel,
+  fieldLabel,
+  formatShortDateTime,
+  governanceActionStatusLabel,
+  metricLabel,
+  policyModeLabel,
+  resolutionStatusLabel,
+} from "../utils.js";
 import { ProcessStep, type ProcessStepStatus } from "./process-step.js";
 import { InlineEmpty, InlineError, SectionSkeleton } from "./query-state.js";
 
@@ -56,7 +64,7 @@ function ActionList({ resolution }: { resolution: ResolutionCaseView }) {
             <div className="font-medium">{actionLabels[action.type] ?? action.type}</div>
             <div className="text-xs text-text-muted">{action.summary}</div>
           </div>
-          <Badge>{action.status}</Badge>
+          <Badge>{governanceActionStatusLabel(action.status)}</Badge>
         </div>
       ))}
     </div>
@@ -489,7 +497,7 @@ export function GovernanceProcess({
                     <Badge variant={receipt.status === "succeeded" ? "success" : "danger"}>
                       {receipt.status === "succeeded" ? "成功" : "失败"}
                     </Badge>
-                    <span className="text-text-muted">{receipt.createdAt}</span>
+                    <span className="text-text-muted">{formatShortDateTime(receipt.createdAt)}</span>
                   </div>
                 );
               })}
@@ -536,6 +544,7 @@ export function GovernanceProcess({
             <p className="text-xs text-text-muted">
               关联观察：{latestOutcome.resolutionCaseId ? "治理处置" : latestOutcome.automationRunId ? "自动化执行" : "未关联"}。该结果不证明因果关系。
             </p>
+            <p className="text-xs text-text-muted">测量时间：{formatShortDateTime(latestOutcome.evaluatedAt)}</p>
             {historicalOutcomes.length > 0 && (
               <details className="border-t border-border pt-3">
                 <summary className="cursor-pointer text-xs font-medium text-text-secondary">
@@ -545,7 +554,7 @@ export function GovernanceProcess({
                   {historicalOutcomes.map((outcome) => (
                     <div key={outcome.id} className="flex items-center justify-between gap-3 py-2 text-xs">
                       <span>{outcomeLabels[outcome.status]}</span>
-                      <span className="text-text-muted">{outcome.evaluatedAt}</span>
+                      <span className="text-text-muted">{formatShortDateTime(outcome.evaluatedAt)}</span>
                     </div>
                   ))}
                 </div>

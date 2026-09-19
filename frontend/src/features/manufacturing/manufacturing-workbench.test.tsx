@@ -17,6 +17,7 @@ import {
 } from "../../test/fixtures/manufacturing.js";
 import { ManufacturingWorkbenchPage } from "./pages/manufacturing-workbench-page.js";
 import type { EvidenceBundleView } from "./types.js";
+import { businessFactLabel, governanceActionStatusLabel, sourceSystemLabel } from "./utils.js";
 
 function jsonResponse(body: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify(body), {
@@ -124,6 +125,44 @@ describe("Manufacturing decision workbench", () => {
       exceptionOrder.findIndex((item) => item.includes("质检未通过数量")),
     );
     expect(screen.getByRole("button", { name: /客户签收主张差异/ })).toHaveAttribute("aria-current", "true");
+    expect(await screen.findByText("是否存在客户签收单或其他独立签收证据？")).toBeInTheDocument();
+  });
+
+  it("uses Chinese business labels for governance actions, facts, and source systems", () => {
+    expect(governanceActionStatusLabel("draft")).toBe("方案草稿");
+    expect(governanceActionStatusLabel("pending_approval")).toBe("待审批");
+    expect(governanceActionStatusLabel("authorized")).toBe("已授权");
+    expect(governanceActionStatusLabel("executing")).toBe("执行中");
+    expect(governanceActionStatusLabel("succeeded")).toBe("已完成");
+    expect(governanceActionStatusLabel("failed")).toBe("执行失败");
+    expect(governanceActionStatusLabel("verified")).toBe("已核验");
+    expect(governanceActionStatusLabel("unknown")).toBe("状态未记录");
+    expect(businessFactLabel("qty")).toBe("数量");
+    expect(businessFactLabel("completedQty")).toBe("完成数量");
+    expect(businessFactLabel("internalRiskFlag")).toBe("业务事实");
+    expect(sourceSystemLabel("manual", "Service Demo")).toBe("人工记录");
+    expect(sourceSystemLabel("service", "Service")).toBe("客户服务记录");
+    expect(sourceSystemLabel("wms", "WMS Demo")).toBe("仓储系统");
+  });
+
+  it("shows a concise fallback when no verification questions exist", async () => {
+    mockApi({
+      explanationList: { contextId: "ctx-fixture", exceptionId: "exception-claim", explanations: [] },
+    });
+    renderAt("/manufacturing/ctx-fixture");
+    expect(await screen.findByText("暂无明确待核实事项")).toBeInTheDocument();
+  });
+
+  it("keeps raw identifiers and fact keys inside the page-level details sheet", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    renderAt("/manufacturing/ctx-fixture");
+    await screen.findByRole("heading", { name: "SO-FIXTURE-001" });
+    expect(screen.queryByText("ctx-fixture")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "详情" }));
+    expect(await screen.findByText("ctx-fixture")).toBeInTheDocument();
+    expect(screen.getByText("qty")).toBeInTheDocument();
+    expect(screen.getByText("evidence-shipment")).toBeInTheDocument();
   });
 
   it("navigates between exceptions with deep links", async () => {
@@ -141,12 +180,13 @@ describe("Manufacturing decision workbench", () => {
     const user = userEvent.setup();
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/evidence");
     const claimRow = await screen.findByRole("button", { name: /客户主张.*客户主张收到/ });
+    expect(screen.queryByText(/2026-09-19T/)).not.toBeInTheDocument();
     await user.click(claimRow);
     const inspector = await screen.findByTestId("evidence-inspector");
     expect(inspector).toHaveTextContent("客户主张收到");
     expect(inspector).toHaveTextContent("客户主张收到=8");
     expect(screen.getByText("仓储系统")).toBeInTheDocument();
-    expect(screen.getByText("客户服务记录")).toBeInTheDocument();
+    expect(screen.getByText("人工记录")).toBeInTheDocument();
   });
 
   it("supports evidence deep links and browser back behavior", async () => {
@@ -197,7 +237,23 @@ describe("Manufacturing decision workbench", () => {
     expect(screen.getByText("建议不是执行结果")).toBeInTheDocument();
     expect(screen.getByText("补充签收证据")).toBeInTheDocument();
     expect(screen.getByText("人工复核")).toBeInTheDocument();
+    expect(screen.getByText("数量 10")).toBeInTheDocument();
+    expect(screen.queryByText(/qty/)).not.toBeInTheDocument();
     expect(screen.queryByText("自动化执行")).not.toBeInTheDocument();
+  });
+
+  it("hides unknown Decision fact keys behind a business fallback", async () => {
+    const decision = structuredClone(decisionFixture);
+    decision.output.options[0]!.supportingFacts.push({
+      kind: "metric",
+      key: "internalRiskFlag",
+      value: 99,
+      evidenceIds: [],
+    });
+    mockApi({ decision });
+    renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/decision");
+    expect(await screen.findByText("业务事实 99")).toBeInTheDocument();
+    expect(screen.queryByText(/internalRiskFlag/)).not.toBeInTheDocument();
   });
 
   it("surfaces stale analysis snapshots", async () => {

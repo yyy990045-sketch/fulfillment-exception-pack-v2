@@ -61,6 +61,19 @@ export function actionTypeLabel(actionType: string) {
   return labels[actionType] ?? actionType;
 }
 
+export function governanceActionStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    draft: "方案草稿",
+    pending_approval: "待审批",
+    authorized: "已授权",
+    executing: "执行中",
+    succeeded: "已完成",
+    failed: "执行失败",
+    verified: "已核验",
+  };
+  return labels[status] ?? "状态未记录";
+}
+
 export function resolutionStatusLabel(status: string) {
   const labels: Record<string, string> = {
     triaged: "待复核",
@@ -112,10 +125,33 @@ export function sourceSystemLabel(systemType: string, fallback: string) {
     crm: "客户系统",
     finance: "财务系统",
     service: "客户服务记录",
-    manual: "客户服务记录",
+    manual: "人工记录",
     file: "文件来源",
   };
+  if (systemType === "service") return labels.service;
+  const normalized = `${systemType} ${fallback}`.toLowerCase();
+  if (normalized.includes("customer-service") || normalized.includes("customer service")) return "客户服务记录";
   return labels[systemType] ?? fallback;
+}
+
+const businessFactLabels: Record<string, string> = {
+  qty: "数量",
+  amount: "金额",
+  plannedQty: "计划数量",
+  completedQty: "完成数量",
+  inspectedQty: "检验数量",
+  passedQty: "合格数量",
+  failedQty: "未通过数量",
+  claimedReceivedQty: "客户主张收到",
+  outstandingAmount: "未结清金额",
+  verifiedReceiptDifference: "已验证差异",
+  openNonconformingQty: "待处理不合格数量",
+  difference: "差异",
+  shortfall: "短少",
+};
+
+export function businessFactLabel(key: string) {
+  return businessFactLabels[key] ?? "业务事实";
 }
 
 export function exceptionBadgeLabel(ruleCode: string) {

@@ -149,6 +149,8 @@ describe("governance process", () => {
     mockGovernanceApi({ initial: resolutionQueryFixture("proposed", { submitted: false }) });
     renderProcess();
     expect(await screen.findByText("未提交审批")).toBeInTheDocument();
+    expect(screen.getByText("方案草稿")).toBeInTheDocument();
+    expect(screen.queryByText("draft")).not.toBeInTheDocument();
     expect(screen.getByTestId("process-step-governance")).toHaveAttribute("data-status", "current");
     expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "pending");
     expect(screen.getByRole("button", { name: "提交审批" })).toBeInTheDocument();
@@ -157,6 +159,7 @@ describe("governance process", () => {
     mockGovernanceApi({ initial: resolutionQueryFixture("proposed", { submitted: true }) });
     renderProcess();
     expect(await screen.findByText("等待审批")).toBeInTheDocument();
+    expect(screen.queryByText("pending_approval")).not.toBeInTheDocument();
     expect(screen.getByTestId("process-step-governance")).toHaveAttribute("data-status", "done");
     expect(screen.getByTestId("process-step-approval")).toHaveAttribute("data-status", "current");
   });
@@ -186,7 +189,9 @@ describe("governance process", () => {
     mockGovernanceApi({ initial: resolutionQueryFixture("approved") });
     renderProcess();
 
-    await user.click(await screen.findByRole("button", { name: "执行已批准方案" }));
+    const executeButton = await screen.findByRole("button", { name: "执行已批准方案" });
+    expect(await screen.findByText("已授权")).toBeInTheDocument();
+    await user.click(executeButton);
     expect(await screen.findByText("1 条回执")).toBeInTheDocument();
     expect(await screen.findByText("回执成功表示内部执行结果已登记，不代表 Resolution 已结案。")).toBeInTheDocument();
     expect(screen.queryByText(/local-ledger/)).not.toBeInTheDocument();
@@ -206,6 +211,7 @@ describe("governance process", () => {
     expect(screen.getByText("结果测量证据")).toBeInTheDocument();
     expect(screen.getByText(/该结果不证明因果关系/)).toBeInTheDocument();
     expect(screen.getByText("Resolution 已结案不等于业务结果已经达成。")).toBeInTheDocument();
+    expect(screen.queryByText(/2026-09-19T/)).not.toBeInTheDocument();
     expect(screen.queryByText(/outcome-demo/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Synthetic Outcome Evidence/)).not.toBeInTheDocument();
     expect(screen.queryByText(/verifiedReceiptDifference/)).not.toBeInTheDocument();

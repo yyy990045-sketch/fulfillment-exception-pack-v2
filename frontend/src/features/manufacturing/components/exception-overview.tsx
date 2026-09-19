@@ -1,19 +1,24 @@
 import { AlertTriangle, ListChecks } from "lucide-react";
 import { Badge } from "../../../components/ui/badge.js";
+import { useGroundedExplanation } from "../../../hooks/use-manufacturing.js";
 import type { ExceptionView, RuleView, ThreadStage } from "../types.js";
 import { formatMetricValue, metricLabel } from "../utils.js";
 
 export function ExceptionOverview({
+  contextId,
   exception,
   rules,
   stages,
 }: {
+  contextId: string;
   exception: ExceptionView;
   rules: RuleView[];
   stages: ThreadStage[];
 }) {
   const relatedRules = rules.filter((rule) => rule.stageKeys.some((stage) => exception.stageKeys.includes(stage)));
   const metrics = Object.entries(exception.metrics ?? {});
+  const explanation = useGroundedExplanation(contextId, exception.id).detail.data?.explanation;
+  const questions = (explanation?.output.questionsToVerify ?? []).slice(0, 3);
   return (
     <div className="space-y-5">
       <section className="max-w-4xl">
@@ -46,9 +51,13 @@ export function ExceptionOverview({
             <ListChecks className="size-4 text-text-muted" aria-hidden="true" />
             待核实内容
           </h3>
-          <p className="mt-1 text-sm text-text-secondary">
-            需要结合 Evidence 确认业务事实，当前页面不推断责任或因果关系。
-          </p>
+          {questions.length ? (
+            <ul className="mt-2 space-y-1.5 text-sm text-text-secondary">
+              {questions.map((question) => <li key={question}>{question}</li>)}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-text-muted">暂无明确待核实事项</p>
+          )}
         </div>
         <div>
           <h3 className="text-sm font-semibold">相关业务阶段</h3>

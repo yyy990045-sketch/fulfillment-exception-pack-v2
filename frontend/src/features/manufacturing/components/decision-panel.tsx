@@ -3,7 +3,7 @@ import { Button } from "../../../components/ui/button.js";
 import { cn } from "../../../lib/utils.js";
 import type { DecisionRecommendationView } from "../analysis-types.js";
 import type { EvidenceBundleView } from "../types.js";
-import { actionTypeLabel } from "../utils.js";
+import { actionTypeLabel, businessFactLabel, formatMetricValue } from "../utils.js";
 import { EvidenceReferenceList } from "./citation-list.js";
 
 export function DecisionPanel({
@@ -72,7 +72,7 @@ export function DecisionPanel({
                   <dt className="text-text-muted">支持事实</dt>
                   <dd className="mt-1 space-y-1">
                     {option.supportingFacts.map((fact) => (
-                      <p key={`${fact.kind}-${fact.key}`}>{fact.key} = {String(fact.value)}</p>
+                      <p key={`${fact.kind}-${fact.key}`}>{businessFactLabel(fact.key)} {formatMetricValue(fact.value)}</p>
                     ))}
                   </dd>
                 </div>

@@ -43,7 +43,7 @@ function ExceptionDetailsContent({
   const explanation = useGroundedExplanation(contextId, exception.id).detail.data?.explanation;
   const rootCause = useRootCauseAnalysis(contextId, exception.id).detail.data;
   const decision = useDecisionRecommendation(contextId, exception.id).detail.data;
-  const policy = usePolicyEvaluations(contextId, exception.id).data?.evaluations.at(-1);
+  const policy = usePolicyEvaluations(contextId, exception.id).data?.evaluations?.at(-1);
   const resolution = useResolutionProcess(contextId, exception.id).detail.data;
   const outcomes = useOutcomeEvaluations(contextId, exception.id).data?.evaluations ?? [];
   const approvalEvent = resolution?.resolutionCase.runtime.events
@@ -90,6 +90,13 @@ function ExceptionDetailsContent({
             { label: "Recommendation ID", value: decision.id },
             { label: "Snapshot hash", value: decision.inputSnapshotHash },
             { label: "Created at", value: decision.createdAt },
+            ...decision.output.options.flatMap((option, optionIndex) =>
+              option.supportingFacts.flatMap((fact, factIndex) => [
+                { label: `Fact ${optionIndex + 1}.${factIndex + 1} key`, value: fact.key },
+                { label: `Fact ${optionIndex + 1}.${factIndex + 1} value`, value: String(fact.value) },
+                { label: `Fact ${optionIndex + 1}.${factIndex + 1} evidence`, value: fact.evidenceIds.join(", ") },
+              ]),
+            ),
           ]} />}
           {policy && <DetailGroup title="策略评估" rows={[
             { label: "Evaluation ID", value: policy.id },
@@ -107,11 +114,18 @@ function ExceptionDetailsContent({
             { label: "Approved by", value: approvalEvent?.actor ?? "审批角色未记录" },
             { label: "Approved at", value: approvalEvent?.at },
           ]} />}
+          {resolution?.resolutionCase.runtime.actions.length ? <DetailGroup title="治理动作" rows={resolution.resolutionCase.runtime.actions.flatMap((action, index) => [
+            { label: `Action ${index + 1} ID`, value: action.id },
+            { label: `Action ${index + 1} type`, value: action.type },
+            { label: `Action ${index + 1} status`, value: action.status },
+            { label: `Action ${index + 1} summary`, value: action.summary },
+          ])} /> : null}
           {resolution?.receipts.length ? <DetailGroup title="执行回执" rows={resolution.receipts.flatMap((receipt, index) => [
             { label: `Action ${index + 1}`, value: receipt.actionId },
             { label: `Source ${index + 1}`, value: receipt.receiptSource },
             { label: `Request ${index + 1}`, value: receipt.externalRequestId },
             { label: `Hash ${index + 1}`, value: receipt.payloadHash },
+            { label: `Created at ${index + 1}`, value: receipt.createdAt },
           ])} /> : null}
           {outcomes.length ? <DetailGroup title="结果测量" rows={outcomes.flatMap((outcome, index) => [
             { label: `Outcome ${index + 1}`, value: outcome.id },
@@ -119,6 +133,7 @@ function ExceptionDetailsContent({
             { label: `Field ${index + 1}`, value: outcome.current.field },
             { label: `Snapshot ${index + 1}`, value: outcome.definitionSnapshotHash },
             { label: `Evaluated by ${index + 1}`, value: outcome.evaluatedBy },
+            { label: `Evaluated at ${index + 1}`, value: outcome.evaluatedAt },
             { label: `Synthetic ${index + 1}`, value: String(outcome.syntheticEvidence) },
           ])} /> : null}
         </div>

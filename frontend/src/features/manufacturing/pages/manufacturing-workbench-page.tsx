@@ -161,7 +161,7 @@ export function ManufacturingWorkbenchPage() {
                       onOpenEvidence={openEvidenceById}
                     />
                   ) : (
-                    <ExceptionOverview exception={selectedException} rules={view.rules} stages={view.thread} />
+                    <ExceptionOverview contextId={contextId} exception={selectedException} rules={view.rules} stages={view.thread} />
                   )}
                 </div>
               </Tabs>

@@ -1,7 +1,7 @@
 import { FileSearch } from "lucide-react";
 import { cn } from "../../../lib/utils.js";
 import type { EvidenceBundleView, EvidenceItem } from "../types.js";
-import { evidenceRoleLabels, fieldLabel, formatBusinessValue, sourceSystemLabel } from "../utils.js";
+import { evidenceRoleLabels, fieldLabel, formatBusinessValue, formatShortDateTime, sourceSystemLabel } from "../utils.js";
 
 function sourceSystemName(bundle: EvidenceBundleView, item: EvidenceItem) {
   const system = bundle.sourceSystems.find((candidate) => candidate.id === item.sourceSystemId);
@@ -47,7 +47,7 @@ export function EvidenceWorkspace({
                 <span className="text-sm">{fieldLabel(item.field)}</span>
                 <strong className="text-sm font-semibold">{formatBusinessValue(item)}</strong>
                 <span className="truncate text-xs text-text-muted">{sourceSystemName(bundle, item)}</span>
-                <span className="text-xs text-text-muted">{item.observedAt}</span>
+                <span className="text-xs text-text-muted">{formatShortDateTime(item.observedAt)}</span>
               </button>
             </div>
           );
