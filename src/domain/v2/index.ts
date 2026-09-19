@@ -6,6 +6,7 @@ export * from "./grounded-types.js";
 export * from "./decision-types.js";
 export * from "./root-cause-types.js";
 export * from "./policy-types.js";
+export * from "./automation-types.js";
 export * from "./repositories.js";
 export * from "./application.js";
 export * from "./resolution/index.js";

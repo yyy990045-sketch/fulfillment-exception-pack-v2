@@ -33,7 +33,14 @@ import {
   resolveRootCauseProvider,
   rootCauseValidationErrorCode,
 } from "./ai/root-cause/index.js";
-import { evaluateDecisionPolicy, listPolicyEvaluations, PolicyError, type PolicyCandidateInput } from "./policy/index.js";
+import { evaluateDecisionPolicy, getPolicyEvaluation, listPolicyEvaluations, PolicyError, type PolicyCandidateInput } from "./policy/index.js";
+import {
+  AutomationError,
+  buildAutomationReadiness,
+  executePolicyAutomation,
+  getAutomationRun,
+  listAutomationRuns,
+} from "./automation/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { EvidenceSourceError, resolveEvidenceSource } from "./evidence/endpoints.js";
 import { EvidenceError, parseCsv } from "./evidence/extract.js";
@@ -376,6 +383,82 @@ const server = createServer(async (req, res) => {
         : { recommendationId: String(input.recommendationId || ""), optionId: String(input.optionId || "") };
       const evaluation = evaluateDecisionPolicy(store, tenantId, contextId, exceptionId, candidate, actor);
       return json(res, 200, evaluation);
+    }
+    const automationReadinessMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-readiness$/);
+    if (req.method === "GET" && automationReadinessMatch) {
+      const tenantId = authOf(req).tenantId;
+      const readiness = buildAutomationReadiness(
+        getV2Store(),
+        tenantId,
+        decodeURIComponent(automationReadinessMatch[1] ?? ""),
+        decodeURIComponent(automationReadinessMatch[2] ?? ""),
+        decodeURIComponent(automationReadinessMatch[3] ?? ""),
+      );
+      return json(res, 200, readiness);
+    }
+    const automationRunItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/automation-runs\/([^/]+)$/);
+    if (req.method === "GET" && automationRunItemMatch) {
+      const result = getAutomationRun(
+        getV2Store(),
+        authOf(req).tenantId,
+        decodeURIComponent(automationRunItemMatch[1] ?? ""),
+        decodeURIComponent(automationRunItemMatch[2] ?? ""),
+        decodeURIComponent(automationRunItemMatch[3] ?? ""),
+      );
+      if (!result) return json(res, 404, { error: "not_found" });
+      return json(res, 200, result);
+    }
+    const policyAutomationRunItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-runs\/([^/]+)$/);
+    if (req.method === "GET" && policyAutomationRunItemMatch) {
+      const result = getAutomationRun(
+        getV2Store(),
+        authOf(req).tenantId,
+        decodeURIComponent(policyAutomationRunItemMatch[1] ?? ""),
+        decodeURIComponent(policyAutomationRunItemMatch[2] ?? ""),
+        decodeURIComponent(policyAutomationRunItemMatch[4] ?? ""),
+      );
+      if (!result || result.run.policyEvaluationId !== decodeURIComponent(policyAutomationRunItemMatch[3] ?? "")) return json(res, 404, { error: "not_found" });
+      return json(res, 200, result);
+    }
+    const automationRunCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-runs$/);
+    if (automationRunCollectionMatch && (req.method === "GET" || req.method === "POST")) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(automationRunCollectionMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(automationRunCollectionMatch[2] ?? "");
+      const policyEvaluationId = decodeURIComponent(automationRunCollectionMatch[3] ?? "");
+      const store = getV2Store();
+      const evaluation = getPolicyEvaluation(store, tenantId, contextId, exceptionId, policyEvaluationId);
+      if (!evaluation) return json(res, 404, { error: "not_found" });
+      if (req.method === "GET") {
+        return json(res, 200, { contextId, exceptionId, policyEvaluationId, runs: listAutomationRuns(store, tenantId, contextId, exceptionId).filter((item) => item.run.policyEvaluationId === policyEvaluationId) });
+      }
+      const actor = requireActor(req);
+      const input = await readJson(req);
+      if (Object.keys(input).length > 0) return json(res, 400, { error: "AUTOMATION_REQUEST_FIELDS_FORBIDDEN" });
+      const result = executePolicyAutomation(store, tenantId, contextId, exceptionId, policyEvaluationId, actor, "human_request");
+      return json(res, 200, result);
+    }
+    const automationRunListMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/automation-runs$/);
+    if (req.method === "GET" && automationRunListMatch) {
+      const tenantId = authOf(req).tenantId;
+      const contextId = decodeURIComponent(automationRunListMatch[1] ?? "");
+      const exceptionId = decodeURIComponent(automationRunListMatch[2] ?? "");
+      const store = getV2Store();
+      if (!store.listExceptions(tenantId, contextId).some((item) => item.id === exceptionId)) return json(res, 404, { error: "not_found" });
+      return json(res, 200, { contextId, exceptionId, runs: listAutomationRuns(store, tenantId, contextId, exceptionId) });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/internal-work-items") {
+      const status = url.searchParams.get("status") ?? undefined;
+      const kind = url.searchParams.get("kind") ?? undefined;
+      if (status && !["open", "completed", "cancelled"].includes(status)) return json(res, 422, { error: "AUTOMATION_WORK_ITEM_STATUS_INVALID" });
+      if (kind && !["task", "evidence_request"].includes(kind)) return json(res, 422, { error: "AUTOMATION_WORK_ITEM_KIND_INVALID" });
+      const items = getV2Store().listInternalWorkItems(authOf(req).tenantId, {
+        status: status as "open" | "completed" | "cancelled" | undefined,
+        kind: kind as "task" | "evidence_request" | undefined,
+        contextId: url.searchParams.get("contextId") ?? undefined,
+        exceptionId: url.searchParams.get("exceptionId") ?? undefined,
+      });
+      return json(res, 200, { workItems: items });
     }
     const decisionDispositionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)\/dispositions$/);
     if (decisionDispositionMatch && (req.method === "GET" || req.method === "POST")) {
@@ -796,6 +879,7 @@ const server = createServer(async (req, res) => {
       return json(res, error.status, { error: code });
     }
     if (error instanceof PolicyError) return json(res, error.status, { error: error.code });
+    if (error instanceof AutomationError) return json(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {

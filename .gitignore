@@ -8,6 +8,7 @@ dist/
 !.env.grounded-ai.example
 !.env.decision-ai.example
 !.env.root-cause-ai.example
+!.env.automation.example
 .preview
 data/
 .data/

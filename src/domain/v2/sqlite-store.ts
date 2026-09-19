@@ -39,6 +39,13 @@ import type { GroundedExplanationRecord } from "./grounded-types.js";
 import type { DecisionRecommendationDisposition, DecisionRecommendationRecord } from "./decision-types.js";
 import type { RootCauseAnalysisRecord, RootCauseHypothesisReview } from "./root-cause-types.js";
 import type { PolicyDefinitionRecord, PolicyEvaluationRecord } from "./policy-types.js";
+import type {
+  AutomationReceiptRecord,
+  AutomationRunRecord,
+  InternalWorkItemKind,
+  InternalWorkItemRecord,
+  InternalWorkItemStatus,
+} from "./automation-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -1334,6 +1341,251 @@ export class V2SqliteStore {
     return rows.flatMap((row) => {
       const record = this.getPolicyEvaluation(tenantId, row.id);
       return record ? [record] : [];
+    });
+  }
+
+  saveAutomationRun(input: AutomationRunRecord): AutomationRunRecord {
+    const existing = this.getAutomationRunByOperationKey(input.tenantId, input.operationKey);
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO automation_runs
+        (tenant_id, id, context_id, exception_id, policy_evaluation_id, candidate_action_type,
+         source_recommendation_id, source_option_id, executor, executor_version, operation_key,
+         status, effect_id, receipt_id, trigger_source, triggered_by, created_at, completed_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.policyEvaluationId,
+      input.candidateActionType,
+      input.sourceRecommendationId ?? null,
+      input.sourceOptionId ?? null,
+      input.executor,
+      input.executorVersion,
+      input.operationKey,
+      input.status,
+      input.effectId ?? null,
+      input.receiptId ?? null,
+      input.triggerSource,
+      input.triggeredBy,
+      input.createdAt,
+      input.completedAt,
+    );
+    return this.getAutomationRunByOperationKey(input.tenantId, input.operationKey) ?? input;
+  }
+
+  getAutomationRun(tenantId: string, runId: string): AutomationRunRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             policy_evaluation_id as policyEvaluationId, candidate_action_type as candidateActionType,
+             source_recommendation_id as sourceRecommendationId, source_option_id as sourceOptionId,
+             executor, executor_version as executorVersion, operation_key as operationKey,
+             status, effect_id as effectId, receipt_id as receiptId,
+             trigger_source as triggerSource, triggered_by as triggeredBy,
+             created_at as createdAt, completed_at as completedAt
+      FROM automation_runs
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, runId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      policyEvaluationId: string;
+      candidateActionType: AutomationRunRecord["candidateActionType"];
+      sourceRecommendationId: string | null;
+      sourceOptionId: string | null;
+      executor: string;
+      executorVersion: string;
+      operationKey: string;
+      status: AutomationRunRecord["status"];
+      effectId: string | null;
+      receiptId: string | null;
+      triggerSource: AutomationRunRecord["triggerSource"];
+      triggeredBy: string;
+      createdAt: string;
+      completedAt: string;
+    } | undefined;
+    if (!row) return undefined;
+    return {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      policyEvaluationId: row.policyEvaluationId,
+      candidateActionType: row.candidateActionType,
+      ...(row.sourceRecommendationId ? { sourceRecommendationId: row.sourceRecommendationId } : {}),
+      ...(row.sourceOptionId ? { sourceOptionId: row.sourceOptionId } : {}),
+      executor: row.executor,
+      executorVersion: row.executorVersion,
+      operationKey: row.operationKey,
+      status: row.status,
+      ...(row.effectId ? { effectId: row.effectId } : {}),
+      ...(row.receiptId ? { receiptId: row.receiptId } : {}),
+      triggerSource: row.triggerSource,
+      triggeredBy: row.triggeredBy,
+      createdAt: row.createdAt,
+      completedAt: row.completedAt,
+    };
+  }
+
+  getAutomationRunByOperationKey(tenantId: string, operationKey: string): AutomationRunRecord | undefined {
+    const row = this.db.prepare("SELECT id FROM automation_runs WHERE tenant_id = ? AND operation_key = ?").get(tenantId, operationKey) as { id: string } | undefined;
+    return row ? this.getAutomationRun(tenantId, row.id) : undefined;
+  }
+
+  listAutomationRuns(tenantId: string, contextId: string, exceptionId: string): AutomationRunRecord[] {
+    const rows = this.db.prepare(`
+      SELECT id FROM automation_runs
+      WHERE tenant_id = ? AND context_id = ? AND exception_id = ?
+      ORDER BY created_at, id
+    `).all(tenantId, contextId, exceptionId) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const record = this.getAutomationRun(tenantId, row.id);
+      return record ? [record] : [];
+    });
+  }
+
+  saveAutomationReceipt(input: AutomationReceiptRecord): AutomationReceiptRecord {
+    const existing = this.getAutomationReceiptByRun(input.tenantId, input.automationRunId);
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO automation_receipts
+        (tenant_id, id, automation_run_id, effect_id, receipt_source, status, payload_hash, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.automationRunId,
+      input.effectId,
+      input.receiptSource,
+      input.status,
+      input.payloadHash,
+      input.createdAt,
+    );
+    return this.getAutomationReceiptByRun(input.tenantId, input.automationRunId) ?? input;
+  }
+
+  getAutomationReceipt(tenantId: string, receiptId: string): AutomationReceiptRecord | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, id, automation_run_id as automationRunId,
+             effect_id as effectId, receipt_source as receiptSource, status,
+             payload_hash as payloadHash, created_at as createdAt
+      FROM automation_receipts
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, receiptId) as AutomationReceiptRecord | undefined;
+  }
+
+  getAutomationReceiptByRun(tenantId: string, automationRunId: string): AutomationReceiptRecord | undefined {
+    return this.db.prepare(`
+      SELECT tenant_id as tenantId, id, automation_run_id as automationRunId,
+             effect_id as effectId, receipt_source as receiptSource, status,
+             payload_hash as payloadHash, created_at as createdAt
+      FROM automation_receipts
+      WHERE tenant_id = ? AND automation_run_id = ?
+    `).get(tenantId, automationRunId) as AutomationReceiptRecord | undefined;
+  }
+
+  listAutomationReceipts(tenantId: string, contextId: string, exceptionId: string): AutomationReceiptRecord[] {
+    return this.db.prepare(`
+      SELECT receipt.tenant_id as tenantId, receipt.id, receipt.automation_run_id as automationRunId,
+             receipt.effect_id as effectId, receipt.receipt_source as receiptSource, receipt.status,
+             receipt.payload_hash as payloadHash, receipt.created_at as createdAt
+      FROM automation_receipts receipt
+      JOIN automation_runs run
+        ON run.tenant_id = receipt.tenant_id AND run.id = receipt.automation_run_id
+      WHERE receipt.tenant_id = ? AND run.context_id = ? AND run.exception_id = ?
+      ORDER BY receipt.created_at, receipt.id
+    `).all(tenantId, contextId, exceptionId) as AutomationReceiptRecord[];
+  }
+
+  saveInternalWorkItem(input: InternalWorkItemRecord): InternalWorkItemRecord {
+    const existing = this.getInternalWorkItem(input.tenantId, input.id);
+    if (existing) return existing;
+    this.db.prepare(`
+      INSERT INTO internal_work_items
+        (tenant_id, id, context_id, exception_id, kind, source, action_type,
+         title, description, status, created_by, created_at, metadata_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
+    `).run(
+      input.tenantId,
+      input.id,
+      input.contextId,
+      input.exceptionId,
+      input.kind,
+      input.source,
+      input.actionType,
+      input.title,
+      input.description,
+      input.status,
+      input.createdBy,
+      input.createdAt,
+      json(input.metadata),
+    );
+    return this.getInternalWorkItem(input.tenantId, input.id) ?? input;
+  }
+
+  getInternalWorkItem(tenantId: string, workItemId: string): InternalWorkItemRecord | undefined {
+    const row = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, context_id as contextId, exception_id as exceptionId,
+             kind, source, action_type as actionType, title, description, status,
+             created_by as createdBy, created_at as createdAt, metadata_json as metadataJson
+      FROM internal_work_items
+      WHERE tenant_id = ? AND id = ?
+    `).get(tenantId, workItemId) as {
+      tenantId: string;
+      id: string;
+      contextId: string;
+      exceptionId: string;
+      kind: InternalWorkItemRecord["kind"];
+      source: InternalWorkItemRecord["source"];
+      actionType: InternalWorkItemRecord["actionType"];
+      title: string;
+      description: string;
+      status: InternalWorkItemRecord["status"];
+      createdBy: string;
+      createdAt: string;
+      metadataJson: string;
+    } | undefined;
+    return row ? {
+      tenantId: row.tenantId,
+      id: row.id,
+      contextId: row.contextId,
+      exceptionId: row.exceptionId,
+      kind: row.kind,
+      source: row.source,
+      actionType: row.actionType,
+      title: row.title,
+      description: row.description,
+      status: row.status,
+      createdBy: row.createdBy,
+      createdAt: row.createdAt,
+      metadata: parseJson<Record<string, unknown>>(row.metadataJson),
+    } : undefined;
+  }
+
+  listInternalWorkItems(
+    tenantId: string,
+    filters: { status?: InternalWorkItemStatus; kind?: InternalWorkItemKind; contextId?: string; exceptionId?: string } = {},
+  ): InternalWorkItemRecord[] {
+    const conditions = ["tenant_id = ?"];
+    const params: unknown[] = [tenantId];
+    if (filters.status) { conditions.push("status = ?"); params.push(filters.status); }
+    if (filters.kind) { conditions.push("kind = ?"); params.push(filters.kind); }
+    if (filters.contextId) { conditions.push("context_id = ?"); params.push(filters.contextId); }
+    if (filters.exceptionId) { conditions.push("exception_id = ?"); params.push(filters.exceptionId); }
+    const rows = this.db.prepare(`
+      SELECT id FROM internal_work_items
+      WHERE ${conditions.join(" AND ")}
+      ORDER BY created_at, id
+    `).all(...params) as Array<{ id: string }>;
+    return rows.flatMap((row) => {
+      const item = this.getInternalWorkItem(tenantId, row.id);
+      return item ? [item] : [];
     });
   }
 

@@ -54,4 +54,13 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("executionPerformed: { type: boolean, enum: [false] }");
     expect(openapi).toContain("evaluations: { type: array, items: { $ref: '#/components/schemas/PolicyEvaluation' } }");
   });
+
+  it("defines strict policy-bounded automation contracts", () => {
+    expect(openapi).toContain("    AutomationReadiness:");
+    expect(openapi).toContain("    AutomationRun:");
+    expect(openapi).toContain("    AutomationReceipt:");
+    expect(openapi).toContain("    InternalWorkItem:");
+    expect(openapi).toContain("executionPerformed: { type: boolean, enum: [false] }");
+    expect(openapi).toContain("receiptSource: { type: string, enum: [internal-work-item] }");
+  });
 });

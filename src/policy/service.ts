@@ -144,3 +144,15 @@ export function evaluateDecisionPolicy(
 export function listPolicyEvaluations(store: V2SqliteStore, tenantId: string, contextId: string, exceptionId: string) {
   return store.listPolicyEvaluations(tenantId, contextId, exceptionId).map((record) => toView(store, record));
 }
+
+export function getPolicyEvaluation(
+  store: V2SqliteStore,
+  tenantId: string,
+  contextId: string,
+  exceptionId: string,
+  evaluationId: string,
+): PolicyEvaluationView | undefined {
+  const record = store.getPolicyEvaluation(tenantId, evaluationId);
+  if (!record || record.contextId !== contextId || record.exceptionId !== exceptionId) return undefined;
+  return toView(store, record);
+}

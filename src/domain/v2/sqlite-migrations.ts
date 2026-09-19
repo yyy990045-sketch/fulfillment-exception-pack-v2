@@ -528,6 +528,84 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
         WHERE source_recommendation_id IS NOT NULL AND source_option_id IS NOT NULL;
     `,
   },
+  {
+    version: "010_policy_bounded_automation",
+    sql: `
+      CREATE TABLE IF NOT EXISTS automation_runs (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        policy_evaluation_id TEXT NOT NULL,
+        candidate_action_type TEXT NOT NULL,
+        source_recommendation_id TEXT,
+        source_option_id TEXT,
+        executor TEXT NOT NULL,
+        executor_version TEXT NOT NULL,
+        operation_key TEXT NOT NULL,
+        status TEXT NOT NULL,
+        effect_id TEXT,
+        receipt_id TEXT,
+        trigger_source TEXT NOT NULL,
+        triggered_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        completed_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, policy_evaluation_id, candidate_action_type, executor_version),
+        UNIQUE (tenant_id, operation_key),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id),
+        FOREIGN KEY (tenant_id, policy_evaluation_id)
+          REFERENCES policy_evaluations (tenant_id, id),
+        FOREIGN KEY (tenant_id, source_recommendation_id)
+          REFERENCES decision_recommendations (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS automation_runs_exception_idx
+        ON automation_runs (tenant_id, context_id, exception_id, created_at, id);
+
+      CREATE TABLE IF NOT EXISTS automation_receipts (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        automation_run_id TEXT NOT NULL,
+        effect_id TEXT NOT NULL,
+        receipt_source TEXT NOT NULL,
+        status TEXT NOT NULL,
+        payload_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        UNIQUE (tenant_id, automation_run_id),
+        FOREIGN KEY (tenant_id, automation_run_id)
+          REFERENCES automation_runs (tenant_id, id)
+      );
+
+      CREATE TABLE IF NOT EXISTS internal_work_items (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        exception_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        source TEXT NOT NULL,
+        action_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id),
+        FOREIGN KEY (tenant_id, context_id)
+          REFERENCES fulfillment_contexts (tenant_id, id),
+        FOREIGN KEY (tenant_id, exception_id)
+          REFERENCES exceptions (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS internal_work_items_query_idx
+        ON internal_work_items (tenant_id, status, kind, context_id, exception_id, created_at, id);
+    `,
+  },
 ];
 
 export function runV2Migrations(

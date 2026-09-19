@@ -148,6 +148,8 @@ to implement controlled automation.
 
 Phase 8C only returns the eligibility signal and never executes.
 
+Phase 9 is implemented as a separate bounded layer documented in `15-policy-bounded-automation.md`. Existing Policy Evaluation records keep `automationAvailable=false` and `executionPerformed=false` as historical Phase 8C semantics.
+
 # 13 Cross-industry Reuse
 
 The Policy Engine is generic:

@@ -190,6 +190,30 @@ function renderContexts(data) {
   container.append(tableElement);
 }
 
+function renderWorkItems(items) {
+  const summary = document.getElementById("work-item-summary");
+  clear(summary);
+  const open = items.filter((item) => item.status === "open");
+  const tasks = open.filter((item) => item.kind === "task").length;
+  const evidenceRequests = open.filter((item) => item.kind === "evidence_request").length;
+  for (const [label, value] of [["Open internal tasks", tasks], ["Evidence requests", evidenceRequests]]) {
+    const item = node("div", "summary-item");
+    item.append(node("span", "", label), node("strong", "", value));
+    summary.append(item);
+  }
+  table(
+    document.getElementById("work-item-table"),
+    ["类型", "标题", "来源 Exception", "Business Context", "创建时间"],
+    items.map((item) => [
+      item.kind === "task" ? "内部任务" : "补证请求",
+      item.title,
+      item.exceptionId,
+      item.contextId,
+      item.createdAt,
+    ]),
+  );
+}
+
 function populateExceptionOptions(data) {
   if (state.exceptionCode) return;
   const select = document.getElementById("exceptionCode");
@@ -221,6 +245,8 @@ async function load() {
     renderActionTable(data);
     renderSourceTable(data);
     renderContexts(data);
+    const workItems = await api("/api/v2/internal-work-items?status=open").catch(() => ({ workItems: [] }));
+    renderWorkItems(workItems.workItems || []);
     clearState();
   } catch (error) {
     showState(error.status === 400 ? "筛选条件无效。" : "经营治理分析加载失败。", true);

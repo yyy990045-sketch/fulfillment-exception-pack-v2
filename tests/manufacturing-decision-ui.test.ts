@@ -38,12 +38,16 @@ describe("manufacturing decision recommendation UI contract", () => {
     expect(app).toContain("假设复核已记录，未确认根因或责任。");
   });
 
-  it("shows policy badges without implying automatic execution", () => {
+  it("shows policy badges and the explicit policy-bounded execution control", () => {
     expect(app).toContain("评估治理策略");
     expect(app).toContain("仅人工决策");
     expect(app).toContain("需要人工审批");
     expect(app).toContain("符合自动化候选条件");
-    expect(app).toContain("当前系统不会自动执行；该结果仅表示符合未来自动化策略条件。");
-    expect(app).toContain("治理策略评估已记录；当前不会自动执行。");
+    expect(app).toContain("符合自动化策略，但当前运行环境未启用自动执行。");
+    expect(app).toContain("满足低风险内部自动化条件。");
+    expect(app).toContain("按策略执行内部自动化");
+    expect(app).toContain("自动化执行结果");
+    expect(app).not.toContain("AI 自动处理");
+    expect(app).not.toContain("AI 一键解决");
   });
 });

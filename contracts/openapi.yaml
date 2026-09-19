@@ -545,6 +545,97 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/Unprocessable' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/policy-evaluations/{policyEvaluationId}/automation-readiness:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: policyEvaluationId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Pure automation readiness query
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/AutomationReadiness' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/policy-evaluations/{policyEvaluationId}/automation-runs:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: policyEvaluationId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Automation runs for a Policy Evaluation
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/AutomationRunList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { type: object, additionalProperties: false } }
+      responses:
+        '200':
+          description: Idempotent policy-bounded internal automation execution
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/AutomationRunView' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/policy-evaluations/{policyEvaluationId}/automation-runs/{runId}:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { name: policyEvaluationId, in: path, required: true, schema: { type: string } }
+      - { name: runId, in: path, required: true, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Automation run detail
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/AutomationRunView' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/contexts/{contextId}/exceptions/{exceptionId}/automation-runs:
+    parameters:
+      - { $ref: '#/components/parameters/V2ContextId' }
+      - { $ref: '#/components/parameters/V2ExceptionId' }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: Automation run list for an Exception
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/AutomationRunList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/internal-work-items:
+    parameters:
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+      - { name: status, in: query, schema: { type: string, enum: [open, completed, cancelled] } }
+      - { name: kind, in: query, schema: { type: string, enum: [task, evidence_request] } }
+      - { name: contextId, in: query, schema: { type: string } }
+      - { name: exceptionId, in: query, schema: { type: string } }
+    get:
+      responses:
+        '200':
+          description: Read-only internal work item list
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/InternalWorkItemList' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
   /api/v2/contexts/{contextId}/exceptions/{exceptionId}/bundle:
     parameters:
       - { $ref: '#/components/parameters/V2ContextId' }
@@ -1414,6 +1505,99 @@ components:
         contextId: { type: string }
         exceptionId: { type: string }
         evaluations: { type: array, items: { $ref: '#/components/schemas/PolicyEvaluation' } }
+    AutomationReadiness:
+      type: object
+      additionalProperties: false
+      required: [executable, policyMode, policyEvaluationStale, executorConfigured, executorSupportsAction, safetyBoundaryPassed, reasons]
+      properties:
+        executable: { type: boolean }
+        policyMode: { type: string, enum: [human_only, approval_required, auto_eligible] }
+        policyEvaluationStale: { type: boolean }
+        executorConfigured: { type: boolean }
+        executorSupportsAction: { type: boolean }
+        safetyBoundaryPassed: { type: boolean }
+        reasons: { type: array, items: { type: string } }
+    InternalWorkItem:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, contextId, exceptionId, kind, source, actionType, title, description, status, createdBy, createdAt, metadata]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        kind: { type: string, enum: [task, evidence_request] }
+        source: { type: string, enum: [policy_automation] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        title: { type: string }
+        description: { type: string }
+        status: { type: string, enum: [open, completed, cancelled] }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        metadata:
+          type: object
+          additionalProperties: false
+          properties:
+            policyEvaluationId: { type: string }
+            deterministicTemplate: { type: string }
+            operationKey: { type: string }
+    AutomationRun:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, contextId, exceptionId, policyEvaluationId, candidateActionType, executor, executorVersion, operationKey, status, triggerSource, triggeredBy, createdAt, completedAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        contextId: { type: string }
+        exceptionId: { type: string }
+        policyEvaluationId: { type: string }
+        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        sourceRecommendationId: { type: string }
+        sourceOptionId: { type: string }
+        executor: { type: string }
+        executorVersion: { type: string }
+        operationKey: { type: string, pattern: '^[a-f0-9]{64}$' }
+        status: { type: string, enum: [succeeded, failed, blocked] }
+        effectId: { type: string }
+        receiptId: { type: string }
+        triggerSource: { type: string, enum: [human_request, system] }
+        triggeredBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time }
+    AutomationReceipt:
+      type: object
+      additionalProperties: false
+      required: [tenantId, id, automationRunId, effectId, receiptSource, status, payloadHash, createdAt]
+      properties:
+        tenantId: { type: string }
+        id: { type: string }
+        automationRunId: { type: string }
+        effectId: { type: string }
+        receiptSource: { type: string, enum: [internal-work-item] }
+        status: { type: string, enum: [succeeded, failed] }
+        payloadHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        createdAt: { type: string, format: date-time }
+    AutomationRunView:
+      type: object
+      additionalProperties: false
+      required: [run]
+      properties:
+        run: { $ref: '#/components/schemas/AutomationRun' }
+        receipt: { $ref: '#/components/schemas/AutomationReceipt' }
+        workItem: { $ref: '#/components/schemas/InternalWorkItem' }
+    AutomationRunList:
+      type: object
+      required: [contextId, exceptionId, runs]
+      properties:
+        contextId: { type: string }
+        exceptionId: { type: string }
+        policyEvaluationId: { type: string }
+        runs: { type: array, items: { $ref: '#/components/schemas/AutomationRunView' } }
+    InternalWorkItemList:
+      type: object
+      required: [workItems]
+      properties:
+        workItems: { type: array, items: { $ref: '#/components/schemas/InternalWorkItem' } }
     DecisionRecommendationDisposition:
       type: object
       additionalProperties: false

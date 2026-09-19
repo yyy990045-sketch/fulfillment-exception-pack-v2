@@ -54,6 +54,8 @@ const state = {
   rootCauseReviews: [],
   selectedRootCause: null,
   policyEvaluations: [],
+  automationReadiness: {},
+  automationRuns: [],
   decisionRecommendations: [],
   decisionDispositions: [],
   selectedDecision: null,
@@ -524,9 +526,43 @@ function policyBadge(evaluation) {
   );
   if (evaluation.stale) wrap.append(node("span", "provider-badge stale", "该策略评估基于旧快照，请重新评估。"));
   if (evaluation.decision.mode === "auto_eligible") {
-    wrap.append(node("span", "", "当前系统不会自动执行；该结果仅表示符合未来自动化策略条件。"));
+    const readiness = state.automationReadiness[evaluation.id];
+    if (!readiness) wrap.append(node("span", "", "正在读取当前运行环境能力。"));
+    else if (readiness.executable) wrap.append(node("span", "", "满足低风险内部自动化条件。"));
+    else if (readiness.reasons.includes("AUTOMATION_DISABLED")) wrap.append(node("span", "", "符合自动化策略，但当前运行环境未启用自动执行。"));
+    else wrap.append(node("span", "", `当前不能执行：${readiness.reasons.join("、")}`));
   }
   return wrap;
+}
+
+function automationRunCard(view) {
+  const run = view.run;
+  const card = node("div", "inline-notice");
+  card.append(
+    node("strong", "", "自动化执行结果"),
+    node("span", "", `Run：${run.id}`),
+    node("span", "", `Action：${run.candidateActionType}`),
+    node("span", "", `Executor：${run.executor} / ${run.executorVersion}`),
+    node("span", "", `Triggered By：${run.triggeredBy}`),
+    node("span", "", `Created At：${run.createdAt}`),
+  );
+  if (view.workItem) card.append(node("span", "", `Internal Work Item：${view.workItem.id}`));
+  if (view.receipt) card.append(node("span", "", `Receipt：${view.receipt.id}`));
+  return card;
+}
+
+async function executeInternalAutomation(policyEvaluationId) {
+  try {
+    const result = await api(`/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/policy-evaluations/${encodeURIComponent(policyEvaluationId)}/automation-runs`, {
+      method: "POST",
+      body: {},
+    });
+    state.automationRuns = [...state.automationRuns.filter((item) => item.run.policyEvaluationId !== policyEvaluationId), result];
+    showState("内部自动化执行完成，已创建 Work Item 与 Receipt。");
+    renderDecisionPanel(state.decisionRecommendations, state.decisionDispositions);
+  } catch (error) {
+    showState(friendlyError(error), true);
+  }
 }
 
 async function evaluateOptionPolicy(recommendationId, optionId) {
@@ -539,11 +575,23 @@ async function evaluateOptionPolicy(recommendationId, optionId) {
       ...state.policyEvaluations.filter((item) => !(item.sourceRecommendationId === recommendationId && item.sourceOptionId === optionId)),
       evaluation,
     ];
-    showState("治理策略评估已记录；当前不会自动执行。");
+    if (evaluation.decision.mode === "auto_eligible") {
+      state.automationReadiness[evaluation.id] = await api(`/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(state.selectedExceptionId)}/policy-evaluations/${encodeURIComponent(evaluation.id)}/automation-readiness`).catch(() => null);
+    }
+    showState("治理策略评估已记录；执行前将检查运行安全门。");
     renderDecisionPanel(state.decisionRecommendations, state.decisionDispositions);
   } catch (error) {
     showState(friendlyError(error), true);
   }
+}
+
+async function loadAutomationState(base, evaluations) {
+  const readinessEntries = await Promise.all(evaluations
+    .filter((item) => item.decision.mode === "auto_eligible")
+    .map(async (item) => [item.id, await api(`${base}/policy-evaluations/${encodeURIComponent(item.id)}/automation-readiness`).catch(() => null)]));
+  state.automationReadiness = Object.fromEntries(readinessEntries.filter(([, value]) => value));
+  const runs = await api(`${base}/automation-runs`).catch(() => ({ runs: [] }));
+  state.automationRuns = runs.runs || [];
 }
 
 function decisionOptionCard(option, recommended, recommendationId) {
@@ -571,6 +619,12 @@ function decisionOptionCard(option, recommended, recommendationId) {
     .at(-1);
   if (policyEvaluation) card.append(policyBadge(policyEvaluation));
   card.append(button("评估治理策略", "secondary", () => evaluateOptionPolicy(recommendationId, option.id)));
+  if (policyEvaluation?.decision.mode === "auto_eligible") {
+    const readiness = state.automationReadiness[policyEvaluation.id];
+    if (readiness?.executable) card.append(button("按策略执行内部自动化", "", () => executeInternalAutomation(policyEvaluation.id)));
+    const run = state.automationRuns.filter((item) => item.run.policyEvaluationId === policyEvaluation.id).at(-1);
+    if (run) card.append(automationRunCard(run));
+  }
   return card;
 }
 
@@ -1080,6 +1134,8 @@ async function selectException(exceptionId) {
   state.rootCauseReviews = [];
   state.selectedRootCause = null;
   state.policyEvaluations = [];
+  state.automationReadiness = {};
+  state.automationRuns = [];
   state.decisionRecommendations = [];
   state.decisionDispositions = [];
   state.selectedDecision = null;
@@ -1140,6 +1196,7 @@ async function selectException(exceptionId) {
       state.decisionDispositions = dispositions.dispositions || [];
       const policyResult = await api(`${base}/policy-evaluations`).catch(() => ({ evaluations: [] }));
       state.policyEvaluations = policyResult.evaluations || [];
+      await loadAutomationState(base, state.policyEvaluations);
       renderDecisionPanel(state.decisionRecommendations, dispositions.dispositions || []);
     }
   } else renderEmptyPanel("panel-decision", "决策建议加载失败，未自动生成。");
