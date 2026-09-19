@@ -6,7 +6,7 @@ import {
   type ScoreDecisionAnswer,
 } from "./types.js";
 
-function probability(value: unknown, path: string): number {
+export function validateProbability(value: unknown, path: string): number {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) {
     throw new DecisionRuntimeError(`DECISION_PROVIDER_INVALID_RESPONSE:${path}`);
   }
@@ -21,7 +21,7 @@ function probabilityMap(value: unknown, criteria: Record<string, string>, path: 
   if (actual.length !== expected.length || expected.some((key) => !actual.includes(key))) {
     throw new DecisionRuntimeError(`DECISION_PROVIDER_INVALID_RESPONSE:${path}.keys`);
   }
-  const probabilities = Object.fromEntries(expected.map((key) => [key, probability(record[key], `${path}.${key}`)]));
+  const probabilities = Object.fromEntries(expected.map((key) => [key, validateProbability(record[key], `${path}.${key}`)]));
   const sum = Object.values(probabilities).reduce((total, item) => total + item, 0);
   if (sum < 0.98 || sum > 1.02) throw new DecisionRuntimeError(`DECISION_PROVIDER_INVALID_RESPONSE:${path}.sum`);
   return probabilities;
@@ -29,7 +29,7 @@ function probabilityMap(value: unknown, criteria: Record<string, string>, path: 
 
 function scoreProbabilityMap(value: unknown, criteria: string[], path: string) {
   if (!Array.isArray(value) || value.length !== criteria.length) throw new DecisionRuntimeError(`DECISION_PROVIDER_INVALID_RESPONSE:${path}`);
-  const probabilities = value.map((item, index) => probability(item, `${path}[${index}]`));
+  const probabilities = value.map((item, index) => validateProbability(item, `${path}[${index}]`));
   const sum = probabilities.reduce((total, item) => total + item, 0);
   if (sum < 0.98 || sum > 1.02) throw new DecisionRuntimeError(`DECISION_PROVIDER_INVALID_RESPONSE:${path}.sum`);
   return probabilities;
@@ -46,20 +46,23 @@ export function validateDecisionAnswers(questions: DecisionQuestion[], answers: 
     if (question.type !== answer.type) throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:answer_type");
     if (answer.type === "boolean") {
       if (typeof answer.value !== "boolean") throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:boolean");
-      if (answer.probabilityYes !== null) probability(answer.probabilityYes, `${answer.questionId}.probabilityYes`);
+      if (answer.probabilityYes !== null) validateProbability(answer.probabilityYes, `${answer.questionId}.probabilityYes`);
+      if (answer.confidence !== null) validateProbability(answer.confidence, `${answer.questionId}.confidence`);
       return answer;
     }
     if (question.type === "choice") {
       if (answer.type !== "choice") throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:answer_type");
       if (!(answer.choice in question.criteria)) throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:choice");
       const probabilities = answer.probabilities === null ? null : probabilityMap(answer.probabilities, question.criteria, `${answer.questionId}.probabilities`);
+      if (answer.confidence !== null) validateProbability(answer.confidence, `${answer.questionId}.confidence`);
       return { ...answer, probabilities } satisfies ChoiceDecisionAnswer;
     }
     if (question.type !== "score" || answer.type !== "score") throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:answer_type");
-    if (!Number.isInteger(answer.score) || answer.score < 0 || answer.score >= question.criteria.length) {
+    if (!Number.isFinite(answer.score) || answer.score < 0 || answer.score > question.criteria.length - 1) {
       throw new DecisionRuntimeError("DECISION_PROVIDER_INVALID_RESPONSE:score");
     }
     const probabilities = answer.probabilities === null ? null : scoreProbabilityMap(answer.probabilities, question.criteria, `${answer.questionId}.probabilities`);
+    if (answer.confidence !== null) validateProbability(answer.confidence, `${answer.questionId}.confidence`);
     return { ...answer, probabilities } satisfies ScoreDecisionAnswer;
   });
 }

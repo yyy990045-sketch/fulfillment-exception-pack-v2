@@ -53,6 +53,44 @@ Runtime choice  -> Jev choice
 Runtime score   -> Jev score
 ```
 
+Jev wire format uses object maps keyed by question ID:
+
+```json
+{
+  "questions": {
+    "department": {
+      "type": "choice",
+      "instructions": "Choose the department.",
+      "criteria": {
+        "billing": "Billing",
+        "technical": "Technical"
+      }
+    }
+  }
+}
+```
+
+The response uses the same shape:
+
+```json
+{
+  "answers": {
+    "department": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+        "billing": 0.84,
+        "technical": 0.159,
+        "sales": 0.001
+      },
+      "confidence": 0.596
+    }
+  }
+}
+```
+
+Question IDs are map keys only. They are not embedded in each Jev question object.
+
 Noul maps to:
 
 ```text
@@ -62,7 +100,40 @@ confidence = null
 confidenceKind = probability_only
 ```
 
-Choice and score require valid options, probabilities in `[0,1]`, and a probability sum near 1.
+Choice maps directly as:
+
+```text
+choice
+probabilities: Record<string, number>
+confidence: number | null
+confidenceKind = provider_reported_calibrated
+```
+
+Choice requires valid options, probability keys that exactly match the criteria, probabilities in `[0,1]`, a probability sum near 1, and confidence in `[0,1]`.
+
+Jev Score may be fractional. The normalized score therefore accepts any finite number:
+
+```text
+0 <= score <= criteria.length - 1
+```
+
+Jev score probabilities use an object keyed by level index:
+
+```json
+{
+  "0": 0.0,
+  "1": 0.7,
+  "2": 0.3
+}
+```
+
+The Jev adapter converts them to the provider-neutral array:
+
+```text
+[0.0, 0.7, 0.3]
+```
+
+Jev returns `legend` as an object map. The adapter does not trust or cast it. Integer scores use the Runtime criteria as canonical legend; fractional scores normalize `legend` to `null`.
 
 # 7 Benchmark Dataset
 

@@ -40,6 +40,61 @@ const questions: DecisionQuestion[] = [
   { id: "risk", type: "score", instructions: "risk?", criteria: ["low", "medium", "high"] },
 ];
 
+const officialQuestions: DecisionQuestion[] = [
+  {
+    id: "department",
+    type: "choice",
+    instructions: "Choose the department.",
+    criteria: { billing: "Billing", technical: "Technical", sales: "Sales" },
+  },
+  {
+    id: "frustration",
+    type: "score",
+    instructions: "Score the customer frustration level.",
+    criteria: ["Calm", "Frustrated", "Very angry"],
+  },
+  {
+    id: "is_urgent",
+    type: "boolean",
+    instructions: "Is this urgent?",
+    criteria: { true: "Urgent", false: "Not urgent" },
+  },
+];
+
+function officialAnswers() {
+  return {
+    department: {
+      type: "choice",
+      choice: "billing",
+      probabilities: { billing: 0.84, technical: 0.159, sales: 0.001 },
+      confidence: 0.596,
+    },
+    frustration: {
+      type: "score",
+      score: 1.3,
+      legend: { 0: "Calm", 1: "Frustrated", 2: "Very angry" },
+      probabilities: { 0: 0, 1: 0.7, 2: 0.3 },
+      confidence: 0.54,
+    },
+    is_urgent: {
+      type: "noul",
+      noul: 0.999,
+    },
+  };
+}
+
+function jevProvider(readBody: () => Record<string, unknown>) {
+  return new JevDecisionRuntimeProvider({
+    apiKey: "test",
+    model: "jev-latest",
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      json: async () => readBody(),
+    }) as Response,
+  });
+}
+
 class CapturingProvider implements DecisionRuntimeProvider {
   readonly name = "capture";
   readonly model = "capture-v1";
@@ -93,23 +148,77 @@ describe("Provider-neutral Decision Runtime", () => {
       { questionId: "action", type: "choice", choice: "create_task", probabilities: { create_task: 1, review_quotation: 0 }, confidence: 1, confidenceKind: "deterministic" },
       { questionId: "risk", type: "score", score: 9, legend: "bad", probabilities: null, confidence: 1, confidenceKind: "deterministic" },
     ])).toThrow(/DECISION_PROVIDER_INVALID_RESPONSE/);
+    expect(validateDecisionAnswers(questions, [
+      { questionId: "gate", type: "boolean", value: true, probabilityYes: 1, confidence: 1, confidenceKind: "deterministic" },
+      { questionId: "action", type: "choice", choice: "create_task", probabilities: { create_task: 1, review_quotation: 0 }, confidence: 1, confidenceKind: "deterministic" },
+      { questionId: "risk", type: "score", score: 1.3, legend: null, probabilities: [0, 0.7, 0.3], confidence: 1, confidenceKind: "deterministic" },
+    ])).toMatchObject([{ type: "boolean" }, { type: "choice" }, { type: "score", score: 1.3 }]);
   });
 
-  it("maps Jev Noul to probability-only boolean and validates choice probabilities", async () => {
+  it("maps the official Jev object-map request and response shapes", async () => {
+    let requestBody: Record<string, unknown> | undefined;
     const provider = new JevDecisionRuntimeProvider({
       apiKey: "test",
       model: "jev-latest",
-      fetchImpl: async () => new Response(JSON.stringify({
-        answers: [
-          { noul: 0.8 },
-          { choice: "create_task", probabilities: { create_task: 0.7, review_quotation: 0.3 }, confidence: 0.7 },
-          { score: 1, legend: "medium", probabilities: [0.1, 0.8, 0.1], confidence: 0.8 },
-        ],
-      }), { status: 200, headers: { "content-type": "application/json" } }),
+      fetchImpl: async (_input, init) => {
+        requestBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        return new Response(JSON.stringify({
+          model: "jev-latest",
+          answers: officialAnswers(),
+          usage: { input_tokens: 312, output_tokens: 48 },
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      },
     });
-    const result = await provider.evaluateBatch({ taskId: "task-a", state: {}, questions });
-    expect(result.answers[0]).toMatchObject({ value: true, probabilityYes: 0.8, confidence: null, confidenceKind: "probability_only" });
-    expect(result.answers[1]).toMatchObject({ choice: "create_task", confidenceKind: "provider_reported_calibrated" });
+
+    const result = await provider.evaluateBatch({ taskId: "task-a", state: {}, questions: officialQuestions });
+
+    expect(Array.isArray(requestBody?.questions)).toBe(false);
+    expect(requestBody?.questions).toEqual({
+      department: {
+        type: "choice",
+        instructions: "Choose the department.",
+        criteria: { billing: "Billing", technical: "Technical", sales: "Sales" },
+      },
+      frustration: {
+        type: "score",
+        instructions: "Score the customer frustration level.",
+        criteria: ["Calm", "Frustrated", "Very angry"],
+      },
+      is_urgent: {
+        type: "noul",
+        instructions: "Is this urgent?",
+        criteria: { true: "Urgent", false: "Not urgent" },
+      },
+    });
+
+    expect(result.answers).toEqual([
+      {
+        questionId: "department",
+        type: "choice",
+        choice: "billing",
+        probabilities: { billing: 0.84, technical: 0.159, sales: 0.001 },
+        confidence: 0.596,
+        confidenceKind: "provider_reported_calibrated",
+      },
+      {
+        questionId: "frustration",
+        type: "score",
+        score: 1.3,
+        legend: null,
+        probabilities: [0, 0.7, 0.3],
+        confidence: 0.54,
+        confidenceKind: "provider_reported_calibrated",
+      },
+      {
+        questionId: "is_urgent",
+        type: "boolean",
+        value: true,
+        probabilityYes: 0.999,
+        confidence: null,
+        confidenceKind: "probability_only",
+      },
+    ]);
+    expect(result.usage).toEqual({ input_tokens: 312, output_tokens: 48 });
   });
 
   it("rejects malformed OpenAI probabilities at the provider boundary", async () => {
@@ -136,19 +245,51 @@ describe("Provider-neutral Decision Runtime", () => {
     await expect(provider.evaluateBatch({ taskId: "task-a", state: {}, questions })).rejects.toThrow(/DECISION_PROVIDER_INVALID_RESPONSE/);
   });
 
-  it("rejects malformed Jev probabilities at the provider boundary", async () => {
-    const provider = new JevDecisionRuntimeProvider({
-      apiKey: "test",
-      model: "jev-latest",
-      fetchImpl: async () => new Response(JSON.stringify({
-        answers: [
-          { noul: 0.8 },
-          { choice: "create_task", probabilities: { create_task: 0.8, review_quotation: 0.4 }, confidence: 0.7 },
-          { score: 1, legend: "medium", probabilities: [0.1, 0.8, 0.1], confidence: 0.8 },
-        ],
-      }), { status: 200, headers: { "content-type": "application/json" } }),
-    });
-    await expect(provider.evaluateBatch({ taskId: "task-a", state: {}, questions })).rejects.toThrow(/DECISION_PROVIDER_INVALID_RESPONSE/);
+  it("fails closed for malformed official Jev responses", async () => {
+    const missingQuestion = officialAnswers();
+    delete (missingQuestion as Partial<typeof missingQuestion>).is_urgent;
+    const wrongProbabilityKeys = officialAnswers();
+    delete (wrongProbabilityKeys.department.probabilities as Record<string, number>).sales;
+    const scoreOutOfRange = officialAnswers();
+    scoreOutOfRange.frustration.score = 2.1;
+    const scoreNaN = officialAnswers();
+    scoreNaN.frustration.score = Number.NaN;
+    const unknownChoice = officialAnswers();
+    unknownChoice.department.choice = "unknown";
+    const probabilitySum = officialAnswers();
+    probabilitySum.department.probabilities = { billing: 0.5, technical: 0.5, sales: 0.2 };
+    const invalidConfidence = officialAnswers();
+    invalidConfidence.department.confidence = 1.2;
+    const wrongAnswerType = officialAnswers();
+    wrongAnswerType.department.type = "score";
+    const unknownQuestion = { ...officialAnswers(), extra_question: { type: "noul", noul: 1 } };
+
+    const cases = [
+      { answers: missingQuestion },
+      { answers: wrongProbabilityKeys },
+      { answers: scoreOutOfRange },
+      { answers: scoreNaN },
+      { answers: unknownChoice },
+      { answers: probabilitySum },
+      { answers: invalidConfidence },
+      { answers: wrongAnswerType },
+      { answers: unknownQuestion },
+      { answers: [] },
+    ];
+
+    for (const body of cases) {
+      await expect(jevProvider(() => body).evaluateBatch({
+        taskId: "task-a",
+        state: {},
+        questions: officialQuestions,
+      })).rejects.toThrow(/DECISION_PROVIDER_INVALID_RESPONSE/);
+    }
+
+    await expect(jevProvider(() => ({ answers: officialAnswers() })).evaluateBatch({
+      taskId: "task-a",
+      state: {},
+      questions: [officialQuestions[0]!, officialQuestions[0]!],
+    })).rejects.toThrow(/DECISION_PROVIDER_INVALID_RESPONSE:duplicate_question_id/);
   });
 
   it("maps OpenAI timeout to a stable provider error", async () => {

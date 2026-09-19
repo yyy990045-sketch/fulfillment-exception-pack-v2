@@ -101,6 +101,7 @@ export function computeBenchmarkMetrics(
   let scoreAbsoluteError = 0;
   let scoreCount = 0;
   let exactLevelCount = 0;
+  let exactLevelCountEligible = 0;
   let withinOneCount = 0;
 
   for (const result of successful) {
@@ -126,7 +127,10 @@ export function computeBenchmarkMetrics(
     if (answer.type === "score" && typeof expected === "number") {
       scoreAbsoluteError += Math.abs(answer.score - expected);
       scoreCount += 1;
-      if (answer.score === expected) exactLevelCount += 1;
+      if (Number.isInteger(answer.score)) {
+        exactLevelCountEligible += 1;
+        if (answer.score === expected) exactLevelCount += 1;
+      }
       if (Math.abs(answer.score - expected) <= 1) withinOneCount += 1;
       if (answer.probabilities) {
         multiclassBrierTotal += probabilityDistance(answer.probabilities, expected);
@@ -144,7 +148,7 @@ export function computeBenchmarkMetrics(
     binaryBrierScore: binaryBrierCount ? binaryBrierTotal / binaryBrierCount : null,
     multiclassBrierScore: multiclassBrierCount ? multiclassBrierTotal / multiclassBrierCount : null,
     scoreMae: scoreCount ? scoreAbsoluteError / scoreCount : null,
-    exactLevelAccuracy: scoreCount ? exactLevelCount / scoreCount : null,
+    exactLevelAccuracy: exactLevelCountEligible ? exactLevelCount / exactLevelCountEligible : null,
     withinOneLevelAccuracy: scoreCount ? withinOneCount / scoreCount : null,
     latencyP50Ms: quantile(latencies, 0.5),
     latencyP95Ms: quantile(latencies, 0.95),

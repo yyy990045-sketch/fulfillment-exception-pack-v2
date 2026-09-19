@@ -1,6 +1,6 @@
 {
   "schemaVersion": "decision-runtime-benchmark/v1",
-  "generatedAt": "2026-09-19T07:56:15.382Z",
+  "generatedAt": "2026-09-19T09:06:20.309Z",
   "dataset": {
     "synthetic": true,
     "cases": 51,
@@ -34,8 +34,8 @@
         "scoreMae": 0,
         "exactLevelAccuracy": 1,
         "withinOneLevelAccuracy": 1,
-        "latencyP50Ms": 0.006583000000006223,
-        "latencyP95Ms": 0.07012499999999022,
+        "latencyP50Ms": 0.005958000000006791,
+        "latencyP95Ms": 0.03350000000000364,
         "errorRate": 0,
         "unsafeDecisionRate": 0,
         "confidenceKindBreakdown": {
@@ -83,8 +83,8 @@
           "scoreMae": null,
           "exactLevelAccuracy": null,
           "withinOneLevelAccuracy": null,
-          "latencyP50Ms": 0.025624999999990905,
-          "latencyP95Ms": 0.11591699999999605,
+          "latencyP50Ms": 0.009542000000010376,
+          "latencyP95Ms": 0.03350000000000364,
           "errorRate": 0,
           "unsafeDecisionRate": 0,
           "confidenceKindBreakdown": {
@@ -131,8 +131,8 @@
           "scoreMae": null,
           "exactLevelAccuracy": null,
           "withinOneLevelAccuracy": null,
-          "latencyP50Ms": 0.0037920000000042364,
-          "latencyP95Ms": 0.023917000000011512,
+          "latencyP50Ms": 0.003417000000013104,
+          "latencyP95Ms": 0.01737500000000125,
           "errorRate": 0,
           "unsafeDecisionRate": 0,
           "confidenceKindBreakdown": {
@@ -179,8 +179,8 @@
           "scoreMae": 0,
           "exactLevelAccuracy": 1,
           "withinOneLevelAccuracy": 1,
-          "latencyP50Ms": 0.003791000000006761,
-          "latencyP95Ms": 0.06308299999997757,
+          "latencyP50Ms": 0.0035419999999959373,
+          "latencyP95Ms": 0.039332999999999174,
           "errorRate": 0,
           "unsafeDecisionRate": 0,
           "confidenceKindBreakdown": {

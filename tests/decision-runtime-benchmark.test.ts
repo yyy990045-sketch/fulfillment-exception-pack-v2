@@ -173,6 +173,43 @@ describe("Decision Runtime benchmark", () => {
     ]);
   });
 
+  it("keeps fractional score predictions out of exact-level accuracy while retaining MAE and within-one metrics", () => {
+    const metrics = computeBenchmarkMetrics([
+      result({
+        caseId: "score-discrete",
+        suite: "automation_risk_score",
+        reference: 1,
+        exact: true,
+        answer: {
+          questionId: "risk",
+          type: "score",
+          score: 1,
+          legend: "medium",
+          probabilities: [0, 1, 0],
+          confidence: 0.9,
+          confidenceKind: "provider_reported_calibrated",
+        },
+      }),
+      result({
+        caseId: "score-fractional",
+        suite: "automation_risk_score",
+        reference: 1,
+        answer: {
+          questionId: "risk",
+          type: "score",
+          score: 1.3,
+          legend: null,
+          probabilities: [0, 0.7, 0.3],
+          confidence: 0.8,
+          confidenceKind: "provider_reported_calibrated",
+        },
+      }),
+    ]);
+    expect(metrics.scoreMae).toBeCloseTo(0.15);
+    expect(metrics.exactLevelAccuracy).toBe(1);
+    expect(metrics.withinOneLevelAccuracy).toBe(1);
+  });
+
   it("reports missing live-provider keys as not configured instead of verified", async () => {
     await expect(runDecisionProviderVerification("openai", { env: {}, writeArtifacts: false }))
       .resolves.toMatchObject({ status: "not_configured", verified: false });
