@@ -1,42 +1,64 @@
 # Stage 5B1 Open supOS Runtime Verification
 
+Audit date: `2026-09-19`
+
 ## 1 Upstream Provenance
 
 - Official repository: `https://gitee.com/supos-community-edition/supos-ce-deploy.git`
-- Branch: `master`
-- Exact commit: `9272ef5f124f317f902a7a6d2302a22a8c2467e3`
-- Commit time: `2026-09-14T14:50:47+08:00`
-- Clone/fetch date: `2026-09-18`
+- Audited branch: `master`
+- Audited commit: `9272ef5f124f317f902a7a6d2302a22a8c2467e3`
+- Provenance check: remote `HEAD` and `refs/heads/master` both resolve to the audited commit via `git ls-remote`
+- Vendoring: the official deployment repository is not copied into this project
 
-The clone was used only as an external runtime source. It is not vendored into this repository.
+The audited commit was not changed.
 
-## 2 Host
+## 2 Current Host
 
-The local audit host is:
+- OS: macOS `27.0`
+- Architecture: `arm64`
+- Node.js: `v24.18.0`
+- Docker Client: `29.6.1`
+- Docker Compose: `v5.2.0`
+- RAM: approximately `24 GiB`
+- Free disk: approximately `129 GiB`
 
-- macOS 27.0
-- arm64
-- Docker 29.6.1
-- Docker Compose v5.2.0
-- Node.js v24.18.0
-- 24 GiB RAM
-- 132 GiB free disk
+The official Open supOS deployment documentation and supported deployment targets are Ubuntu Server 24.04 and Windows. macOS is not the currently adopted supported deployment target for this verification.
 
-The official deployment repository currently documents and tests Ubuntu Server 24.04 and Windows. It does not document macOS as a supported deployment target.
+No sufficiently resourced Ubuntu Server 24.04 host or suitable Windows runtime host was available for this run.
 
-A Linux Docker host was previously identified for this task, but its recorded resources were below the official `4c8g` profile: 4 CPUs, approximately 3.6 GiB total RAM, and approximately 2.3 GiB available RAM. This run could not re-establish a supported SSH path to that host. No services were stopped to make room.
+Historical context: a previously identified Linux host was below the official `4c8g` resource profile. It is not the current blocker and no services were stopped to make room.
 
-## 3 Services
+## 3 Docker Runtime State
 
-Official Open supOS services were not started.
+The Docker daemon is not available:
+
+```text
+unix:///Users/xieweikai/.docker/run/docker.sock
+```
+
+The socket does not exist, so:
 
 ```text
 docker compose ps
 ```
 
-was therefore not available for an official runtime.
+could not be executed against an official Open supOS runtime.
 
-The current official compose files reference these expected components:
+No Open supOS official service is running.
+
+## 4 Official Runtime Deployment
+
+The official Open supOS runtime was not started.
+
+No official installation command was executed in this run. The deployment repository contains `bin/install.sh`; the English README has historically referenced `bin/startup.sh`, while the Chinese README and actual script inventory agree on `bin/install.sh`.
+
+No upstream source was modified or patched.
+
+## 5 Services
+
+No Open supOS service was started.
+
+The expected upstream service set remains external evidence only:
 
 - backend
 - frontend/static deployment
@@ -49,31 +71,31 @@ The current official compose files reference these expected components:
 - Portainer
 - optional profile services
 
-No service is claimed as running.
+None is claimed as running or healthy.
 
-## 4 MQTT Listener
+## 6 MQTT Verification
 
-The official compose files declare an EMQX listener mapping for port `1883`. They also declare TLS, WebSocket, and dashboard ports. This is static upstream configuration evidence only.
+MQTT listener discovery was not possible without a running official runtime.
 
-No MQTT listener was started or connected to.
+The following checks were not executed:
 
-## 5 Real Broker Probe
+- MQTT connect
+- subscribe ACK
+- broker probe round trip
+- SO-MFG publish through MQTT
 
-Not executed.
+No public MQTT broker, independent EMQX instance, in-memory transport, or direct Adapter call was used as a substitute.
 
-The verifier is designed to run a unique namespace probe:
+## 7 SO-MFG Inbound
+
+No SO-MFG message was published through a real broker.
 
 ```text
-fulfillment-runtime-probe/{run-id}
+messagesPublished = 0
+messagesIngested = 0
 ```
 
-The probe must connect, subscribe with ACK, publish, and receive before any SO-MFG message is sent.
-
-## 6 Real SO-MFG Inbound
-
-Not executed.
-
-The intended path is:
+The intended verification path remains:
 
 ```text
 buildSoMfg001UnsMessages()
@@ -84,114 +106,119 @@ buildSoMfg001UnsMessages()
   -> fresh SQLite
 ```
 
-Direct `adapter.ingest()` and `InMemoryUnsTransport` are not accepted by the real verification command.
+## 8 Fresh DB
 
-## 7 Rebuilt Manufacturing Thread
+No fresh database was rebuilt from MQTT.
 
-Not produced from a real runtime.
-
-Expected target counts remain:
+Observed counts:
 
 ```text
-Context = 1
-SourceSystems = 7
-Entities = 8
-EntityReferences = 8
-Documents = 8
-Events = 11
-Evidence = 11
+SourceSystems      = 0
+Entities           = 0
+EntityReferences   = 0
+Documents          = 0
+Events             = 0
+Evidence           = 0
 ```
 
-## 8 Rule Results
-
-Not run against a runtime-rebuilt database.
-
-Expected target result remains:
+The expected verification target remains:
 
 ```text
-Evaluations = 7
-MATCHED = 4
-NOT_MATCHED = 3
-Exceptions = 4
+7 / 8 / 8 / 8 / 11 / 11
+```
+
+This is an expected target, not a verified result.
+
+## 9 Rule Evaluation
+
+No runtime-rebuilt database was available for rule evaluation.
+
+Observed counts:
+
+```text
+Evaluations     = 0
+MATCHED         = 0
+NOT_MATCHED     = 0
+Exceptions      = 0
 ResolutionCases = 0
 ```
 
-The future verifier provisions only the manufacturing rule catalog after MQTT fact ingestion. It does not provision fixture facts.
-
-## 9 Duplicate Delivery
-
-Not executed against a real broker.
-
-The verifier is prepared to publish the same 11 messages a second time and require unchanged counts for Documents, Events, and Evidence.
-
-## 10 UNS Visibility
+The expected future runtime verification target remains:
 
 ```text
-UNS_VISIBILITY_NOT_VERIFIED
+7 / 4 / 3 / 4
 ```
 
-No claim is made that the topics appear in the Open supOS UNS tree automatically. No namespace, model, topic, or Source Flow was created.
+This is not a runtime-verified result.
 
-## 11 OpenAPI Discovery
+## 10 Duplicate Delivery
+
+A second real MQTT publish batch was not executed.
 
 ```text
-OPEN_API_DISCOVERY_NOT_VERIFIED
+duplicateBatchStable = false
 ```
 
-No gateway or backend route behavior is claimed without a running runtime.
+No duplicate-delivery claim is made.
 
-## 12 Known Platform Issues
+## 11 MES / QMS Lineage
 
-- The English README references `bin/startup.sh`, but the audited commit contains `bin/install.sh`, not `startup.sh`.
-- The Chinese README and actual installation script agree on `bin/install.sh`.
-- The official image registry and deployment services are external dependencies; none were pulled during this blocked run.
-- Public/default credentials in the upstream deployment repository were not used as verification credentials.
+No real runtime ingest occurred, so MES and QMS lineage was not verified.
 
-## 13 Truthfulness Boundary
+## 12 UNS Visibility
+
+```text
+unsVisibility = "not_verified"
+```
+
+No UNS namespace, model, topic, or Source Flow was created.
+
+No automatic or provisioning-required conclusion is claimed without a running runtime.
+
+## 13 OpenAPI Discovery
+
+```text
+openApiGateway = "not_verified"
+```
+
+No running gateway or backend was available to inspect.
+
+## 14 Known Upstream Issue
+
+The English README has historically referenced `bin/startup.sh`, while the audited repository contains `bin/install.sh`. The Chinese README and actual script inventory agree on `bin/install.sh`.
+
+No upstream patch is required for this evidence refresh:
+
+```text
+UPSTREAM_PATCH_REQUIRED = false
+```
+
+## 15 Outbound
+
+Open supOS outbound is not enabled.
+
+No Exception or Resolution was automatically published.
+
+Phase 5B2 has not started.
+
+## 16 Truthfulness Boundary
 
 ```text
 CODE_IMPLEMENTED = true
 LOCAL_TESTED = true
 REAL_OPEN_SUPOS_RUNTIME_VERIFIED = false
+MQTT_RUNTIME_VERIFIED = false
 UNS_MODEL_VERIFIED = false
 SOURCE_FLOW_VERIFIED = false
+OPENAPI_RUNTIME_VERIFIED = false
 OUTBOUND_VERIFIED = false
+PHASE_5B2_STARTED = false
 ```
 
-## Runtime Tooling
-
-The integration now includes:
+## 17 Current Blocker
 
 ```text
-src/integrations/open-supos/runtime-verify.ts
-npm run open-supos:verify
+OPEN_SUPOS_RUNTIME_BLOCKED: NO_SUPPORTED_RUNTIME_HOST
 ```
 
-Without `OPEN_SUPOS_ENABLED=true`, the command returns:
-
-```json
-{
-  "status": "disabled"
-}
-```
-
-Real verification requires:
-
-- `OPEN_SUPOS_MQTT_URL`
-- `OPEN_SUPOS_UPSTREAM_COMMIT=9272ef5f124f317f902a7a6d2302a22a8c2467e3`
-- `OPEN_SUPOS_RUNTIME_CONFIRMED=true`
-- a fresh `PACK_STORE_DB`
-- optional MQTT credentials
-- separate publisher and subscriber client IDs
-
-The verifier rejects public MQTT brokers, mismatched upstream commits, and identical publisher/subscriber client IDs. It records `runtimeVerified=true` only when the built-in MQTT transport is used. Test-injected transports produce `status=simulated` and `runtimeVerified=false`.
-
-The command writes its raw report to `data/runtime/open-supos-verification.json`. A successful run writes the redacted summary to `docs/competition/runtime/open-supos-5b1-summary.json`.
-
-## Blocker
-
-```text
-OPEN_SUPOS_RUNTIME_BLOCKED: INSUFFICIENT_RUNTIME_RESOURCES
-```
-
-The local host is not an officially documented deployment target. The previously identified Linux host is below the official minimum resource profile and was not safely reachable in this run. Starting an under-sized unofficial runtime and calling it verified would violate the fail-closed requirement.
+The current macOS host is not the adopted official deployment target, the local Docker daemon is unavailable, and no sufficiently resourced Ubuntu Server 24.04 or suitable Windows runtime host was available for real Open supOS deployment.

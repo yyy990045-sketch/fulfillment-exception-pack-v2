@@ -26,5 +26,5 @@
   "unsVisibility": "not_verified",
   "openApiGateway": "not_verified",
   "upstreamPatchRequired": false,
-  "blocker": "OPEN_SUPOS_RUNTIME_BLOCKED: INSUFFICIENT_RUNTIME_RESOURCES"
+  "blocker": "OPEN_SUPOS_RUNTIME_BLOCKED: NO_SUPPORTED_RUNTIME_HOST"
 }
