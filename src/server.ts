@@ -67,6 +67,10 @@ import {
   registerBuiltInConnectors,
   requireConnector,
 } from "./connectors/index.js";
+import {
+  PowerBiError,
+  resolvePowerBiEmbedConfig,
+} from "./integrations/powerbi/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { isReadOnlyPrincipal } from "./auth.js";
 import {
@@ -178,6 +182,14 @@ async function serializeCaseMutation<T>(tenantId: string, caseId: string, mutati
 
 function json(res: import("node:http").ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
+  res.end(JSON.stringify(body));
+}
+
+function jsonNoStore(res: import("node:http").ServerResponse, status: number, body: unknown) {
+  res.writeHead(status, {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
+  });
   res.end(JSON.stringify(body));
 }
 
@@ -409,8 +421,12 @@ const server = createServer(async (req, res) => {
       (
         url.pathname === "/operations" ||
         url.pathname === "/operations/" ||
+        url.pathname === "/analytics" ||
+        url.pathname === "/analytics/" ||
         url.pathname === "/workspace" ||
-        url.pathname.startsWith("/workspace/")
+        url.pathname.startsWith("/workspace/") ||
+        url.pathname === "/manufacturing/analytics" ||
+        url.pathname === "/manufacturing/analytics/"
       )
     ) {
       if (serveFrontendSurface(res)) return;
@@ -444,6 +460,10 @@ const server = createServer(async (req, res) => {
         resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
       });
       return json(res, 200, analytics);
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/analytics/powerbi/embed-config") {
+      const auth = authOf(req);
+      return jsonNoStore(res, 200, await resolvePowerBiEmbedConfig(auth));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/outcome-definitions") {
       const tenantId = authOf(req).tenantId;
@@ -1225,6 +1245,7 @@ const server = createServer(async (req, res) => {
     if (error instanceof OutcomeError) return json(res, error.status, { error: error.code });
     if (error instanceof SolutionPackError) return json(res, error.status, { error: error.code });
     if (error instanceof ConnectorError) return json(res, error.status, { error: error.code });
+    if (error instanceof PowerBiError) return jsonNoStore(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {

@@ -1,4 +1,4 @@
-import { Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
+import { BarChart3, Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import { PRODUCT_NAME } from "./product.js";
 const navItems = [
   { to: "/manufacturing/ctx-so-mfg-001", label: "履约风险", icon: ShieldAlert },
   { to: "/operations", label: "运营视图", icon: ChartNoAxesCombined },
+  { to: "/manufacturing/analytics", label: "分析", icon: BarChart3 },
   { to: "/workspace", label: "方案包", icon: Boxes },
 ];
 

@@ -98,4 +98,17 @@ describe("OpenAPI 502 ownership", () => {
     expect(openapi).toContain("    DemoWorkspaceProjection:");
     expect(openapi).toContain("demoWorkspace: { $ref: '#/components/schemas/DemoWorkspaceProjection' }");
   });
+
+  it("defines the Power BI embed boundary without exposing Entra credentials", () => {
+    const block = pathBlock(
+      "/api/v2/analytics/powerbi/embed-config",
+      "/api/v2/solution-packs",
+    );
+    expect(block).toContain("PowerBiEmbedConfig");
+    expect(block).toContain("'503'");
+    expect(openapi).toContain("    PowerBiEmbedConfig:");
+    expect(openapi).toContain("embedToken: { type: string }");
+    expect(openapi).not.toContain("entraAccessToken");
+    expect(openapi).not.toContain("clientSecret");
+  });
 });

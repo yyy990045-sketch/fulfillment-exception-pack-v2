@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, type RouteObject } from "react-router-dom";
 import { AppShell } from "./app-shell.js";
 import { AppProviders } from "./providers.js";
+import { AnalyticsPage } from "../features/analytics/pages/analytics-page.js";
 import { ExceptionRecordPage } from "../features/manufacturing/pages/exception-record-page.js";
 import { ManufacturingContextPage } from "../features/manufacturing/pages/manufacturing-context-page.js";
 import { OperationsPage } from "../features/operations/pages/operations-page.js";
@@ -19,6 +20,8 @@ export const appRoutes: RouteObject[] = [{
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/decision", element: <ExceptionRecordPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/governance", element: <ExceptionRecordPage /> },
     { path: "/operations", element: <OperationsPage /> },
+    { path: "/analytics", element: <AnalyticsPage /> },
+    { path: "/manufacturing/analytics", element: <AnalyticsPage /> },
     { path: "/workspace", element: <SolutionPackPage /> },
     { path: "/workspace/:contextId", element: <GenericContextWorkspacePage /> },
     { path: "*", element: <Navigate to="/manufacturing/ctx-so-mfg-001" replace /> },

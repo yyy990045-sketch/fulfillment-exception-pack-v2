@@ -55,6 +55,7 @@ describe("B2B account area", () => {
 
     expect(screen.getByText("履约异常治理平台")).toBeInTheDocument();
     expect(await screen.findByRole("link", { name: "运营视图" })).toHaveAttribute("href", "/operations");
+    expect(screen.getByRole("link", { name: "分析" })).toHaveAttribute("href", "/manufacturing/analytics");
     expect(screen.getByRole("link", { name: "方案包" })).toHaveAttribute("href", "/workspace");
   });
 

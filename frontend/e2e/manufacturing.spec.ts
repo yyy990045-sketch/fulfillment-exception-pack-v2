@@ -58,7 +58,7 @@ test("manufacturing task routes separate facts, analysis, decision, and governan
   await expect(page.getByRole("heading", { name: "AI 解释" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
-  await page.getByRole("link", { name: "分析", exact: true }).click();
+  await page.getByRole("navigation", { name: "异常记录工作面" }).getByRole("link", { name: "分析", exact: true }).click();
   await expect(page).toHaveURL(/\/analysis\?q=/);
   await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
@@ -179,7 +179,7 @@ test("customer pilot flow keeps confirmation failures retryable and switches dem
   await expect(page.getByTestId("selected-exception-header")).toBeVisible();
   await page.getByRole("link", { name: "证据", exact: true }).click();
   await expect(page.getByTestId("evidence-row")).toHaveCount(2);
-  await page.getByRole("link", { name: "分析", exact: true }).click();
+  await page.getByRole("navigation", { name: "异常记录工作面" }).getByRole("link", { name: "分析", exact: true }).click();
   await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
   await page.getByRole("link", { name: "决策", exact: true }).click();

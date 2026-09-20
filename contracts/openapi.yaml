@@ -262,6 +262,23 @@ paths:
           description: Invalid analytics filter
           content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/analytics/powerbi/embed-config:
+    get:
+      parameters:
+        - { $ref: '#/components/parameters/DemoTenantHeader' }
+        - { $ref: '#/components/parameters/DemoActorHeader' }
+      responses:
+        '200':
+          description: Server-generated Power BI Embed Token configuration. The Entra access token is never returned.
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/PowerBiEmbedConfig' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '502':
+          description: Power BI authentication, report lookup, or embed-token generation failed
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '503':
+          description: Power BI environment configuration is incomplete
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
   /api/v2/solution-packs:
     get:
       parameters:
@@ -1608,6 +1625,18 @@ components:
         outbox: { $ref: '#/components/schemas/ConnectorOutboxItem' }
         attempts: { type: array, items: { $ref: '#/components/schemas/ConnectorDeliveryAttempt' } }
         receipt: { $ref: '#/components/schemas/ConnectorReceipt' }
+    PowerBiEmbedConfig:
+      type: object
+      additionalProperties: false
+      required: [configured, reportId, embedUrl, embedToken, tokenType, expiresAt]
+      properties:
+        configured: { type: boolean, enum: [true] }
+        reportId: { type: string }
+        embedUrl: { type: string }
+        embedToken: { type: string }
+        tokenType: { type: string, enum: [Embed] }
+        expiresAt: { type: string, format: date-time }
+        datasetId: { type: string }
     OperationalAnalyticsResponse:
       type: object
       required: [window, summary, exceptionTrend, exceptionBreakdown, severityBreakdown, resolutionFunnel, rulePerformance, actionBreakdown, sourceSystemInvolvement, contexts, outcomes, metricDefinitions, truthfulness]

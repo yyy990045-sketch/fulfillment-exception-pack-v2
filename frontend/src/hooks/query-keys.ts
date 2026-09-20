@@ -1,5 +1,6 @@
 export const queryKeys = {
   accountContext: (tenantId: string, actorId: string) => ["account-context", tenantId, actorId] as const,
+  powerBiEmbedConfig: (tenantId: string, actorId: string) => ["powerbi-embed-config", tenantId, actorId] as const,
   operationalAnalytics: (tenantId: string, actorId: string, filters: string) => ["operational-analytics", tenantId, actorId, filters] as const,
   solutionPackCatalog: (tenantId: string, actorId: string) => ["solution-pack-catalog", tenantId, actorId] as const,
   solutionPacksInstalled: (tenantId: string, actorId: string) => ["solution-packs-installed", tenantId, actorId] as const,
