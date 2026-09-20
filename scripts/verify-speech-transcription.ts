@@ -28,6 +28,7 @@ import {
   SPEECH_TRANSCRIPTION_INTERFACE_KEY,
   evidenceFromTranscriptSegment,
   resolveSpeechTranscriptionProvider,
+  reverseTraceEvidenceToAudio,
   sourceDocumentFromArtifact,
   transcriptOffsetsFor,
   type AudioArtifactRef,
@@ -75,6 +76,7 @@ const artifact: Record<string, unknown> = {
   temporalEvidence: null,
   realProviderVerified: false,
   realAudioToTemporalEvidenceVerified: false,
+  temporalEvidenceReverseTraceVerified: false,
   verdict: "BLOCKED",
   blocker: null,
   notes: [],
@@ -103,6 +105,7 @@ async function main() {
   const audioBytes = readFileSync(audioPath);
   const contentHash = createHash("sha256").update(audioBytes).digest("hex");
   const parsed = extractPcmFromWav(audioBytes);
+  const durationMs = Math.floor((parsed.pcm.length / (parsed.sampleRateHz * parsed.channels * 2)) * 1000);
   const ref: AudioArtifactRef = {
     artifactId: "a2-authorized-tts-clip",
     mediaType: "audio/wav",
@@ -110,6 +113,7 @@ async function main() {
     byteSize: audioBytes.length,
     sampleRateHz: parsed.sampleRateHz,
     channels: parsed.channels,
+    durationMs,
   };
   artifact.audio = {
     artifactId: ref.artifactId,
@@ -118,6 +122,7 @@ async function main() {
     byteSize: ref.byteSize,
     sampleRateHz: ref.sampleRateHz,
     channels: ref.channels,
+    durationMs: ref.durationMs,
     // 绝不记录本机绝对路径
     sourceNote: "locally synthesized authorized clip; not a field recording",
   };
@@ -169,6 +174,9 @@ async function main() {
     latencyMs,
     capabilityId: result.capabilityId,
     interfaceKey: result.interfaceKey,
+    // R1：时间戳来源机制（来自 provider 声明的白名单成员）
+    timestampProvenance: result.timestampProvenance,
+    timestampsWithinAudioDuration: result.segments.every((seg) => ref.durationMs === undefined || seg.endMs <= ref.durationMs),
   };
 
   // ---- E2E: real segment → Temporal Evidence → persist → reload ----
@@ -192,6 +200,8 @@ async function main() {
       sourceDocumentId: "doc-a2", sourceVersion: "v1", entityId: "ent-a2",
       segment: chosen, observedAt: NOW, createdAt: NOW,
       transcriptOffsets: transcriptOffsetsFor(result.segments, chosen.index),
+      // R1：来源由 provider 声明，未经声明白名单成员无法到达这里
+      timestampProvenance: result.timestampProvenance,
     });
     store.saveEvidence(evidence);
     db.close();
@@ -209,6 +219,34 @@ async function main() {
       && reloaded.quote === chosen.text
       && doc.contentHash === contentHash;
 
+    // ---- R2 + R3：反查回真实音频工件与精确区间，并真实读回该区间 ----
+    let reverseTrace: Record<string, unknown> | null = null;
+    let reverseTraceOk = false;
+    try {
+      const traced = reverseTraceEvidenceToAudio({ evidence: reloaded, sourceDocument: doc, audioPath: resolve(audioPath) });
+      reverseTraceOk = traced.slice.sliceNonEmpty
+        && traced.slice.artifactResolved
+        && traced.slice.intervalWithinDuration === true
+        && traced.trace.artifact.contentHash === contentHash
+        && traced.trace.locatorUsesFileName === false;
+      reverseTrace = {
+        artifactExternalDocumentId: traced.trace.artifact.externalDocumentId,
+        artifactContentHash: traced.trace.artifact.contentHash,
+        interval: { startMs: traced.trace.interval.startMs, endMs: traced.trace.interval.endMs },
+        intervalIsNonEmpty: traced.trace.intervalIsNonEmpty,
+        intervalWithinDuration: traced.trace.intervalWithinDuration,
+        locatorUsesFileName: traced.trace.locatorUsesFileName,
+        timestampProvenance: traced.trace.timestampProvenance,
+        sliceByteStart: traced.slice.byteStart,
+        sliceByteEnd: traced.slice.byteEnd,
+        sliceByteLength: traced.slice.byteLength,
+        sliceNonEmpty: traced.slice.sliceNonEmpty,
+        audioDurationMs: traced.slice.audioDurationMs,
+      };
+    } catch (error) {
+      reverseTrace = { error: (error as { code?: string }).code ?? (error instanceof Error ? error.message : "unknown") };
+    }
+
     artifact.temporalEvidence = {
       evidenceId: reloaded.id,
       segmentIndex: chosen.index,
@@ -224,12 +262,18 @@ async function main() {
       speakerRefIsIdentity: false,
     };
 
+    (artifact.temporalEvidence as Record<string, unknown>).reverseTrace = reverseTrace;
+
     artifact.realProviderVerified = true;
     artifact.realAudioToTemporalEvidenceVerified = preserved;
+    artifact.temporalEvidenceReverseTraceVerified = reverseTraceOk;
 
     if (!preserved) {
       artifact.verdict = "FAILED";
       artifact.blocker = "TEMPORAL_EVIDENCE_NOT_PRESERVED";
+    } else if (!reverseTraceOk) {
+      artifact.verdict = "FAILED";
+      artifact.blocker = "REVERSE_TRACE_FAILED";
     } else if (result.segments.length === 0) {
       artifact.verdict = "PARTIAL";
       artifact.blocker = "NO_SEGMENTS";
@@ -240,6 +284,7 @@ async function main() {
     console.log(`${artifact.verdict}  segments=${result.segments.length} latency=${latencyMs}ms`);
     console.log(`  segment[${chosen.index}] ${chosen.startMs}ms → ${chosen.endMs}ms`);
     console.log(`  temporal evidence preserved through persist+reload: ${preserved}`);
+    console.log(`  reverse trace (Evidence -> artifact + interval -> re-read audio): ${reverseTraceOk}`);
     console.log(`artifact: ${outPath}`);
     process.exitCode = artifact.verdict === "LIVE_VERIFIED" ? 0 : 1;
   } finally {

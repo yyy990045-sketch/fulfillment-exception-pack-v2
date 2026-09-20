@@ -9,9 +9,12 @@
  */
 import {
   SPEECH_TRANSCRIPTION_INTERFACE_KEY,
+  assertKnownTimestampProvenance,
+  type AllowedTimestampProvenance,
   type SpeechTranscriptionInput,
   type SpeechTranscriptionProvider,
   type SpeechTranscriptionResult,
+  type TimestampProvenance,
 } from "../types.js";
 import { joinSegmentText, normalizeTranscriptSegments, type RawTranscriptSegment } from "../normalize.js";
 
@@ -25,6 +28,12 @@ export type FixtureSegment = {
 export type FixtureTranscript = {
   model?: string;
   supportsTimestamps?: boolean;
+  /**
+   * R1：fixture 的时间戳是**人工构造**的，因此默认来源是 `manual_authoring`——
+   * 属于禁止集合。也就是说：**默认情况下 fixture 不能产出 Temporal Evidence**。
+   * 只有当调用方显式改成本白名单内的来源（且确实有对应机制）时才放行。
+   */
+  timestampProvenance?: TimestampProvenance;
   segments: FixtureSegment[];
 };
 
@@ -33,12 +42,17 @@ export class FixtureSpeechTranscriptionProvider implements SpeechTranscriptionPr
   readonly capabilityId = "local-fixture-speech-transcription@v1";
   readonly model: string;
   readonly supportsTimestamps: boolean;
+  readonly timestampProvenance: TimestampProvenance;
   /** 显式标记：这不是真实 ASR。 */
   readonly isRealProvider = false;
 
   constructor(private readonly transcript: FixtureTranscript) {
     this.model = transcript.model ?? "fixture-transcript-v1";
     this.supportsTimestamps = transcript.supportsTimestamps ?? true;
+    // 默认 manual_authoring：如实描述"这是人工构造的时间戳"。
+    // 构造本身合法，但它**不能**产出 Temporal Evidence（门禁在 evidence 边界）。
+    this.timestampProvenance = transcript.timestampProvenance ?? "manual_authoring";
+    assertKnownTimestampProvenance(this.timestampProvenance);
   }
 
   async transcribe(input: SpeechTranscriptionInput): Promise<SpeechTranscriptionResult> {
@@ -56,6 +70,7 @@ export class FixtureSpeechTranscriptionProvider implements SpeechTranscriptionPr
       provider: this.name,
       model: this.model,
       supportsTimestamps: this.supportsTimestamps,
+      timestampProvenance: this.timestampProvenance as never,
       segments,
       text: joinSegmentText(segments),
       latencyMs: Date.now() - startedAt,
@@ -74,6 +89,7 @@ export class FixtureTextOnlyProvider implements SpeechTranscriptionProvider {
   readonly capabilityId = "local-fixture-text-only-asr@v1";
   readonly model = "fixture-text-only-v1";
   readonly supportsTimestamps = false;
+  readonly timestampProvenance = "llm_generated" as const;
   readonly isRealProvider = false;
 
   constructor(private readonly text: string) {}

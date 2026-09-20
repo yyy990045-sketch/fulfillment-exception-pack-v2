@@ -1,6 +1,6 @@
 {
   "schemaVersion": "speech-transcription-verification/v1",
-  "generatedAt": "2026-09-20T14:27:41.598Z",
+  "generatedAt": "2026-09-20T15:17:27.009Z",
   "interfaceKey": "speech_transcription",
   "provider": "dashscope",
   "capabilityId": "dashscope-paraformer-realtime@v1",
@@ -12,6 +12,7 @@
     "byteSize": 327006,
     "sampleRateHz": 16000,
     "channels": 1,
+    "durationMs": 10090,
     "sourceNote": "locally synthesized authorized clip; not a field recording"
   },
   "result": {
@@ -44,9 +45,11 @@
       }
     ],
     "transcriptHash": "54d71122ed455518",
-    "latencyMs": 4628,
+    "latencyMs": 5745,
     "capabilityId": "dashscope-paraformer-realtime@v1",
-    "interfaceKey": "speech_transcription"
+    "interfaceKey": "speech_transcription",
+    "timestampProvenance": "provider_acoustic_alignment",
+    "timestampsWithinAudioDuration": true
   },
   "temporalEvidence": {
     "evidenceId": "ev-a2",
@@ -60,10 +63,28 @@
     "timeRangePreserved": true,
     "artifactHashMatches": true,
     "speakerRef": null,
-    "speakerRefIsIdentity": false
+    "speakerRefIsIdentity": false,
+    "reverseTrace": {
+      "artifactExternalDocumentId": "a2-authorized-tts-clip",
+      "artifactContentHash": "99155c3b336fb7947f3f23952a69baef0362e486ceab061f6104142c05084061",
+      "interval": {
+        "startMs": 7060,
+        "endMs": 10080
+      },
+      "intervalIsNonEmpty": true,
+      "intervalWithinDuration": true,
+      "locatorUsesFileName": false,
+      "timestampProvenance": "provider_acoustic_alignment",
+      "sliceByteStart": 225920,
+      "sliceByteEnd": 322560,
+      "sliceByteLength": 96640,
+      "sliceNonEmpty": true,
+      "audioDurationMs": 10090
+    }
   },
   "realProviderVerified": true,
   "realAudioToTemporalEvidenceVerified": true,
+  "temporalEvidenceReverseTraceVerified": true,
   "verdict": "LIVE_VERIFIED",
   "blocker": null,
   "notes": []

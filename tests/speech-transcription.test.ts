@@ -36,6 +36,11 @@ import {
   transcriptOffsetsFor,
   type MinimalWebSocket,
   type SpeechTranscriptionProvider,
+  ALLOWED_TIMESTAMP_PROVENANCE,
+  FORBIDDEN_TIMESTAMP_PROVENANCE,
+  traceEvidenceToArtifactAndInterval,
+  reverseTraceEvidenceToAudio,
+  sliceAudioInterval,
 } from "../src/intelligence/speech-transcription/index.js";
 
 type DatabaseSyncLike = {
@@ -43,7 +48,7 @@ type DatabaseSyncLike = {
   prepare(sql: string): { all(...p: unknown[]): unknown[]; get(...p: unknown[]): unknown; run(...p: unknown[]): unknown };
   close(): void;
 };
-const sqlite = process.getBuiltinModule("node:sqlite") as { DatabaseSync: new (p: string) => DatabaseSyncLike } | undefined;
+const sqlite = process.getBuiltinModule("node:sqlite") as { DatabaseSync: new (p: string, o?: { readOnly?: boolean }) => DatabaseSyncLike } | undefined;
 if (!sqlite?.DatabaseSync) throw new Error("sqlite_backend_requires_node_22_5_or_newer");
 const DatabaseSync = sqlite.DatabaseSync;
 
@@ -289,6 +294,7 @@ describe("6. speaker attribution boundary", () => {
     const evidence = evidenceFromTranscriptSegment({
       id: "ev-speaker", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
       sourceDocumentId: "doc-1", sourceVersion: "v1", segment: segments[0]!, observedAt: NOW, createdAt: NOW,
+      timestampProvenance: "provider_acoustic_alignment",
     });
     expect(evidence.metadata.speakerRef).toBe("0");
     expect(evidence.metadata.speakerRefIsIdentity).toBe(false);
@@ -349,6 +355,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
       sourceDocumentId: "doc-1", sourceVersion: "v1", entityId: "ent-1",
       segment, observedAt: NOW, createdAt: NOW,
       transcriptOffsets: transcriptOffsetsFor(result.segments, 1),
+      timestampProvenance: "provider_acoustic_alignment",
     });
 
     expect(evidence.locator.startMs).toBe(4460);
@@ -370,6 +377,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
     store.saveEvidence(evidenceFromTranscriptSegment({
       id: "ev-1", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
       sourceDocumentId: "doc-1", sourceVersion: "v1", segment: result.segments[0]!, observedAt: NOW, createdAt: NOW,
+      timestampProvenance: "provider_acoustic_alignment",
     }));
     db.close();
 
@@ -388,6 +396,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
       sourceDocumentId: "doc-1", sourceVersion: "v1",
       segment: { index: 0, text: "x", startMs: 500, endMs: 100, speakerRef: null },
       observedAt: NOW, createdAt: NOW,
+      timestampProvenance: "provider_acoustic_alignment",
     })).toThrowError(DomainError);
   });
 });
@@ -432,5 +441,224 @@ describe("credential hygiene", () => {
     const doc = sourceDocumentFromArtifact({ id: "doc-x", tenantId: TENANT, sourceSystemId: "sys-1", contextId: "ctx-1", artifact: { ...ARTIFACT, artifactId: "recording-x" }, version: "v1", receivedAt: NOW });
     expect(JSON.stringify(doc)).not.toContain(dir);
     expect(JSON.stringify(doc)).not.toContain(file);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase A2 R1 — Timestamp Provenance
+// §20.3 timestamp provenance test：证明时间戳字段来自 provider/alignment 响应，
+//         而不是 LLM 生成或任何本地推断出来的元数据
+// ---------------------------------------------------------------------------
+describe("R1 · timestamp provenance", () => {
+  it("declares an admissible provenance on the real provider", () => {
+    const { provider } = dashscopeWith({ sentences: [] });
+    expect(provider.timestampProvenance).toBe("provider_acoustic_alignment");
+    expect(ALLOWED_TIMESTAMP_PROVENANCE).toContain(provider.timestampProvenance);
+  });
+
+  it("carries the provider-declared provenance through to the result", async () => {
+    const { provider } = dashscopeWith({ sentences: [{ id: 1, begin: 120, end: 900, text: "三号电机" }] });
+    const result = await provider.transcribe({ artifact: ARTIFACT, audio: pcmFrames() });
+    expect(result.timestampProvenance).toBe("provider_acoustic_alignment");
+    // 时间戳确实来自协议里的 begin_time/end_time，而不是任何本地推导
+    expect(result.segments[0]!.startMs).toBe(120);
+    expect(result.segments[0]!.endMs).toBe(900);
+  });
+
+  it("rejects every forbidden provenance at the evidence boundary", () => {
+    for (const forbidden of FORBIDDEN_TIMESTAMP_PROVENANCE) {
+      expect(() => evidenceFromTranscriptSegment({
+        id: `ev-${forbidden}`, tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
+        sourceDocumentId: "doc-1", sourceVersion: "v1",
+        segment: { index: 0, text: "x", startMs: 0, endMs: 100, speakerRef: null },
+        observedAt: NOW, createdAt: NOW,
+        timestampProvenance: forbidden,
+      })).toThrowError(/SPEECH_TIMESTAMP_PROVENANCE_FORBIDDEN/);
+    }
+  });
+
+  it("rejects an undeclared or unknown provenance instead of assuming one", () => {
+    const base = {
+      id: "ev-undeclared", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
+      sourceDocumentId: "doc-1", sourceVersion: "v1",
+      segment: { index: 0, text: "x", startMs: 0, endMs: 100, speakerRef: null },
+      observedAt: NOW, createdAt: NOW,
+    };
+    expect(() => evidenceFromTranscriptSegment({ ...base, timestampProvenance: "" }))
+      .toThrowError(/SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED/);
+    expect(() => evidenceFromTranscriptSegment({ ...base, timestampProvenance: "trust-me-bro" }))
+      .toThrowError(/SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED/);
+  });
+
+  it("prevents a locally authored fixture from producing Temporal Evidence by default", async () => {
+    // fixture 的时间戳是人工构造的 → 默认来源 manual_authoring → 属于禁止集合
+    const fixture = new FixtureSpeechTranscriptionProvider({ segments: [{ text: "人工构造", startMs: 0, endMs: 500 }] });
+    expect(fixture.timestampProvenance).toBe("manual_authoring");
+    const result = await fixture.transcribe({ artifact: ARTIFACT, audio: pcmFrames() });
+    expect(canProduceTemporalEvidence(result)).toBe(false);
+    expect(() => evidenceFromTranscriptSegment({
+      id: "ev-fixture", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
+      sourceDocumentId: "doc-1", sourceVersion: "v1",
+      segment: result.segments[0]!, observedAt: NOW, createdAt: NOW,
+      timestampProvenance: result.timestampProvenance,
+    })).toThrowError(/SPEECH_TIMESTAMP_PROVENANCE_FORBIDDEN/);
+  });
+
+  it("records the provenance on the evidence for later audit", () => {
+    const evidence = evidenceFromTranscriptSegment({
+      id: "ev-prov", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
+      sourceDocumentId: "doc-1", sourceVersion: "v1",
+      segment: { index: 0, text: "x", startMs: 0, endMs: 100, speakerRef: null },
+      observedAt: NOW, createdAt: NOW,
+      timestampProvenance: "forced_alignment",
+    });
+    expect(evidence.metadata.timestampProvenance).toBe("forced_alignment");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase A2 R2/R3 — Artifact + Interval Traceability / Reverse Trace Verification
+// ---------------------------------------------------------------------------
+
+/** 造一个确定性的 PCM WAV：给定毫秒生成静音 PCM。 */
+function writeSilentWav(path: string, durationMs: number, sampleRateHz = 16000, channels = 1) {
+  const frames = Math.round((durationMs / 1000) * sampleRateHz);
+  const dataBytes = frames * channels * 2;
+  const buf = Buffer.alloc(44 + dataBytes);
+  buf.write("RIFF", 0, "ascii");
+  buf.writeUInt32LE(36 + dataBytes, 4);
+  buf.write("WAVE", 8, "ascii");
+  buf.write("fmt ", 12, "ascii");
+  buf.writeUInt32LE(16, 16);
+  buf.writeUInt16LE(1, 20);
+  buf.writeUInt16LE(channels, 22);
+  buf.writeUInt32LE(sampleRateHz, 24);
+  buf.writeUInt32LE(sampleRateHz * channels * 2, 28);
+  buf.writeUInt16LE(channels * 2, 32);
+  buf.writeUInt16LE(16, 34);
+  buf.write("data", 36, "ascii");
+  buf.writeUInt32LE(dataBytes, 40);
+  writeFileSync(path, buf);
+  return { path, durationMs, sampleRateHz, channels, byteSize: buf.length };
+}
+
+describe("R2/R3 · artifact + interval traceability", () => {
+  // 每个用例生成自己的音频：afterEach 会清掉 workspace，共享文件会在首个用例后被删
+  const AUDIO_MS = 12_000;
+  function makeAudio() {
+    return writeSilentWav(join(workspace(), "authorized.wav"), AUDIO_MS);
+  }
+
+  async function persistedEvidence(audio: { path: string; durationMs: number }) {
+    const dir = workspace();
+    const dbPath = join(dir, "pack-cases.sqlite");
+    const db = new DatabaseSync(dbPath);
+    db.exec("PRAGMA foreign_keys = ON");
+    runV2Migrations(db);
+    const store = new V2SqliteStore(db);
+    store.saveContext(createFulfillmentContext({ id: "ctx-1", tenantId: TENANT, businessKey: "SO-1", contextType: "professional_advisory", status: "active", openedAt: NOW, updatedAt: NOW, metadata: {} }));
+    store.saveSourceSystem(createSourceSystem({ id: "sys-1", tenantId: TENANT, name: "授权测试录音", systemType: "file", authorityLevel: "contributing", status: "active", metadata: {} }));
+    store.saveBusinessEntity(createBusinessEntity({ id: "ent-1", tenantId: TENANT, contextId: "ctx-1", entityType: "engagement", businessKey: "ENG-1", attributes: {}, createdAt: NOW, updatedAt: NOW }));
+    store.saveSourceDocument(sourceDocumentFromArtifact({
+      id: "doc-real", tenantId: TENANT, sourceSystemId: "sys-1", contextId: "ctx-1", entityId: "ent-1",
+      artifact: { ...ARTIFACT, durationMs: audio.durationMs }, version: "v1", receivedAt: NOW,
+    }));
+    const { provider } = dashscopeWith({ sentences: [
+      { id: 1, begin: 0, end: 4_460, text: "第一段真实转写" },
+      { id: 2, begin: 4_460, end: 10_200, text: "第二段真实转写" },
+    ] });
+    const result = await provider.transcribe({
+      artifact: { ...ARTIFACT, durationMs: audio.durationMs },
+      audio: { kind: "wav-file", path: audio.path },
+    });
+    store.saveEvidence(evidenceFromTranscriptSegment({
+      id: "ev-real", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
+      sourceDocumentId: "doc-real", sourceVersion: "v1", entityId: "ent-1",
+      segment: result.segments[1]!, observedAt: NOW, createdAt: NOW,
+      timestampProvenance: result.timestampProvenance,
+    }));
+    db.close();
+
+    const reopened = new DatabaseSync(dbPath, { readOnly: true });
+    openDbs.push(reopened);
+    const reopenedStore = new V2SqliteStore(reopened);
+    return {
+      evidence: reopenedStore.getEvidence(TENANT, "ev-real")!,
+      document: reopenedStore.getSourceDocument(TENANT, "doc-real")!,
+    };
+  }
+
+  it("resolves artifact identity and interval from a reloaded evidence record", async () => {
+    const audio = makeAudio();
+    const { evidence, document } = await persistedEvidence(audio);
+    const trace = traceEvidenceToArtifactAndInterval({ evidence, sourceDocument: document });
+    expect(trace.artifact.externalDocumentId).toBe(ARTIFACT.artifactId);
+    expect(trace.artifact.contentHash).toBe(AUDIO_HASH);
+    expect(trace.artifact.mediaType).toBe("audio/wav");
+    expect(trace.interval.startMs).toBe(4_460);
+    expect(trace.interval.endMs).toBe(10_200);
+    expect(trace.intervalIsNonEmpty).toBe(true);
+    expect(trace.locatorUsesFileName).toBe(false);
+    expect(trace.timestampProvenance).toBe("provider_acoustic_alignment");
+  });
+
+  it("proves the interval fits inside the real audio duration", async () => {
+    const audio = makeAudio();
+    const { evidence, document } = await persistedEvidence(audio);
+    const trace = traceEvidenceToArtifactAndInterval({ evidence, sourceDocument: document });
+    expect(trace.artifact.durationMs).toBe(AUDIO_MS);
+    expect(trace.intervalWithinDuration).toBe(true);
+  });
+
+  it("reverse-traces back into the original audio and re-reads that exact interval", async () => {
+    const audio = makeAudio();
+    const { evidence, document } = await persistedEvidence(audio);
+    const { trace, slice } = reverseTraceEvidenceToAudio({ evidence, sourceDocument: document, audioPath: audio.path });
+    // 定位信息确实足以重新读取该区间
+    expect(slice.sliceNonEmpty).toBe(true);
+    expect(slice.byteLength).toBeGreaterThan(0);
+    // 毫秒 → 字节换算可验证：16kHz/mono/16bit ⇒ 每毫秒 32 字节
+    const expectedBytes = Math.ceil(10_200 * 32) - Math.floor(4_460 * 32);
+    expect(slice.byteLength).toBe(expectedBytes);
+    expect(slice.audioDurationMs).toBe(AUDIO_MS);
+    expect(slice.artifactResolved).toBe(true);
+    expect(trace.artifact.contentHash).toBe(AUDIO_HASH);
+  });
+
+  it("re-reads a different interval to a different slice (not a constant)", async () => {
+    const audio = makeAudio();
+    const { evidence, document } = await persistedEvidence(audio);
+    const full = traceEvidenceToArtifactAndInterval({ evidence, sourceDocument: document });
+    const first = sliceAudioInterval(audio.path, 0, 1_000);
+    const second = sliceAudioInterval(audio.path, full.interval.startMs, full.interval.endMs);
+    expect(first.length).not.toBe(second.length);
+  });
+
+  it("fails closed when the interval exceeds the real audio", () => {
+    const audio = makeAudio();
+    expect(() => sliceAudioInterval(audio.path, 11_000, 99_000)).toThrowError(/SPEECH_SEGMENT_EXCEEDS_DURATION/);
+  });
+
+  it("fails closed on an empty or inverted interval", () => {
+    const audio = makeAudio();
+    expect(() => sliceAudioInterval(audio.path, 500, 500)).toThrowError(/SPEECH_SEGMENT_BOUNDS_INVALID/);
+    expect(() => sliceAudioInterval(audio.path, 900, 100)).toThrowError(/SPEECH_SEGMENT_BOUNDS_INVALID/);
+  });
+
+  it("rejects a segment whose endMs exceeds the declared audio duration", () => {
+    expect(() => normalizeTranscriptSegments([{ text: "x", startMs: 0, endMs: 20_000 }], 12_000))
+      .toThrowError(/SPEECH_SEGMENT_EXCEEDS_DURATION/);
+    // 时长未知时跳过该检查，而不是猜
+    expect(() => normalizeTranscriptSegments([{ text: "x", startMs: 0, endMs: 20_000 }]))
+      .not.toThrow();
+  });
+
+  it("refuses to trace an evidence that has no temporal locator", () => {
+    const { evidence, document } = { evidence: null as never, document: null as never };
+    void evidence; void document;
+    expect(() => traceEvidenceToArtifactAndInterval({
+      evidence: { id: "ev-doc", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1", sourceDocumentId: "doc", sourceVersion: "v1", field: "f", value: "v", valueType: "string", locator: { fileName: "a.csv" }, quote: "q", confidence: 1, support: "supported", observedAt: NOW, createdAt: NOW, metadata: {} },
+      sourceDocument: { id: "doc", tenantId: TENANT, sourceSystemId: "sys-1", externalDocumentId: "a", documentType: "t", contentHash: "h", receivedAt: NOW, effectiveAt: null, version: "v1", metadata: {} },
+    })).toThrowError(/SPEECH_SEGMENT_BOUNDS_INVALID/);
   });
 });

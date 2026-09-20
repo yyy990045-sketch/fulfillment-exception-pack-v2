@@ -26,7 +26,7 @@ import {
   type SourceDocument,
   type V2Evidence,
 } from "../../domain/v2/index.js";
-import type { AudioArtifactRef, TranscriptSegment } from "./types.js";
+import { assertTimestampProvenance, type AudioArtifactRef, type TranscriptSegment } from "./types.js";
 
 /** 音频工件 → `SourceDocument`（语义身份；contentHash 是身份真相）。 */
 export function sourceDocumentFromArtifact(input: {
@@ -54,6 +54,7 @@ export function sourceDocumentFromArtifact(input: {
     // 工件自身的媒体类型/大小属于"哪个材料"，不属于"哪一段"
     metadata: {
       mediaType: input.artifact.mediaType,
+      ...(input.artifact.durationMs !== undefined ? { durationMs: input.artifact.durationMs } : {}),
       ...(input.artifact.byteSize !== undefined ? { byteSize: input.artifact.byteSize } : {}),
       ...(input.artifact.sampleRateHz !== undefined ? { sampleRateHz: input.artifact.sampleRateHz } : {}),
       ...(input.artifact.channels !== undefined ? { channels: input.artifact.channels } : {}),
@@ -82,6 +83,12 @@ export function evidenceFromTranscriptSegment(input: {
   entityId?: string;
   eventId?: string;
   segment: TranscriptSegment;
+  /**
+   * R1 必需：这段时间戳的来源机制。
+   * 未声明、未知、或属于禁止集合（LLM 生成 / 提示词输出 / 手工编造 / 文本长度估算 …）
+   * 一律 fail closed —— 这是"不得用生成模型产出时间戳"的**唯一入口**。
+   */
+  timestampProvenance: string;
   /** 观察发生的时间（摄取/转写时刻）。**不是**录音发生时间。 */
   observedAt: string;
   createdAt: string;
@@ -93,6 +100,8 @@ export function evidenceFromTranscriptSegment(input: {
   /** 仅当**确实知道**录音发生时间时才传；不知道就不要传。 */
   recordingOccurredAt?: string;
 }): V2Evidence {
+  // R1 门禁：来源不合格立即抛错，不进入 Evidence
+  assertTimestampProvenance(input.timestampProvenance);
   const speakerRef = input.segment.speakerRef ?? null;
   return createEvidence({
     id: input.id,
@@ -125,6 +134,8 @@ export function evidenceFromTranscriptSegment(input: {
       speakerRefIsIdentity: false,
       // 时间语义显式标注：偏移是相对工件起点，不是 wall-clock
       timeBase: "offset_from_artifact_start",
+      // 把来源机制记进 metadata，便于事后审计"这条时间片凭什么可信"
+      timestampProvenance: input.timestampProvenance,
       ...(input.recordingOccurredAt ? { recordingOccurredAt: input.recordingOccurredAt } : {}),
     },
   });

@@ -47,6 +47,13 @@ export type AudioArtifactRef = {
   /** 采样率 / 声道等，可选，仅描述用途。 */
   sampleRateHz?: number;
   channels?: number;
+  /**
+   * 音频总时长（毫秒），可选。
+   *
+   * 它是音频内容的稳定属性（同一份字节算出的值相同），因此属于语义身份；
+   * runtime 若能可靠取得就填上，R2/R3 的"区间不超出时长"校验依赖它。
+   */
+  durationMs?: number;
 };
 
 /**
@@ -94,6 +101,84 @@ export type TranscriptSegment = {
   speakerRef: string | null;
 };
 
+/**
+ * 时间戳来源机制（R1 — Timestamp Provenance）。
+ *
+ * 任何进入 Temporal Evidence 的 `startMs` / `endMs` **必须**能说明它来自哪一种
+ * **可验证的音频处理机制**。这份白名单就是那个可检查的边界。
+ */
+export const ALLOWED_TIMESTAMP_PROVENANCE = [
+  /** provider 侧的真实声学对齐输出 */
+  "provider_acoustic_alignment",
+  /** 强制对齐（forced alignment） */
+  "forced_alignment",
+  /** 确定性的音频对齐处理 */
+  "deterministic_audio_alignment",
+] as const;
+export type AllowedTimestampProvenance = (typeof ALLOWED_TIMESTAMP_PROVENANCE)[number];
+
+/**
+ * 明确**禁止**的时间戳来源。
+ *
+ * 把这七种写进代码（而不是只写在注释里），是为了让"拒绝"成为**可执行、可测试**的规则：
+ * 一旦某个 provider 声明了其中之一，它就不能产出 Temporal Evidence。
+ */
+export const FORBIDDEN_TIMESTAMP_PROVENANCE = [
+  "llm_generated",
+  "prompt_output",
+  "wall_clock",
+  "projected_at",
+  "manual_authoring",
+  "estimated_from_text_length",
+  "offset_inferred_from_characters",
+] as const;
+export type ForbiddenTimestampProvenance = (typeof FORBIDDEN_TIMESTAMP_PROVENANCE)[number];
+
+export type TimestampProvenance = AllowedTimestampProvenance | ForbiddenTimestampProvenance;
+
+export function isAllowedTimestampProvenance(value: string): value is AllowedTimestampProvenance {
+  return (ALLOWED_TIMESTAMP_PROVENANCE as readonly string[]).includes(value);
+}
+
+export function isForbiddenTimestampProvenance(value: string): value is ForbiddenTimestampProvenance {
+  return (FORBIDDEN_TIMESTAMP_PROVENANCE as readonly string[]).includes(value);
+}
+
+/**
+ * 校验来源声明是**已知**的（白名单或黑名单皆可）。
+ *
+ * 用途：provider **构造**时自证"我是一个什么来源的能力"。
+ * 一个 fixture 声明自己是 `manual_authoring` 是**如实描述**，不是违规——
+ * 违规发生在"用它产出 Temporal Evidence"的那一刻。所以这里只挡未知值（防拼写错误），
+ * 不挡禁止值。
+ */
+export function assertKnownTimestampProvenance(value: unknown): asserts value is TimestampProvenance {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new SpeechTranscriptionError("SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED", 502, "provider must declare timestamp provenance");
+  }
+  if (!isAllowedTimestampProvenance(value) && !isForbiddenTimestampProvenance(value)) {
+    throw new SpeechTranscriptionError("SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED", 502, `unknown timestamp provenance "${value}"`);
+  }
+}
+
+/**
+ * 校验来源声明**可被采纳**：未声明、不认识、或属于禁止集合，一律 fail closed。
+ *
+ * 注意"不认识"也必须拒绝——否则新增一个来路不明的机制字符串就能绕过白名单。
+ * 这是 Evidence 边界的门禁（`evidenceFromTranscriptSegment` 调用它）。
+ */
+export function assertTimestampProvenance(value: unknown): asserts value is AllowedTimestampProvenance {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new SpeechTranscriptionError("SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED", 502, "provider must declare timestamp provenance");
+  }
+  if (isForbiddenTimestampProvenance(value)) {
+    throw new SpeechTranscriptionError("SPEECH_TIMESTAMP_PROVENANCE_FORBIDDEN", 502, `timestamp provenance "${value}" is not admissible for Temporal Evidence`);
+  }
+  if (!isAllowedTimestampProvenance(value)) {
+    throw new SpeechTranscriptionError("SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED", 502, `unknown timestamp provenance "${value}"`);
+  }
+}
+
 export type SpeechTranscriptionResult = {
   /** 接口键，恒等于 `speech_transcription`。 */
   interfaceKey: SpeechTranscriptionInterfaceKey;
@@ -105,6 +190,8 @@ export type SpeechTranscriptionResult = {
   model: string;
   /** provider 是否提供可靠的时间片。false 表示本能力对时序证据只是 PARTIAL。 */
   supportsTimestamps: boolean;
+  /** R1：时间戳来自哪一种可验证的音频处理机制（恒为白名单成员）。 */
+  timestampProvenance: AllowedTimestampProvenance;
   /** 规范化后的片段；**保证**已通过 `assertTranscriptSegment`。 */
   segments: TranscriptSegment[];
   /** 拼接文本（便于阅读，不作为定位依据）。 */
@@ -121,6 +208,9 @@ export type SpeechTranscriptionErrorCode =
   | "SPEECH_TRANSCRIPT_EMPTY"
   | "SPEECH_SEGMENT_TEXT_EMPTY"
   | "SPEECH_SEGMENT_BOUNDS_INVALID"
+  | "SPEECH_SEGMENT_EXCEEDS_DURATION"
+  | "SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED"
+  | "SPEECH_TIMESTAMP_PROVENANCE_FORBIDDEN"
   | "SPEECH_PROVIDER_TIMEOUT"
   | "SPEECH_PROVIDER_PROTOCOL_ERROR";
 
@@ -150,5 +240,8 @@ export interface SpeechTranscriptionProvider {
   readonly model: string;
   /** 该 provider 是否提供可靠时间片。 */
   readonly supportsTimestamps: boolean;
+  /** R1：该 provider 的时间戳来源。构造时即校验，禁止值无法成为 provider。 */
+  readonly timestampProvenance: TimestampProvenance;
   transcribe(input: SpeechTranscriptionInput): Promise<SpeechTranscriptionResult>;
 }
+

@@ -101,6 +101,12 @@ export class DashScopeRealtimeSpeechTranscriptionProvider implements SpeechTrans
   readonly model: string;
   readonly supportsTimestamps = true;
   readonly isRealProvider = true;
+  /**
+   * R1：`paraformer-realtime-v2` 返回的是**声学对齐**产生的句级/逐词时间
+   * （`result-generated` 事件的 `sentence.begin_time/end_time` 与 `words[].begin_time/end_time`），
+   * 不是模型自由生成的时间线。实测依据见 docs/competition/runtime/speech-transcription-verification.json。
+   */
+  readonly timestampProvenance = "provider_acoustic_alignment" as const;
 
   constructor(private readonly config: DashScopeRealtimeConfig) {
     if (!config.apiKey?.trim()) throw new SpeechTranscriptionError("SPEECH_PROVIDER_NOT_CONFIGURED", 503, "DASHSCOPE_API_KEY missing");
@@ -213,13 +219,15 @@ export class DashScopeRealtimeSpeechTranscriptionProvider implements SpeechTrans
     });
 
     const ordered = [...finalized.entries()].sort((a, b) => a[0] - b[0]).map(([, value]) => value);
-    const segments = normalizeTranscriptSegments(ordered);
+    // R2：若工件声明了总时长，则用它校验区间不越界（拿不到时长时不猜）
+    const segments = normalizeTranscriptSegments(ordered, input.artifact.durationMs);
     return {
       interfaceKey: SPEECH_TRANSCRIPTION_INTERFACE_KEY,
       capabilityId: this.capabilityId,
       provider: this.name,
       model: this.model,
       supportsTimestamps: this.supportsTimestamps,
+      timestampProvenance: this.timestampProvenance,
       segments,
       text: joinSegmentText(segments),
       latencyMs: Date.now() - startedAt,

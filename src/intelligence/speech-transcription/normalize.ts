@@ -13,6 +13,7 @@
  */
 import {
   SpeechTranscriptionError,
+  isAllowedTimestampProvenance,
   type TranscriptSegment,
 } from "./types.js";
 
@@ -28,8 +29,13 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-/** 单段校验：任何一条不满足即抛错，不做修补。 */
-export function assertTranscriptSegment(segment: TranscriptSegment): void {
+/**
+ * 单段校验：任何一条不满足即抛错，不做修补。
+ *
+ * `durationMs` 为可确认的音频总时长时（R2/R3），额外校验区间不超出时长。
+ * 无法可靠取得时长时传 undefined，此时跳过该项而**不**猜测。
+ */
+export function assertTranscriptSegment(segment: TranscriptSegment, durationMs?: number): void {
   if (typeof segment.text !== "string" || segment.text.trim().length === 0) {
     throw new SpeechTranscriptionError("SPEECH_SEGMENT_TEXT_EMPTY", 502, `segment ${segment.index}`);
   }
@@ -50,6 +56,19 @@ export function assertTranscriptSegment(segment: TranscriptSegment): void {
       `segment ${segment.index}: endMs (${segment.endMs}) must be greater than startMs (${segment.startMs})`,
     );
   }
+  if (durationMs !== undefined) {
+    if (!isFiniteNumber(durationMs) || durationMs <= 0) {
+      throw new SpeechTranscriptionError("SPEECH_AUDIO_UNREADABLE", 422, `unusable durationMs: ${String(durationMs)}`);
+    }
+    if (segment.endMs > durationMs) {
+      // 越界一律 fail closed：不 clamp、不截断、不丢弃该段
+      throw new SpeechTranscriptionError(
+        "SPEECH_SEGMENT_EXCEEDS_DURATION",
+        502,
+        `segment ${segment.index}: endMs (${segment.endMs}) exceeds audio duration (${durationMs})`,
+      );
+    }
+  }
 }
 
 /**
@@ -60,7 +79,7 @@ export function assertTranscriptSegment(segment: TranscriptSegment): void {
  * - `speakerRef` 只在 provider 真实给出非空字符串时保留，否则为 `null`（绝不猜）
  * - 全部结果为空 → `SPEECH_TRANSCRIPT_EMPTY`
  */
-export function normalizeTranscriptSegments(raw: readonly RawTranscriptSegment[]): TranscriptSegment[] {
+export function normalizeTranscriptSegments(raw: readonly RawTranscriptSegment[], durationMs?: number): TranscriptSegment[] {
   const segments: TranscriptSegment[] = raw.map((item, index) => ({
     index,
     text: typeof item.text === "string" ? item.text : "",
@@ -69,7 +88,7 @@ export function normalizeTranscriptSegments(raw: readonly RawTranscriptSegment[]
     speakerRef: typeof item.speakerRef === "string" && item.speakerRef.trim().length > 0 ? item.speakerRef : null,
   }));
   if (segments.length === 0) throw new SpeechTranscriptionError("SPEECH_TRANSCRIPT_EMPTY", 502);
-  for (const segment of segments) assertTranscriptSegment(segment);
+  for (const segment of segments) assertTranscriptSegment(segment, durationMs);
   return segments;
 }
 
@@ -86,9 +105,12 @@ export function joinSegmentText(segments: readonly TranscriptSegment[]): string 
  */
 export function canProduceTemporalEvidence(result: {
   supportsTimestamps: boolean;
+  /** R1：没有合格来源声明时，本函数同样返回 false。 */
+  timestampProvenance?: string;
   segments: readonly TranscriptSegment[];
 }): boolean {
   if (!result.supportsTimestamps) return false;
+  if (result.timestampProvenance !== undefined && !isAllowedTimestampProvenance(result.timestampProvenance)) return false;
   if (result.segments.length === 0) return false;
   return result.segments.every(
     (segment) => isFiniteNumber(segment.startMs) && isFiniteNumber(segment.endMs) && segment.endMs > segment.startMs,
