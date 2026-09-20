@@ -2351,6 +2351,19 @@ export class V2SqliteStore {
     });
   }
 
+  countPendingConnectorSourceRecords(tenantId: string, recordIds: string[]): number {
+    if (!recordIds.length) return 0;
+    const placeholders = recordIds.map(() => "?").join(",");
+    const row = this.db.prepare(`
+      SELECT COUNT(*) as count
+      FROM connector_source_records
+      WHERE tenant_id = ?
+        AND id IN (${placeholders})
+        AND downstream_processed_at IS NULL
+    `).get(tenantId, ...recordIds) as { count: number };
+    return row.count;
+  }
+
   enqueueConnectorOutbox(input: ConnectorOutboxRecord): ConnectorOutboxRecord {
     const existing = this.getConnectorOutboxByOperationKey(input.tenantId, input.operationKey);
     if (existing) return existing;

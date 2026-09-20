@@ -3,7 +3,7 @@ import { createServer, type Server } from "node:http";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ConnectorError,
   ReferenceFulfillmentSourceAdapter,
@@ -146,6 +146,10 @@ function pageC() {
   return referenceRecord({ externalRecordId: "external-quote-2", entityType: "quote", businessKey: "QT-INBOUND-001", value: 100 });
 }
 
+function expectCursorInvariant(result: Awaited<ReturnType<typeof runSync>>) {
+  expect(result.run.committedCursor).toBe(result.state.lastSuccessfulCursor);
+}
+
 afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => new Promise<void>((resolve) => server.close(() => resolve()))));
   for (const db of databases.splice(0)) db.close();
@@ -156,6 +160,43 @@ describe("Inbound Connector Runtime", () => {
     expect(canAdvanceInboundCursor({ recordsRejected: 0, downstreamPending: 0 })).toBe(true);
     expect(canAdvanceInboundCursor({ recordsRejected: 1, downstreamPending: 0 })).toBe(false);
     expect(canAdvanceInboundCursor({ recordsRejected: 0, downstreamPending: 1 })).toBe(false);
+  });
+
+  it("keeps run and state cursors equal on single-page success", async () => {
+    const baseUrl = await startServer((_request, response) => {
+      json(response, 200, { records: [pageA(), pageB()], nextCursor: "single-end", hasMore: false });
+    });
+    const store = openStore();
+    await installReferenceInbound(store, baseUrl);
+    saveMapping(store, "v1");
+
+    const result = await runSync(store, { runId: "single-page" });
+    expectCursorInvariant(result);
+    expect(result.run).toMatchObject({ status: "succeeded", committedCursor: "single-end" });
+    expect(result.state.lastSuccessfulCursor).toBe("single-end");
+  });
+
+  it("fails closed when downstream ledger marking leaves pending records", async () => {
+    const baseUrl = await startServer((_request, response) => {
+      json(response, 200, { records: [pageA(), pageB()], nextCursor: "pending", hasMore: false });
+    });
+    const store = openStore();
+    await installReferenceInbound(store, baseUrl);
+    saveMapping(store, "v1");
+    const markSpy = vi.spyOn(store, "markConnectorSourceRecordsDownstreamProcessed")
+      .mockImplementation(() => undefined);
+
+    const result = await runSync(store, { runId: "pending-downstream" });
+    expectCursorInvariant(result);
+    expect(result.run).toMatchObject({
+      status: "blocked",
+      lastErrorCode: "DOWNSTREAM_PROCESSING_INCOMPLETE",
+      committedCursor: null,
+    });
+    expect(result.state.lastSuccessfulCursor).toBeNull();
+    const ledgerIds = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a").map((item) => item.id);
+    expect(store.countPendingConnectorSourceRecords("tenant-a", ledgerIds)).toBe(2);
+    markSpy.mockRestore();
   });
 
   it("reads multiple pages, persists cursor, commits Evidence, and runs rules", async () => {
@@ -171,6 +212,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const result = await runSync(store);
+    expectCursorInvariant(result);
     expect(result.run).toMatchObject({ status: "succeeded", recordsRead: 3, recordsCommitted: 3, recordsAccepted: 3, recordsRejected: 0, recordsDuplicate: 0 });
     expect(result.state.lastSuccessfulCursor).toBe("3");
     expect(store.listConnectorSourceRecords("tenant-a", "inbound-installation-a")).toHaveLength(3);
@@ -212,6 +254,7 @@ describe("Inbound Connector Runtime", () => {
       recordsRejected: 0,
       recordsDuplicate: 0,
     });
+    expectCursorInvariant(failed);
     expect(failed.state.lastSuccessfulCursor).toBeNull();
     const failedLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
     expect(failedLedger).toHaveLength(2);
@@ -219,6 +262,7 @@ describe("Inbound Connector Runtime", () => {
     expect(store.listExceptions("tenant-a", "ctx-inbound-001")).toHaveLength(0);
 
     const replay = await runSync(store, { runId: "run-replay" });
+    expectCursorInvariant(replay);
     expect(replay.run).toMatchObject({ status: "succeeded", recordsDuplicate: 2, recordsCommitted: 1, recordsAccepted: 1 });
     expect(replay.state.lastSuccessfulCursor).toBe("3");
     const replayLedger = store.listConnectorSourceRecords("tenant-a", "inbound-installation-a");
@@ -245,6 +289,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const blocked = await runSync(store, { runId: "rejected-first" });
+    expectCursorInvariant(blocked);
     expect(blocked.run).toMatchObject({
       status: "failed",
       lastErrorCode: "RECORD_REJECTED",
@@ -265,6 +310,7 @@ describe("Inbound Connector Runtime", () => {
 
     invalid = false;
     const replay = await runSync(store, { runId: "rejected-replay" });
+    expectCursorInvariant(replay);
     expect(replay.run).toMatchObject({
       status: "succeeded",
       recordsRead: 3,
@@ -291,6 +337,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const result = await runSync(store);
+    expectCursorInvariant(result);
     expect(result.run).toMatchObject({
       status: "failed",
       lastErrorCode: "RATE_LIMITED",
@@ -310,6 +357,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const result = await runSync(store);
+    expectCursorInvariant(result);
     expect(result.run).toMatchObject({ status: "blocked", lastErrorCode: "INVALID_RESPONSE", errorClass: "blocked" });
     expect(result.state.lastSuccessfulCursor).toBeNull();
   });
@@ -321,6 +369,7 @@ describe("Inbound Connector Runtime", () => {
     saveMapping(store, "v1");
 
     const result = await runSync(store);
+    expectCursorInvariant(result);
     expect(result.run).toMatchObject({
       status: "failed",
       lastErrorCode: "TIMEOUT",

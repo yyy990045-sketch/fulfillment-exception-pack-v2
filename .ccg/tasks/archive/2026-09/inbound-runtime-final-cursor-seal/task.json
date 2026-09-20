@@ -1,0 +1,12 @@
+{
+  "id": "inbound-runtime-final-cursor-seal",
+  "title": "Inbound Runtime Final Cursor Seal",
+  "status": "completed",
+  "complexity": "S",
+  "risk": "high",
+  "domain": "connectors",
+  "currentPhase": "completed",
+  "nextAction": "Archive after commit and push",
+  "createdAt": "2026-09-20T01:10:00Z",
+  "branch": "main"
+}

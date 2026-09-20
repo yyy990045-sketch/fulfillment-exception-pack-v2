@@ -80,7 +80,7 @@ function errorClassification(error: unknown): {
         : {}),
     };
   }
-  if (["AUTHENTICATION_FAILED", "PERMISSION_DENIED", "INVALID_RESPONSE", "MAPPING_FAILED", "CURSOR_INVALID", "CONNECTOR_NOT_FOUND"].includes(code)) {
+  if (["AUTHENTICATION_FAILED", "PERMISSION_DENIED", "INVALID_RESPONSE", "MAPPING_FAILED", "CURSOR_INVALID", "CONNECTOR_NOT_FOUND", "DOWNSTREAM_PROCESSING_INCOMPLETE"].includes(code)) {
     return { code, errorClass: "blocked" };
   }
   return { code, errorClass: "permanent" };
@@ -312,8 +312,16 @@ export async function runInboundSync(
         [...pageLedgerIds],
         clock().toISOString(),
       );
-      if (!canAdvanceInboundCursor({ recordsRejected: pageRejected, downstreamPending: 0 })) {
-        throw new ConnectorError("RECORD_REJECTED", 422, { retryable: false });
+      const downstreamPending = store.countPendingConnectorSourceRecords(
+        input.tenantId,
+        [...pageLedgerIds],
+      );
+      if (!canAdvanceInboundCursor({ recordsRejected: pageRejected, downstreamPending })) {
+        throw new ConnectorError(
+          downstreamPending > 0 ? "DOWNSTREAM_PROCESSING_INCOMPLETE" : "RECORD_REJECTED",
+          422,
+          { retryable: false },
+        );
       }
 
       accepted.push(...pageAccepted);
@@ -322,6 +330,10 @@ export async function runInboundSync(
         lastSuccessfulCursor: attemptedCursor,
         lastAttemptedCursor: attemptedCursor,
         updatedAt: clock().toISOString(),
+      });
+      run = store.saveConnectorSyncRun({
+        ...run,
+        committedCursor: state.lastSuccessfulCursor,
       });
       if (!page.hasMore) {
         run = store.saveConnectorSyncRun({
