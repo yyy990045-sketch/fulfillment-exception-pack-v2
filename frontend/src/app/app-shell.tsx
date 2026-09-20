@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   to={item.to}
                   className={({ isActive }) => cn(
                     "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
-                    isActive && "bg-interactive/[0.08] font-medium text-interactive hover:bg-interactive/[0.08] hover:text-interactive",
+                    isActive && "bg-surface-subtle font-medium text-text-primary hover:bg-surface-subtle hover:text-text-primary",
                   )}
                 >
                   <item.icon className="size-4" aria-hidden="true" />

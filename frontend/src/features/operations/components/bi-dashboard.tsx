@@ -14,13 +14,14 @@ import {
   RankingBars,
   RuleRateTable,
   SEVERITY_COLORS,
-  SourceShare,
+  SourceComposition,
   StageFunnel,
   VisualCard,
   VisualEmpty,
   VisualError,
   VisualLoading,
   formatPercent,
+  hasValueSpread,
   type CategoryDatum,
   type RuleRateRow,
 } from "./bi-visuals.js";
@@ -141,14 +142,14 @@ export function BiDashboard({
   const contexts = view?.contexts.length ?? 0;
   const coverage = summary?.governanceCoverageRate ?? 0;
   const ruleEvaluations = summary?.ruleEvaluationCount ?? 0;
-  const overallRuleRate = ruleEvaluations > 0 ? (summary?.matchedRuleEvaluationCount ?? 0) / ruleEvaluations : null;
   const ruleTotal = ruleEvaluations > 0
     ? { matched: summary?.matchedRuleEvaluationCount ?? 0, evaluations: ruleEvaluations }
     : undefined;
-  const closedCount = Number(funnel?.closed ?? 0);
+  const coverageZero = coverage <= 0;
+  const exceptionSpread = hasValueSpread(exceptionData);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* 切片器书签：点击切换队列视图，等同于 Power BI 的书签/切片 */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile icon={ClipboardList} label="待处理异常" value={loading ? "—" : viewCounts.pending} toneClass="bg-interactive/[0.08] text-interactive" active={activeView === "pending"} onClick={() => onSelectView("pending")} />
@@ -185,14 +186,13 @@ export function BiDashboard({
           <DonutChart data={severityData} {...(severity ? { selectedKey: severity } : {})} onSelect={onSelectSeverity} />
         </VisualCard>
 
-        {/* A. 排行榜卡片：序号 + 名称 + 长度条 + 数量/占比 */}
+        {/* A. 排行榜卡片：序号 + 名称 + 长度条 + 数量（数量无差异时不画长度） */}
         <VisualCard
           testId="bi-visual-exception"
           title="异常类型排行"
-          subtitle={`按异常数量排序 · 点击类型可下钻队列${exceptionTruncated ? `（取前 ${exceptionData.length} 类）` : ""}`}
-          actions={<><span>合计</span><span className="font-semibold tabular-nums text-text-primary">{detected}</span></>}
+          subtitle={`${detected} 个异常 · ${contexts} 个业务上下文`}
           className="col-span-12 xl:col-span-6"
-          bodyClassName="flex min-h-[276px] flex-col"
+          bodyClassName="flex flex-col"
         >
           {visualState({ loading, error, hasData: exceptionData.length > 0 }) ?? (
             <>
@@ -201,65 +201,70 @@ export function BiDashboard({
                 {...(exceptionCode ? { selectedKey: exceptionCode } : {})}
                 onSelect={onSelectExceptionCode}
               />
-              <p className="mt-auto pt-3 text-[10.5px] text-text-muted">
-                数量为该类型在当前筛选下的异常数，占比按本卡合计计算。
+              <p className="mt-3 text-[11px] text-text-muted">
+                {exceptionSpread
+                  ? `按异常数量排序${exceptionTruncated ? ` · 取前 ${exceptionData.length} 类` : ""} · 点击类型可下钻队列`
+                  : "当前各类型数量相同，未按长度排序 · 点击类型可下钻队列"}
               </p>
             </>
           )}
         </VisualCard>
 
-        {/* B. 阶段漏斗：居中收窄 + 阶段序号 + 0 值虚线占位 */}
+        {/* B. 阶段漏斗：逐级缩进收窄，0 值只留短痕 */}
         <VisualCard
           testId="bi-visual-funnel"
           title="治理推进漏斗"
-          subtitle="自上而下为治理推进方向"
-          actions={<><span>治理覆盖率</span><span className="font-semibold tabular-nums text-text-primary">{formatPercent(coverage)}</span></>}
+          subtitle={`治理覆盖率 ${formatPercent(coverage)}`}
           className="col-span-12 xl:col-span-6"
-          bodyClassName="flex min-h-[276px] flex-col"
+          bodyClassName="flex flex-col"
         >
           {visualState({ loading, error, hasData: view !== undefined }) ?? (
             <>
               <StageFunnel data={funnelData} />
-              <p className="mt-auto pt-3 text-[10.5px] text-text-muted">
-                阶段合计 {funnelTotal}{closedCount > 0 ? ` · 已结案 ${closedCount}` : ""} · 虚线阶段当前为 0。
+              <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-text-muted">
+                {coverageZero && (
+                  <span className="inline-flex items-center gap-1.5 text-warning">
+                    <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
+                    治理尚未启动
+                  </span>
+                )}
+                <span>阶段合计 {funnelTotal} · 短痕表示该阶段为 0</span>
               </p>
             </>
           )}
         </VisualCard>
 
-        {/* C. 规则分析表：规则 + 命中/评估 + 热度命中率 + 合计行 */}
+        {/* C. 规则分析表：规则 + 热度命中率单元格 + 命中/评估 + 合计行 */}
         <VisualCard
           testId="bi-visual-rules"
           title="规则触发率"
-          subtitle={`命中评估 / 全部评估 · 按命中率降序${ruleTruncated ? `（取前 ${ruleRows.length} 条）` : ""}`}
-          actions={<><span>整体命中率</span><span className="font-semibold tabular-nums text-text-primary">{formatPercent(overallRuleRate)}</span></>}
+          subtitle={ruleTruncated ? `命中评估 / 全部评估 · 前 ${ruleRows.length} 条` : "命中评估 / 全部评估"}
           className="col-span-12 xl:col-span-6"
-          bodyClassName="flex min-h-[238px] flex-col"
+          bodyClassName="flex flex-col"
         >
           {visualState({ loading, error, hasData: ruleRows.length > 0 }) ?? (
             <>
               <RuleRateTable rows={ruleRows} {...(ruleTotal ? { total: ruleTotal } : {})} />
-              <p className="mt-auto pt-3 text-[10.5px] text-text-muted">
-                命中率为该规则命中评估数 / 该规则全部评估数，底色深浅只表示命中率高低。
+              <p className="mt-3 text-[11px] text-text-muted">
+                命中率 = 命中评估 / 全部评估，底色深浅只表示命中率高低。
               </p>
             </>
           )}
         </VisualCard>
 
-        {/* D. 来源占比：100% 分段条 + 图例 */}
+        {/* D. 来源构成：分段环形 + 图例（数量与占比都来自真实数据） */}
         <VisualCard
           testId="bi-visual-sources"
           title="涉及来源系统"
-          subtitle={`来源系统占比 · 按涉及异常数${sourceTruncated ? `（取前 ${sourceData.length} 个）` : ""}`}
-          actions={<><span>来源系统</span><span className="font-semibold tabular-nums text-text-primary">{sourceData.length}</span></>}
+          subtitle={sourceTruncated ? `按异常数据来源统计 · 前 ${sourceData.length} 个` : "按异常数据来源统计"}
           className="col-span-12 xl:col-span-6"
-          bodyClassName="flex min-h-[238px] flex-col"
+          bodyClassName="flex flex-col"
         >
           {visualState({ loading, error, hasData: sourceData.length > 0 }) ?? (
             <>
-              <SourceShare data={sourceData} />
-              <p className="mt-auto pt-3 text-[10.5px] text-text-muted">
-                占比按各来源系统涉及的异常数计算，颜色只用于区分来源系统。
+              <SourceComposition data={sourceData} />
+              <p className="mt-3 text-[11px] text-text-muted">
+                数量为该来源系统涉及的异常数，占比按来源合计计算。
               </p>
             </>
           )}

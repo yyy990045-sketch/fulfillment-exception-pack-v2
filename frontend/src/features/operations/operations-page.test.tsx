@@ -146,14 +146,13 @@ describe("Operations work queue", () => {
     const ranking = screen.getByTestId("visual-ranking-bars");
     const funnel = screen.getByTestId("visual-stage-funnel");
     const rules = screen.getByTestId("visual-rule-rate-table");
-    const sources = screen.getByTestId("visual-source-share");
+    const sources = screen.getByTestId("visual-source-composition");
 
-    // A. 排行榜：类型名称 + 排名序号 + 占本卡合计的比例
+    // A. 排行榜：类型名称 + 排名序号 + 数量（不再附带占比列）
     const topRow = within(ranking).getAllByRole("listitem")[0]!;
     expect(within(topRow).getByText("客户签收主张差异")).toBeInTheDocument();
     expect(within(topRow).getByText("1")).toBeInTheDocument();
     expect(within(topRow).getByText("2")).toBeInTheDocument();
-    expect(within(topRow).getByText("67%")).toBeInTheDocument();
 
     // B. 漏斗：0 值阶段保留（虚线占位），阶段名可见
     expect(within(funnel).getByText("待复核")).toBeInTheDocument();
@@ -168,6 +167,45 @@ describe("Operations work queue", () => {
     expect(within(sources).getByText("WMS")).toBeInTheDocument();
     expect(within(sources).getByText("67%")).toBeInTheDocument();
     expect(within(sources).getByText("33%")).toBeInTheDocument();
+  });
+
+  it("does not draw ranking lengths when every type has the same count", async () => {
+    mockApi({
+      analytics: {
+        ...operationalAnalyticsFixture,
+        exceptionBreakdown: operationalAnalyticsFixture.exceptionBreakdown.map((item) => ({ ...item, count: 1 })),
+      },
+    });
+    renderPage();
+
+    await screen.findByTestId("operations-work-queue");
+    const ranking = screen.getByTestId("visual-ranking-bars");
+    expect(within(ranking).getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.getByText(/当前各类型数量相同，未按长度排序/)).toBeInTheDocument();
+  });
+
+  it("keeps zero-value stages as short marks and signals an unstarted funnel with amber only", async () => {
+    mockApi({
+      analytics: {
+        ...operationalAnalyticsFixture,
+        summary: { ...operationalAnalyticsFixture.summary, governanceCoverageRate: 0 },
+        resolutionFunnel: {
+          no_case: 4, triaged: 0, confirmed: 0, proposed_draft: 0, pending_approval: 0,
+          approved: 0, executed: 0, closed: 0, rejected: 0,
+        },
+      },
+    });
+    renderPage();
+
+    await screen.findByTestId("operations-work-queue");
+    const funnel = screen.getByTestId("visual-stage-funnel");
+    // 0 值阶段保留标签与数值，但不画长度（只有唯一的非零阶段带宽度）
+    expect(within(funnel).getByText("待复核")).toBeInTheDocument();
+    expect(within(funnel).getAllByText("0")).toHaveLength(8);
+    expect(funnel.querySelectorAll('span[style*="width"]')).toHaveLength(1);
+    // 覆盖率为 0 时用琥珀色信号提示，且只在提示本身使用 amber
+    expect(screen.getByText("治理覆盖率 0%")).toBeInTheDocument();
+    expect(screen.getByText("治理尚未启动")).toHaveClass(/text-warning/);
   });
 
   it("keeps a local error state inside each analysis module", async () => {

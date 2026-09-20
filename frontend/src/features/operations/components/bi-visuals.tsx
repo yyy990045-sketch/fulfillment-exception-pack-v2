@@ -26,14 +26,14 @@ export const SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
 /** 分类色板：用于来源系统这类本身无语义的维度，只保证维度内可区分 */
 export const CATEGORICAL_COLORS = [
+  "#5f6259",
+  "#9c8a7b",
   "#6f6f6b",
-  "#a16207",
-  "#8c6239",
-  "#5d6b52",
-  "#9a8f7a",
-  "#a1452f",
-  "#7a6a5a",
+  "#a19a90",
+  "#7d8570",
+  "#8b8175",
   "#4f5a4a",
+  "#8a7d70",
 ];
 
 /** 全站统一百分比格式：默认取整，避免同一页出现多种小数位 */
@@ -64,8 +64,8 @@ export function MetricTile({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-lg border bg-surface px-3.5 py-3 text-left shadow-card transition-all duration-150 hover:shadow-raised",
-        active ? "border-interactive/45 ring-1 ring-interactive/25" : "border-border/80 hover:border-border-strong",
+        "flex items-center gap-3 rounded-lg border bg-surface px-3.5 py-3 text-left transition-colors duration-150",
+        active ? "border-interactive/60 ring-1 ring-interactive/20" : "border-border hover:border-border-strong",
       )}
     >
       <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-md", toneClass)}>
@@ -105,12 +105,12 @@ export function VisualCard({
   return (
     <section
       data-testid={testId}
-      className={cn("flex min-w-0 flex-col rounded-lg border border-border/80 bg-surface shadow-card", className)}
+      className={cn("flex min-w-0 flex-col rounded-lg border border-border bg-surface", className)}
     >
-      <header className="flex min-h-[42px] flex-wrap items-center justify-between gap-2 border-b border-border/70 px-3.5 py-2">
+      <header className="flex min-h-[44px] flex-wrap items-center justify-between gap-2 border-b border-border px-3.5 py-2.5">
         <div className="min-w-0">
-          <h3 className="truncate text-[12.5px] font-semibold leading-4">{title}</h3>
-          {subtitle && <p className="mt-0.5 truncate text-[10.5px] leading-4 text-text-muted">{subtitle}</p>}
+          <h3 className="truncate text-[13px] font-semibold leading-[18px]">{title}</h3>
+          {subtitle && <p className="mt-0.5 truncate text-[11.5px] leading-4 text-text-muted">{subtitle}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-1.5 text-[11px] text-text-muted">{actions}</div>}
       </header>
@@ -355,8 +355,18 @@ export function DonutChart({
 }
 
 /**
- * 排行榜条：左侧排名序号 + 类型名，中间长度条，右侧数量与占比。
- * 页面上只用于「异常类型排行」这一处，保留排名的阅读方式。
+ * 数值是否存在真实差异：没有差异时长度条会失去意义，不能靠视觉假装有排序。
+ */
+export function hasValueSpread(data: CategoryDatum[]) {
+  if (data.length < 2) return false;
+  const values = data.map((item) => item.value);
+  return Math.max(...values) > Math.min(...values);
+}
+
+/**
+ * 排行榜条：排名序号 + 类型名 + 长度条 + 数量。
+ * 只用于「异常类型排行」一处；第一名用实心石墨强调，不给前三名做奖牌色。
+ * 数量完全相同（无差异）时不画长度条，只保留极细基线。
  */
 export function RankingBars({
   data,
@@ -369,9 +379,9 @@ export function RankingBars({
 }) {
   if (!data.length) return <VisualEmpty />;
   const max = Math.max(...data.map((item) => item.value), 1);
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const spread = hasValueSpread(data);
   return (
-    <ol data-testid="visual-ranking-bars" className="space-y-1">
+    <ol data-testid="visual-ranking-bars" className="space-y-0.5">
       {data.map((item, index) => {
         const active = selectedKey === item.key;
         const rank = index + 1;
@@ -382,42 +392,41 @@ export function RankingBars({
               aria-pressed={active}
               onClick={() => onSelect?.(item.key)}
               className={cn(
-                "group flex w-full items-center gap-2.5 rounded-md py-1 text-left transition-colors",
+                "group grid w-full grid-cols-[18px_minmax(0,1fr)_76px_26px] items-center gap-2.5 rounded-md py-2.5 text-left transition-colors",
                 onSelect && "cursor-pointer",
               )}
             >
               <span className={cn(
-                "flex size-[18px] shrink-0 items-center justify-center rounded-[4px] text-[10.5px] font-semibold tabular-nums",
-                rank === 1
-                  ? "bg-interactive text-white"
-                  : rank <= 3
-                    ? "bg-interactive/[0.12] text-interactive"
-                    : "bg-surface-subtle text-text-muted",
+                "flex size-[18px] items-center justify-center rounded-[4px] text-[10.5px] font-semibold tabular-nums",
+                rank === 1 ? "bg-interactive text-white" : "bg-surface-subtle text-text-secondary",
               )}>
                 {rank}
               </span>
               <span
                 title={item.label}
                 className={cn(
-                  "w-[36%] min-w-0 shrink-0 truncate text-[11.5px] transition-colors",
+                  "line-clamp-2 min-w-0 text-[11.5px] leading-4 transition-colors",
                   active ? "font-medium text-interactive" : "text-text-secondary group-hover:text-text-primary",
                 )}
               >
                 {item.label}
               </span>
-              <span className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-subtle">
-                <span
-                  className="block h-full rounded-full transition-all duration-200"
-                  style={{
-                    width: `${Math.max((item.value / max) * 100, 2)}%`,
-                    background: item.color ?? (active ? "var(--color-interactive)" : "color-mix(in srgb, var(--color-interactive) 62%, white)"),
-                  }}
-                />
+              <span className="flex items-center">
+                {spread ? (
+                  <span className="h-1.5 w-full overflow-hidden rounded-full bg-surface-subtle">
+                    <span
+                      className="block h-full rounded-full transition-all duration-200"
+                      style={{
+                        width: `${Math.max((item.value / max) * 100, 3)}%`,
+                        background: item.color ?? (active ? "var(--color-interactive)" : "color-mix(in srgb, var(--color-interactive) 62%, white)"),
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span className="h-px w-full bg-border" aria-hidden="true" />
+                )}
               </span>
-              <span className="w-8 shrink-0 text-right text-[12px] font-semibold tabular-nums text-text-primary">{item.value}</span>
-              <span className="w-9 shrink-0 text-right text-[10px] tabular-nums text-text-muted">
-                {total ? formatPercent(item.value / total) : "—"}
-              </span>
+              <span className="text-right text-[12px] font-semibold tabular-nums text-text-primary">{item.value}</span>
             </button>
           </li>
         );
@@ -427,50 +436,38 @@ export function RankingBars({
 }
 
 /**
- * 阶段漏斗：居中收窄的分段结构，用于表达治理流程的阶段推进与收敛。
- * 值为 0 的阶段保留为虚线占位，弱化但不隐藏。
+ * 阶段漏斗：自上而下逐级缩进 + 按真实值收窄，表达治理流程的阶段推进。
+ * 值为 0 的阶段只留一小段短痕，绝不画成有长度的条形，让断崖一眼可见。
  */
 export function StageFunnel({ data }: { data: CategoryDatum[] }) {
   if (!data.length) return <VisualEmpty />;
   const max = Math.max(...data.map((item) => item.value), 1);
-  const total = data.reduce((sum, item) => sum + item.value, 0);
   return (
-    <ol data-testid="visual-stage-funnel" className="space-y-1">
+    <ol data-testid="visual-stage-funnel" className="space-y-0.5">
       {data.map((item, index) => {
         const value = Math.max(item.value, 0);
         const zero = value === 0;
-        // 非零阶段保留 12% 下限，避免小数值被压成不可见；0 值阶段用更窄的虚线占位
-        const width = zero ? 10 : Math.max((value / max) * 100, 12);
+        const width = Math.max((value / max) * 100, 0);
         return (
-          <li key={item.key} className="grid grid-cols-[92px_1fr_46px] items-center gap-2">
-            <span className="flex min-w-0 items-baseline gap-1.5">
-              <span className="shrink-0 text-[10px] tabular-nums text-text-muted">{String(index + 1).padStart(2, "0")}</span>
-              <span
-                title={item.label}
-                className={cn("min-w-0 truncate text-[11px]", zero ? "text-text-muted" : "text-text-secondary")}
-              >
-                {item.label}
-              </span>
+          <li key={item.key} className="grid grid-cols-[100px_minmax(0,1fr)_20px] items-center gap-2 py-[3px]">
+            <span
+              title={item.label}
+              className={cn("min-w-0 truncate text-[11.5px]", zero ? "text-text-muted" : "text-text-secondary")}
+            >
+              {item.label}
             </span>
-            <span className="flex h-6 items-center justify-center">
+            <span className="flex h-5 items-center" style={{ paddingLeft: index * 5 }}>
               {zero ? (
-                <span
-                  className="flex h-full items-center justify-center rounded-[4px] border border-dashed border-border-strong"
-                  style={{ width: `${width}%` }}
-                >
-                  <span className="text-[10.5px] tabular-nums text-text-muted">0</span>
-                </span>
+                <span className="h-[3px] w-2.5 rounded-full bg-border-strong" aria-hidden="true" />
               ) : (
                 <span
-                  className="flex h-full items-center justify-center rounded-[4px] bg-interactive transition-all duration-200"
+                  className="block h-full rounded-[3px] bg-interactive transition-all duration-200"
                   style={{ width: `${width}%` }}
-                >
-                  <span className="text-[11px] font-semibold tabular-nums text-white">{value}</span>
-                </span>
+                />
               )}
             </span>
-            <span className={cn("text-right text-[10.5px] tabular-nums", zero ? "text-text-muted/70" : "text-text-muted")}>
-              {total ? formatPercent(value / total) : "—"}
+            <span className={cn("text-right text-[11.5px] tabular-nums", zero ? "text-text-muted" : "font-semibold text-text-primary")}>
+              {value}
             </span>
           </li>
         );
@@ -487,16 +484,16 @@ export type RuleRateRow = {
   rate: number | null;
 };
 
-/** 命中率热度底色：强度只由命中率决定，颜色仍然只表达数值大小 */
+/** 命中率热度底色：只用中性灰的深浅表达数值，不引入语义色 */
 function heatStyle(rate: number | null) {
   if (rate === null || !Number.isFinite(rate)) return { background: "var(--surface-subtle)" };
-  const intensity = Math.round(8 + Math.min(Math.max(rate, 0), 1) * 32);
+  const intensity = Math.round(6 + Math.min(Math.max(rate, 0), 1) * 46);
   return { background: `color-mix(in srgb, var(--color-interactive) ${intensity}%, white)` };
 }
 
 /**
- * 规则命中率表：规则名 + 命中/评估 + 热度命中率，最后一行是全部规则合计。
- * 呈现为分析表而不是图表，和排行榜、漏斗区分开。
+ * 规则命中率表：规则名 + 热度命中率单元格 + 命中/评估，最后一行是全部规则合计。
+ * 是分析表而不是条形图；命中率用单元格底色表达，不再使用横向进度条。
  */
 export function RuleRateTable({
   rows,
@@ -510,30 +507,31 @@ export function RuleRateTable({
   return (
     <table data-testid="visual-rule-rate-table" className="w-full border-collapse text-left">
       <thead>
-        <tr className="text-[10px] text-text-muted">
+        <tr className="text-[10.5px] text-text-muted">
           <th scope="col" className="pb-1.5 font-medium">规则</th>
-          <th scope="col" className="w-[86px] pb-1.5 text-right font-medium">命中 / 评估</th>
-          <th scope="col" className="w-[64px] pb-1.5 text-right font-medium">命中率</th>
+          <th scope="col" className="w-[68px] pb-1.5 text-right font-medium">命中率</th>
+          <th scope="col" className="w-[78px] pb-1.5 text-right font-medium">命中 / 评估</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-border/70">
+      <tbody>
         {rows.map((row) => (
-          <tr key={row.key}>
-            <td className="max-w-0 py-1.5 pr-2">
+          <tr key={row.key} className="border-t border-border">
+            <td className="max-w-0 py-2 pr-2">
               <span title={row.label} className="block truncate text-[11.5px] text-text-secondary">{row.label}</span>
             </td>
-            <td className="py-1.5 pr-2 text-right text-[11px] tabular-nums text-text-muted">
-              <span className="font-semibold text-text-primary">{row.matched}</span>
-              <span className="px-0.5">/</span>
-              <span>{row.evaluations}</span>
+            <td className="px-1.5 py-2 text-right text-[11.5px] font-semibold tabular-nums text-text-primary" style={heatStyle(row.rate)}>
+              {formatPercent(row.rate)}
             </td>
-            <td className="py-1.5 text-right">
-              <span
-                className="inline-flex h-5 min-w-[52px] items-center justify-center rounded-[4px] px-1.5 text-[11px] font-semibold tabular-nums text-text-primary"
-                style={heatStyle(row.rate)}
-              >
-                {formatPercent(row.rate)}
-              </span>
+            <td className="py-2 text-right text-[11.5px] tabular-nums text-text-muted">
+              {row.rate === null ? (
+                "—"
+              ) : (
+                <>
+                  <span className="text-text-secondary">{row.matched}</span>
+                  <span className="px-0.5">/</span>
+                  <span>{row.evaluations}</span>
+                </>
+              )}
             </td>
           </tr>
         ))}
@@ -541,19 +539,14 @@ export function RuleRateTable({
       {total && (
         <tfoot>
           <tr className="border-t border-border-strong/70">
-            <td className="pt-2 text-[11px] font-medium text-text-secondary">全部规则</td>
-            <td className="pt-2 text-right text-[11px] tabular-nums text-text-muted">
-              <span className="font-semibold text-text-primary">{total.matched}</span>
+            <td className="pt-2 pr-2 text-[11.5px] font-medium text-text-secondary">全部规则</td>
+            <td className="px-1.5 pt-2 text-right text-[11.5px] font-semibold tabular-nums text-text-primary" style={heatStyle(totalRate)}>
+              {formatPercent(totalRate)}
+            </td>
+            <td className="pt-2 text-right text-[11.5px] tabular-nums text-text-muted">
+              <span className="text-text-secondary">{total.matched}</span>
               <span className="px-0.5">/</span>
               <span>{total.evaluations}</span>
-            </td>
-            <td className="pt-2 text-right">
-              <span
-                className="inline-flex h-5 min-w-[52px] items-center justify-center rounded-[4px] px-1.5 text-[11px] font-semibold tabular-nums text-text-primary"
-                style={heatStyle(totalRate)}
-              >
-                {formatPercent(totalRate)}
-              </span>
             </td>
           </tr>
         </tfoot>
@@ -563,29 +556,44 @@ export function RuleRateTable({
 }
 
 /**
- * 来源占比：100% 分段条 + 图例。
- * 维度本身没有语义，因此使用分类色板而不是严重度色板。
+ * 来源构成：分段环形图 + 图例（数量与占比都从真实数据计算）。
+ * 与严重度环形图的区别：环更细、有分段间隙、中心不放合计数字。
+ * 维度没有语义，使用低饱和的无蓝色分类色板。
  */
-export function SourceShare({ data }: { data: CategoryDatum[] }) {
+export function SourceComposition({ data }: { data: CategoryDatum[] }) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   if (!total) return <VisualEmpty />;
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const gap = data.length > 1 ? 3 : 0;
+  let offset = 0;
   return (
-    <div data-testid="visual-source-share" className="space-y-3">
-      <div className="flex h-3.5 w-full gap-[3px]">
-        {data.map((item, index) => (
-          <span
-            key={item.key}
-            title={`${item.label}：${item.value}`}
-            className="h-full min-w-[3px] rounded-full"
-            style={{
-              flexGrow: item.value,
-              flexBasis: 0,
-              background: item.color ?? CATEGORICAL_COLORS[index % CATEGORICAL_COLORS.length],
-            }}
-          />
-        ))}
-      </div>
-      <ul className="space-y-2">
+    <div data-testid="visual-source-composition" className="flex flex-col items-center gap-3">
+      <svg viewBox="0 0 100 100" className="size-[120px] shrink-0 -rotate-90" role="img" aria-label="来源系统占比">
+        <circle cx={50} cy={50} r={radius} fill="none" stroke="var(--surface-subtle)" strokeWidth={9} />
+        {data.map((item, index) => {
+          const share = item.value / total;
+          const length = Math.max(share * circumference - gap, 1);
+          const element = (
+            <circle
+              key={item.key}
+              cx={50}
+              cy={50}
+              r={radius}
+              fill="none"
+              stroke={item.color ?? CATEGORICAL_COLORS[index % CATEGORICAL_COLORS.length]}
+              strokeWidth={9}
+              strokeDasharray={`${length} ${circumference - length}`}
+              strokeDashoffset={-offset}
+            >
+              <title>{`${item.label}：${item.value}`}</title>
+            </circle>
+          );
+          offset += share * circumference;
+          return element;
+        })}
+      </svg>
+      <ul className="w-full min-w-0 space-y-2">
         {data.map((item, index) => (
           <li key={item.key} className="flex items-center gap-2 text-[11.5px]">
             <span
@@ -594,8 +602,8 @@ export function SourceShare({ data }: { data: CategoryDatum[] }) {
               aria-hidden="true"
             />
             <span className="min-w-0 flex-1 truncate text-text-secondary" title={item.label}>{item.label}</span>
-            <span className="shrink-0 font-semibold tabular-nums text-text-primary">{item.value}</span>
-            <span className="w-9 shrink-0 text-right text-[10px] tabular-nums text-text-muted">{formatPercent(item.value / total)}</span>
+            <span className="shrink-0 text-right font-semibold tabular-nums text-text-primary">{item.value}</span>
+            <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-text-muted">{formatPercent(item.value / total)}</span>
           </li>
         ))}
       </ul>
