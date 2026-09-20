@@ -11,6 +11,7 @@ export * from "./outcome-types.js";
 export * from "./solution-pack-types.js";
 export * from "./connector-types.js";
 export * from "./decision-runtime-types.js";
+export * from "./security-audit-types.js";
 export * from "./repositories.js";
 export * from "./application.js";
 export * from "./resolution/index.js";

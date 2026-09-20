@@ -938,6 +938,31 @@ export const V2_MIGRATIONS: SqliteMigration[] = [
       WHERE records_committed = 0;
     `,
   },
+  {
+    version: "018_security_audit_events",
+    sql: `
+      CREATE TABLE IF NOT EXISTS security_audit_events (
+        tenant_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        actor_type TEXT NOT NULL,
+        subject_id TEXT NOT NULL,
+        roles_json TEXT NOT NULL,
+        action TEXT NOT NULL,
+        resource_type TEXT NOT NULL,
+        resource_id TEXT NOT NULL,
+        result TEXT NOT NULL,
+        occurred_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL,
+        PRIMARY KEY (tenant_id, id)
+      );
+
+      CREATE INDEX IF NOT EXISTS security_audit_events_tenant_time_idx
+        ON security_audit_events (tenant_id, occurred_at, id);
+
+      CREATE INDEX IF NOT EXISTS security_audit_events_action_idx
+        ON security_audit_events (tenant_id, action, resource_type);
+    `,
+  },
 ];
 
 export function runV2Migrations(

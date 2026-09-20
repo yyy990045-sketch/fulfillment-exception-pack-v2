@@ -39,6 +39,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/auth/me": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                "x-actor"?: components["parameters"]["DemoActorHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Current identity, roles, scopes and capability projection
+         * @description Backend-computed identity projection. The frontend must consume `capabilities` instead of inferring canSubmit / canApprove / canExecute. `scopes` is `["*"]` only for DEMO_ONLY_SUPERUSER identities. Never returns JWTs, secrets, or authorization headers.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                    "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                    /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                    "x-actor"?: components["parameters"]["DemoActorHeader"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Identity projection */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdentityProjection"];
+                    };
+                };
+                401: components["responses"]["Unauthorized"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cases": {
         parameters: {
             query?: never;
@@ -861,6 +911,74 @@ export interface paths {
                     };
                 };
                 401: components["responses"]["Unauthorized"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/analytics/powerbi/embed-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                    "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                    /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                    "x-actor"?: components["parameters"]["DemoActorHeader"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Server-generated Power BI Embed Token configuration for the single configured workspace/report. The current product tenant is the application-side authorization boundary. Server-side Entra credentials and access token are never returned. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PowerBiEmbedConfig"];
+                    };
+                };
+                401: components["responses"]["Unauthorized"];
+                /** @description Forbidden. The error body disambiguates the two forbidden cases: scope_forbidden when the caller lacks the analytics:read scope, and POWERBI_TENANT_FORBIDDEN when the current product tenant is not bound to the configured Power BI report. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Power BI authentication, report lookup, or embed-token generation failed */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Power BI environment configuration is incomplete */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         put?: never;
@@ -3865,6 +3983,18 @@ export interface components {
             attempts: components["schemas"]["ConnectorDeliveryAttempt"][];
             receipt?: components["schemas"]["ConnectorReceipt"];
         };
+        PowerBiEmbedConfig: {
+            /** @enum {boolean} */
+            configured: true;
+            reportId: string;
+            embedUrl: string;
+            embedToken: string;
+            /** @enum {string} */
+            tokenType: "Embed";
+            /** Format: date-time */
+            expiresAt: string;
+            datasetId?: string;
+        };
         OperationalAnalyticsResponse: {
             window: {
                 from: string | null;
@@ -4542,6 +4672,40 @@ export interface components {
         CurrentActorContextResponse: {
             currentActor: components["schemas"]["CurrentActorContext"];
             demoWorkspace?: components["schemas"]["DemoWorkspaceProjection"];
+        };
+        /** @description Backend-computed capability projection. `actorType=system` marks connector runtime identities; `demoOnlySuperuser=true` means the identity carries `*` and must never be used in production. */
+        IdentityCapabilities: {
+            /** @enum {string} */
+            actorType: "user" | "system";
+            canonicalRoles: ("viewer" | "operator" | "reviewer" | "approver" | "admin")[];
+            scopes: string[];
+            demoOnlySuperuser: boolean;
+            canReadContext: boolean;
+            canReadException: boolean;
+            canReadEvidence: boolean;
+            canRecommend: boolean;
+            canSubmit: boolean;
+            canApprove: boolean;
+            canReject: boolean;
+            canExecute: boolean;
+            canReadAnalytics: boolean;
+            canManageConnectors: boolean;
+            canManageSolutionPacks: boolean;
+            canManageTenant: boolean;
+        };
+        IdentityProjection: {
+            subjectId: string;
+            tenantId: string;
+            displayName: string;
+            organization?: string;
+            /** @enum {string} */
+            organizationSource?: "demo" | "claim" | "tenant_fallback";
+            /** @enum {string} */
+            authnMethod?: "demo-header" | "jwt-hs256";
+            roles: string[];
+            canonicalRoles: ("viewer" | "operator" | "reviewer" | "approver" | "admin")[];
+            scopes: string[];
+            capabilities: components["schemas"]["IdentityCapabilities"];
         };
         /** @enum {string} */
         GovernanceStage: "not_started" | "review" | "proposal" | "proposal_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected";

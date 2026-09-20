@@ -78,7 +78,9 @@ import {
   SupersetError,
 } from "./integrations/superset/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
-import { isReadOnlyPrincipal } from "./auth.js";
+import { effectiveScopes, isReadOnlyPrincipal } from "./auth.js";
+import { buildIdentityCapabilities } from "./security/capabilities.js";
+import { recordSecurityAudit } from "./security/audit.js";
 import {
   RESOLUTION_APPROVER_ROLES,
   RESOLUTION_OWNER_ROLES,
@@ -270,6 +272,16 @@ function requireMutationAuth(req: import("node:http").IncomingMessage): AuthCont
   return auth;
 }
 
+/**
+ * mutation 统一闸门顺序：authenticate → scope → (demo actor / 只读主体检查)。
+ * 之后的 tenant / workflow / policy 由各 handler 继续把关。
+ */
+function mutationAuth(req: import("node:http").IncomingMessage, scope: string): AuthContext {
+  const auth = authOf(req);
+  assertScope(auth, scope);
+  return requireMutationAuth(req);
+}
+
 function assertResolutionPermission(decision: { applicable: boolean; allowed: boolean; reasonCode: string }) {
   if (decision.allowed) return;
   if (!decision.applicable) {
@@ -453,8 +465,27 @@ const server = createServer(async (req, res) => {
           : {}),
       });
     }
+    // 统一身份与能力投影：前端只消费这里的结果，不自行推断 canApprove/canSubmit/canExecute。
+    if (req.method === "GET" && url.pathname === "/api/v2/auth/me") {
+      const auth = authOf(req);
+      const resolved = effectiveScopes(auth);
+      return jsonNoStore(res, 200, {
+        subjectId: auth.subjectId,
+        tenantId: auth.tenantId,
+        displayName: auth.displayName,
+        organization: auth.organizationName,
+        organizationSource: auth.organizationSource,
+        authnMethod: auth.authnMethod,
+        roles: auth.roles,
+        canonicalRoles: resolved.canonicalRoles,
+        scopes: auth.scopes.includes("*") ? ["*"] : resolved.scopes,
+        capabilities: buildIdentityCapabilities(auth),
+      });
+    }
     if (req.method === "GET" && url.pathname === "/api/v2/analytics/operational") {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "analytics:read");
+      const tenantId = auth.tenantId;
       const analytics = buildOperationalAnalytics(getV2Store(), tenantId, {
         from: url.searchParams.get("from") ?? undefined,
         to: url.searchParams.get("to") ?? undefined,
@@ -493,13 +524,16 @@ const server = createServer(async (req, res) => {
       return jsonNoStore(res, 200, await resolveSupersetGuestToken(auth));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/outcome-definitions") {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "context:read");
+      const tenantId = auth.tenantId;
       const exceptionCode = url.searchParams.get("exceptionCode") ?? undefined;
       return json(res, 200, {
         definitions: getV2Store().listOutcomeDefinitions(tenantId, exceptionCode, false),
       });
     }
     if (req.method === "GET" && url.pathname === "/api/v2/solution-packs") {
+      assertScope(authOf(req), "solution-pack:read");
       return json(res, 200, {
         packs: solutionPackRegistry.list().map((pack) => ({
           manifest: pack.manifest,
@@ -509,10 +543,13 @@ const server = createServer(async (req, res) => {
       });
     }
     if (req.method === "GET" && url.pathname === "/api/v2/connectors") {
+      assertScope(authOf(req), "connector:read");
       return json(res, 200, { connectors: connectorRegistry.list() });
     }
     if (req.method === "GET" && url.pathname === "/api/v2/connectors/installed") {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "connector:read");
+      const tenantId = auth.tenantId;
       return json(res, 200, {
         installations: getV2Store().listConnectorInstallations(tenantId).map((installation) => ({
           installation: {
@@ -526,6 +563,8 @@ const server = createServer(async (req, res) => {
     }
     const connectorInstallMatch = url.pathname.match(/^\/api\/v2\/connectors\/([^/]+)\/install$/);
     if (req.method === "POST" && connectorInstallMatch) {
+      const auth = authOf(req);
+      assertScope(auth, "connector:manage");
       const connectorId = decodeURIComponent(connectorInstallMatch[1] ?? "");
       const connector = requireConnector(connectorRegistry.get(connectorId));
       const actor = requireActor(req);
@@ -534,11 +573,19 @@ const server = createServer(async (req, res) => {
       if (forbidden.length) return json(res, 400, { error: "CONNECTOR_INSTALL_FIELDS_FORBIDDEN" });
       if (typeof input.installationId !== "string" || !input.installationId.trim()) return json(res, 422, { error: "CONNECTOR_INSTALLATION_ID_REQUIRED" });
       const installation = installConnector(getV2Store(), connector, {
-        tenantId: authOf(req).tenantId,
+        tenantId: auth.tenantId,
         installationId: input.installationId,
         config: input.config && typeof input.config === "object" && !Array.isArray(input.config) ? input.config as Record<string, unknown> : {},
         ...(typeof input.secretRef === "string" ? { secretRef: input.secretRef } : {}),
         actor,
+      });
+      recordSecurityAudit(getV2Store(), {
+        auth,
+        action: "connector.install",
+        resourceType: "connector_installation",
+        resourceId: installation.id,
+        result: "success",
+        metadata: { connectorId, installationId: installation.id },
       });
       return json(res, 200, {
         installation: { ...installation, secretConfigured: Boolean(installation.secretRef), secretRef: undefined },
@@ -547,7 +594,9 @@ const server = createServer(async (req, res) => {
     }
     const connectorOutboxAttemptsMatch = url.pathname.match(/^\/api\/v2\/connectors\/outbox\/([^/]+)\/attempts$/);
     if (req.method === "GET" && connectorOutboxAttemptsMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "connector:read");
+      const tenantId = auth.tenantId;
       const outboxId = decodeURIComponent(connectorOutboxAttemptsMatch[1] ?? "");
       const outbox = getV2Store().getConnectorOutbox(tenantId, outboxId);
       if (!outbox) return json(res, 404, { error: "not_found" });
@@ -555,32 +604,47 @@ const server = createServer(async (req, res) => {
     }
     const connectorOutboxMatch = url.pathname.match(/^\/api\/v2\/connectors\/outbox\/([^/]+)$/);
     if (req.method === "GET" && connectorOutboxMatch) {
-      const view = getConnectorDeliveryView(getV2Store(), authOf(req).tenantId, decodeURIComponent(connectorOutboxMatch[1] ?? ""));
+      const auth = authOf(req);
+      assertScope(auth, "connector:read");
+      const view = getConnectorDeliveryView(getV2Store(), auth.tenantId, decodeURIComponent(connectorOutboxMatch[1] ?? ""));
       if (!view) return json(res, 404, { error: "not_found" });
       return json(res, 200, view);
     }
     const workItemDeliveryMatch = url.pathname.match(/^\/api\/v2\/internal-work-items\/([^/]+)\/deliveries$/);
     if (workItemDeliveryMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      const tenantId = auth.tenantId;
       const workItemId = decodeURIComponent(workItemDeliveryMatch[1] ?? "");
       const store = getV2Store();
       const workItem = store.getInternalWorkItem(tenantId, workItemId);
       if (!workItem) return json(res, 404, { error: "not_found" });
       if (req.method === "GET") {
+        assertScope(auth, "execution:read");
         return json(res, 200, {
           workItemId,
           deliveries: store.listConnectorOutboxByWorkItem(tenantId, workItemId).map((item) => getConnectorDeliveryView(store, tenantId, item.id)),
         });
       }
+      const deliveryAuth = mutationAuth(req, "execution:run");
       const input = await readJson(req);
       const forbidden = Object.keys(input).filter((key) => key !== "connectorInstallationId");
       if (forbidden.length) return json(res, 400, { error: "CONNECTOR_DELIVERY_FIELDS_FORBIDDEN" });
       if (typeof input.connectorInstallationId !== "string" || !input.connectorInstallationId.trim()) return json(res, 422, { error: "CONNECTOR_INSTALLATION_ID_REQUIRED" });
       const outbox = enqueueInternalWorkItemDelivery(store, tenantId, workItemId, input.connectorInstallationId);
+      recordSecurityAudit(store, {
+        auth: deliveryAuth,
+        action: "internal_work_item.deliver",
+        resourceType: "connector_outbox",
+        resourceId: outbox.id,
+        result: "accepted",
+        metadata: { workItemId, outboxId: outbox.id, installationId: input.connectorInstallationId },
+      });
       return json(res, 202, getConnectorDeliveryView(store, tenantId, outbox.id));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/solution-packs/installed") {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "solution-pack:read");
+      const tenantId = auth.tenantId;
       const store = getV2Store();
       return json(res, 200, {
         installations: store.listSolutionPackInstallations(tenantId).map((installation) => {
@@ -596,6 +660,8 @@ const server = createServer(async (req, res) => {
     }
     const packInstallMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)\/install$/);
     if (req.method === "POST" && packInstallMatch) {
+      const auth = authOf(req);
+      assertScope(auth, "solution-pack:manage");
       const packId = decodeURIComponent(packInstallMatch[1] ?? "");
       const pack = solutionPackRegistry.get(packId);
       if (!pack) return json(res, 404, { error: "PACK_NOT_FOUND" });
@@ -604,22 +670,34 @@ const server = createServer(async (req, res) => {
       const forbidden = Object.keys(input).filter((key) => ["actor", "roles", "tenant", "tenantId"].includes(key));
       if (forbidden.length) return json(res, 400, { error: "PACK_INSTALL_FIELDS_FORBIDDEN" });
       const installation = installSolutionPack(getV2Store(), pack, authOf(req).tenantId, actor, input);
+      recordSecurityAudit(getV2Store(), {
+        auth,
+        action: "solution_pack.install",
+        resourceType: "solution_pack_installation",
+        resourceId: packId,
+        result: "success",
+        metadata: { packId },
+      });
       return json(res, 200, { installation, manifest: pack.manifest, supportedActions: presentSupportedActions(pack) });
     }
     const packDetailMatch = url.pathname.match(/^\/api\/v2\/solution-packs\/([^/]+)$/);
     if (req.method === "GET" && packDetailMatch) {
+      assertScope(authOf(req), "solution-pack:read");
       const pack = solutionPackRegistry.get(decodeURIComponent(packDetailMatch[1] ?? ""));
       if (!pack) return json(res, 404, { error: "PACK_NOT_FOUND" });
       return json(res, 200, { manifest: pack.manifest, supportedActions: presentSupportedActions(pack) });
     }
     const packWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/pack-workbench$/);
     if (req.method === "GET" && packWorkbenchMatch) {
-      const view = buildPackWorkbenchView(getV2Store(), authOf(req).tenantId, decodeURIComponent(packWorkbenchMatch[1] ?? ""));
+      const auth = authOf(req);
+      assertScope(auth, "context:read");
+      const view = buildPackWorkbenchView(getV2Store(), auth.tenantId, decodeURIComponent(packWorkbenchMatch[1] ?? ""));
       if (!view) return json(res, 404, { error: "not_found" });
       return json(res, 200, view);
     }
     const outcomeEvaluationItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/outcome-evaluations\/([^/]+)$/);
     if (req.method === "GET" && outcomeEvaluationItemMatch) {
+      assertScope(authOf(req), "governance:read");
       const evaluation = getOutcomeEvaluation(
         getV2Store(),
         authOf(req).tenantId,
@@ -632,7 +710,9 @@ const server = createServer(async (req, res) => {
     }
     const outcomeEvaluationCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/outcome-evaluations$/);
     if (outcomeEvaluationCollectionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "governance:read" : "governance:submit");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(outcomeEvaluationCollectionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(outcomeEvaluationCollectionMatch[2] ?? "");
       const store = getV2Store();
@@ -654,11 +734,21 @@ const server = createServer(async (req, res) => {
         ...(typeof input.resolutionCaseId === "string" ? { resolutionCaseId: input.resolutionCaseId } : {}),
         ...(typeof input.automationRunId === "string" ? { automationRunId: input.automationRunId } : {}),
       }, actor);
+      recordSecurityAudit(store, {
+        auth,
+        action: "outcome.evaluate",
+        resourceType: "outcome_evaluation",
+        resourceId: evaluation.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, evaluation);
     }
     const rootCauseReviewMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses\/([^/]+)\/hypotheses\/([^/]+)\/reviews$/);
     if (rootCauseReviewMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "decision:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(rootCauseReviewMatch[1] ?? "");
       const exceptionId = decodeURIComponent(rootCauseReviewMatch[2] ?? "");
       const analysisId = decodeURIComponent(rootCauseReviewMatch[3] ?? "");
@@ -685,10 +775,19 @@ const server = createServer(async (req, res) => {
         rationale: typeof input.rationale === "string" ? input.rationale : "",
         actor,
       });
+      recordSecurityAudit(store, {
+        auth,
+        action: "root_cause.review",
+        resourceType: "root_cause_hypothesis",
+        resourceId: hypothesisId,
+        result: "success",
+        metadata: { contextId, exceptionId, decision },
+      });
       return json(res, 200, review);
     }
     const rootCauseItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses\/([^/]+)$/);
     if (req.method === "GET" && rootCauseItemMatch) {
+      assertScope(authOf(req), "decision:read");
       const analysis = getRootCauseAnalysis(
         getV2Store(),
         authOf(req).tenantId,
@@ -701,7 +800,9 @@ const server = createServer(async (req, res) => {
     }
     const rootCauseCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/root-cause-analyses$/);
     if (rootCauseCollectionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "decision:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(rootCauseCollectionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(rootCauseCollectionMatch[2] ?? "");
       const store = getV2Store();
@@ -716,11 +817,21 @@ const server = createServer(async (req, res) => {
       if (analysis.status === "rejected") {
         return json(res, 422, { error: rootCauseValidationErrorCode(analysis.validation), analysis });
       }
+      recordSecurityAudit(store, {
+        auth,
+        action: "root_cause.generate",
+        resourceType: "root_cause_analysis",
+        resourceId: analysis.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, analysis);
     }
     const policyEvaluationMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations$/);
     if (policyEvaluationMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "governance:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(policyEvaluationMatch[1] ?? "");
       const exceptionId = decodeURIComponent(policyEvaluationMatch[2] ?? "");
       const store = getV2Store();
@@ -737,11 +848,21 @@ const server = createServer(async (req, res) => {
         ? { actionType: input.actionType as ActionType }
         : { recommendationId: String(input.recommendationId || ""), optionId: String(input.optionId || "") };
       const evaluation = evaluateDecisionPolicy(store, tenantId, contextId, exceptionId, candidate, actor);
+      recordSecurityAudit(store, {
+        auth,
+        action: "policy.evaluate",
+        resourceType: "policy_evaluation",
+        resourceId: evaluation.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, evaluation);
     }
     const automationReadinessMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-readiness$/);
     if (req.method === "GET" && automationReadinessMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "execution:read");
+      const tenantId = auth.tenantId;
       const readiness = buildAutomationReadiness(
         getV2Store(),
         tenantId,
@@ -753,6 +874,7 @@ const server = createServer(async (req, res) => {
     }
     const automationRunItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/automation-runs\/([^/]+)$/);
     if (req.method === "GET" && automationRunItemMatch) {
+      assertScope(authOf(req), "execution:read");
       const result = getAutomationRun(
         getV2Store(),
         authOf(req).tenantId,
@@ -765,6 +887,7 @@ const server = createServer(async (req, res) => {
     }
     const policyAutomationRunItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-runs\/([^/]+)$/);
     if (req.method === "GET" && policyAutomationRunItemMatch) {
+      assertScope(authOf(req), "execution:read");
       const result = getAutomationRun(
         getV2Store(),
         authOf(req).tenantId,
@@ -777,7 +900,9 @@ const server = createServer(async (req, res) => {
     }
     const automationRunCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/policy-evaluations\/([^/]+)\/automation-runs$/);
     if (automationRunCollectionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "execution:read" : "execution:run");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(automationRunCollectionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(automationRunCollectionMatch[2] ?? "");
       const policyEvaluationId = decodeURIComponent(automationRunCollectionMatch[3] ?? "");
@@ -791,11 +916,21 @@ const server = createServer(async (req, res) => {
       const input = await readJson(req);
       if (Object.keys(input).length > 0) return json(res, 400, { error: "AUTOMATION_REQUEST_FIELDS_FORBIDDEN" });
       const result = executePolicyAutomation(store, tenantId, contextId, exceptionId, policyEvaluationId, actor, "human_request");
+      recordSecurityAudit(store, {
+        auth,
+        action: "automation.execute",
+        resourceType: "automation_run",
+        resourceId: result.run?.id ?? policyEvaluationId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, result);
     }
     const automationRunListMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/automation-runs$/);
     if (req.method === "GET" && automationRunListMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "execution:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(automationRunListMatch[1] ?? "");
       const exceptionId = decodeURIComponent(automationRunListMatch[2] ?? "");
       const store = getV2Store();
@@ -803,6 +938,7 @@ const server = createServer(async (req, res) => {
       return json(res, 200, { contextId, exceptionId, runs: listAutomationRuns(store, tenantId, contextId, exceptionId) });
     }
     if (req.method === "GET" && url.pathname === "/api/v2/internal-work-items") {
+      assertScope(authOf(req), "execution:read");
       const status = url.searchParams.get("status") ?? undefined;
       const kind = url.searchParams.get("kind") ?? undefined;
       if (status && !["open", "completed", "cancelled"].includes(status)) return json(res, 422, { error: "AUTOMATION_WORK_ITEM_STATUS_INVALID" });
@@ -817,7 +953,9 @@ const server = createServer(async (req, res) => {
     }
     const decisionDispositionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)\/dispositions$/);
     if (decisionDispositionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "decision:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(decisionDispositionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(decisionDispositionMatch[2] ?? "");
       const recommendationId = decodeURIComponent(decisionDispositionMatch[3] ?? "");
@@ -840,11 +978,21 @@ const server = createServer(async (req, res) => {
         rationale: typeof input.rationale === "string" ? input.rationale : "",
         actor,
       });
+      recordSecurityAudit(store, {
+        auth,
+        action: "decision.disposition",
+        resourceType: "decision_recommendation",
+        resourceId: recommendationId,
+        result: "success",
+        metadata: { contextId, exceptionId, decision },
+      });
       return json(res, 200, disposition);
     }
     const decisionItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations\/([^/]+)$/);
     if (req.method === "GET" && decisionItemMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "decision:read");
+      const tenantId = auth.tenantId;
       const recommendation = getDecisionRecommendation(
         getV2Store(),
         tenantId,
@@ -857,7 +1005,9 @@ const server = createServer(async (req, res) => {
     }
     const decisionCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/decision-recommendations$/);
     if (decisionCollectionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "decision:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(decisionCollectionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(decisionCollectionMatch[2] ?? "");
       const store = getV2Store();
@@ -872,11 +1022,21 @@ const server = createServer(async (req, res) => {
       if (recommendation.status === "rejected") {
         return json(res, 422, { error: decisionValidationErrorCode(recommendation.validation), recommendation });
       }
+      recordSecurityAudit(store, {
+        auth,
+        action: "decision.recommend",
+        resourceType: "decision_recommendation",
+        resourceId: recommendation.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, recommendation);
     }
     const manufacturingWorkbenchMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/workbench$/);
     if (req.method === "GET" && manufacturingWorkbenchMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "context:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(manufacturingWorkbenchMatch[1] ?? "");
       const view = buildV2WorkbenchView(getV2Store(), tenantId, contextId);
       if (!view) return json(res, 404, { error: "not_found" });
@@ -895,7 +1055,9 @@ const server = createServer(async (req, res) => {
     }
     const v2ReplayMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/replay$/);
     if (req.method === "GET" && v2ReplayMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "context:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ReplayMatch[1] ?? "");
       const store = getV2Store();
       const replay = store.replayContext(tenantId, contextId);
@@ -904,7 +1066,9 @@ const server = createServer(async (req, res) => {
     }
     const v2ExceptionsMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions$/);
     if (req.method === "GET" && v2ExceptionsMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "exception:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ExceptionsMatch[1] ?? "");
       const store = getV2Store();
       const replay = store.replayContext(tenantId, contextId);
@@ -914,13 +1078,21 @@ const server = createServer(async (req, res) => {
     }
     const v2EvaluationRunMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/evaluations\/run$/);
     if (req.method === "POST" && v2EvaluationRunMatch) {
-      requireActor(req);
+      const auth = mutationAuth(req, "governance:submit");
       const input = await readJson(req);
       if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
-      const tenantId = authOf(req).tenantId;
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2EvaluationRunMatch[1] ?? "");
       const result = evaluateContextRules(getV2Store(), tenantId, contextId);
       if (!result) return json(res, 404, { error: "not_found" });
+      recordSecurityAudit(getV2Store(), {
+        auth,
+        action: "rule.evaluate",
+        resourceType: "fulfillment_context",
+        resourceId: contextId,
+        result: "success",
+        metadata: { contextId, actionCount: result.exceptions.length },
+      });
       return json(res, 200, {
         contextId,
         evaluations: result.evaluations,
@@ -929,7 +1101,9 @@ const server = createServer(async (req, res) => {
     }
     const v2EvaluationsMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/rule-evaluations$/);
     if (req.method === "GET" && v2EvaluationsMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "exception:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2EvaluationsMatch[1] ?? "");
       const store = getV2Store();
       if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
@@ -937,7 +1111,9 @@ const server = createServer(async (req, res) => {
     }
     const v2ExplanationItemMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/explanations\/([^/]+)$/);
     if (req.method === "GET" && v2ExplanationItemMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "evidence:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ExplanationItemMatch[1] ?? "");
       const exceptionId = decodeURIComponent(v2ExplanationItemMatch[2] ?? "");
       const explanationId = decodeURIComponent(v2ExplanationItemMatch[3] ?? "");
@@ -948,7 +1124,9 @@ const server = createServer(async (req, res) => {
     }
     const v2ExplanationCollectionMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/explanations$/);
     if (v2ExplanationCollectionMatch && (req.method === "GET" || req.method === "POST")) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, req.method === "GET" ? "evidence:read" : "decision:recommend");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ExplanationCollectionMatch[1] ?? "");
       const exceptionId = decodeURIComponent(v2ExplanationCollectionMatch[2] ?? "");
       const store = getV2Store();
@@ -978,11 +1156,21 @@ const server = createServer(async (req, res) => {
           explanation,
         });
       }
+      recordSecurityAudit(store, {
+        auth,
+        action: "explanation.generate",
+        resourceType: "grounded_explanation",
+        resourceId: explanation.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId },
+      });
       return json(res, 200, { explanation, stale: explanation.stale });
     }
     const v2ExceptionBundleMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/bundle$/);
     if (req.method === "GET" && v2ExceptionBundleMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "evidence:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ExceptionBundleMatch[1] ?? "");
       const exceptionId = decodeURIComponent(v2ExceptionBundleMatch[2] ?? "");
       const store = getV2Store();
@@ -994,6 +1182,7 @@ const server = createServer(async (req, res) => {
     const v2ResolutionCapabilitiesMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-capabilities$/);
     if (req.method === "GET" && v2ResolutionCapabilitiesMatch) {
       const auth = authOf(req);
+      assertScope(auth, "governance:read");
       const contextId = decodeURIComponent(v2ResolutionCapabilitiesMatch[1] ?? "");
       const exceptionId = decodeURIComponent(v2ResolutionCapabilitiesMatch[2] ?? "");
       const store = getV2Store();
@@ -1011,7 +1200,7 @@ const server = createServer(async (req, res) => {
     }
     const v2ResolutionCreateMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/exceptions\/([^/]+)\/resolution-case$/);
     if (req.method === "POST" && v2ResolutionCreateMatch) {
-      const auth = requireMutationAuth(req);
+      const auth = mutationAuth(req, "governance:submit");
       const actor = { subjectId: auth.subjectId, displayName: auth.displayName, roles: auth.roles };
       const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ResolutionCreateMatch[1] ?? "");
@@ -1024,11 +1213,14 @@ const server = createServer(async (req, res) => {
       if (!isAssignableOwnerRole(ownerRole)) return json(res, 422, { error: "resolution_owner_role_not_assignable" });
       if (!rationale) return json(res, 422, { error: "resolution_acceptance_rationale_required" });
       const store = getV2Store();
+      // 租户边界先于能力判定：跨租户资源与不存在的资源一律 404，不通过 403/409 泄漏存在性。
+      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
       const exception = store.listExceptions(tenantId, contextId).find((item) => item.id === exceptionId);
+      if (!exception) return json(res, 404, { error: "not_found" });
       const bundle = store.getExceptionEvidenceBundle(tenantId, exceptionId);
       const decision = canAcceptResolution(actor, {
         hasResolutionCase: Boolean(store.getResolutionCaseByException(tenantId, exceptionId)),
-        exceptionStatus: exception?.status ?? "not_found",
+        exceptionStatus: exception.status,
         hasEvidenceBundle: Boolean(bundle),
       });
       assertResolutionPermission(decision);
@@ -1037,11 +1229,21 @@ const server = createServer(async (req, res) => {
         rationale,
         actor,
       });
+      recordSecurityAudit(store, {
+        auth,
+        action: "resolution.accept",
+        resourceType: "resolution_case",
+        resourceId: resolution.id ?? exceptionId,
+        result: "success",
+        metadata: { contextId, exceptionId, decision: ownerRole },
+      });
       return json(res, 200, resolution);
     }
     const v2ContextResolutionListMatch = url.pathname.match(/^\/api\/v2\/contexts\/([^/]+)\/resolution-cases$/);
     if (req.method === "GET" && v2ContextResolutionListMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "governance:read");
+      const tenantId = auth.tenantId;
       const contextId = decodeURIComponent(v2ContextResolutionListMatch[1] ?? "");
       const store = getV2Store();
       if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
@@ -1060,7 +1262,9 @@ const server = createServer(async (req, res) => {
     }
     const v2ResolutionQueryMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)$/);
     if (req.method === "GET" && v2ResolutionQueryMatch) {
-      const tenantId = authOf(req).tenantId;
+      const auth = authOf(req);
+      assertScope(auth, "governance:read");
+      const tenantId = auth.tenantId;
       const caseId = decodeURIComponent(v2ResolutionQueryMatch[1] ?? "");
       const result = queryResolutionCase(getV2Store(), tenantId, caseId);
       if (!result) return json(res, 404, { error: "not_found" });
@@ -1068,11 +1272,21 @@ const server = createServer(async (req, res) => {
     }
     const v2ResolutionActionMatch = url.pathname.match(/^\/api\/v2\/resolution-cases\/([^/]+)\/(review|propose|submit|approve|execute|close)$/);
     if (req.method === "POST" && v2ResolutionActionMatch) {
-      const auth = requireMutationAuth(req);
-      const actor = { subjectId: auth.subjectId, displayName: auth.displayName, roles: auth.roles };
-      const tenantId = auth.tenantId;
       const caseId = decodeURIComponent(v2ResolutionActionMatch[1] ?? "");
       const action = v2ResolutionActionMatch[2];
+      // scope 与领域 workflow/SoD 是两道独立闸门：这里先按动作要求 scope，
+      // 再由 canXxxResolution 判断角色、流程状态与职责分离。
+      const ACTION_SCOPES: Record<string, "governance:submit" | "governance:approve" | "execution:run"> = {
+        review: "governance:submit",
+        propose: "governance:submit",
+        submit: "governance:submit",
+        approve: "governance:approve",
+        execute: "execution:run",
+        close: "governance:approve",
+      };
+      const auth = mutationAuth(req, ACTION_SCOPES[action ?? ""] ?? "governance:submit");
+      const actor = { subjectId: auth.subjectId, displayName: auth.displayName, roles: auth.roles };
+      const tenantId = auth.tenantId;
       const input = await readJson(req);
       if (input.tenant !== undefined || input.tenantId !== undefined) return json(res, 400, { error: "tenant_from_auth_required" });
       const store = getV2Store();
@@ -1085,6 +1299,14 @@ const server = createServer(async (req, res) => {
         if (!rationale) return json(res, 422, { error: "resolution_review_rationale_required" });
         assertResolutionPermission(canReviewResolution(actor, current));
         const resolution = reviewResolution(store, tenantId, caseId, { decision: decision as "confirm" | "needs_evidence" | "reject", rationale, actor });
+        recordSecurityAudit(store, {
+          auth,
+          action: "resolution.review",
+          resourceType: "resolution_case",
+          resourceId: caseId,
+          result: "success",
+          metadata: { decision, status: resolution?.status ?? "unknown" },
+        });
         return json(res, 200, resolution);
       }
       if (action === "propose") {
@@ -1094,17 +1316,41 @@ const server = createServer(async (req, res) => {
           .map((item) => ({ type: String(item.type || "") as ResolutionActionInput["type"], summary: String(item.summary || "") }));
         assertResolutionPermission(canProposeResolution(actor, current));
         const resolution = proposeResolutionCase(store, tenantId, caseId, { actions, actor });
+        recordSecurityAudit(store, {
+          auth,
+          action: "resolution.propose",
+          resourceType: "resolution_case",
+          resourceId: caseId,
+          result: "success",
+          metadata: { status: resolution?.status ?? "unknown", actionCount: actions.length },
+        });
         return json(res, 200, resolution);
       }
       if (action === "submit") {
         assertResolutionPermission(canSubmitResolution(actor, current));
         const resolution = submitResolutionCase(store, tenantId, caseId, actor);
+        recordSecurityAudit(store, {
+          auth,
+          action: "resolution.submit",
+          resourceType: "resolution_case",
+          resourceId: caseId,
+          result: "success",
+          metadata: { status: resolution?.status ?? "unknown" },
+        });
         return json(res, 200, resolution);
       }
       if (action === "approve") {
         if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
         assertResolutionPermission(canApproveResolution(actor, current));
         const resolution = approveResolutionCase(store, tenantId, caseId, actor);
+        recordSecurityAudit(store, {
+          auth,
+          action: "resolution.approve",
+          resourceType: "resolution_case",
+          resourceId: caseId,
+          result: "success",
+          metadata: { status: resolution?.status ?? "unknown" },
+        });
         return json(res, 200, resolution);
       }
       if (action === "execute") {
@@ -1112,10 +1358,26 @@ const server = createServer(async (req, res) => {
         assertResolutionPermission(canExecuteResolution(actor, current));
         const idempotencyKey = typeof input.idempotencyKey === "string" && input.idempotencyKey.trim() ? input.idempotencyKey.trim() : undefined;
         const resolution = executeResolutionCase(store, tenantId, caseId, actor, idempotencyKey);
+        recordSecurityAudit(store, {
+          auth,
+          action: "resolution.execute",
+          resourceType: "resolution_case",
+          resourceId: caseId,
+          result: "success",
+          metadata: { status: resolution?.status ?? "unknown" },
+        });
         return json(res, 200, resolution);
       }
       assertResolutionPermission(canCloseResolution(actor, current));
       const resolution = closeResolutionCase(store, tenantId, caseId, actor);
+      recordSecurityAudit(store, {
+        auth,
+        action: "resolution.close",
+        resourceType: "resolution_case",
+        resourceId: caseId,
+        result: "success",
+        metadata: { status: resolution?.status ?? "unknown" },
+      });
       return json(res, 200, resolution);
     }
     const capabilityMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/capabilities\/([^/]+)$/);

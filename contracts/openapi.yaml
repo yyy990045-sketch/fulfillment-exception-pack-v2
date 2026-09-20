@@ -16,6 +16,23 @@ paths:
           description: Service is alive
           content:
             application/json: { schema: { $ref: '#/components/schemas/HealthResponse' } }
+  /api/v2/auth/me:
+    parameters:
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      summary: Current identity, roles, scopes and capability projection
+      description: >-
+        Backend-computed identity projection. The frontend must consume
+        `capabilities` instead of inferring canSubmit / canApprove / canExecute.
+        `scopes` is `["*"]` only for DEMO_ONLY_SUPERUSER identities.
+        Never returns JWTs, secrets, or authorization headers.
+      responses:
+        '200':
+          description: Identity projection
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/IdentityProjection' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/cases:
     parameters:
       - { $ref: '#/components/parameters/DemoTenantHeader' }
@@ -2475,6 +2492,66 @@ components:
       properties:
         currentActor: { $ref: '#/components/schemas/CurrentActorContext' }
         demoWorkspace: { $ref: '#/components/schemas/DemoWorkspaceProjection' }
+    IdentityCapabilities:
+      type: object
+      additionalProperties: false
+      description: >-
+        Backend-computed capability projection. `actorType=system` marks connector
+        runtime identities; `demoOnlySuperuser=true` means the identity carries `*`
+        and must never be used in production.
+      required:
+        - actorType
+        - canonicalRoles
+        - scopes
+        - demoOnlySuperuser
+        - canReadContext
+        - canReadException
+        - canReadEvidence
+        - canRecommend
+        - canSubmit
+        - canApprove
+        - canReject
+        - canExecute
+        - canReadAnalytics
+        - canManageConnectors
+        - canManageSolutionPacks
+        - canManageTenant
+      properties:
+        actorType: { type: string, enum: [user, system] }
+        canonicalRoles:
+          type: array
+          items: { type: string, enum: [viewer, operator, reviewer, approver, admin] }
+        scopes: { type: array, items: { type: string } }
+        demoOnlySuperuser: { type: boolean }
+        canReadContext: { type: boolean }
+        canReadException: { type: boolean }
+        canReadEvidence: { type: boolean }
+        canRecommend: { type: boolean }
+        canSubmit: { type: boolean }
+        canApprove: { type: boolean }
+        canReject: { type: boolean }
+        canExecute: { type: boolean }
+        canReadAnalytics: { type: boolean }
+        canManageConnectors: { type: boolean }
+        canManageSolutionPacks: { type: boolean }
+        canManageTenant: { type: boolean }
+    IdentityProjection:
+      type: object
+      additionalProperties: false
+      required: [subjectId, tenantId, displayName, roles, canonicalRoles, scopes, capabilities]
+      properties:
+        subjectId: { type: string }
+        tenantId: { type: string }
+        displayName: { type: string }
+        organization: { type: string }
+        organizationSource: { type: string, enum: [demo, claim, tenant_fallback] }
+        authnMethod: { type: string, enum: [demo-header, jwt-hs256] }
+        roles: { type: array, items: { type: string } }
+        canonicalRoles:
+          type: array
+          items: { type: string, enum: [viewer, operator, reviewer, approver, admin] }
+        scopes: { type: array, items: { type: string } }
+        capabilities: { $ref: '#/components/schemas/IdentityCapabilities' }
     GovernanceStage:
       type: string
       enum: [not_started, review, proposal, proposal_draft, pending_approval, approved, executed, closed, rejected]

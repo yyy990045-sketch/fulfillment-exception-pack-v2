@@ -46,7 +46,7 @@ describe("V2 SQLite persistence", () => {
     const second = runV2Migrations(db);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>;
 
-    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings", "016_inbound_connector_runtime", "017_inbound_runtime_correctness_seal"]);
+    expect(first).toEqual(["001_v2_core", "002_rule_engine", "003_rule_engine_seal", "004_resolution_bridge", "005_resolution_execution", "006_grounded_ai_explanations", "007_decision_recommendations", "008_root_cause_hypotheses", "009_decision_policy", "010_policy_bounded_automation", "011_outcome_intelligence", "012_solution_pack_installations", "013_connector_runtime", "014_decision_runtime_audit", "015_solution_pack_context_bindings", "016_inbound_connector_runtime", "017_inbound_runtime_correctness_seal", "018_security_audit_events"]);
     expect(second).toEqual([]);
     expect(tables.map((row) => row.name)).toEqual(expect.arrayContaining([
       "business_entities",
@@ -57,6 +57,7 @@ describe("V2 SQLite persistence", () => {
       "source_systems",
       "v2_evidence",
       "v2_schema_migrations",
+      "security_audit_events",
       "grounded_ai_explanations",
       "decision_recommendations",
       "decision_recommendation_dispositions",

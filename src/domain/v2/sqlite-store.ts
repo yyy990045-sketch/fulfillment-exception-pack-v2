@@ -59,6 +59,7 @@ import type {
   ConnectorSyncStateRecord,
 } from "./connector-types.js";
 import type { DecisionRuntimeCallRecord } from "./decision-runtime-types.js";
+import type { SecurityAuditEventRecord } from "./security-audit-types.js";
 import { runV2Migrations, type SqliteDatabaseLike } from "./sqlite-migrations.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -2362,6 +2363,59 @@ export class V2SqliteStore {
         AND downstream_processed_at IS NULL
     `).get(tenantId, ...recordIds) as { count: number };
     return row.count;
+  }
+
+  /** 安全审计：敏感 mutation 的留痕（不含 JWT / password / secret / header） */
+  saveSecurityAuditEvent(input: SecurityAuditEventRecord): SecurityAuditEventRecord {
+    this.db.prepare(`
+      INSERT INTO security_audit_events
+        (tenant_id, id, actor_type, subject_id, roles_json, action, resource_type,
+         resource_id, result, occurred_at, metadata_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      input.tenantId, input.id, input.actorType, input.subjectId, json(input.roles),
+      input.action, input.resourceType, input.resourceId, input.result,
+      input.occurredAt, json(input.metadata),
+    );
+    return input;
+  }
+
+  listSecurityAuditEvents(
+    tenantId: string,
+    filter: { action?: string; resourceType?: string; limit?: number } = {},
+  ): SecurityAuditEventRecord[] {
+    const clauses = ["tenant_id = ?"];
+    const params: unknown[] = [tenantId];
+    if (filter.action) { clauses.push("action = ?"); params.push(filter.action); }
+    if (filter.resourceType) { clauses.push("resource_type = ?"); params.push(filter.resourceType); }
+    const limit = Math.min(Math.max(filter.limit ?? 200, 1), 1000);
+    const rows = this.db.prepare(`
+      SELECT tenant_id as tenantId, id, actor_type as actorType, subject_id as subjectId,
+             roles_json as rolesJson, action, resource_type as resourceType,
+             resource_id as resourceId, result, occurred_at as occurredAt,
+             metadata_json as metadataJson
+      FROM security_audit_events
+      WHERE ${clauses.join(" AND ")}
+      ORDER BY occurred_at, id
+      LIMIT ${limit}
+    `).all(...params) as Array<{
+      tenantId: string; id: string; actorType: SecurityAuditEventRecord["actorType"];
+      subjectId: string; rolesJson: string; action: string; resourceType: string;
+      resourceId: string; result: string; occurredAt: string; metadataJson: string;
+    }>;
+    return rows.map((row) => ({
+      tenantId: row.tenantId,
+      id: row.id,
+      actorType: row.actorType,
+      subjectId: row.subjectId,
+      roles: parseJson<string[]>(row.rolesJson),
+      action: row.action,
+      resourceType: row.resourceType,
+      resourceId: row.resourceId,
+      result: row.result,
+      occurredAt: row.occurredAt,
+      metadata: parseJson<Record<string, unknown>>(row.metadataJson),
+    }));
   }
 
   enqueueConnectorOutbox(input: ConnectorOutboxRecord): ConnectorOutboxRecord {

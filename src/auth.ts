@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { IncomingHttpHeaders } from "node:http";
 import { demoOrganizationName } from "./application/demo-workspaces.js";
+import { hasScope, resolveIdentityScopes, type Scope } from "./security/scopes.js";
 
 export type AuthContext = {
   subjectId: string;
@@ -58,7 +59,9 @@ function verifyJwt(token: string): AuthContext {
   if (!subjectId || !tenantId) throw new AuthError("invalid_token");
   const roles = Array.isArray(claims.roles) ? claims.roles.filter((role): role is string => typeof role === "string" && role.trim().length > 0) : [];
   const scopes = Array.isArray(claims.scopes) ? claims.scopes.filter((scope): scope is string => typeof scope === "string" && scope.trim().length > 0) : [];
-  if (!roles.length || !scopes.length) throw new AuthError("invalid_token");
+  // 生产 token 可以只声明 roles（scope 由后端按 role → scope 推导），也可以显式声明 scopes
+  // （显式优先，用于最小权限 token）。两者都为空才是无效身份。
+  if (!roles.length && !scopes.length) throw new AuthError("invalid_token");
   const claimedOrganizationName = typeof claims.organization_name === "string" && claims.organization_name.trim()
     ? claims.organization_name.trim()
     : typeof claims.org_name === "string" && claims.org_name.trim()
@@ -111,8 +114,17 @@ export function assertTenant(context: AuthContext, tenantId: string) {
   if (context.tenantId !== tenantId) throw new AuthError("tenant_forbidden", 403);
 }
 
+/**
+ * 有效 scope = token 显式声明的 scope ∪ 由规范角色推导出的 scope。
+ * `*` 只在 DEMO 身份出现，并会被标记为 DEMO_ONLY_SUPERUSER（不可用于 production）。
+ */
+export function effectiveScopes(context: Pick<AuthContext, "roles" | "scopes">) {
+  return resolveIdentityScopes({ roles: context.roles, scopes: context.scopes });
+}
+
 export function assertScope(context: AuthContext, scope: string) {
-  if (!context.scopes.includes("*") && !context.scopes.includes(scope)) throw new AuthError("scope_forbidden", 403);
+  const resolved = effectiveScopes(context);
+  if (!hasScope(resolved, scope as Scope)) throw new AuthError("scope_forbidden", 403);
 }
 
 export function assertRole(context: AuthContext, roles: string[]) {
