@@ -463,6 +463,7 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === "GET" && url.pathname === "/api/v2/analytics/powerbi/embed-config") {
       const auth = authOf(req);
+      assertScope(auth, "analytics:read");
       return jsonNoStore(res, 200, await resolvePowerBiEmbedConfig(auth));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/outcome-definitions") {

@@ -1,5 +1,6 @@
 export type PowerBiConfig = {
-  tenantId: string;
+  entraTenantId: string;
+  productTenantId: string;
   clientId: string;
   clientSecret: string;
   workspaceId: string;
@@ -31,6 +32,7 @@ export type PowerBiEmbedConfig = {
 
 export type PowerBiErrorCode =
   | "POWERBI_NOT_CONFIGURED"
+  | "POWERBI_TENANT_FORBIDDEN"
   | "POWERBI_AUTH_FAILED"
   | "POWERBI_REPORT_NOT_FOUND"
   | "POWERBI_EMBED_TOKEN_FAILED"

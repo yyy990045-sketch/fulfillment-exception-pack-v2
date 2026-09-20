@@ -5,6 +5,7 @@
 ```text
 POWERBI_EMBED_IMPLEMENTED=true
 POWERBI_LOCAL_UI_VERIFIED=true
+POWERBI_SINGLE_TENANT_AUTHORIZATION_BOUNDARY=implemented
 POWERBI_REAL_REPORT_VERIFIED=false
 POWERBI_RLS_IMPLEMENTED=false
 POWERBI_RLS_VERIFIED=false
@@ -25,6 +26,8 @@ the analytics presentation layer.
 
 ```text
 current product authentication
+  -> analytics:read scope assertion
+  -> current product tenant authorization boundary
   -> authenticated backend endpoint
   -> Microsoft Entra service principal
   -> Power BI REST API
@@ -34,6 +37,10 @@ current product authentication
 
 The browser never receives the Entra access token, client secret, certificate
 private key, or Power BI administrator token.
+
+The endpoint is fail-closed twice before any Power BI call is made: the caller
+must hold the `analytics:read` scope, and the current product tenant must be the
+one tenant bound to the configured report.
 
 ## Authentication
 
@@ -47,10 +54,15 @@ https://analysis.windows.net/powerbi/api/.default
 The Entra access token is cached in process and refreshed before its expiry.
 The browser receives only a Power BI Embed Token with its expiration.
 
+The cached token provider is keyed by authority host, Entra tenant, client ID,
+workspace ID, and report ID. Secret rotation requires a process restart; the
+secret itself is deliberately not part of the cache key.
+
 ## Environment Variables
 
 ```text
 POWERBI_TENANT_ID
+POWERBI_PRODUCT_TENANT_ID
 POWERBI_CLIENT_ID
 POWERBI_CLIENT_SECRET
 POWERBI_WORKSPACE_ID
@@ -58,6 +70,16 @@ POWERBI_REPORT_ID
 POWERBI_DATASET_ID
 POWERBI_AUTHORITY_HOST
 ```
+
+`POWERBI_TENANT_ID` is the Microsoft Entra tenant that hosts the application
+registration used for the service-principal token.
+
+`POWERBI_PRODUCT_TENANT_ID` is a different identifier: it is the current product
+tenant that is allowed to read this Power BI report. It is not an Entra tenant
+ID and must not be populated with `POWERBI_TENANT_ID` by default. The endpoint
+compares the authenticated product tenant against this value and fails closed on
+any mismatch, so no product tenant is silently mapped onto the same report.
+The demo-mode default tenant (`demo-manufacturing`) must not be reused here either.
 
 `POWERBI_DATASET_ID` is optional metadata and does not bypass report metadata
 lookup. `POWERBI_AUTHORITY_HOST` defaults to
@@ -84,23 +106,32 @@ target tenant before production deployment.
 `GET /api/v2/analytics/powerbi/embed-config`:
 
 1. Authenticates the current product user.
-2. Loads the server-only Power BI configuration.
-3. Acquires or reuses a cached Entra access token.
-4. Calls the Power BI workspace report metadata API.
-5. Calls the report `GenerateToken` API with `accessLevel: View`.
-6. Returns `embedToken`, `embedUrl`, `reportId`, `tokenType`, and `expiresAt`.
+2. Asserts the `analytics:read` scope on the authenticated context.
+3. Loads the server-only Power BI configuration.
+4. Fails closed unless the current product tenant equals `POWERBI_PRODUCT_TENANT_ID`.
+5. Acquires or reuses a cached Entra access token.
+6. Calls the Power BI workspace report metadata API.
+7. Calls the report `GenerateToken` API with `accessLevel: View`.
+8. Returns `embedToken`, `embedUrl`, `reportId`, `tokenType`, and `expiresAt`.
 
 The response is sent with `Cache-Control: no-store`.
+
+The response contract is unchanged: it never contains the Entra tenant ID, the
+product tenant ID, the client ID, or any server-side credential.
 
 Stable errors:
 
 ```text
 POWERBI_NOT_CONFIGURED
+POWERBI_TENANT_FORBIDDEN
 POWERBI_AUTH_FAILED
 POWERBI_REPORT_NOT_FOUND
 POWERBI_EMBED_TOKEN_FAILED
 POWERBI_UPSTREAM_FAILURE
 ```
+
+`POWERBI_TENANT_FORBIDDEN` is returned with HTTP 403 before any Entra or Power BI
+call is attempted.
 
 ## Frontend Embedding
 
@@ -122,6 +153,8 @@ It does not draw its own BI charts or fabricate a report.
 ## Security Boundary
 
 - Authentication is required before any Power BI configuration is returned.
+- The `analytics:read` scope is asserted before configuration, token, or report data is read.
+- The current product tenant is the application-side authorization boundary for the configured report.
 - The Entra token is never sent to the browser.
 - The embed token is short-lived and kept out of persistent storage.
 - The API response is not cacheable.
@@ -133,16 +166,27 @@ required by the selected embed runtime instead of using a wildcard.
 
 ## Tenant and RLS Boundary
 
-Power BI V1 uses one configured analytics workspace and one configured report.
+Power BI V1 is a single-tenant binding, not a multi-tenant Power BI deployment:
+
+```text
+one product tenant (POWERBI_PRODUCT_TENANT_ID)
+  -> one configured workspace
+  -> one configured report
+```
 
 ```text
 MULTITENANT_POWERBI_ISOLATION=false
 POWERBI_RLS_IMPLEMENTED=false
 ```
 
-The endpoint is authenticated and uses the current tenant only as an
-application-side authorization boundary. It does not yet claim workspace-per-
-tenant isolation or Power BI row-level security.
+The single-tenant authorization boundary is implemented: the endpoint is
+authenticated, requires `analytics:read`, and rejects any other product tenant
+with `POWERBI_TENANT_FORBIDDEN` instead of mapping it onto the same report.
+Because the deployment still serves exactly one product tenant and one report,
+this is not Power BI tenant isolation and not Power BI row-level security.
+
+Any additional product tenant fails closed until its own workspace/report
+binding exists.
 
 Future options:
 

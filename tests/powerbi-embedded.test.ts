@@ -9,7 +9,8 @@ import { resolvePowerBiEmbedConfig } from "../src/integrations/powerbi/service.j
 import type { PowerBiFetch } from "../src/integrations/powerbi/types.js";
 
 const env = {
-  POWERBI_TENANT_ID: "tenant-id",
+  POWERBI_TENANT_ID: "entra-tenant-id",
+  POWERBI_PRODUCT_TENANT_ID: "product-tenant",
   POWERBI_CLIENT_ID: "client-id",
   POWERBI_CLIENT_SECRET: "server-secret",
   POWERBI_WORKSPACE_ID: "workspace-id",
@@ -26,8 +27,10 @@ describe("Power BI Embedded backend", () => {
   it("requires the complete server-side configuration", () => {
     expect(loadPowerBiConfig({})).toBeNull();
     expect(loadPowerBiConfig({ ...env, POWERBI_CLIENT_SECRET: "" })).toBeNull();
+    expect(loadPowerBiConfig({ ...env, POWERBI_PRODUCT_TENANT_ID: "" })).toBeNull();
     expect(loadPowerBiConfig(env)).toMatchObject({
-      tenantId: "tenant-id",
+      entraTenantId: "entra-tenant-id",
+      productTenantId: "product-tenant",
       authorityHost: "https://login.microsoftonline.com",
     });
   });
@@ -74,7 +77,7 @@ describe("Power BI Embedded backend", () => {
       }), { status: 200, headers: { "content-type": "application/json" } });
     });
     const result = await resolvePowerBiEmbedConfig(
-      { tenantId: "demo-manufacturing" },
+      { tenantId: "product-tenant" },
       {
         env,
         tokenProvider: { getAccessToken: async () => "entra-access-token" },
@@ -90,6 +93,19 @@ describe("Power BI Embedded backend", () => {
     });
     expect(JSON.stringify(result)).not.toContain("entra-access-token");
     expect(JSON.stringify(result)).not.toContain("server-secret");
+    expect(JSON.stringify(result)).not.toContain("client-id");
+    expect(JSON.stringify(result)).not.toContain("entra-tenant-id");
+  });
+
+  it("fails closed when the current product tenant is not bound to the configured report", async () => {
+    const fetchImpl = vi.fn<PowerBiFetch>(async () => new Response("{}", { status: 200 }));
+    const getAccessToken = vi.fn(async () => "entra-access-token");
+    await expect(resolvePowerBiEmbedConfig(
+      { tenantId: "other-product-tenant" },
+      { env, tokenProvider: { getAccessToken }, fetchImpl },
+    )).rejects.toMatchObject({ code: "POWERBI_TENANT_FORBIDDEN", status: 403 });
+    expect(getAccessToken).not.toHaveBeenCalled();
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("maps upstream failures to stable Power BI error codes", async () => {
@@ -113,7 +129,7 @@ describe("Power BI Embedded backend", () => {
 
   it("fails closed when configuration is absent", async () => {
     await expect(resolvePowerBiEmbedConfig(
-      { tenantId: "demo-manufacturing" },
+      { tenantId: "product-tenant" },
       { env: {} },
     )).rejects.toMatchObject({ code: "POWERBI_NOT_CONFIGURED", status: 503 });
   });

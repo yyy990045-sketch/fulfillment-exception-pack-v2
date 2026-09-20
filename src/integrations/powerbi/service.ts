@@ -11,11 +11,18 @@ export type PowerBiServiceDependencies = {
 };
 
 export async function resolvePowerBiEmbedConfig(
-  _auth: { tenantId: string },
+  auth: { tenantId: string },
   dependencies: PowerBiServiceDependencies = {},
 ): Promise<PowerBiEmbedConfig> {
   const config = loadPowerBiConfig(dependencies.env);
   if (!config) throw new PowerBiError("POWERBI_NOT_CONFIGURED", 503);
+
+  // The current product tenant is the application-side authorization boundary for the
+  // single configured workspace/report. A different tenant fails closed instead of being
+  // mapped onto the same report.
+  if (auth.tenantId !== config.productTenantId) {
+    throw new PowerBiError("POWERBI_TENANT_FORBIDDEN", 403);
+  }
 
   const tokenProvider = dependencies.tokenProvider ?? getEntraTokenProvider(config);
   let accessToken: string;

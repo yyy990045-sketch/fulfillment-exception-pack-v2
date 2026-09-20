@@ -2,6 +2,7 @@ import type { PowerBiConfig } from "./types.js";
 
 const REQUIRED_ENV_KEYS = [
   "POWERBI_TENANT_ID",
+  "POWERBI_PRODUCT_TENANT_ID",
   "POWERBI_CLIENT_ID",
   "POWERBI_CLIENT_SECRET",
   "POWERBI_WORKSPACE_ID",
@@ -20,7 +21,8 @@ export function loadPowerBiConfig(env: NodeJS.ProcessEnv = process.env): PowerBi
   if (REQUIRED_ENV_KEYS.some((key) => !values[key])) return null;
 
   return {
-    tenantId: values.POWERBI_TENANT_ID!,
+    entraTenantId: values.POWERBI_TENANT_ID!,
+    productTenantId: values.POWERBI_PRODUCT_TENANT_ID!,
     clientId: values.POWERBI_CLIENT_ID!,
     clientSecret: values.POWERBI_CLIENT_SECRET!,
     workspaceId: values.POWERBI_WORKSPACE_ID!,

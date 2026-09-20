@@ -1,0 +1,12 @@
+{
+  "id": "powerbi-authorization-boundary-seal",
+  "title": "封住 Power BI 授权边界：analytics scope 与产品 tenant 绑定",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "high",
+  "domain": "backend",
+  "currentPhase": "completed",
+  "nextAction": "已提交；live 验证仍为 BLOCKED_BY_CONFIGURATION，未升级任何真实环境标志",
+  "createdAt": "2026-09-20T06:00:00Z",
+  "branch": "main"
+}

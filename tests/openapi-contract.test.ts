@@ -106,9 +106,15 @@ describe("OpenAPI 502 ownership", () => {
     );
     expect(block).toContain("PowerBiEmbedConfig");
     expect(block).toContain("'503'");
+    expect(block).toContain("'403'");
+    expect(block).toContain("scope_forbidden");
+    expect(block).toContain("POWERBI_TENANT_FORBIDDEN");
     expect(openapi).toContain("    PowerBiEmbedConfig:");
     expect(openapi).toContain("embedToken: { type: string }");
     expect(openapi).not.toContain("entraAccessToken");
     expect(openapi).not.toContain("clientSecret");
+    expect(openapi).not.toContain("clientId");
+    expect(openapi).not.toContain("entraTenantId");
+    expect(openapi).not.toContain("productTenantId");
   });
 });

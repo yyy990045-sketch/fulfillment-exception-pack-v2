@@ -269,10 +269,19 @@ paths:
         - { $ref: '#/components/parameters/DemoActorHeader' }
       responses:
         '200':
-          description: Server-generated Power BI Embed Token configuration. The Entra access token is never returned.
+          description: >-
+            Server-generated Power BI Embed Token configuration for the single configured
+            workspace/report. The current product tenant is the application-side authorization
+            boundary. Server-side Entra credentials and access token are never returned.
           content:
             application/json: { schema: { $ref: '#/components/schemas/PowerBiEmbedConfig' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: >-
+            Forbidden. The error body disambiguates the two forbidden cases: scope_forbidden when
+            the caller lacks the analytics:read scope, and POWERBI_TENANT_FORBIDDEN when the
+            current product tenant is not bound to the configured Power BI report.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
         '502':
           description: Power BI authentication, report lookup, or embed-token generation failed
           content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }

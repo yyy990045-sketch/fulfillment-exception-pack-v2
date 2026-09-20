@@ -21,7 +21,7 @@ export function createEntraTokenProvider(
   const client = dependencies.client ?? new ConfidentialClientApplication({
     auth: {
       clientId: config.clientId,
-      authority: `${config.authorityHost}/${config.tenantId}`,
+      authority: `${config.authorityHost}/${config.entraTenantId}`,
       clientSecret: config.clientSecret,
     },
     system: {
@@ -61,9 +61,11 @@ export function createEntraTokenProvider(
 }
 
 export function getEntraTokenProvider(config: PowerBiConfig): EntraTokenProvider {
+  // Secret rotation requires a process restart: the cache key intentionally
+  // binds authority, Entra tenant, client, workspace, and report, not the secret.
   const key = [
     config.authorityHost,
-    config.tenantId,
+    config.entraTenantId,
     config.clientId,
     config.workspaceId,
     config.reportId,
