@@ -13,6 +13,8 @@ Rule / Exception 这条链路**真实**跑通并留下证据。
 
 ```text
 OPEN_SUPOS_RUNTIME_IMPLEMENTED       = true   # 适配层/映射/校验/验证 harness 已实现并有测试
+OPEN_SUPOS_AB_CONTRACT_VERIFIED      = true   # 本地 A/B 契约 + replay + checkpoint 通过（契约层）
+OPEN_SUPOS_REMOTE_RUNBOOK_READY      = true   # 远程 20 步 runbook / preflight / bootstrap / verify 就绪
 OPEN_SUPOS_RUNTIME_VERIFIED          = false  # 官方运行时未在本机启动
 OPEN_SUPOS_MQTT_VERIFIED             = false  # 未连接过真实 open supOS EMQX
 OPEN_SUPOS_UNS_VERIFIED              = false  # 未在真实 UNS 中写入并查询到数据
@@ -29,6 +31,8 @@ OPEN_SUPOS_RUNTIME_BLOCKED           = BLOCKED_BY_HOST
 
 **边界**：即使本机能跑通官方运行时，那也只是「真实 open supOS runtime」，
 **不等于**「真实工厂数据 / 真实客户 / 生产环境」。上面三个 `REAL_*` 永远不由本地验证升级。
+`OPEN_SUPOS_AB_CONTRACT_VERIFIED` 只是**契约层**证据（本地缓冲队列，等价 injected transport），
+它永远不会自动升级任何 `*_VERIFIED` live flag。
 
 ---
 
@@ -47,8 +51,8 @@ OPEN_SUPOS_RUNTIME_BLOCKED           = BLOCKED_BY_HOST
 | 出站（异常/治理结果回写 open supOS） | IMPLEMENTED（未启用） | `outbound.ts`、`mapExceptionToUnsMessage`；本轮不启用 |
 | **官方 open supOS runtime** | **BLOCKED** | 见第 3 节 |
 | **UNS 在平台侧的真实可见性** | **BLOCKED** | 需要运行中的 open supOS 才能查询 |
-| **`OpenSuposInboundConnector`（接 Connector Core 的 SourceRecordEnvelope / cursor / sync-run）** | **MISSING** | 当前 MQTT 是 push 路径，直接 `adapter.ingest`，**没有**经过 `src/connectors/core` 的 `InboundConnector.readPage` / `SourceRecordEnvelope` / cursor ledger。这是结构性缺口，见第 6 节 |
-| **「正常数据不产生异常」独立用例（A/B）** | **MISSING** | 现有 manifest 是固定混合结果（7 次评估 / 4 命中 / 3 未命中 / 4 异常），没有单独一组「全一致 → 0 异常」的用例 |
+| **`OpenSuposInboundConnector`（接 Connector Core 的 SourceRecordEnvelope / cursor / sync-run）** | **IMPLEMENTED + LOCAL_CONTRACT_VERIFIED** | `connector.ts`：`OpenSupOSUnsQueue`（checkpoint cursor = occurredAt#messageId）→ `OpenSuposInboundConnector.readPage` → `runInboundSync`（Source Ledger / cursor / 重放 / 幂等 / 下游完成标记）；`OpenSuposSourceAdapter` 复用既有 `mapUnsEnvelopeToDomainPlan` |
+| **A/B 独立用例（正常 → 0 异常；异常 → 预期异常）** | **IMPLEMENTED + LOCAL_CONTRACT_VERIFIED** | `ab-cases.ts` 的 `normal-order` / `exception-order`（各 11 条 UNS 消息，结构一致只差数值），断言见 `contract-verify.ts` |
 | **真实运行时故障注入（断 broker / 畸形 payload / 下游失败）** | **PARTIAL** | 单测覆盖了 provenance 不符、公共 broker 拒绝、clientId 冲突、信封非法、版本演进；未在真实运行时上做过故障注入 |
 
 `npm run open-supos:inbound` 与 `npm run open-supos:verify:mqtt` 都是既有入口，未被本轮替换。
@@ -153,52 +157,82 @@ provenance 事实：`source.systemKey` / `systemType` / `externalDocumentId` / `
 `sourceVersion` 与 `event.occurredAt` 全部落到 `SourceDocument` + `FulfillmentEvent` + `V2Evidence`，
 `Evidence.sourceSystemId` 可回溯到具体源系统（`tests/open-supos-superseding.test.ts` 有 lineage 断言）。
 
-**与 Connector Core 的差异（必须显式记录）**：Connector Core 的
-`SourceRecordEnvelope` 还带 `connectorId` / `connectorInstallationId` / `rawHash` /
-`mappingId` / `mappingVersion` / `locator`，并配合 `InboundConnector.readPage` 的
-cursor + `ConnectorSyncRun` 账本。open supOS 的 MQTT 是 push 模型，当前**没有**产生
-`SourceRecordEnvelope`，也没有 cursor/offset —— 幂等只靠 `idempotencyKey`。
-要满足「Core runtime 不感知 open supOS 特有字段 + 复用 Source Ledger / cursor / replay」，
-需要补一个薄的 `OpenSuposInboundConnector`：把每条 MQTT 消息映射成 `SourceRecordEnvelope`
-（`locator` 记录 namespace/topic/entity，`rawHash` 记录 payload 摘要，`mappingId/mappingVersion`
-记录映射版本），再交给既有 Connector Core 路径。本轮**未**实现。
+**Connector Core 桥接（已实现，本轮补齐）**：`connector.ts` 把 push 语义映射到既有 pull 契约 ——
+`OpenSupOSUnsQueue` 把每条 MQTT/UNS 消息缓冲成 `InboundRecord`（`locator` 记录
+namespace / topic / context / entityType / entityKey / eventType / messageId），
+`OpenSuposInboundConnector.readPage` 按 checkpoint cursor（`occurredAt#messageId`，
+我们自己的 checkpoint，不是 provider cursor）出页，`runInboundSync` 负责
+`SourceRecordEnvelope` 构造、Source Ledger（`connector_source_records`）、
+cursor 提交（`ConnectorSyncState`）、重放去重（`findConnectorSourceRecordExact`）与
+下游完成标记（`canAdvanceInboundCursor`）。领域适配仍复用 `mapUnsEnvelopeToDomainPlan`，
+Core 不感知任何 open supOS 特有字段。
 
-### 5.4 验证流程
+老的 MQTT push 路径（`adapter.ingest` + `applyDomainWritePlan`）保留不动，仍由
+`npm run open-supos:inbound` / `npm run open-supos:verify:mqtt` 使用；两条路径共用同一份
+信封解析、topic 校验与领域映射。
+
+### 5.4 A/B 业务用例
+
+```text
+Case A normal-order      SO-AB-N-001   计划/订单/生产完成/质检合格/发货/回款/客户声明 全部一致
+                                       → 7 次规则评估，命中异常规则 = 0，异常 = 0
+Case B exception-order   SO-AB-X-001   仅生产完成数量 96 < 订单数量 100
+                                       → 7 次规则评估，只命中 ORDER_PRODUCTION_COMPLETION_SHORTFALL，异常 = 1
+```
+
+两个 case 各 11 条 UNS 消息，结构完全一致（同样的 topic 形状、同样的实体与事件序列），
+**只差数值**，并且都走同一条入口：
+
+```text
+open supOS payload → OpenSuposInboundConnector → SourceRecordEnvelope
+  → runInboundSync（Source Ledger / cursor / 重放 / 幂等）
+  → Business Context / Entity / Event / Evidence → Rule Evaluation → Exception
+```
+
+字段口径：`plannedQuantity → sales_order.qty`，`deliveredQuantity → production_order.completedQty`。
+
+### 5.5 验证流程
 
 ```bash
 # 1. 指向真实运行时（地址来自真实部署，不写死）
 set -a; . ./.env.open-supos.local; set +a
-# 2. 真实链路验收（fail-closed：缺任何证据都不会 PASS）
-npm run open-supos:verify
-# 3. 只看 MQTT/领域/规则那一段（既有 harness）
+# 2. 本地契约（无运行时也能跑，最多 LOCAL_CONTRACT_VERIFIED）
+npm run open-supos:verify -- --mode contract
+# 3. 真实链路验收（fail-closed：缺任何证据都不会 PASS）
+npm run open-supos:verify -- --mode live
+# 4. 只看 MQTT/领域/规则那一段（既有 harness，混合 fixture SO-MFG-001）
 npm run open-supos:verify:mqtt
-# 4. 分析投影（真实数据进 Superset 链路）
+# 5. 远程主机预检 / 引导 / 20 步编排
+scripts/open-supos-remote-preflight.sh
+scripts/open-supos-remote-bootstrap.sh /opt/supos-ce-deploy
+scripts/open-supos-remote-verify.sh deploy/open-supos/.env.remote
+# 6. 分析投影（真实数据进 Superset 链路）
 npm run superset:export
 docker compose -f deploy/superset/docker-compose.yml exec -T db \
   psql -v ON_ERROR_STOP=1 -U superset -d analytics < .preview/superset/projection.sql
 npm run superset:verify-embed
 ```
 
-`npm run open-supos:verify` 固定输出 12 项检查（每项 PASS / FAIL / BLOCKED）：
+`--mode contract` 固定 6 项、`--mode live` 固定 20 项（顺序不可改、不可跳过）：
 
 ```text
-runtime.health            open supOS 网关健康
-runtime.components        gateway / emqx / nodered / keycloak / db / tsdb / minio 健康
-mqtt.publish              broker 往返 + 11 条消息发布
-mqtt.subscribe            连接 + 订阅 ACK
-connector.ingest          11/11 条消息被适配层接收
-domain.commit             context/entity/event/evidence 落库（11 events / 11 evidence）
-rule.evaluated            7 次规则评估（4 命中 / 3 未命中）
-exception.created         产生 4 个异常
-replay.idempotent         第二批重放后计数不变
-runtime.real_transport    必须是真的 MQTT transport（注入式 transport 直接 FAIL）
-uns.data_exists           UNS 侧能查询到这批 messageId
-analytics.projection      投影里能看到这批异常
+contract: shared_entrypoint / case_a_normal / case_b_exception /
+          replay_idempotent / checkpoint_safe / ledger_provenance
+
+live 01-20: runtime health → MQTT connection → MQTT publish → MQTT subscribe → UNS object exists
+          → Case A publish → Case A ingest → Case A rule evaluation → Case A exception = 0
+          → Case B publish → Case B ingest → Case B rule matched → Case B expected exception → Case B replay
+          → replay idempotent → source ledger consistent → cursor/checkpoint safe
+          → analytics projection export → Superset projection reloaded → Superset dashboard reflects data
 ```
 
 任何一项缺失 → 整体 `BLOCKED` 或 `FAIL` 且退出码非 0；缺证据时**不会**输出 PASS。
 `OPEN_SUPOS_ENABLED != true`、未配置运行时健康地址、未配置 UNS 查询入口时，
-检查项仍然全部列出并标记 BLOCKED。
+检查项仍然全部列出并标记 BLOCKED。第 19-20 步必须由
+`scripts/open-supos-remote-verify.sh` 真实重载投影并跑通 `superset:verify-embed` 后写出 receipt，
+gate 才可能 PASS；没有 receipt 一律 BLOCKED。
+
+远程 20 步完整操作见 `docs/open-supos-remote-runtime-runbook.md`。
 
 ---
 
@@ -214,7 +248,7 @@ analytics.projection      投影里能看到这批异常
 | mapping 拒绝（schemaVersion 不支持） | `DOMAIN_UNS_SCHEMA_VERSION_UNSUPPORTED` | 单测覆盖 |
 | 下游失败 | 由调用方决定重放；幂等键保证不会重复写入 | 部分覆盖（真实运行时故障注入未做） |
 | 重复投递 | 计数不变化、`duplicated=true` | harness `duplicateBatchStable` |
-| cursor | MQTT push 路径没有 cursor；pull 连接器才有 cursor 语义 | **GAP**（见 5.3） |
+| cursor | 我们自己的 checkpoint cursor（`occurredAt#messageId`）经 `ConnectorSyncState` 提交；重放不跳读也不重复 | 已实现（`contract.checkpoint_safe`） |
 
 ---
 

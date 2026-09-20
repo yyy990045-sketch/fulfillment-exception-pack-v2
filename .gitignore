@@ -5,6 +5,7 @@ dist/
 .env.*
 !.env.production.example
 !.env.open-supos.example
+!deploy/open-supos/.env.remote.example
 !.env.grounded-ai.example
 !.env.decision-ai.example
 !.env.root-cause-ai.example

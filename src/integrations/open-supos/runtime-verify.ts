@@ -146,6 +146,14 @@ function redactMqttUrl(value: string) {
 }
 
 function requireEnabledEnv(env: Record<string, string | undefined>) {
+  return requireEnabledOpenSupOSRuntimeEnv(env);
+}
+
+/**
+ * 真实运行时前置校验（供 live 模式复用，避免两套规则漂移）：
+ * 必须显式启用、指向非公共 broker、上游 commit 与审计值一致、且显式确认运行时存在。
+ */
+export function requireEnabledOpenSupOSRuntimeEnv(env: Record<string, string | undefined>) {
   const url = env.OPEN_SUPOS_MQTT_URL?.trim();
   if (!url) throw new RuntimeVerificationError("OPEN_SUPOS_MQTT_URL_REQUIRED");
   let parsedUrl: URL;

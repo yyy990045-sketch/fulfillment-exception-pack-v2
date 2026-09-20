@@ -1,0 +1,13 @@
+{
+  "id": "open-supos-remote-enablement",
+  "title": "Open SupOS Remote Runtime Enablement：A/B 缺口封口 + 远程验收准备",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "integration",
+  "currentPhase": "completed",
+  "nextAction": "归档",
+  "createdAt": "2026-09-20T10:00:00Z",
+  "branch": "main",
+  "baseline": "70a9bc0"
+}
