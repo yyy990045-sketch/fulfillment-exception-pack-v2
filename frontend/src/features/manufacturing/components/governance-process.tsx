@@ -101,7 +101,7 @@ function ApprovalDecisionContext({
     <div className="rounded-md border border-border bg-surface-muted/35 p-3">
       <dl className="grid gap-3 text-xs sm:grid-cols-2">
         <div><dt className="text-text-muted">建议动作</dt><dd className="mt-0.5 font-medium text-text-secondary">{selectedOption ? actionTypeLabel(selectedOption.actionType) : "未选择"}</dd></div>
-        <div><dt className="text-text-muted">智能判断</dt><dd className="mt-0.5 text-text-secondary">{recommendation ? `${decisionProviderLabel(recommendation.provider)} · 需要人工治理` : "暂不可用"}</dd></div>
+        <div><dt className="text-text-muted">建议信息</dt><dd className="mt-0.5 text-text-secondary">{recommendation ? `${decisionProviderLabel(recommendation.provider)} · 仅作为人工决策输入` : "暂不可用"}</dd></div>
         <div><dt className="text-text-muted">Policy 要求</dt><dd className="mt-0.5 font-medium text-text-secondary">{policy ? policyModeLabel(policy.decision.mode) : "未确认"}</dd></div>
         <div><dt className="text-text-muted">方案申请人</dt><dd className="mt-0.5 text-text-secondary">{resolution.proposedBy ?? "未记录"}</dd></div>
         <div className="sm:col-span-2"><dt className="text-text-muted">职责分离</dt><dd className="mt-0.5 text-text-secondary">复核人与方案提出人必须由不同人员担任，后端在审批时强制校验。</dd></div>

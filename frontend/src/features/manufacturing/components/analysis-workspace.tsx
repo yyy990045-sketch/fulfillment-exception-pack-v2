@@ -11,7 +11,7 @@ import {
 } from "../../../hooks/use-manufacturing.js";
 import type { EvidenceBundleView } from "../types.js";
 import { DecisionPanel } from "./decision-panel.js";
-import { DecisionNextStepPanel, DecisionSignalPanel, PolicyRequirementPanel } from "./decision-support-panels.js";
+import { DecisionInformationPanel, DecisionNextStepPanel, PolicyRequirementPanel } from "./decision-support-panels.js";
 import { ExplanationPanel } from "./explanation-panel.js";
 import { InlineEmpty, InlineError, SectionSkeleton } from "./query-state.js";
 import { RootCausePanel } from "./root-cause-panel.js";
@@ -119,7 +119,7 @@ export function DecisionWorkspace({
               <h2 id="decision-title" className="text-[15px] font-semibold">建议处理</h2>
               <InlineError title="智能建议加载失败" detail="当前建议记录无法读取，Policy 和人工治理仍可继续。" />
               <Button variant="outline" onClick={() => generateDecision.mutate()} disabled={generateDecision.isPending}>
-                {generateDecision.isPending ? "正在生成..." : "重试智能判断"}
+                {generateDecision.isPending ? "正在生成..." : "重试智能建议信息"}
               </Button>
             </div>
           ) : !recommendation ? (
@@ -129,7 +129,7 @@ export function DecisionWorkspace({
               <Button variant="outline" onClick={() => generateDecision.mutate()} disabled={generateDecision.isPending}>
                 {generateDecision.isPending ? "正在生成..." : "生成处置建议"}
               </Button>
-              {generateDecision.isError && <p className="text-xs text-warning">智能判断暂不可用，Policy 和人工治理仍可继续。</p>}
+              {generateDecision.isError && <p className="text-xs text-warning">智能建议信息暂不可用，Policy 和人工治理仍可继续。</p>}
             </div>
           ) : (
             <DecisionPanel
@@ -142,7 +142,7 @@ export function DecisionWorkspace({
           )}
         </div>
         <div className="space-y-4">
-          <DecisionSignalPanel recommendation={recommendation} loading={decisionLoading} error={decisionError} />
+          <DecisionInformationPanel recommendation={recommendation} loading={decisionLoading} error={decisionError} />
           <PolicyRequirementPanel
             policy={currentPolicy}
             loading={policy.isLoading}

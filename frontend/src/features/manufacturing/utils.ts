@@ -128,8 +128,10 @@ export function policyEffectClassLabel(effectClass: string) {
 
 export function decisionProviderLabel(provider: string) {
   const normalized = provider.trim().toLowerCase();
-  if (normalized === "jev" || normalized.startsWith("jev-")) return "Jev Decision Runtime";
-  return "Decision Runtime";
+  if (normalized.includes("deterministic")) return "本地确定性建议";
+  if (normalized === "openai" || normalized.startsWith("openai-")) return "OpenAI 建议生成";
+  if (normalized === "jev" || normalized.startsWith("jev-")) return "Jev 建议生成";
+  return "其他建议生成来源";
 }
 
 export function evidenceSupportLabel(support: string) {

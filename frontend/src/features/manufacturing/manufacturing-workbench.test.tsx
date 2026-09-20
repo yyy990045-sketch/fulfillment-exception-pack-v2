@@ -19,7 +19,7 @@ import { policyListFixture, resolutionCapabilitiesFixture, resolutionQueryFixtur
 import { ExceptionRecordPage } from "./pages/exception-record-page.js";
 import { ManufacturingContextPage } from "./pages/manufacturing-context-page.js";
 import type { EvidenceBundleView } from "./types.js";
-import { actionTypeLabel, businessFactLabel, governanceActionStatusLabel, sourceSystemLabel } from "./utils.js";
+import { actionTypeLabel, businessFactLabel, decisionProviderLabel, governanceActionStatusLabel, sourceSystemLabel } from "./utils.js";
 
 function jsonResponse(body: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify(body), {
@@ -236,7 +236,7 @@ describe("Manufacturing information architecture", () => {
     ))).toBe(true);
   });
 
-  it("shows AI signal, authoritative Policy, evidence, and backend disabled reasons", async () => {
+  it("shows recommendation source, authoritative Policy, evidence, and backend disabled reasons", async () => {
     mockApi({
       policyList: policyListFixture("approval_required"),
       capabilities: resolutionCapabilitiesFixture({
@@ -253,8 +253,11 @@ describe("Manufacturing information architecture", () => {
     });
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/decision");
 
-    expect(await screen.findByRole("heading", { name: "智能判断" })).toBeInTheDocument();
-    expect(screen.getAllByText(/需要人工治理/).length).toBeGreaterThan(0);
+    expect(await screen.findByRole("heading", { name: "智能建议信息" })).toBeInTheDocument();
+    expect(screen.getByText(/本地确定性建议/)).toBeInTheDocument();
+    expect(screen.getByText("人工决策要求：是")).toBeInTheDocument();
+    expect(screen.queryByText("判断强度")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Jev Decision Runtime/)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "治理要求" })).toBeInTheDocument();
     expect(screen.getAllByText(/需要独立审批/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("关键证据").length).toBeGreaterThan(0);
@@ -266,7 +269,7 @@ describe("Manufacturing information architecture", () => {
     mockApi({ analysisError: true });
     renderAt("/manufacturing/ctx-fixture/exceptions/exception-claim/decision");
 
-    expect(await screen.findByText("智能判断暂不可用")).toBeInTheDocument();
+    expect(await screen.findByText("智能建议信息暂不可用")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "治理要求" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "进入治理" })).toBeInTheDocument();
   });
@@ -408,6 +411,8 @@ describe("Manufacturing information architecture", () => {
     expect(actionTypeLabel("route_quotation_to_review")).toBe("送入报价复核");
     expect(actionTypeLabel("approve_or_change_quotation_terms")).toBe("批准或变更报价条款");
     expect(actionTypeLabel("review_quotation")).toBe("复核报价（历史）");
+    expect(decisionProviderLabel("decision-deterministic-demo")).toBe("本地确定性建议");
+    expect(decisionProviderLabel("openai")).toBe("OpenAI 建议生成");
     expect(businessFactLabel("qty")).toBe("数量");
     expect(businessFactLabel("internalRiskFlag")).toBe("业务事实");
     expect(sourceSystemLabel("manual", "Service Demo")).toBe("人工记录");
