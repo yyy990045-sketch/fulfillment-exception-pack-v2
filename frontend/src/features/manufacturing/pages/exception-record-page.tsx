@@ -153,6 +153,8 @@ export function ExceptionRecordPage() {
             recommendation={recommendation}
             selectedOptionId={selectedOptionId}
             exceptionGovernanceStage={exception.governanceStage}
+            evidence={evidence.data}
+            onOpenEvidence={openEvidence}
           />
         )}
       </ProductPage>

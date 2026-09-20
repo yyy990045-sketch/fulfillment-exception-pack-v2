@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DemoSettingsProvider, useDemoSettings } from "../../app/demo-settings.js";
-import { decisionFixture } from "../../test/fixtures/manufacturing.js";
+import { decisionFixture, evidenceBundleFixture } from "../../test/fixtures/manufacturing.js";
 import {
   outcomeListFixture,
   policyListFixture,
@@ -137,6 +137,8 @@ function renderProcess(selectedOptionId = "option-evidence") {
             exceptionId="exception-claim"
             recommendation={decisionFixture}
             selectedOptionId={optionId}
+            evidence={evidenceBundleFixture}
+            onOpenEvidence={() => {}}
           />
         </GovernanceActionControllerProvider>
       </DemoSettingsProvider>
@@ -227,9 +229,13 @@ describe("governance process", () => {
     });
     renderProcess();
 
-    expect(await screen.findByText(/需人工审批/)).toBeInTheDocument();
-    expect(screen.getByText(/处理资格：需人工审批/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/需要独立审批/)).length).toBeGreaterThan(0);
+    expect(screen.getByText(/治理要求：需要独立审批/)).toBeInTheDocument();
     expect(screen.getByText("总经理")).toBeInTheDocument();
+    expect(screen.getByText("关键证据")).toBeInTheDocument();
+    expect(screen.getByText("建议动作")).toBeInTheDocument();
+    expect(screen.getByText("职责分离")).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "复核报价（历史）" })).not.toBeInTheDocument();
     expect(screen.getByText(/复核人：品质负责人；方案提出人：工程师/)).toBeInTheDocument();
     expect(screen.getByText(/复核人与方案提出人不能由同一人担任/)).toBeInTheDocument();
     expect(screen.getByTestId("process-step-outcome")).toHaveAttribute("data-status", "pending");

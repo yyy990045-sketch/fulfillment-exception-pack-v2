@@ -66,7 +66,7 @@ test("manufacturing task routes separate facts, analysis, decision, and governan
 
   await page.getByRole("link", { name: "决策", exact: true }).click();
   await expect(page).toHaveURL(/\/decision\?q=/);
-  await expect(page.getByRole("heading", { name: "决策建议" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "建议处理" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
   await page.getByRole("link", { name: "治理", exact: true }).click();
@@ -183,7 +183,7 @@ test("customer pilot flow keeps confirmation failures retryable and switches dem
   await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
   await page.getByRole("link", { name: "决策", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "决策建议" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "建议处理" })).toBeVisible();
 
   await page.goto("/operations");
   await page.getByLabel("账户与设置").click();

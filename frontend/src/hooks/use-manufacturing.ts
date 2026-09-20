@@ -262,6 +262,25 @@ export function useDecisionRecommendation(contextId: string, exceptionId: string
   return { list, latest, detail };
 }
 
+export function useGenerateDecisionRecommendation(contextId: string, exceptionId: string | undefined) {
+  const { identity } = useDemoSettings();
+  const queryClient = useQueryClient();
+  const base = `/api/v2/contexts/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId ?? "")}`;
+  return useMutation({
+    mutationFn: () => apiRequest<DecisionRecommendationView>(`${base}/decision-recommendations`, {
+      identity,
+      method: "POST",
+      body: {},
+    }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["decision-recommendations", identity.tenantId] }),
+        queryClient.invalidateQueries({ queryKey: ["decision-recommendation", identity.tenantId] }),
+      ]);
+    },
+  });
+}
+
 export function useExceptionEvidence(contextId: string, exceptionId: string | undefined) {
   const { identity } = useDemoSettings();
   return useQuery({

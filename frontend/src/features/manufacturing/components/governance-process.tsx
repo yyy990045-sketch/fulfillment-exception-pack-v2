@@ -16,6 +16,7 @@ import type {
   PolicyEvaluationView,
   ResolutionCaseView,
 } from "../analysis-types.js";
+import type { EvidenceBundleView } from "../types.js";
 import {
   governanceSteps,
   governanceStageToCompactStep,
@@ -31,23 +32,25 @@ import {
 } from "../governance-action-controller.js";
 import {
   actionTypeLabel,
+  decisionProviderLabel,
   fieldLabel,
   formatShortDateTime,
   governanceActionStatusLabel,
   metricLabel,
   policyModeLabel,
+  policyReasonLabel,
   resolutionStatusLabel,
 } from "../utils.js";
+import { KeyEvidenceSummary } from "./key-evidence-summary.js";
 import { ProcessStep, type ProcessStepStatus } from "./process-step.js";
 import { InlineEmpty, InlineError, SectionSkeleton } from "./query-state.js";
 
-const actionLabels: Record<string, string> = {
+const writableActionLabels: Record<string, string> = {
   supplement_evidence: "补充证据",
   urge_follow_up: "跟进催办",
   reject_overclaim: "驳回超额主张",
   route_quotation_to_review: "送入报价复核",
   approve_or_change_quotation_terms: "批准或变更报价条款",
-  review_quotation: "复核报价（历史）",
   create_task: "创建任务",
 };
 
@@ -68,12 +71,63 @@ function ActionList({ resolution }: { resolution: ResolutionCaseView }) {
       {resolution.runtime.actions.map((action) => (
         <div key={action.id} className="flex items-start justify-between gap-3 py-2 text-sm">
           <div>
-            <div className="font-medium">{actionLabels[action.type] ?? action.type}</div>
+            <div className="font-medium">{actionTypeLabel(action.type)}</div>
             <div className="text-xs text-text-muted">{action.summary}</div>
           </div>
           <Badge>{governanceActionStatusLabel(action.status)}</Badge>
         </div>
       ))}
+    </div>
+  );
+}
+
+function ApprovalDecisionContext({
+  recommendation,
+  selectedOptionId,
+  policy,
+  resolution,
+  evidence,
+  onOpenEvidence,
+}: {
+  recommendation: DecisionRecommendationView | undefined;
+  selectedOptionId: string | undefined;
+  policy: PolicyEvaluationView | undefined;
+  resolution: ResolutionCaseView;
+  evidence: EvidenceBundleView | undefined;
+  onOpenEvidence: (evidenceId: string) => void;
+}) {
+  const selectedOption = recommendation?.output.options.find((option) => option.id === selectedOptionId);
+  return (
+    <div className="rounded-md border border-border bg-surface-muted/35 p-3">
+      <dl className="grid gap-3 text-xs sm:grid-cols-2">
+        <div><dt className="text-text-muted">建议动作</dt><dd className="mt-0.5 font-medium text-text-secondary">{selectedOption ? actionTypeLabel(selectedOption.actionType) : "未选择"}</dd></div>
+        <div><dt className="text-text-muted">智能判断</dt><dd className="mt-0.5 text-text-secondary">{recommendation ? `${decisionProviderLabel(recommendation.provider)} · 需要人工治理` : "暂不可用"}</dd></div>
+        <div><dt className="text-text-muted">Policy 要求</dt><dd className="mt-0.5 font-medium text-text-secondary">{policy ? policyModeLabel(policy.decision.mode) : "未确认"}</dd></div>
+        <div><dt className="text-text-muted">方案申请人</dt><dd className="mt-0.5 text-text-secondary">{resolution.proposedBy ?? "未记录"}</dd></div>
+        <div className="sm:col-span-2"><dt className="text-text-muted">职责分离</dt><dd className="mt-0.5 text-text-secondary">复核人与方案提出人必须由不同人员担任，后端在审批时强制校验。</dd></div>
+      </dl>
+      <p className="mt-3 text-xs text-text-muted">
+        复核人：{resolution.review?.actor || "—"}；方案提出人：{resolution.proposedBy || "—"}。复核人与方案提出人不能由同一人担任。
+      </p>
+      {policy?.decision.reasons.length ? (
+        <ul className="mt-3 space-y-1 text-xs text-text-secondary">
+          {policy.decision.reasons.map((reason) => <li key={reason}>{policyReasonLabel(reason)}</li>)}
+        </ul>
+      ) : null}
+      {selectedOption && (
+        <div className="mt-3">
+          <p className="text-[11px] font-medium text-text-muted">关键证据</p>
+          <div className="mt-1.5">
+            <KeyEvidenceSummary
+              evidenceIds={selectedOption.evidenceIds}
+              bundle={evidence}
+              limit={3}
+              onOpenEvidence={onOpenEvidence}
+              emptyMessage="暂无关键证据"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -229,10 +283,13 @@ function ProposalForm({
   onSubmit: (actions: Array<{ type: string; summary: string }>) => void;
 }) {
   const selectedOption = recommendation?.output.options.find((option) => option.id === selectedOptionId);
-  const [type, setType] = useState<string>(selectedOption?.actionType ?? "create_task");
+  const initialType = selectedOption?.actionType && selectedOption.actionType in writableActionLabels
+    ? selectedOption.actionType
+    : "create_task";
+  const [type, setType] = useState<string>(initialType);
   const [summary, setSummary] = useState(selectedOption?.actionSummary ?? "");
   useEffect(() => {
-    setType(selectedOption?.actionType ?? "create_task");
+    setType(selectedOption?.actionType && selectedOption.actionType in writableActionLabels ? selectedOption.actionType : "create_task");
     setSummary(selectedOption?.actionSummary ?? "");
   }, [selectedOption?.id, selectedOption?.actionType, selectedOption?.actionSummary]);
   return (
@@ -251,7 +308,7 @@ function ProposalForm({
             value={type}
             onChange={(event) => setType(event.target.value)}
           >
-            {Object.entries(actionLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            {Object.entries(writableActionLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </label>
         <label className="space-y-1 text-xs text-text-muted">
@@ -278,12 +335,16 @@ export function GovernanceProcess({
   recommendation,
   selectedOptionId,
   exceptionGovernanceStage,
+  evidence,
+  onOpenEvidence,
 }: {
   contextId: string;
   exceptionId: string;
   recommendation: DecisionRecommendationView | undefined;
   selectedOptionId: string | undefined;
   exceptionGovernanceStage?: string;
+  evidence?: EvidenceBundleView;
+  onOpenEvidence?: (evidenceId: string) => void;
 }) {
   const policy = usePolicyEvaluations(contextId, exceptionId);
   const resolution = useResolutionProcess(contextId, exceptionId);
@@ -358,11 +419,11 @@ export function GovernanceProcess({
   const compactSteps = [
     { id: "accept", label: "受理", target: "governance" as const },
     { id: "review", label: "复核", target: "governance" as const },
-    { id: "propose", label: "方案", target: "governance" as const },
+    { id: "propose", label: "决策提交", target: "governance" as const },
     { id: "approval", label: "审批", target: "approval" as const },
     { id: "execution", label: "执行", target: "execution" as const },
     { id: "receipt", label: "回执", target: "receipt" as const },
-    { id: "outcome", label: "结果", target: "outcome" as const },
+    { id: "outcome", label: "结案", target: "outcome" as const },
   ];
   const compactCurrent = exceptionGovernanceStage
     ? governanceStageToCompactStep(exceptionGovernanceStage)
@@ -396,7 +457,7 @@ export function GovernanceProcess({
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 id="governance-process-title" className="text-sm font-semibold">处理进程</h2>
-          <p className="mt-0.5 text-xs text-text-muted">建议 → 治理 → 审批 → 执行 → 回执 → 结果</p>
+          <p className="mt-0.5 text-xs text-text-muted">决策提交 → 审批 / 人工处理 → 执行 → 回执 → 结案</p>
         </div>
         {resolutionCase && <Badge variant="info">治理：{resolutionStatusLabel(resolutionCase.status)}</Badge>}
       </div>
@@ -447,9 +508,9 @@ export function GovernanceProcess({
       </div>
       <ProcessStep
         id="governance"
-        title="治理"
+        title="决策提交"
         status={stepStatus("governance")}
-        summary={policyDone ? `处理资格：${policyModeLabel(currentPolicy!.decision.mode)}` : "等待选择候选并完成处理资格确认与人工治理"}
+        summary={policyDone ? `治理要求：${policyModeLabel(currentPolicy!.decision.mode)}` : "等待选择候选并确认治理要求与人工方案"}
         owner={resolutionCase?.ownerRole ?? "待指定负责人"}
         result={governanceResult}
         expanded={expandedStep === "governance"}
@@ -458,9 +519,9 @@ export function GovernanceProcess({
         <div className="space-y-5">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-xs font-semibold text-text-muted">处理资格</h3>
+              <h3 className="text-xs font-semibold text-text-muted">治理要求</h3>
               {currentPolicy && !currentPolicy.stale && <Badge variant="info">{policyModeLabel(currentPolicy.decision.mode)}</Badge>}
-              {currentPolicy?.stale && <Badge variant="warning">处理资格已变化</Badge>}
+              {currentPolicy?.stale && <Badge variant="warning">治理要求已变化</Badge>}
             </div>
             {!selectedOptionId ? (
               <p className="mt-2 text-sm text-text-muted">请先在上方处置建议中选择一个治理候选。</p>
@@ -479,7 +540,7 @@ export function GovernanceProcess({
                     );
                   }}
                 >
-                  {mutations.policy.mutation.isPending ? "正在评估..." : currentPolicy ? "重新确认资格" : "确认处理资格"}
+                  {mutations.policy.mutation.isPending ? "正在评估..." : currentPolicy ? "重新确认治理要求" : "确认治理要求"}
                 </Button>
                 {mutations.policy.mutation.error && <span className="text-xs text-danger">{invocationError(mutations.policy.mutation)}</span>}
               </div>
@@ -488,16 +549,16 @@ export function GovernanceProcess({
               <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
                 <div><dt className="text-text-muted">处理方式</dt><dd className="mt-0.5 text-text-secondary">{policyModeLabel(currentPolicy.decision.mode)}</dd></div>
                 <div><dt className="text-text-muted">审批角色</dt><dd className="mt-0.5 text-text-secondary">{currentPolicy.decision.requiredRoles.join("、") || "无"}</dd></div>
-                <div><dt className="text-text-muted">候选动作</dt><dd className="mt-0.5 text-text-secondary">{actionLabels[currentPolicy.candidateActionType] ?? currentPolicy.candidateActionType}</dd></div>
+                <div><dt className="text-text-muted">候选动作</dt><dd className="mt-0.5 text-text-secondary">{actionTypeLabel(currentPolicy.candidateActionType)}</dd></div>
               </dl>
             )}
             {currentPolicy?.decision.reasons.length ? (
               <ul className="mt-3 space-y-1 text-xs text-text-secondary">
-                {currentPolicy.decision.reasons.map((reason) => <li key={reason}>{reason}</li>)}
+                {currentPolicy.decision.reasons.map((reason) => <li key={reason}>{policyReasonLabel(reason)}</li>)}
               </ul>
             ) : null}
             <p className="mt-3 text-xs text-text-muted">
-              处理资格不代表方案已经完成审批或执行。
+              治理要求不代表方案已经完成审批或执行。
             </p>
           </div>
 
@@ -587,11 +648,16 @@ export function GovernanceProcess({
         expanded={expandedStep === "approval"}
         onToggle={() => setExpandedStep(expandedStep === "approval" ? "" : "approval")}
       >
-        {resolutionCapabilities.canApprove.applicable && resolutionCase ? (
+                {resolutionCapabilities.canApprove.applicable && resolutionCase ? (
           <div className="space-y-3">
-            <p className="text-xs text-text-muted">
-              复核人：{resolutionCase.review?.actor || "—"}；方案提出人：{resolutionCase.proposedBy || "—"}。复核人与方案提出人不能由同一人担任。
-            </p>
+            <ApprovalDecisionContext
+              recommendation={recommendation}
+              selectedOptionId={selectedOptionId}
+              policy={currentPolicy}
+              resolution={resolutionCase}
+              evidence={evidence}
+              onOpenEvidence={onOpenEvidence ?? (() => {})}
+            />
             {mutations.approve.mutation.error && (
               <p className="border border-danger/25 bg-danger/5 px-3 py-2 text-xs text-danger">
                 {invocationError(mutations.approve.mutation)}
@@ -708,7 +774,7 @@ export function GovernanceProcess({
 
       <ProcessStep
         id="outcome"
-        title="结果"
+        title="结案 / 结果"
         status={stepStatus("outcome")}
         summary="后续业务状态测量"
         owner={latestOutcome ? "结果测量" : "待测量"}

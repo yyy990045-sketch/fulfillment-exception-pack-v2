@@ -8,6 +8,7 @@ export const DEMO_ACTORS = [
   { id: "finance", label: "财务" },
   { id: "general-manager", label: "总经理" },
   { id: "admin", label: "管理员" },
+  { id: "viewer", label: "演示查看者" },
 ] as const;
 
 type DemoSettingsValue = {

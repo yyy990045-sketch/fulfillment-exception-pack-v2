@@ -62,7 +62,7 @@ const confirmationCopy: Partial<Record<GovernanceActionName, {
 };
 
 export const governanceActionSuccessMessages: Record<GovernanceActionName, string> = {
-  policy: "处理资格已更新",
+  policy: "治理要求已更新",
   accept: "已进入治理",
   review: "复核结论已提交",
   propose: "方案已保存",

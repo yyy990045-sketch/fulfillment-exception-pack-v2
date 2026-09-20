@@ -3,8 +3,8 @@ import { Button } from "../../../components/ui/button.js";
 import { cn } from "../../../lib/utils.js";
 import type { DecisionRecommendationView } from "../analysis-types.js";
 import type { EvidenceBundleView } from "../types.js";
-import { actionTypeLabel, businessFactLabel, formatMetricValue } from "../utils.js";
-import { EvidenceReferenceList } from "./citation-list.js";
+import { actionTypeDescription, actionTypeLabel, businessFactLabel, formatMetricValue } from "../utils.js";
+import { KeyEvidenceSummary } from "./key-evidence-summary.js";
 
 type Option = DecisionRecommendationView["output"]["options"][number];
 
@@ -28,6 +28,7 @@ function OptionContent({
         <Badge>{actionTypeLabel(option.actionType)}</Badge>
         {selected && <Badge variant="success">当前选择</Badge>}
       </div>
+      <p className="mt-1 text-[11px] text-text-muted">{actionTypeDescription(option.actionType)}</p>
       <h3 className={cn("mt-3 font-semibold", recommended ? "text-[17px] leading-6" : "text-[14px]")}>{option.title}</h3>
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <div>
@@ -41,22 +42,30 @@ function OptionContent({
       </div>
       <dl className="mt-4 grid gap-4 text-[12px] lg:grid-cols-2">
         <div>
-          <dt className="text-text-muted">业务事实</dt>
+          <dt className="text-text-muted">关键依据</dt>
           <dd className="mt-1.5 space-y-1">
-            {option.supportingFacts.map((fact) => (
+            {option.supportingFacts.slice(0, 5).map((fact) => (
               <p key={`${fact.kind}-${fact.key}`}>{businessFactLabel(fact.key)} {formatMetricValue(fact.value)}</p>
             ))}
           </dd>
         </div>
         <div>
-          <dt className="text-text-muted">证据依据</dt>
-          <dd className="mt-1.5"><EvidenceReferenceList evidenceIds={option.evidenceIds} bundle={evidence} onOpenEvidence={onOpenEvidence} /></dd>
+          <dt className="text-text-muted">关键证据</dt>
+          <dd className="mt-1.5">
+            <KeyEvidenceSummary
+              evidenceIds={option.evidenceIds}
+              bundle={evidence}
+              limit={recommended ? 5 : 3}
+              onOpenEvidence={onOpenEvidence}
+              emptyMessage="暂无关键证据"
+            />
+          </dd>
         </div>
       </dl>
       {(option.assumptions.length > 0 || option.missingEvidence.length > 0) && (
         <div className="mt-3 space-y-1 text-[11px] text-warning">
-          {option.assumptions.length > 0 && <p>前提假设：{option.assumptions.join("、")}</p>}
-          {option.missingEvidence.length > 0 && <p>缺失材料：{option.missingEvidence.join("、")}</p>}
+          {option.assumptions.length > 0 && <p>风险提示：{option.assumptions.join("、")}</p>}
+          {option.missingEvidence.length > 0 && <p>待补资料：{option.missingEvidence.join("、")}</p>}
         </div>
       )}
     </>
@@ -83,7 +92,7 @@ export function DecisionPanel({
     <section aria-labelledby="decision-title" className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 id="decision-title" className="text-[15px] font-semibold">决策建议</h2>
+          <h2 id="decision-title" className="text-[15px] font-semibold">建议处理</h2>
           <Badge variant="info">建议不是执行结果</Badge>
           <Badge variant={recommendation.output.humanDecisionRequired ? "warning" : "danger"}>
             {recommendation.output.humanDecisionRequired ? "需要人工决策" : "需要人工复核"}

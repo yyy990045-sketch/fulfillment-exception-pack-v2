@@ -65,6 +65,19 @@ export function actionTypeLabel(actionType: string) {
   return labels[actionType] ?? actionType;
 }
 
+export function actionTypeDescription(actionType: string) {
+  const descriptions: Record<string, string> = {
+    supplement_evidence: "补充缺失材料或核验依据。",
+    urge_follow_up: "向业务相关方发起跟进或催办。",
+    reject_overclaim: "驳回缺少依据或超出业务边界的客户主张。",
+    route_quotation_to_review: "将报价或商业条款差异交由授权人员复核。",
+    approve_or_change_quotation_terms: "涉及报价或商业条款的正式业务决定，必须由人工处理。",
+    review_quotation: "历史复核动作，仅供历史记录展示。",
+    create_task: "创建内部跟进任务。",
+  };
+  return descriptions[actionType] ?? "业务处理动作。";
+}
+
 export function governanceActionStatusLabel(status: string) {
   const labels: Record<string, string> = {
     draft: "方案草稿",
@@ -81,10 +94,51 @@ export function governanceActionStatusLabel(status: string) {
 export function policyModeLabel(mode: string) {
   const labels: Record<string, string> = {
     human_only: "仅人工决策",
-    approval_required: "需人工审批",
-    auto_eligible: "可进入自动执行评估",
+    approval_required: "需要独立审批",
+    auto_eligible: "可进入受控内部流程",
   };
   return labels[mode] ?? "处理方式未记录";
+}
+
+export function policyReasonLabel(reason: string) {
+  const labels: Record<string, string> = {
+    customer_or_legal_consequence: "涉及客户或法律后果，需要人工决策。",
+    legal_effect_requires_human_decision: "涉及法律影响，必须由人工决策。",
+    financial_movement_requires_human_decision: "涉及财务影响，必须由人工决策。",
+    external_customer_communication: "涉及对外沟通，需要独立审批。",
+    human_review_transition: "该动作本身是进入人工复核，不需要额外审批。",
+    commercial_terms_decision_requires_human: "涉及报价或商业条款变更，必须由人工决策。",
+    business_review_required: "需要业务复核。",
+    default_deny: "未命中自动处理条件，按默认治理策略交人工。",
+  };
+  return labels[reason] ?? "治理要求已记录。";
+}
+
+export function policyEffectClassLabel(effectClass: string) {
+  const labels: Record<string, string> = {
+    internal_task: "内部任务",
+    internal_evidence_request: "内部补证",
+    external_communication: "对外沟通",
+    internal_review: "内部复核",
+    commercial_decision: "商业条款决策",
+    customer_decision: "客户决策",
+  };
+  return labels[effectClass] ?? "业务动作";
+}
+
+export function decisionProviderLabel(provider: string) {
+  const normalized = provider.trim().toLowerCase();
+  if (normalized === "jev" || normalized.startsWith("jev-")) return "Jev Decision Runtime";
+  return "Decision Runtime";
+}
+
+export function evidenceSupportLabel(support: string) {
+  const labels: Record<string, string> = {
+    supported: "已支持",
+    partial: "部分支持",
+    unsupported: "不支持",
+  };
+  return labels[support] ?? "支持状态未记录";
 }
 
 export function contextTypeLabel(contextType: string) {
