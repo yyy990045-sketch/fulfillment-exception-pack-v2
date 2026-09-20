@@ -142,3 +142,23 @@ readiness（含 required 集成）**不**用于容器 liveness，避免外部依
 npm run db:migrate:status
 npm test -- tests/ops-runtime.test.ts tests/ops-http.test.ts
 ```
+
+### 关于测试套件在高并发下的稳定性
+
+`7f84edc` 的提交信息写了「npm test 446/446」，这个数字在复核时**无法稳定复现**，因此在此
+据实记录（不改写已推送的提交）：
+
+```text
+全量并行跑（73 个测试文件）时，会出现 1~3 个 HTTP 类用例超过 5s/10s 超时：
+  tests/grounded-ai-http.test.ts        每轮超时的具体用例会变（非确定性）
+  tests/powerbi-embedded-http.test.ts   偶发 beforeAll hook 超时
+  frontend: "搜索异常" 防抖用例偶尔失败（1 failed / 63 passed）
+单独跑这些文件则全部通过（grounded-ai-http 15/15、powerbi 6/6）。
+```
+
+这不是本轮引入的：在基线 `eff0bce` 上用同一个 worktree 跑全量，同样是 2 failed / 69 passed，
+且失败的具体用例与 `7f84edc` 上不同。结论是**既有**的资源竞争型 flaky，与本轮运维改动无关。
+
+判定运维改动是否真的通过，请以「单文件/单用例隔离运行」与下列命令为准：
+`db:verify-backup`（10/10）、`ops:recovery-drill`（12/12）、`typecheck`、`eval`、
+`superset:verify-embed`（19 项）、`open-supos:verify --mode contract`（6 项，LOCAL_CONTRACT_VERIFIED）。
