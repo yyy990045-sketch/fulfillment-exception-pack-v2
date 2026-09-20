@@ -1,0 +1,87 @@
+# 单机 Superset pilot 栈：仅用于本地/内网验证，官方明确 docker compose 不支持生产与高可用。
+# 所有密码与密钥必须来自 .env（见 .env.example），不要提交真实值。
+name: fep-superset
+
+x-superset-env: &superset-env
+  SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?SUPERSET_SECRET_KEY is required}
+  GUEST_TOKEN_JWT_SECRET: ${GUEST_TOKEN_JWT_SECRET:?GUEST_TOKEN_JWT_SECRET is required}
+  SUPERSET_GUEST_TOKEN_TTL: ${SUPERSET_GUEST_TOKEN_TTL:-300}
+  SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+  SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?SUPERSET_ADMIN_PASSWORD is required}
+  SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@example.com}
+  POSTGRES_USER: ${POSTGRES_USER:-superset}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+  POSTGRES_DB: ${POSTGRES_DB:-superset}
+  POSTGRES_HOST: db
+  POSTGRES_PORT: "5432"
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  FLASK_APP: superset.app:create_app()
+
+services:
+  db:
+    image: postgres:17
+    container_name: fep-superset-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-superset}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-superset}
+    volumes:
+      - db_home:/var/lib/postgresql/data
+      # 首次初始化时创建 analytics 库与分析事实表（只跑一次）；
+      # postgres 官方入口只执行该目录下的文件，因此这里挂单文件而不是子目录
+      - ./analytics/01-analytics-schema.sql:/docker-entrypoint-initdb.d/01-analytics-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-superset}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7
+    container_name: fep-superset-redis
+    restart: unless-stopped
+    volumes:
+      - redis_home:/data
+
+  superset-init:
+    build: .
+    image: fep-superset:6.1.0
+    container_name: fep-superset-init
+    command: ["bash", "/app/deploy/init/01-init.sh"]
+    environment: *superset-env
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - ./init:/app/deploy/init:ro
+      - ./analytics:/app/analytics:ro
+      - superset_home:/app/superset_home
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  superset:
+    build: .
+    image: fep-superset:6.1.0
+    container_name: fep-superset-app
+    restart: unless-stopped
+    command:
+      ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8088", "--workers", "2", "--timeout", "120",
+       "superset.app:create_app()"]
+    environment: *superset-env
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - ./analytics:/app/analytics:ro
+      - superset_home:/app/superset_home
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+
+volumes:
+  db_home:
+  redis_home:
+  superset_home:

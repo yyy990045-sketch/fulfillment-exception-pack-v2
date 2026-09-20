@@ -68,9 +68,15 @@ import {
   requireConnector,
 } from "./connectors/index.js";
 import {
+  isPowerBiConfigured,
   PowerBiError,
   resolvePowerBiEmbedConfig,
 } from "./integrations/powerbi/index.js";
+import {
+  loadSupersetConfig,
+  resolveSupersetGuestToken,
+  SupersetError,
+} from "./integrations/superset/index.js";
 import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoMode, validateAuthEnv, type AuthContext } from "./auth.js";
 import { isReadOnlyPrincipal } from "./auth.js";
 import {
@@ -465,6 +471,26 @@ const server = createServer(async (req, res) => {
       const auth = authOf(req);
       assertScope(auth, "analytics:read");
       return jsonNoStore(res, 200, await resolvePowerBiEmbedConfig(auth));
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/analytics/providers") {
+      const auth = authOf(req);
+      assertScope(auth, "analytics:read");
+      const superset = loadSupersetConfig();
+      const powerbi = isPowerBiConfigured();
+      return json(res, 200, {
+        providers: {
+          superset: superset
+            ? { configured: true, dashboardId: superset.dashboardId, supersetDomain: superset.domain }
+            : { configured: false },
+          powerbi: { configured: powerbi },
+        },
+        defaultProvider: superset ? "superset" : powerbi ? "powerbi" : null,
+      });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/analytics/superset/guest-token") {
+      const auth = authOf(req);
+      assertScope(auth, "analytics:read");
+      return jsonNoStore(res, 200, await resolveSupersetGuestToken(auth));
     }
     if (req.method === "GET" && url.pathname === "/api/v2/outcome-definitions") {
       const tenantId = authOf(req).tenantId;
@@ -1247,6 +1273,7 @@ const server = createServer(async (req, res) => {
     if (error instanceof SolutionPackError) return json(res, error.status, { error: error.code });
     if (error instanceof ConnectorError) return json(res, error.status, { error: error.code });
     if (error instanceof PowerBiError) return jsonNoStore(res, error.status, { error: error.code });
+    if (error instanceof SupersetError) return jsonNoStore(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
     if (error instanceof EvidenceError) {
