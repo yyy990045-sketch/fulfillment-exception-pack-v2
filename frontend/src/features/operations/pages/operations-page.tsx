@@ -473,7 +473,7 @@ export function OperationsPage() {
             <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
             <input
               aria-label="搜索异常"
-              className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-2 text-[12px] shadow-[0_1px_2px_rgba(16,24,40,0.04)] outline-none transition-colors placeholder:text-text-muted/80 focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
+              className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-2 text-[12px] shadow-[0_1px_2px_rgba(28,27,24,0.04)] outline-none transition-colors placeholder:text-text-muted/80 focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
               value={query}
               onChange={(event) => updateParams({ q: event.target.value })}
               placeholder="搜索异常、订单或业务对象……"
@@ -488,7 +488,7 @@ export function OperationsPage() {
           <select
             id="operations-sort"
             aria-label="排序"
-            className="h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px] text-text-secondary shadow-[0_1px_2px_rgba(16,24,40,0.04)] outline-none transition-colors focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
+            className="h-9 rounded-md border border-border-strong bg-surface px-2.5 text-[12px] text-text-secondary shadow-[0_1px_2px_rgba(28,27,24,0.04)] outline-none transition-colors focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
             value={sort}
             onChange={(event) => updateParams({ sort: event.target.value as QueueSortId }, false)}
           >

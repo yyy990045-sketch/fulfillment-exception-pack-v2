@@ -16,24 +16,24 @@ export type CategoryDatum = {
 
 /** 语义色板：严重度在各看板间保持一致 */
 export const SEVERITY_COLORS: Record<string, string> = {
-  critical: "#b42318",
-  high: "#e8590c",
-  medium: "#f59f00",
-  low: "#98a2b3",
+  critical: "#a32118",
+  high: "#c2410c",
+  medium: "#b7791f",
+  low: "#9a9a92",
 };
 
 export const SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
 /** 分类色板：用于来源系统这类本身无语义的维度，只保证维度内可区分 */
 export const CATEGORICAL_COLORS = [
-  "#2f6feb",
-  "#0e9f6e",
-  "#e8590c",
-  "#7c3aed",
-  "#0891b2",
-  "#b42318",
-  "#8b5a2b",
-  "#5b6472",
+  "#6f6f6b",
+  "#a16207",
+  "#8c6239",
+  "#5d6b52",
+  "#9a8f7a",
+  "#a1452f",
+  "#7a6a5a",
+  "#4f5a4a",
 ];
 
 /** 全站统一百分比格式：默认取整，避免同一页出现多种小数位 */

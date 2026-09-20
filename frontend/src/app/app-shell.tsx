@@ -56,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className={`${shellWidthClass} flex h-full items-center justify-between`}>
           <div className="flex min-w-0 items-center gap-5">
             <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-md bg-gradient-to-b from-interactive to-interactive/85 text-xs font-bold text-white shadow-[0_1px_3px_rgba(21,94,239,0.35)]">履</span>
+              <span className="flex size-7 items-center justify-center rounded-md bg-gradient-to-b from-interactive to-interactive/85 text-xs font-bold text-white shadow-[0_1px_3px_rgba(28,27,24,0.3)]">履</span>
               <strong className="truncate text-[13.5px] font-semibold tracking-tight">{PRODUCT_NAME}</strong>
             </div>
             <nav aria-label="主导航" className="hidden items-center gap-1 lg:flex">
