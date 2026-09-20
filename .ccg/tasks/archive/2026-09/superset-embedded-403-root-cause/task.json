@@ -1,0 +1,13 @@
+{
+  "id": "superset-embedded-403-root-cause",
+  "title": "Superset 嵌入看板 403 根因定位与权限收敛（SUPERSET_LOCAL_DASHBOARD_VERIFIED=true）",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "analytics",
+  "currentPhase": "completed",
+  "nextAction": "归档",
+  "createdAt": "2026-09-20T08:00:00Z",
+  "branch": "main",
+  "baseline": "ad7173f15fe72739574e3381522b41bb61edb0d2"
+}

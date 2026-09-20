@@ -33,7 +33,9 @@
     "frontend:e2e": "playwright test --config frontend/playwright.config.ts",
     "frontend:openapi": "openapi-typescript contracts/openapi.yaml -o frontend/src/api/schema.d.ts",
     "typecheck": "tsc --noEmit && tsc -p frontend/tsconfig.json --noEmit",
-    "superset:export": "tsx scripts/export-superset-projection.ts"
+    "superset:export": "tsx scripts/export-superset-projection.ts",
+    "superset:init-role": "docker compose -f deploy/superset/docker-compose.yml exec -T superset python /app/deploy/init/02-embedded-role.py",
+    "superset:verify-embed": "node scripts/verify-superset-embed.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

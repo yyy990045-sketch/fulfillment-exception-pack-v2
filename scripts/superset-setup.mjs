@@ -117,13 +117,21 @@ async function ensureDataset(databaseId, tableName) {
 async function ensureChart(datasetId, name, vizType, params) {
   const list = await api("GET", "/api/v1/chart/?q=(page_size:100)");
   const existing = list.payload?.result?.find((item) => item.slice_name === name);
-  if (existing) return existing.id;
-  const created = await api("POST", "/api/v1/chart/", {
+  const body = {
     slice_name: name,
     viz_type: vizType,
     datasource_id: datasetId,
     datasource_type: "table",
     params: JSON.stringify({ viz_type: vizType, ...params }),
+  };
+  if (existing) {
+    // 幂等：已存在时按当前定义更新，保证重复执行与首次执行结果一致
+    const updated = await api("PUT", `/api/v1/chart/${existing.id}`, body);
+    if (!updated.ok) throw new Error(`update chart ${name} failed: HTTP ${updated.status} ${JSON.stringify(updated.payload)}`);
+    return existing.id;
+  }
+  const created = await api("POST", "/api/v1/chart/", {
+    ...body,
   });
   if (!created.ok) throw new Error(`create chart ${name} failed: HTTP ${created.status} ${JSON.stringify(created.payload)}`);
   return created.payload.id;
@@ -167,11 +175,20 @@ async function ensureDashboard(charts) {
   const list = await api("GET", "/api/v1/dashboard/?q=(page_size:100)");
   const title = "履约异常 · 经营分析";
   const existing = list.payload?.result?.find((item) => item.dashboard_title === title);
+  // Superset 只在 PUT 的 json_metadata.positions 里同步 dashboard ↔ chart 关联
+  // （superset/daos/dashboard.py set_dash_metadata：从 positions 的 chartId 反查 Slice
+  // 并写入 dashboard.slices）。只给 position_json 不会写 dashboard_slices，结果是
+  // /api/v1/dashboard/<id>/charts 返回 []，嵌入看板渲染成空白。
+  const positions = JSON.parse(positionJson(charts));
   const body = {
     dashboard_title: title,
     published: true,
     position_json: positionJson(charts),
-    json_metadata: JSON.stringify({ color_scheme: "supersetColors", refresh_frequency: 0 }),
+    json_metadata: JSON.stringify({
+      color_scheme: "supersetColors",
+      refresh_frequency: 0,
+      positions,
+    }),
   };
   if (existing) {
     const updated = await api("PUT", `/api/v1/dashboard/${existing.id}`, body);
@@ -213,10 +230,12 @@ charts.push({
 });
 charts.push({
   name: "治理推进",
-  id: await ensureChart(stageDataset, "治理推进", "bar", {
-    groupby: ["stage_label"],
-    metric: sum("exception_count", "异常数"),
-    order_desc: false,
+  // Superset 6.1 已移除旧的 "bar" viz plugin（渲染时报 Item with key "bar" is not
+  // registered），这里用官方在售的 ECharts 柱状图 + 分类 x 轴。
+  id: await ensureChart(stageDataset, "治理推进", "echarts_timeseries_bar", {
+    x_axis: "stage_label",
+    granularity_sqla: null,
+    metrics: [sum("exception_count", "异常数")],
     row_limit: 20,
     show_legend: true,
   }),

@@ -23,4 +23,11 @@ fi
 
 echo "[fep-superset] init roles and permissions"
 superset init
+
+# 嵌入看板 guest token 只用 GUEST_ROLE_NAME 一个 role 授权；官方默认的 "Public"
+# 没有任何权限，嵌入会全量 403。这里幂等建好专用最小权限 role。
+# 首次启动时投影还没导入，因此允许 dataset 缺失，datasource_access 留到
+# `npm run superset:init-role` 再收敛。
+echo "[fep-superset] ensure embedded guest role ${SUPERSET_GUEST_ROLE_NAME:-EmbeddedGuest}"
+python /app/deploy/init/02-embedded-role.py --allow-missing-datasets
 echo "[fep-superset] done"

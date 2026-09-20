@@ -13,6 +13,12 @@ GUEST_TOKEN_JWT_SECRET = os.environ["GUEST_TOKEN_JWT_SECRET"]
 GUEST_TOKEN_JWT_ALGO = "HS256"
 GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
 GUEST_TOKEN_JWT_EXP_SECONDS = int(os.environ.get("SUPERSET_GUEST_TOKEN_TTL", "300"))
+# guest token 在 Superset 里只用 GUEST_ROLE_NAME 这一个 role 授权
+# （superset/security/manager.py get_guest_user_from_token）。Superset 官方默认值是
+# "Public"，而 "Public" 在 `superset init` 之后没有任何权限，嵌入应用对 /api/v1/*
+# 的调用会全部 403。因此默认值改成部署时由 init/02-embedded-role.py 幂等创建的
+# 专用最小权限 role，绝不静默退回 "Public"（也不允许 Gamma / Admin）。
+GUEST_ROLE_NAME = os.environ.get("SUPERSET_GUEST_ROLE_NAME", "EmbeddedGuest")
 # 官方默认把 aud 取成 WEBDRIVER_BASEURL（容器内网地址），而嵌入校验按浏览器实际访问地址，
 # 会导致 guest token 被拒（403）。这里显式绑定对外地址，签发与校验保持一致。
 SUPERSET_PUBLIC_URL = os.environ.get("SUPERSET_PUBLIC_URL", "http://127.0.0.1:8088/").rstrip("/") + "/"
