@@ -9,6 +9,7 @@ import { randomUUID } from "node:crypto";
 import type { V2SqliteStore } from "../domain/v2/index.js";
 import type { SecurityAuditActorType } from "../domain/v2/security-audit-types.js";
 import type { AuthContext } from "../auth.js";
+import { currentRequestContext } from "../ops/request-context.js";
 
 /** 落入审计的 metadata 只允许这些键，其余一律丢弃（防止误写密钥/头部） */
 const ALLOWED_METADATA_KEYS = new Set([
@@ -24,6 +25,7 @@ const ALLOWED_METADATA_KEYS = new Set([
   "status",
   "reasonCode",
   "actionCount",
+  "requestId",
 ]);
 
 export const SENSITIVE_AUDIT_ACTIONS = [
@@ -68,6 +70,7 @@ export function recordSecurityAudit(
     now?: () => Date;
   },
 ) {
+  const requestId = currentRequestContext()?.requestId;
   return store.saveSecurityAuditEvent({
     tenantId: input.auth.tenantId,
     id: `audit-${randomUUID()}`,
@@ -79,6 +82,6 @@ export function recordSecurityAudit(
     resourceId: input.resourceId,
     result: input.result,
     occurredAt: (input.now ?? (() => new Date()))().toISOString(),
-    metadata: sanitizeAuditMetadata(input.metadata),
+    metadata: sanitizeAuditMetadata({ ...input.metadata, ...(requestId ? { requestId } : {}) }),
   });
 }

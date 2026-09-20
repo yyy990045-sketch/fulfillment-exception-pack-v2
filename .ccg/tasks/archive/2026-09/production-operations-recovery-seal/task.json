@@ -1,0 +1,13 @@
+{
+  "id": "production-operations-recovery-seal",
+  "title": "Production Operations & Recovery Seal（health/readiness/logging/shutdown/backup/restore/drill）",
+  "status": "completed",
+  "complexity": "L",
+  "risk": "high",
+  "domain": "operations",
+  "currentPhase": "completed",
+  "nextAction": "归档",
+  "createdAt": "2026-09-20T13:00:00Z",
+  "branch": "main",
+  "baseline": "eff0bce927db7127267176b1737b19b2f246b272"
+}

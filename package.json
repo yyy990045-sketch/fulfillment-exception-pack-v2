@@ -36,7 +36,13 @@
     "typecheck": "tsc --noEmit && tsc -p frontend/tsconfig.json --noEmit",
     "superset:export": "tsx scripts/export-superset-projection.ts",
     "superset:init-role": "docker compose -f deploy/superset/docker-compose.yml exec -T superset python /app/deploy/init/02-embedded-role.py",
-    "superset:verify-embed": "node scripts/verify-superset-embed.mjs"
+    "superset:verify-embed": "node scripts/verify-superset-embed.mjs",
+    "db:migrate": "tsx src/ops/cli/db-migrate.ts",
+    "db:migrate:status": "tsx src/ops/cli/db-migrate.ts --status",
+    "db:backup": "tsx src/ops/cli/db-backup.ts",
+    "db:restore": "tsx src/ops/cli/db-restore.ts",
+    "db:verify-backup": "tsx src/ops/cli/db-verify-backup.ts",
+    "ops:recovery-drill": "tsx src/ops/cli/recovery-drill.ts"
   },
   "engines": {
     "node": ">=22.5.0"

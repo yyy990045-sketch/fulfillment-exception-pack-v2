@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -81,6 +81,17 @@ import { assertRole, assertScope, assertTenant, authenticate, AuthError, isDemoM
 import { effectiveScopes, isReadOnlyPrincipal } from "./auth.js";
 import { buildIdentityCapabilities } from "./security/capabilities.js";
 import { recordSecurityAudit } from "./security/audit.js";
+import { createLogger } from "./ops/logger.js";
+import {
+  REQUEST_ID_HEADER,
+  annotateRequestContext,
+  currentRequestContext,
+  isSafeRequestId,
+  runWithRequestContext,
+} from "./ops/request-context.js";
+import { assertStartupSafety } from "./ops/startup.js";
+import { buildOpsStatus, evaluateReadiness } from "./ops/readiness.js";
+import { resolveDatabasePaths } from "./ops/db-path.js";
 import {
   RESOLUTION_APPROVER_ROLES,
   RESOLUTION_OWNER_ROLES,
@@ -102,14 +113,14 @@ import {
   closeResolutionCase,
   evaluateContextRules,
   executeResolutionCase,
-  openV2SqliteStore,
+  openV2SqliteDatabase,
   proposeResolutionCase,
   queryResolutionCase,
   reviewResolution,
   submitResolutionCase,
+  V2SqliteStore,
   type ResolutionActionInput,
   type V2Exception,
-  type V2SqliteStore,
 } from "./domain/v2/index.js";
 import {
   GroundedAiError,
@@ -125,16 +136,28 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const FRONTEND_DIST = resolve(ROOT, "..", "frontend", "dist");
 const caseMutationQueues = new Map<string, Promise<void>>();
 let v2Store: V2SqliteStore | undefined;
+let v2StoreDatabase: import("node:sqlite").DatabaseSync | undefined;
+const opsLogger = createLogger();
+const APP_STARTED_AT = new Date();
+let inFlightRequests = 0;
+let shuttingDown = false;
 registerBuiltInSolutionPacks();
 registerBuiltInConnectors();
 
 function getV2Store() {
   if (!v2Store) {
-    v2Store = openV2SqliteStore();
+    const opened = openV2SqliteDatabase();
+    v2StoreDatabase = opened.database as import("node:sqlite").DatabaseSync;
+    v2Store = new V2SqliteStore(opened.database);
     registerBuiltInSolutionPacks();
     bootstrapPackContextBindings(v2Store);
   }
   return v2Store;
+}
+
+function storeDatabase() {
+  if (!v2Store) return undefined;
+  return v2StoreDatabase;
 }
 
 function exceptionListItem(store: V2SqliteStore, tenantId: string, exception: V2Exception) {
@@ -299,7 +322,12 @@ function assertResolutionPermission(decision: { applicable: boolean; allowed: bo
   throw new HttpError(403, decision.reasonCode);
 }
 
-function authOf(req: import("node:http").IncomingMessage): AuthContext { return authenticate(req.headers); }
+function authOf(req: import("node:http").IncomingMessage): AuthContext {
+  const auth = authenticate(req.headers);
+  // 把身份写回请求上下文，供结构化日志与安全审计复用同一个 requestId
+  annotateRequestContext({ tenantId: auth.tenantId, subjectId: auth.subjectId, roles: auth.roles });
+  return auth;
+}
 
 function currentActorProjection(auth: AuthContext) {
   return {
@@ -405,7 +433,7 @@ function readJson(req: import("node:http").IncomingMessage) {
   });
 }
 
-const server = createServer(async (req, res) => {
+const handleRequest = async (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => {
   const url = new URL(req.url ?? "/", "http://127.0.0.1");
   try {
     const legacyManufacturingFile = req.method === "GET"
@@ -456,6 +484,28 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true });
+    // readiness：只反映服务自身与「显式 required」的集成；未配置的外部集成不影响就绪。
+    if (req.method === "GET" && url.pathname === "/api/ready") {
+      let database: ReturnType<typeof storeDatabase>;
+      try { getV2Store(); database = storeDatabase(); } catch { database = undefined; }
+      const readiness = evaluateReadiness({ db: database, databasePath: resolveDatabasePaths(process.env).file });
+      return jsonNoStore(res, readiness.ready ? 200 : 503, {
+        ready: readiness.ready,
+        checks: readiness.checks,
+      });
+    }
+    if (req.method === "GET" && url.pathname === "/api/v2/ops/status") {
+      const auth = authOf(req);
+      assertScope(auth, "admin:tenant");
+      let database: ReturnType<typeof storeDatabase>;
+      try { getV2Store(); database = storeDatabase(); } catch { database = undefined; }
+      return jsonNoStore(res, 200, buildOpsStatus({
+        db: database,
+        databasePath: resolveDatabasePaths(process.env).file,
+        uptimeSeconds: process.uptime(),
+        startedAt: APP_STARTED_AT.toISOString(),
+      }));
+    }
     if (req.method === "GET" && url.pathname === "/api/v2/auth/context") {
       const auth = authOf(req);
       return json(res, 200, {
@@ -1538,6 +1588,10 @@ const server = createServer(async (req, res) => {
     if (error instanceof SupersetError) return jsonNoStore(res, error.status, { error: error.code });
     if (error instanceof OperationalAnalyticsError) return json(res, 400, { error: error.code });
     if (error instanceof AuthError) return json(res, error.status, { error: error.code });
+    if (error instanceof Error && /^MIGRATION_|^STARTUP_/.test(error.message)) {
+      opsLogger.error("ops.error", { errorCode: error.message });
+      return json(res, 503, { error: error.message });
+    }
     if (error instanceof EvidenceError) {
       const status = error.code === "CROSS_TENANT_SOURCE" ? 403 : error.code === "NO_SCOPE" ? 409 : error.code === "NO_TENANT" || error.code === "INVALID_CSV" ? 422 : 409;
       return json(res, status, { error: error.code });
@@ -1571,12 +1625,106 @@ const server = createServer(async (req, res) => {
     const status = message === "not_found" ? 404 : message.startsWith("invalid_risk_case_transition") || message.endsWith("_required") || isConflict ? 409 : 400;
     json(res, status, { error: isConflict ? domainCode : message });
   }
+};
+
+/**
+ * 请求入口：requestId + 结构化访问日志 + inflight 计数（graceful shutdown 用）。
+ * requestId 只用于把日志与审计串起来，不是安全 token。
+ */
+const server = createServer((req, res) => {
+  const incoming = String(req.headers[REQUEST_ID_HEADER] ?? "").trim();
+  const requestId = incoming && isSafeRequestId(incoming) ? incoming : randomUUID();
+  const startedAt = process.hrtime.bigint();
+  const path = (req.url ?? "/").split("?")[0] ?? "/";
+  res.setHeader("X-Request-ID", requestId);
+  inFlightRequests += 1;
+  res.once("finish", () => {
+    inFlightRequests -= 1;
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    const context = currentRequestContext();
+    opsLogger.info("http.request", {
+      method: req.method ?? "GET",
+      path,
+      status: res.statusCode,
+      durationMs: Math.round(durationMs * 100) / 100,
+      ...(context?.tenantId ? { tenantId: context.tenantId } : {}),
+      ...(context?.subjectId ? { subjectId: context.subjectId } : {}),
+    });
+  });
+  void runWithRequestContext({ requestId, method: req.method ?? "GET", path }, async () => {
+    if (shuttingDown) {
+      json(res, 503, { error: "shutting_down" });
+      return;
+    }
+    try {
+      await handleRequest(req, res);
+    } catch (error) {
+      // handleRequest 自己已处理业务错误；这里只兜底进程级异常
+      opsLogger.error("http.unhandled", { errorCode: error instanceof Error ? error.name : "unknown" });
+      if (!res.headersSent) json(res, 500, { error: "internal_error" });
+    }
+  });
 });
 
 const port = Number(process.env.PORT ?? 3410);
 const host = process.env.HOST ?? "127.0.0.1";
 validateAuthEnv();
+
+// startup fail-closed：核心条件不满足就 exit non-zero，不进入“先起来再随机报错”的状态
+const startup = assertStartupSafety(process.env);
+for (const check of startup.checks) {
+  opsLogger[check.status === "pass" ? "info" : "error"]("ops.startup_check", { check: check.id, status: check.status, detail: check.detail });
+}
+if (!startup.ok) {
+  opsLogger.error("ops.startup_failed", { failures: startup.failures });
+  console.error(JSON.stringify({ error: "STARTUP_CHECKS_FAILED", failures: startup.failures }));
+  process.exit(1);
+}
+
 getV2Store();
 server.listen(port, host, () => {
+  opsLogger.info("ops.started", { host, port, version: process.env.npm_package_version ?? "0.1.0" });
   console.log(`履约例外工作台 http://${host}:${port}`);
 });
+
+/**
+ * Graceful shutdown：停止接收新请求 → 等待在途请求 → 关闭 HTTP server → 关闭 SQLite → 退出。
+ * 超时（默认 10s）后强制退出，避免容器 stop 时长时间悬挂。
+ */
+const SHUTDOWN_TIMEOUT_MS = Number(process.env.SHUTDOWN_TIMEOUT_MS ?? "10000");
+let shutdownTimer: NodeJS.Timeout | undefined;
+
+function closeDatabase() {
+  try {
+    v2StoreDatabase?.close();
+  } catch (error) {
+    opsLogger.warn("ops.shutdown.db_close_failed", { errorCode: error instanceof Error ? error.name : "unknown" });
+  }
+}
+
+function shutdown(signal: string, exitCode = 0) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  opsLogger.info("ops.shutdown.begin", { signal, inFlightRequests });
+  server.close(() => {
+    // 不再接受新连接，且已有请求处理完毕
+    closeDatabase();
+    if (shutdownTimer) clearTimeout(shutdownTimer);
+    opsLogger.info("ops.shutdown.complete", { signal });
+    process.exit(exitCode);
+  });
+  const waitForInflight = () => {
+    if (inFlightRequests <= 0) return;
+    setTimeout(waitForInflight, 100);
+  };
+  waitForInflight();
+  shutdownTimer = setTimeout(() => {
+    opsLogger.error("ops.shutdown.timeout", { signal, inFlightRequests, timeoutMs: SHUTDOWN_TIMEOUT_MS });
+    closeDatabase();
+    process.exit(exitCode === 0 ? 124 : exitCode);
+  }, SHUTDOWN_TIMEOUT_MS);
+  shutdownTimer.unref?.();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM", 0));
+process.on("SIGINT", () => shutdown("SIGINT", 0));

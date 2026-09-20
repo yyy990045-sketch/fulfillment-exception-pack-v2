@@ -81,12 +81,12 @@ function verifyJwt(token: string): AuthContext {
   };
 }
 
-export function isDemoMode() {
-  return process.env.NODE_ENV !== "production" && process.env.DEMO_MODE !== "false";
+export function isDemoMode(env: NodeJS.ProcessEnv = process.env) {
+  return env.NODE_ENV !== "production" && env.DEMO_MODE !== "false";
 }
 
-export function validateAuthEnv() {
-  if (!isDemoMode() && (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 32)) throw new Error("AUTH_SECRET_REQUIRED_IN_PRODUCTION");
+export function validateAuthEnv(env: NodeJS.ProcessEnv = process.env) {
+  if (!isDemoMode(env) && (!env.AUTH_SECRET || env.AUTH_SECRET.length < 32)) throw new Error("AUTH_SECRET_REQUIRED_IN_PRODUCTION");
 }
 
 export function authenticate(headers: IncomingHttpHeaders): AuthContext {

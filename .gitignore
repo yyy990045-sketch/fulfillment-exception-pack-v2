@@ -16,3 +16,5 @@ playwright-report/
 test-results/
 data/
 .data/
+# 运维备份产物（一致性快照 + manifest），不入库
+backups/

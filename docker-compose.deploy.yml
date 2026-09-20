@@ -15,7 +15,21 @@ services:
       PACK_STORE_DIR: /app/data/pack-cases
       PACK_STORE_BACKEND: sqlite
       PACK_STORE_DB: /app/data/pack-cases.sqlite
+      # 可选：备份目录与保留策略（默认 backups/ 与 7 份）
+      BACKUP_DIR: /app/data/backups
+      BACKUP_RETENTION_COUNT: "7"
+      LOG_LEVEL: info
+      SHUTDOWN_TIMEOUT_MS: "10000"
     ports:
       - "3410:3410"
     volumes:
       - ./shared/data:/app/data
+    healthcheck:
+      # liveness 只用 /api/health；readiness（/api/ready）包含外部集成条件，不作为重启依据
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:'+(process.env.PORT||3410)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    # 让 docker stop 走 SIGTERM 优雅退出（应用侧等待在途请求后关闭 SQLite）
+    stop_grace_period: 15s
