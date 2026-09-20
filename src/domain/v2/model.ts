@@ -1,6 +1,8 @@
 import type {
   BusinessEntity,
   EntityReference,
+  EvidenceLocator,
+  EvidenceLocatorKind,
   FulfillmentContext,
   FulfillmentEvent,
   SourceDocument,
@@ -34,6 +36,11 @@ export type DomainErrorCode =
   | "DOMAIN_EVIDENCE_FIELD_REQUIRED"
   | "DOMAIN_EVIDENCE_VALUE_TYPE_INVALID"
   | "DOMAIN_EVIDENCE_LOCATOR_REQUIRED"
+  | "DOMAIN_EVIDENCE_LOCATOR_DOCUMENT_INVALID"
+  | "DOMAIN_EVIDENCE_LOCATOR_TEMPORAL_INCOMPLETE"
+  | "DOMAIN_EVIDENCE_LOCATOR_TEMPORAL_INVALID"
+  | "DOMAIN_EVIDENCE_LOCATOR_TRANSCRIPT_INCOMPLETE"
+  | "DOMAIN_EVIDENCE_LOCATOR_TRANSCRIPT_INVALID"
   | "DOMAIN_EVIDENCE_QUOTE_REQUIRED"
   | "DOMAIN_EVIDENCE_CONFIDENCE_INVALID"
   | "DOMAIN_EVIDENCE_SUPPORT_INVALID"
@@ -213,6 +220,60 @@ function evidenceSupport(value: V2Evidence["support"]) {
   return ["supported", "partial", "unsupported"].includes(value);
 }
 
+/**
+ * locator 校验：与平台 Core 的 `assertLocatorAtoms` 语义对齐（不 import Core 源码）。
+ *
+ * 规则：
+ *   1. 至少要命中一种位置（document / temporal / transcript），否则 DOMAIN_EVIDENCE_LOCATOR_REQUIRED
+ *   2. 每种位置要么完整给出，要么完全不出现——不允许只给一半
+ *   3. 区间必须 end > start 且 start >= 0，且必须是有限数值
+ *      （拒绝 NaN / Infinity / 以及把时间戳当字符串塞进来的写法）
+ *
+ * 与 Core 的一处**有意差异**：Core 的 `assertSpan` 只要求 `end >= start`（允许零长度），
+ * 这里收紧为 `end > start`。零长度时序证据无法回答"依据了哪一段"，
+ * 在证据语义上无意义，因此在 Solution 侧收紧而不放大。
+ */
+function assertEvidenceInterval(start: number | undefined, end: number | undefined, kind: "temporal" | "transcript") {
+  const incomplete = kind === "temporal" ? "DOMAIN_EVIDENCE_LOCATOR_TEMPORAL_INCOMPLETE" : "DOMAIN_EVIDENCE_LOCATOR_TRANSCRIPT_INCOMPLETE";
+  const invalid = kind === "temporal" ? "DOMAIN_EVIDENCE_LOCATOR_TEMPORAL_INVALID" : "DOMAIN_EVIDENCE_LOCATOR_TRANSCRIPT_INVALID";
+  const startGiven = start !== undefined && start !== null;
+  const endGiven = end !== undefined && end !== null;
+  if (!startGiven && !endGiven) return false;
+  if (startGiven !== endGiven) throw new DomainError(incomplete);
+  // 显式拒绝非 number：字符串时间戳（"12000" / "02:14.300"）不得冒充毫秒偏移
+  if (typeof start !== "number" || typeof end !== "number") throw new DomainError(invalid);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) throw new DomainError(invalid);
+  if (start < 0) throw new DomainError(invalid);
+  if (end <= start) throw new DomainError(invalid);
+  return true;
+}
+
+/** 文档位置以 fileName 为锚；sheet/row/cell/line/page 只做细化，不单独构成文档位置。 */
+function hasDocumentPosition(locator: EvidenceLocator) {
+  return typeof locator.fileName === "string" && locator.fileName.trim().length > 0;
+}
+
+export function assertEvidenceLocator(locator: EvidenceLocator | undefined): EvidenceLocatorKind[] {
+  if (!locator || typeof locator !== "object" || Array.isArray(locator)) throw new DomainError("DOMAIN_EVIDENCE_LOCATOR_REQUIRED");
+  if (locator.fileName !== undefined && typeof locator.fileName !== "string") throw new DomainError("DOMAIN_EVIDENCE_LOCATOR_DOCUMENT_INVALID");
+  const kinds: EvidenceLocatorKind[] = [];
+  if (hasDocumentPosition(locator)) kinds.push("document");
+  if (assertEvidenceInterval(locator.startMs, locator.endMs, "temporal")) kinds.push("temporal");
+  if (assertEvidenceInterval(locator.startOffset, locator.endOffset, "transcript")) kinds.push("transcript");
+  if (kinds.length === 0) throw new DomainError("DOMAIN_EVIDENCE_LOCATOR_REQUIRED");
+  return kinds;
+}
+
+/** 消费方用它判断证据是否具备某种位置能力，而不是自己去嗅探字段。 */
+export function evidenceLocatorKinds(locator: EvidenceLocator | undefined): EvidenceLocatorKind[] {
+  if (!locator) return [];
+  const kinds: EvidenceLocatorKind[] = [];
+  if (hasDocumentPosition(locator)) kinds.push("document");
+  if (typeof locator.startMs === "number" && typeof locator.endMs === "number") kinds.push("temporal");
+  if (typeof locator.startOffset === "number" && typeof locator.endOffset === "number") kinds.push("transcript");
+  return kinds;
+}
+
 export function createEvidence(input: V2Evidence): V2Evidence {
   required(input.id, "DOMAIN_ID_REQUIRED");
   tenant(input.tenantId);
@@ -222,7 +283,7 @@ export function createEvidence(input: V2Evidence): V2Evidence {
   required(input.sourceVersion, "DOMAIN_DOCUMENT_VERSION_REQUIRED");
   required(input.field, "DOMAIN_EVIDENCE_FIELD_REQUIRED");
   if (!evidenceValueType(input.valueType)) throw new DomainError("DOMAIN_EVIDENCE_VALUE_TYPE_INVALID");
-  if (!input.locator || typeof input.locator !== "object" || !input.locator.fileName?.trim()) throw new DomainError("DOMAIN_EVIDENCE_LOCATOR_REQUIRED");
+  assertEvidenceLocator(input.locator);
   required(input.quote, "DOMAIN_EVIDENCE_QUOTE_REQUIRED");
   if (!Number.isFinite(input.confidence) || input.confidence < 0 || input.confidence > 1) throw new DomainError("DOMAIN_EVIDENCE_CONFIDENCE_INVALID");
   if (!evidenceSupport(input.support)) throw new DomainError("DOMAIN_EVIDENCE_SUPPORT_INVALID");
