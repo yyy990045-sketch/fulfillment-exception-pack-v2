@@ -42,7 +42,8 @@
     "db:backup": "tsx src/ops/cli/db-backup.ts",
     "db:restore": "tsx src/ops/cli/db-restore.ts",
     "db:verify-backup": "tsx src/ops/cli/db-verify-backup.ts",
-    "ops:recovery-drill": "tsx src/ops/cli/recovery-drill.ts"
+    "ops:recovery-drill": "tsx src/ops/cli/recovery-drill.ts",
+    "speech:verify": "tsx scripts/verify-speech-transcription.ts"
   },
   "engines": {
     "node": ">=22.5.0"
