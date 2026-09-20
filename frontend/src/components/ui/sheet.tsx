@@ -14,10 +14,10 @@ export function SheetContent({
 }: ComponentProps<typeof SheetPrimitive.Content>) {
   return (
     <SheetPrimitive.Portal>
-      <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-black/15" />
+      <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/20 backdrop-blur-[2px]" />
       <SheetPrimitive.Content
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-full max-w-[520px] overflow-y-auto border-l border-border bg-surface p-5 shadow-xl outline-none",
+          "fixed inset-y-0 right-0 z-50 w-full max-w-[520px] overflow-y-auto border-l border-border bg-surface p-5 shadow-popover outline-none",
           className,
         )}
         {...props}

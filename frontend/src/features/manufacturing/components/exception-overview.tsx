@@ -1,10 +1,11 @@
 import { AlertTriangle, ArrowRight, ListChecks } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { LocalState, ProductSection, SectionHeader } from "../../../components/product/page-layout.js";
-import { Badge } from "../../../components/ui/badge.js";
+import { Badge, StatusDotBadge } from "../../../components/ui/badge.js";
 import { useGroundedExplanation } from "../../../hooks/use-manufacturing.js";
+import { cn } from "../../../lib/utils.js";
 import type { ExceptionView, RuleView, ThreadStage } from "../types.js";
-import { exceptionStatusLabel, formatMetricValue, metricLabel } from "../utils.js";
+import { exceptionStatusLabel, formatBusinessValue, formatShortDateTime } from "../utils.js";
 
 export function ExceptionOverview({
   contextId,
@@ -18,7 +19,8 @@ export function ExceptionOverview({
   stages: ThreadStage[];
 }) {
   const relatedRules = rules.filter((rule) => rule.stageKeys.some((stage) => exception.stageKeys.includes(stage)));
-  const metrics = Object.entries(exception.metrics ?? {});
+  // 相关业务事实取自数字线程中该异常关联的阶段，避免与页头指标重复
+  const relatedStages = stages.filter((stage) => exception.stageKeys.includes(stage.key));
   const explanationQuery = useGroundedExplanation(contextId, exception.id);
   const explanation = explanationQuery.detail.data?.explanation;
   const questions = (explanation?.output.questionsToVerify ?? []).slice(0, 3);
@@ -40,34 +42,47 @@ export function ExceptionOverview({
             <div className="min-w-0">
               <h2 className="text-[14px] font-semibold">核心差异</h2>
               <p className="mt-1 max-w-[72ch] text-[13px] leading-6 text-text-secondary">{exception.summary}</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-text-muted">
+                <span>证据 {exception.evidenceCount} 条</span>
+                <span>来源系统 {exception.sourceSystemCount} 个</span>
+                <span>检测于 {formatShortDateTime(exception.lastDetectedAt || exception.createdAt)}</span>
+              </div>
             </div>
           </div>
-          {metrics.length > 0 && (
-            <dl className="mt-5 grid gap-px overflow-hidden rounded-lg border border-border/80 bg-border/70 sm:grid-cols-2 lg:grid-cols-3">
-              {metrics.map(([key, value], index) => (
-                <div key={key} className="bg-surface px-4 py-3">
-                  <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
-                  <dd className={index === 0 ? "mt-1 text-[22px] font-semibold tabular-nums" : "mt-1 text-[18px] font-semibold tabular-nums"}>
-                    {formatMetricValue(value)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          )}
         </section>
 
         <section className="border-t border-border/70 pt-4">
-          <h2 className="text-[14px] font-semibold">当前事实</h2>
-          <p className="mt-0.5 text-[11px] text-text-muted">来自当前异常记录与规则评估</p>
-          <dl className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-            {metrics.map(([key, value]) => (
-              <div key={key} className="border-b border-border/60 pb-3">
-                <dt className="text-[11px] text-text-muted">{metricLabel(key)}</dt>
-                <dd className="mt-1 text-[15px] font-semibold tabular-nums">{formatMetricValue(value)}</dd>
+          <h2 className="text-[14px] font-semibold">相关业务事实</h2>
+          <p className="mt-0.5 text-[11px] text-text-muted">来自履约数字线程中与该异常关联的业务阶段</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {relatedStages.map((stage) => (
+              <div key={stage.key} className="rounded-lg border border-border/80 p-3.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1.5 text-[12px] font-medium">
+                    <span
+                      className={cn("size-1.5 rounded-full", stage.state === "exception" ? "bg-warning" : "bg-border-strong")}
+                      aria-label={stage.state === "exception" ? "存在异常" : "正常"}
+                    />
+                    {stage.label}
+                  </span>
+                  <span className="truncate text-[11px] text-text-muted">{stage.businessKey}</span>
+                </div>
+                {stage.facts.length ? (
+                  <dl className="mt-2.5 space-y-1.5">
+                    {stage.facts.slice(0, 4).map((fact) => (
+                      <div key={fact.key} className="flex items-baseline justify-between gap-3 text-[12px]">
+                        <dt className="min-w-0 truncate text-text-muted">{fact.label}</dt>
+                        <dd className="shrink-0 font-semibold tabular-nums">{formatBusinessValue(fact)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : (
+                  <p className="mt-2 text-[11px] text-text-muted">该阶段暂无线索事实。</p>
+                )}
               </div>
             ))}
-            {!metrics.length && <div className="text-sm text-text-muted">暂无结构化事实。</div>}
-          </dl>
+            {!relatedStages.length && <div className="text-sm text-text-muted">该异常暂未关联业务阶段。</div>}
+          </div>
         </section>
 
         <section className="border-t border-border/70 pt-4">
@@ -78,8 +93,8 @@ export function ExceptionOverview({
           <div className="mt-2 divide-y divide-border/60">
             {relatedRules.map((rule) => (
               <div key={rule.id} className="flex items-center justify-between gap-4 py-2.5 text-[13px]">
-                <span>{rule.label}</span>
-                <Badge variant={rule.matched ? "warning" : "success"}>{rule.statusLabel}</Badge>
+                <span className="min-w-0 truncate">{rule.label}</span>
+                <StatusDotBadge variant={rule.matched ? "warning" : "success"}>{rule.statusLabel}</StatusDotBadge>
               </div>
             ))}
             {!relatedRules.length && <div className="py-3"><LocalState kind="empty" title="暂无相关规则评估" compact /></div>}

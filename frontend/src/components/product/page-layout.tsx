@@ -49,7 +49,7 @@ export function ProductHeader({
 }
 
 export function ProductSection({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("overflow-hidden rounded-lg border border-border/85 bg-surface", className)}>{children}</section>;
+  return <section className={cn("overflow-hidden rounded-xl border border-border bg-surface shadow-card", className)}>{children}</section>;
 }
 
 export function SectionHeader({
@@ -66,10 +66,10 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-border/75 px-4 py-2.5", className)}>
+    <div className={cn("flex min-h-13 flex-wrap items-center justify-between gap-3 border-b border-border/75 px-4 py-3", className)}>
       <div className="min-w-0">
         <h2 className="text-[15px] font-semibold leading-5">{title}</h2>
-        {description && <p className="mt-0.5 text-[11px] leading-4 text-text-muted">{description}</p>}
+        {description && <p className="mt-0.5 text-xs leading-4 text-text-muted">{description}</p>}
       </div>
       {(meta || actions) && <div className="flex items-center gap-2 text-xs text-text-muted">{meta}{actions}</div>}
     </div>
@@ -77,14 +77,15 @@ export function SectionHeader({
 }
 
 export function SummaryStrip({ children, className, label = "业务摘要" }: { children: ReactNode; className?: string; label?: string }) {
-  return <dl aria-label={label} className={cn("grid overflow-hidden rounded-lg border border-border/85 bg-surface", className)}>{children}</dl>;
+  return <dl aria-label={label} className={cn("grid overflow-hidden rounded-xl border border-border bg-surface shadow-card", className)}>{children}</dl>;
 }
 
-export function SummaryItem({ label, value }: { label: string; value: string | number }) {
+export function SummaryItem({ label, value, hint }: { label: string; value: string | number; hint?: ReactNode }) {
   return (
-    <div className="min-w-0 px-3.5 py-2.5">
-      <dt className="text-[11px] text-text-muted">{label}</dt>
-      <dd className="mt-0.5 text-[20px] font-semibold leading-7 tabular-nums">{value}</dd>
+    <div className="min-w-0 px-4 py-3">
+      <dt className="text-xs text-text-muted">{label}</dt>
+      <dd className="mt-1 text-[22px] font-semibold leading-7 tracking-tight tabular-nums">{value}</dd>
+      {hint && <div className="mt-0.5 text-[11px] text-text-muted">{hint}</div>}
     </div>
   );
 }

@@ -105,7 +105,7 @@ export function ExceptionRecordPage() {
         stages={view.thread}
         showPrimaryAction={section !== "decision" && section !== "governance"}
       />
-      <ExceptionRecordNav contextId={contextId} exceptionId={exception.id} />
+      <ExceptionRecordNav contextId={contextId} exceptionId={exception.id} evidenceCount={exception.evidenceCount} />
       <ProductPage className={`${contentWidth} py-5`}>
         {section === "overview" ? (
           <ExceptionOverview contextId={contextId} exception={exception} rules={view.rules} stages={view.thread} />

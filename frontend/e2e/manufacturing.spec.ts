@@ -41,43 +41,43 @@ test("manufacturing list and record surfaces hold across desktop sizes", async (
 test("manufacturing task routes separate facts, analysis, decision, and governance", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/operations");
-  await page.getByRole("button", { name: "SO-MFG-001" }).first().click();
+  await page.getByLabel("搜索异常").fill("SO-MFG-001");
+  await page.getByTestId("operations-row").first().click();
+  await page.getByTestId("operations-quick-preview").getByRole("link", { name: "打开完整记录" }).click();
   await expect(page).toHaveURL(/\/manufacturing\/ctx-so-mfg-001$/);
-  await page.getByLabel("搜索异常").fill("客户收货");
-  await expect(page.getByTestId("exception-item")).toHaveCount(1);
-  await page.getByTestId("exception-item").click();
+  await page.getByRole("button", { name: "客户收货主张与发货记录不一致" }).first().click();
 
-  await expect(page).toHaveURL(/\/overview\?q=/);
+  await expect(page).toHaveURL(/\/overview$/);
   await expect(page.getByText("核心差异")).toBeVisible();
   await expect(page.getByTestId("evidence-row")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
-  await page.getByRole("link", { name: "证据", exact: true }).click();
-  await expect(page).toHaveURL(/\/evidence\?q=/);
+  const recordNav = page.getByRole("navigation", { name: "异常记录工作面" });
+  await recordNav.getByRole("link", { name: /^证据/ }).click();
+  await expect(page).toHaveURL(/\/evidence$/);
   await expect(page.getByTestId("evidence-row")).toHaveCount(2);
   await expect(page.getByRole("heading", { name: "AI 解释" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
-  await page.getByRole("navigation", { name: "异常记录工作面" }).getByRole("link", { name: "分析", exact: true }).click();
-  await expect(page).toHaveURL(/\/analysis\?q=/);
+  await recordNav.getByRole("link", { name: "分析", exact: true }).click();
+  await expect(page).toHaveURL(/\/analysis$/);
   await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
-  await page.getByRole("link", { name: "决策", exact: true }).click();
-  await expect(page).toHaveURL(/\/decision\?q=/);
+  await recordNav.getByRole("link", { name: "决策", exact: true }).click();
+  await expect(page).toHaveURL(/\/decision$/);
   await expect(page.getByRole("heading", { name: "建议处理" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "处理进程" })).toHaveCount(0);
 
-  await page.getByRole("link", { name: "治理", exact: true }).click();
-  await expect(page).toHaveURL(/\/governance\?q=/);
+  await recordNav.getByRole("link", { name: "治理", exact: true }).click();
+  await expect(page).toHaveURL(/\/governance$/);
   await expect(page.getByRole("heading", { name: "处理进程" })).toBeVisible();
   await expect(page.getByText("当前阶段", { exact: true })).toHaveCount(2);
 
   await page.getByRole("link", { name: /返回 SO-MFG-001 异常队列/ }).click();
-  await expect(page).toHaveURL(/\/manufacturing\/ctx-so-mfg-001\?q=/);
-  await expect(page.getByLabel("搜索异常")).toHaveValue("客户收货");
-  await expect(page.getByTestId("exception-item")).toHaveCount(1);
+  await expect(page).toHaveURL(/\/manufacturing\/ctx-so-mfg-001$/);
+  await expect(page.getByTestId("exception-item")).toHaveCount(4);
 });
 
 test("operations, solution pack, and finance workspace keep the shared product shell", async ({ page }) => {
@@ -85,15 +85,16 @@ test("operations, solution pack, and finance workspace keep the shared product s
     await page.setViewportSize(viewport);
 
     await page.goto("/operations");
-    await expect(page.getByRole("heading", { name: "运营视图" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "运营中心" })).toBeVisible();
     const shellHeader = await page.locator("header").first().boundingBox();
     const operationsHeader = await page.locator("header").nth(1).boundingBox();
     expect(shellHeader).not.toBeNull();
     expect(operationsHeader).not.toBeNull();
     expect(operationsHeader!.y).toBeGreaterThanOrEqual(shellHeader!.y + shellHeader!.height);
-    await expect(page.locator("header").nth(1)).toContainText("时间粒度");
     await expect(page.locator("header").nth(1)).toContainText("刷新");
-    await expect(page.getByTestId("operations-portfolio-table")).toBeVisible();
+    await expect(page.getByTestId("operations-work-queue")).toBeVisible();
+    await expect(page.getByRole("tab", { name: /待处理/ })).toBeVisible();
+    await expect(page.getByText("异常总数")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
     await page.goto("/workspace");
@@ -170,28 +171,28 @@ test("manufacturing governance confirms high-impact actions and reports success"
 test("customer pilot flow keeps confirmation failures retryable and switches demo organizations without header overrides", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/operations");
-  await page.getByRole("button", { name: /2026年09月/ }).first().click();
-  await expect(page).toHaveURL(/timeBasis=exception_occurrence/);
-  await expect(page.getByText("时间口径：异常发生时间")).toBeVisible();
-  await page.getByRole("button", { name: "SO-MFG-001" }).first().click();
-  await page.getByLabel("搜索异常").fill("客户收货");
-  await page.getByTestId("exception-item").click();
+  await page.getByRole("tab", { name: /全部/ }).click();
+  await page.getByLabel("搜索异常").fill("SO-MFG-001");
+  await page.getByTestId("operations-row").first().click();
+  await page.getByTestId("operations-quick-preview").getByRole("link", { name: "打开完整记录" }).click();
+  await page.getByRole("button", { name: "客户收货主张与发货记录不一致" }).first().click();
   await expect(page.getByTestId("selected-exception-header")).toBeVisible();
-  await page.getByRole("link", { name: "证据", exact: true }).click();
+  const recordNav = page.getByRole("navigation", { name: "异常记录工作面" });
+  await recordNav.getByRole("link", { name: /^证据/ }).click();
   await expect(page.getByTestId("evidence-row")).toHaveCount(2);
-  await page.getByRole("navigation", { name: "异常记录工作面" }).getByRole("link", { name: "分析", exact: true }).click();
+  await recordNav.getByRole("link", { name: "分析", exact: true }).click();
   await expect(page.getByRole("heading", { name: "AI 解释" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "根因假设" })).toBeVisible();
-  await page.getByRole("link", { name: "决策", exact: true }).click();
+  await recordNav.getByRole("link", { name: "决策", exact: true }).click();
   await expect(page.getByRole("heading", { name: "建议处理" })).toBeVisible();
 
-  await page.goto("/operations");
+  await page.goto("/operations?view=all");
   await page.getByLabel("账户与设置").click();
   await page.getByLabel("切换业务角色").selectOption("general-manager");
-  await page.getByRole("button", { name: "SO-OPS-005" }).click();
-  await page.getByLabel("搜索异常").fill("回款");
-  await expect(page.getByTestId("exception-item")).toHaveCount(1);
-  await page.getByTestId("exception-item").click();
+  await page.getByLabel("搜索异常").fill("SO-OPS-005");
+  await page.getByTestId("operations-row").first().click();
+  await page.getByTestId("operations-quick-preview").getByRole("link", { name: "打开完整记录" }).click();
+  await page.getByRole("button", { name: "回款尚未结清", exact: true }).first().click();
   await page.getByRole("link", { name: "治理", exact: true }).click();
   await expect(page.getByRole("heading", { name: "处理进程" })).toBeVisible();
 

@@ -19,11 +19,15 @@ export const appRoutes: RouteObject[] = [{
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/analysis", element: <ExceptionRecordPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/decision", element: <ExceptionRecordPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/governance", element: <ExceptionRecordPage /> },
+    // 运营 / 方案包声明为静态路由（静态段优先级高于 :contextId），同时保留无前缀路径兼容生产旧入口
     { path: "/operations", element: <OperationsPage /> },
+    { path: "/manufacturing/operations", element: <OperationsPage /> },
     { path: "/analytics", element: <AnalyticsPage /> },
     { path: "/manufacturing/analytics", element: <AnalyticsPage /> },
     { path: "/workspace", element: <SolutionPackPage /> },
     { path: "/workspace/:contextId", element: <GenericContextWorkspacePage /> },
+    { path: "/manufacturing/workspace", element: <SolutionPackPage /> },
+    { path: "/manufacturing/workspace/:contextId", element: <GenericContextWorkspacePage /> },
     { path: "*", element: <Navigate to="/manufacturing/ctx-so-mfg-001" replace /> },
   ],
 }];

@@ -4,13 +4,13 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/utils.js";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border text-[13px] font-medium leading-none transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-interactive/35",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border text-[13px] font-medium leading-none transition-all duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-interactive/35",
   {
     variants: {
       variant: {
-        default: "border-interactive bg-interactive text-white shadow-[0_1px_2px_rgba(21,94,239,0.18)] hover:bg-interactive/92",
-        secondary: "border-border-strong bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-muted",
-        outline: "border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle",
+        default: "border-interactive bg-interactive text-white shadow-[0_1px_2px_rgba(21,94,239,0.24)] hover:bg-interactive/92 hover:shadow-[0_2px_6px_rgba(21,94,239,0.28)]",
+        secondary: "border-border-strong bg-surface text-text-secondary shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-border-strong hover:bg-surface-muted",
+        outline: "border-border bg-surface text-text-secondary shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-border-strong hover:bg-surface-subtle",
         ghost: "border-transparent bg-transparent text-text-secondary hover:bg-surface-subtle",
         danger: "border-danger/40 bg-danger/5 text-danger hover:bg-danger/10",
       },

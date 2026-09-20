@@ -1,4 +1,4 @@
-import { Badge } from "../ui/badge.js";
+import { Badge, StatusDotBadge } from "../ui/badge.js";
 import {
   contextStatusLabel,
   contextStatusTone,
@@ -11,17 +11,17 @@ import {
 } from "../../lib/presentation.js";
 
 export function SeverityBadge({ severity, className }: { severity?: string | null; className?: string }) {
-  return <Badge variant={severityTone(severity)} className={className}>{severityLabel(severity)}</Badge>;
+  return <StatusDotBadge variant={severityTone(severity)} className={className}>{severityLabel(severity)}</StatusDotBadge>;
 }
 
 export function ResolutionStatusBadge({ status, className }: { status: string; className?: string }) {
-  return <Badge variant={resolutionStatusTone(status)} className={className}>{resolutionStatusLabel(status)}</Badge>;
+  return <StatusDotBadge variant={resolutionStatusTone(status)} className={className}>{resolutionStatusLabel(status)}</StatusDotBadge>;
 }
 
 export function OutcomeStatusBadge({ status, className }: { status: string; className?: string }) {
-  return <Badge variant={outcomeStatusTone(status)} className={className}>{outcomeStatusLabel(status)}</Badge>;
+  return <StatusDotBadge variant={outcomeStatusTone(status)} className={className}>{outcomeStatusLabel(status)}</StatusDotBadge>;
 }
 
 export function ContextStatusBadge({ status, className }: { status: string; className?: string }) {
-  return <Badge variant={contextStatusTone(status)} className={className}>{contextStatusLabel(status)}</Badge>;
+  return <StatusDotBadge variant={contextStatusTone(status)} className={className}>{contextStatusLabel(status)}</StatusDotBadge>;
 }

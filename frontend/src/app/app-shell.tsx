@@ -11,9 +11,9 @@ import { PRODUCT_NAME } from "./product.js";
 
 const navItems = [
   { to: "/manufacturing/ctx-so-mfg-001", label: "履约风险", icon: ShieldAlert },
-  { to: "/operations", label: "运营视图", icon: ChartNoAxesCombined },
+  { to: "/manufacturing/operations", label: "运营视图", icon: ChartNoAxesCombined },
   { to: "/manufacturing/analytics", label: "分析", icon: BarChart3 },
-  { to: "/workspace", label: "方案包", icon: Boxes },
+  { to: "/manufacturing/workspace", label: "方案包", icon: Boxes },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -52,12 +52,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [demoOrganizations, hasToken, tenantId]);
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
+      <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface/90 backdrop-blur-md">
         <div className={`${shellWidthClass} flex h-full items-center justify-between`}>
-          <div className="flex min-w-0 items-center gap-4">
+          <div className="flex min-w-0 items-center gap-5">
             <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-md border border-interactive/20 bg-interactive/5 text-xs font-semibold text-interactive">履</span>
-              <strong className="truncate text-[13px] font-semibold tracking-normal">{PRODUCT_NAME}</strong>
+              <span className="flex size-7 items-center justify-center rounded-md bg-gradient-to-b from-interactive to-interactive/85 text-xs font-bold text-white shadow-[0_1px_3px_rgba(21,94,239,0.35)]">履</span>
+              <strong className="truncate text-[13.5px] font-semibold tracking-tight">{PRODUCT_NAME}</strong>
             </div>
             <nav aria-label="主导航" className="hidden items-center gap-1 lg:flex">
               {navItems.map((item) => (
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   to={item.to}
                   className={({ isActive }) => cn(
                     "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
-                    isActive && "bg-surface-subtle font-medium text-text-primary",
+                    isActive && "bg-interactive/[0.08] font-medium text-interactive hover:bg-interactive/[0.08] hover:text-interactive",
                   )}
                 >
                   <item.icon className="size-4" aria-hidden="true" />
@@ -90,7 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </span>
                 <ChevronDown className="size-3.5 text-text-muted" aria-hidden="true" />
               </summary>
-              <div className="absolute right-0 top-11 z-50 w-72 border border-border bg-surface p-3">
+              <div className="absolute right-0 top-11 z-50 w-72 rounded-xl border border-border bg-surface p-3 shadow-popover">
                 <div className="flex items-start gap-2">
                   <span className="flex size-8 items-center justify-center rounded-md bg-surface-muted text-text-muted">
                     <UserRound className="size-4" aria-hidden="true" />

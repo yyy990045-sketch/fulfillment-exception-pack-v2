@@ -186,7 +186,7 @@ describe("Manufacturing information architecture", () => {
 
     expect(await screen.findByRole("heading", { name: "客户签收主张差异" })).toBeInTheDocument();
     expect(screen.getByText("核心差异")).toBeInTheDocument();
-    expect(screen.getByText("当前事实")).toBeInTheDocument();
+    expect(screen.getByText("相关业务事实")).toBeInTheDocument();
     expect(screen.getByText("待核实内容")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "查看证据" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "查看分析" })).toBeInTheDocument();

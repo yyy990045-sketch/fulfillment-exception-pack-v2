@@ -1,5 +1,5 @@
 import { FileSearch, Info } from "lucide-react";
-import { LocalState, ProductSection, SectionHeader } from "../../../components/product/page-layout.js";
+import { ProductSection, SectionHeader } from "../../../components/product/page-layout.js";
 import { Button } from "../../../components/ui/button.js";
 import type { EvidenceBundleView, EvidenceItem } from "../types.js";
 import {
@@ -29,8 +29,12 @@ export function EvidencePreview({
     return (
       <ProductSection className="min-h-80">
         <SectionHeader title="证据详情" />
-        <div className="p-4">
-          <LocalState kind="empty" title="选择一条证据查看原文与关键字段" compact />
+        <div className="flex min-h-[260px] flex-col items-center justify-center gap-2 p-6 text-center">
+          <span className="flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-muted">
+            <FileSearch className="size-4.5" aria-hidden="true" />
+          </span>
+          <p className="text-[13px] font-medium text-text-secondary">选择一条证据</p>
+          <p className="max-w-[26ch] text-[11px] leading-4 text-text-muted">点击左侧列表中的证据，查看原文引用、来源与关键字段。</p>
         </div>
       </ProductSection>
     );

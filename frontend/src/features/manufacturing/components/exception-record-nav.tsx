@@ -12,9 +12,11 @@ const items = [
 export function ExceptionRecordNav({
   contextId,
   exceptionId,
+  evidenceCount,
 }: {
   contextId: string;
   exceptionId: string;
+  evidenceCount?: number;
 }) {
   const location = useLocation();
   const base = `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(exceptionId)}`;
@@ -26,11 +28,16 @@ export function ExceptionRecordNav({
             key={item.segment}
             to={`${base}/${item.segment}${location.search}`}
             className={({ isActive }) => cn(
-              "inline-flex h-11 items-center border-b-2 border-transparent px-3.5 text-[13px] font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
+              "inline-flex h-11 items-center gap-1.5 border-b-2 border-transparent px-3.5 text-[13px] font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-text-primary",
               isActive && "border-interactive bg-interactive/[0.025] text-text-primary",
             )}
           >
             {item.label}
+            {item.segment === "evidence" && typeof evidenceCount === "number" && (
+              <span className="inline-flex h-[18px] min-w-[20px] items-center justify-center rounded-full bg-surface-subtle px-1.5 text-[11px] tabular-nums text-text-muted">
+                {evidenceCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </div>

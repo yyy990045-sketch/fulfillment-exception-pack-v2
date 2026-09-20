@@ -4,6 +4,7 @@ import { LocalState, ProductSection, SectionHeader } from "../../../components/p
 import { SeverityBadge } from "../../../components/product/status-badge.js";
 import { Button } from "../../../components/ui/button.js";
 import { severityLabel } from "../../../lib/presentation.js";
+import { cn } from "../../../lib/utils.js";
 import {
   exceptionQueueOptions,
   filterAndSortExceptions,
@@ -19,18 +20,20 @@ function FilterSelect({
   value,
   onChange,
   options,
+  className,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: Array<{ value: string; label: string }>;
+  className?: string;
 }) {
   return (
-    <label className="min-w-0 space-y-1 text-[11px] text-text-muted">
-      <span>{label}</span>
+    <label className={cn("min-w-0 shrink-0 space-y-1 text-[11px] text-text-muted", className)}>
+      <span className="block">{label}</span>
       <select
         aria-label={label}
-        className="h-9 w-full rounded-md border border-border-strong bg-surface px-2.5 text-[12px] text-text-secondary"
+        className="h-9 w-full rounded-md border border-border-strong bg-surface px-2.5 text-[12px] text-text-secondary shadow-[0_1px_2px_rgba(16,24,40,0.04)] outline-none transition-colors focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -88,12 +91,12 @@ export function ExceptionQueueTable({
         description="定位需要进入治理的异常，再打开独立异常记录。"
         meta={`${results.length} / ${exceptions.length}`}
       />
-      <div className="grid gap-2 border-b border-border/60 bg-surface-subtle/45 p-3 lg:grid-cols-[minmax(320px,420px)_repeat(4,minmax(110px,140px))_auto]">
-        <label className="relative min-w-0">
+      <div className="flex flex-wrap items-end gap-3 border-b border-border/60 bg-surface-subtle/45 p-3">
+        <label className="relative min-w-[240px] flex-1">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-text-muted" aria-hidden="true" />
           <input
             aria-label="搜索异常"
-            className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-8 text-[12px] text-text-primary placeholder:text-text-muted"
+            className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-8 text-[12px] text-text-primary shadow-[0_1px_2px_rgba(16,24,40,0.04)] outline-none transition-colors placeholder:text-text-muted focus:border-interactive focus:ring-[3px] focus:ring-interactive/15"
             value={filters.query}
             onChange={(event) => updateFilter("q", event.target.value)}
             placeholder="搜索异常、差异或状态"
@@ -111,29 +114,33 @@ export function ExceptionQueueTable({
         </label>
         <FilterSelect
           label="严重程度"
+          className="w-[120px]"
           value={filters.severity}
           onChange={(value) => updateFilter("severity", value)}
           options={options.severities.map((value) => ({ value, label: severityLabel(value) }))}
         />
         <FilterSelect
           label="异常状态"
+          className="w-[130px]"
           value={filters.status}
           onChange={(value) => updateFilter("status", value)}
           options={options.statuses.map((value) => ({ value, label: exceptionStatusLabel(value) }))}
         />
         <FilterSelect
           label="业务阶段"
+          className="w-[140px]"
           value={filters.stageKey}
           onChange={(value) => updateFilter("stageKey", value)}
           options={options.stages}
         />
         <FilterSelect
           label="处理阶段"
+          className="w-[140px]"
           value={filters.governanceStage}
           onChange={(value) => updateFilter("governanceStage", value)}
           options={options.governanceStages}
         />
-        <div className="flex items-end gap-2">
+        <div className="ml-auto flex items-end gap-2">
           <label className="flex h-8 items-center gap-1.5 whitespace-nowrap text-xs text-text-secondary">
             <input
               type="checkbox"
@@ -153,26 +160,35 @@ export function ExceptionQueueTable({
         <div className="p-3"><LocalState kind="no-results" title="没有匹配当前条件的异常" compact /></div>
       ) : (
         <div className="overflow-x-auto">
-        <table data-testid="exception-queue-table" className="w-full min-w-[900px] text-left text-[13px]">
-            <thead className="bg-surface-subtle/60 text-text-muted">
+        <table data-testid="exception-queue-table" className="w-full min-w-[1080px] text-left text-[13px]">
+            <thead className="bg-surface-subtle/60 text-[11px] font-medium text-text-muted">
               <tr>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">异常</th>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">等级</th>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">状态</th>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">核心差异</th>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">处理阶段</th>
-                <th className="border-b border-border/70 px-4 py-2 font-medium">最近更新</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">异常</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">等级</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">状态</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">核心差异</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">处理阶段</th>
+                <th className="border-b border-border/70 px-4 py-2.5 text-right font-medium">证据</th>
+                <th className="border-b border-border/70 px-4 py-2.5 text-right font-medium">来源系统</th>
+                <th className="border-b border-border/70 px-4 py-2.5 font-medium">最近更新</th>
               </tr>
             </thead>
         <tbody className="divide-y divide-border/45">
               {results.map(({ exception, governanceStage }) => (
-                <tr key={exception.id} className="h-[51px] transition-colors duration-150 hover:bg-surface-subtle focus-within:bg-interactive/[0.035]">
+                <tr
+                  key={exception.id}
+                  className="group h-[51px] cursor-pointer transition-colors duration-150 hover:bg-interactive/[0.03] focus-within:bg-interactive/[0.05]"
+                  onClick={() => onOpen(exception)}
+                >
                   <td className="px-4 py-3">
                     <button
                       type="button"
                       data-testid="exception-item"
-                      className="text-left text-[14px] font-semibold text-text-primary hover:text-interactive focus-visible:rounded-sm"
-                      onClick={() => onOpen(exception)}
+                      className="text-left text-[14px] font-semibold text-text-primary transition-colors group-hover:text-interactive focus-visible:rounded-sm"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onOpen(exception);
+                      }}
                     >
                       {exception.label}
                     </button>
@@ -181,6 +197,8 @@ export function ExceptionQueueTable({
                   <td className="px-4 py-3 text-text-secondary">{exceptionStatusLabel(exception.status)}</td>
                   <td className="px-4 py-3 text-text-secondary">{primaryExceptionDifference(exception)}</td>
                   <td className="px-4 py-3 text-text-secondary">{governanceStageLabel(governanceStage)}</td>
+                  <td className="px-4 py-3 text-right text-text-secondary tabular-nums">{exception.evidenceCount}</td>
+                  <td className="px-4 py-3 text-right text-text-secondary tabular-nums">{exception.sourceSystemCount}</td>
                   <td className="px-4 py-3 text-text-muted tabular-nums">
                     {formatShortDateTime(exception.lastDetectedAt || exception.createdAt)}
                   </td>
