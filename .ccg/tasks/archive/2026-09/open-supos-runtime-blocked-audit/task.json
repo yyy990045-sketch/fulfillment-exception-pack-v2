@@ -1,0 +1,13 @@
+{
+  "id": "open-supos-runtime-blocked-audit",
+  "title": "open supOS 真实运行时接入：审计、验收闸门与 BLOCKED_BY_HOST 判定",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "low",
+  "domain": "integration",
+  "currentPhase": "completed",
+  "nextAction": "归档",
+  "createdAt": "2026-09-20T09:30:00Z",
+  "branch": "main",
+  "baseline": "0f56c6d97e7c7b734e2910ff8d60dc3c32121e2d"
+}

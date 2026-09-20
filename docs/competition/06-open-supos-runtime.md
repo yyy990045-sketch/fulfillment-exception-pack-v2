@@ -2,6 +2,11 @@
 
 Audit date: `2026-09-19`
 
+> 续审计（2026-09-20）：本文件的结论 `OPEN_SUPOS_RUNTIME_BLOCKED: NO_SUPPORTED_RUNTIME_HOST`
+> 仍然成立，但其中「Docker daemon 不可用」这一条已过期（本机 Docker 现已可用）。
+> 最新的证据、阻塞原因集合与解除方案以 `docs/open-supos-integration.md` 为准；
+> 本文件保留为 2026-09-19 那一次审计的历史记录。
+
 ## 1 Upstream Provenance
 
 - Official repository: `https://gitee.com/supos-community-edition/supos-ce-deploy.git`
