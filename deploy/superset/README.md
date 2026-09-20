@@ -89,28 +89,31 @@ SUPERSET_STACK_LOCAL_STARTED=true           # compose 可启动并完成初始�
 SUPERSET_PROJECTION_LOADED=true             # 真实业务数据已导入 analytics 库
 SUPERSET_GUEST_TOKEN_ISSUED=true            # 后端可签发真实 guest token（Superset 侧 200）
 SUPERSET_EMBED_IMPLEMENTED=true             # 后端接口 + provider 切换 + 官方 SDK 接入已实现
-SUPERSET_LOCAL_DASHBOARD_VERIFIED=false     # 看板在 iframe 内未渲染成功（见下）
+SUPERSET_LOCAL_DASHBOARD_VERIFIED=true      # 浏览器里 4 个模块真实渲染（见下）
 SUPERSET_REAL_CUSTOMER_VERIFIED=false
 SUPERSET_MULTITENANT_RLS_VERIFIED=false
 SUPERSET_PRODUCTION_HA_VERIFIED=false
 ```
 
-未通过的一步（blocker，HTTP 证据）：iframe 已加载且嵌入页返回 200，但嵌入应用随后对
-Superset API 的调用一律 403：
+这一步曾经失败（iframe 已加载且嵌入页返回 200，但嵌入应用随后对 Superset API 的调用
+一律 403），根因已定位并修复：
 
-```text
-GET /api/v1/me/roles/            -> 403 {"message":"Forbidden"}
-GET /api/v1/dashboard/1/charts   -> 403
-GET /api/v1/me/                   -> 403
-```
+1. **`GUEST_ROLE_NAME` 落在官方默认 `Public`**，而 `Public` 在 `superset init` 之后
+   0 条权限；guest token 的授权只来自这一个 role，所以每个 API 调用都 403。
+   Gamma 对照实验确认后，改为初始化脚本幂等创建的专用最小权限 role
+   `EmbeddedGuest`（4 条 `can_read` + 当前 4 张事实表的 `datasource_access`）。
+2. **`dashboard_slices` 是空的**：Superset 只在 PUT 的 `json_metadata.positions` 里
+   同步 dashboard ↔ chart 关联，只写 `position_json` 会让看板渲染成空白。
 
-已排除的因素：`aud` 与 `GUEST_TOKEN_JWT_AUDIENCE` 一致（`http://127.0.0.1:8088/`）、
-Referer 在白名单内（缺 Referer 时嵌入页本身返回 403，带上即 200）、资源引用分别试过
-数字 dashboard id 与嵌入 UUID、也试过携带嵌入页下发的 session cookie 与 `Origin`。
-guest token 解析未产生 Superset 的 `Invalid guest token` 警告，因此下一步应确认
-Superset 6.1 与 `@superset-ui/embedded-sdk@0.4.0` 的握手是否匹配（SDK 版本 / 服务端
-guest 会话建立方式），再决定是否升级 SDK 或改用 Superset 官方 compose 的完整
-`docker/` 装配进行对照。
+另外确认的事实：Superset 6.1 已移除旧的 `bar` viz plugin；`/api/v1/dashboard/<uuid>`
+不接受嵌入式 uuid，嵌入页通过 bootstrap 把数字 dashboard id 交给 SPA，因此嵌入应用
+真正调用的是 `/api/v1/dashboard/<数字 id>/...`。`@superset-ui/embedded-sdk@0.4.0`
+与 6.1 服务端没有发现兼容性问题——本轮未升级 SDK、未改 CORS、未关闭 CSRF、
+未使用 `all_datasource_access`、未使用 Admin/Gamma 作为长期角色。
+
+复现与验证：`npm run superset:init-role`（幂等收敛 role）、
+`npm run superset:verify-embed`（22 项真实链路检查，含 `POST /api/v1/chart/data`
+必须返回真实行）。
 
 ## 不要做的事
 
