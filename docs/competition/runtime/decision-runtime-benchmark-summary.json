@@ -1,6 +1,6 @@
 {
   "schemaVersion": "decision-runtime-benchmark/v1",
-  "generatedAt": "2026-09-19T09:06:20.309Z",
+  "generatedAt": "2026-09-20T01:40:39.927Z",
   "dataset": {
     "synthetic": true,
     "cases": 51,
@@ -17,57 +17,57 @@
     "labelSource": "synthetic product rubric derived from the current Action Catalog and human-governance boundary"
   },
   "providers": {
-    "deterministic": {
-      "provider": "deterministic",
-      "model": "deterministic-decision-v1",
+    "jev": {
+      "provider": "jev",
+      "model": "jev-latest",
       "status": "verified",
       "verified": true,
-      "warmupUsed": false,
+      "warmupUsed": true,
       "overall": {
         "caseCount": 51,
         "successfulCases": 51,
         "failedCases": 0,
         "schemaValidRate": 1,
-        "exactAccuracy": 1,
-        "binaryBrierScore": 0,
-        "multiclassBrierScore": 0,
-        "scoreMae": 0,
+        "exactAccuracy": 0.49019607843137253,
+        "binaryBrierScore": 0.11810000000000001,
+        "multiclassBrierScore": 0.31088888888888877,
+        "scoreMae": 0.13599999999999998,
         "exactLevelAccuracy": 1,
         "withinOneLevelAccuracy": 1,
-        "latencyP50Ms": 0.005958000000006791,
-        "latencyP95Ms": 0.03350000000000364,
+        "latencyP50Ms": 356.5209159999995,
+        "latencyP95Ms": 450.78800000000047,
         "errorRate": 0,
-        "unsafeDecisionRate": 0,
+        "unsafeDecisionRate": 0.058823529411764705,
         "confidenceKindBreakdown": {
-          "deterministic": 51,
-          "provider_reported_calibrated": 0,
+          "deterministic": 0,
+          "provider_reported_calibrated": 36,
           "self_reported": 0,
-          "probability_only": 0,
+          "probability_only": 15,
           "none": 0
         },
         "thresholds": [
           {
             "threshold": 0.6,
-            "eligibleCases": 51,
-            "coverage": 1,
-            "selectiveAccuracy": 1
+            "eligibleCases": 43,
+            "coverage": 0.8431372549019608,
+            "selectiveAccuracy": 0.5581395348837209
           },
           {
             "threshold": 0.75,
-            "eligibleCases": 51,
-            "coverage": 1,
-            "selectiveAccuracy": 1
+            "eligibleCases": 28,
+            "coverage": 0.5490196078431373,
+            "selectiveAccuracy": 0.6428571428571429
           },
           {
             "threshold": 0.9,
-            "eligibleCases": 51,
-            "coverage": 1,
-            "selectiveAccuracy": 1
+            "eligibleCases": 10,
+            "coverage": 0.19607843137254902,
+            "selectiveAccuracy": 0.4
           }
         ],
         "usage": {
-          "inputTokens": null,
-          "outputTokens": null,
+          "inputTokens": 22783,
+          "outputTokens": 2050,
           "estimatedCostUsd": null
         }
       },
@@ -77,19 +77,19 @@
           "successfulCases": 21,
           "failedCases": 0,
           "schemaValidRate": 1,
-          "exactAccuracy": 1,
+          "exactAccuracy": 0.5238095238095238,
           "binaryBrierScore": null,
-          "multiclassBrierScore": 0,
+          "multiclassBrierScore": 0.4972095238095238,
           "scoreMae": null,
           "exactLevelAccuracy": null,
           "withinOneLevelAccuracy": null,
-          "latencyP50Ms": 0.009542000000010376,
-          "latencyP95Ms": 0.03350000000000364,
+          "latencyP50Ms": 371.84191700000065,
+          "latencyP95Ms": 444.95904199999995,
           "errorRate": 0,
           "unsafeDecisionRate": 0,
           "confidenceKindBreakdown": {
-            "deterministic": 21,
-            "provider_reported_calibrated": 0,
+            "deterministic": 0,
+            "provider_reported_calibrated": 21,
             "self_reported": 0,
             "probability_only": 0,
             "none": 0
@@ -97,26 +97,26 @@
           "thresholds": [
             {
               "threshold": 0.6,
-              "eligibleCases": 21,
-              "coverage": 1,
-              "selectiveAccuracy": 1
+              "eligibleCases": 14,
+              "coverage": 0.6666666666666666,
+              "selectiveAccuracy": 0.7142857142857143
             },
             {
               "threshold": 0.75,
-              "eligibleCases": 21,
-              "coverage": 1,
+              "eligibleCases": 6,
+              "coverage": 0.2857142857142857,
               "selectiveAccuracy": 1
             },
             {
               "threshold": 0.9,
-              "eligibleCases": 21,
-              "coverage": 1,
+              "eligibleCases": 2,
+              "coverage": 0.09523809523809523,
               "selectiveAccuracy": 1
             }
           ],
           "usage": {
-            "inputTokens": null,
-            "outputTokens": null,
+            "inputTokens": 11234,
+            "outputTokens": 1390,
             "estimatedCostUsd": null
           }
         },
@@ -125,46 +125,46 @@
           "successfulCases": 15,
           "failedCases": 0,
           "schemaValidRate": 1,
-          "exactAccuracy": 1,
-          "binaryBrierScore": 0,
+          "exactAccuracy": 0.8,
+          "binaryBrierScore": 0.11810000000000001,
           "multiclassBrierScore": null,
           "scoreMae": null,
           "exactLevelAccuracy": null,
           "withinOneLevelAccuracy": null,
-          "latencyP50Ms": 0.003417000000013104,
-          "latencyP95Ms": 0.01737500000000125,
+          "latencyP50Ms": 353.95987500000047,
+          "latencyP95Ms": 450.78800000000047,
           "errorRate": 0,
-          "unsafeDecisionRate": 0,
+          "unsafeDecisionRate": 0.2,
           "confidenceKindBreakdown": {
-            "deterministic": 15,
+            "deterministic": 0,
             "provider_reported_calibrated": 0,
             "self_reported": 0,
-            "probability_only": 0,
+            "probability_only": 15,
             "none": 0
           },
           "thresholds": [
             {
               "threshold": 0.6,
-              "eligibleCases": 15,
-              "coverage": 1,
-              "selectiveAccuracy": 1
+              "eligibleCases": 14,
+              "coverage": 0.9333333333333333,
+              "selectiveAccuracy": 0.8571428571428571
             },
             {
               "threshold": 0.75,
-              "eligibleCases": 15,
-              "coverage": 1,
+              "eligibleCases": 10,
+              "coverage": 0.6666666666666666,
               "selectiveAccuracy": 1
             },
             {
               "threshold": 0.9,
-              "eligibleCases": 15,
-              "coverage": 1,
-              "selectiveAccuracy": 1
+              "eligibleCases": 0,
+              "coverage": 0,
+              "selectiveAccuracy": null
             }
           ],
           "usage": {
-            "inputTokens": null,
-            "outputTokens": null,
+            "inputTokens": 5602,
+            "outputTokens": 360,
             "estimatedCostUsd": null
           }
         },
@@ -173,19 +173,19 @@
           "successfulCases": 15,
           "failedCases": 0,
           "schemaValidRate": 1,
-          "exactAccuracy": 1,
+          "exactAccuracy": 0.13333333333333333,
           "binaryBrierScore": null,
-          "multiclassBrierScore": 0,
-          "scoreMae": 0,
+          "multiclassBrierScore": 0.050039999999999994,
+          "scoreMae": 0.13599999999999998,
           "exactLevelAccuracy": 1,
           "withinOneLevelAccuracy": 1,
-          "latencyP50Ms": 0.0035419999999959373,
-          "latencyP95Ms": 0.039332999999999174,
+          "latencyP50Ms": 349.49766699999964,
+          "latencyP95Ms": 574.2394590000004,
           "errorRate": 0,
           "unsafeDecisionRate": 0,
           "confidenceKindBreakdown": {
-            "deterministic": 15,
-            "provider_reported_calibrated": 0,
+            "deterministic": 0,
+            "provider_reported_calibrated": 15,
             "self_reported": 0,
             "probability_only": 0,
             "none": 0
@@ -195,48 +195,28 @@
               "threshold": 0.6,
               "eligibleCases": 15,
               "coverage": 1,
-              "selectiveAccuracy": 1
+              "selectiveAccuracy": 0.13333333333333333
             },
             {
               "threshold": 0.75,
-              "eligibleCases": 15,
-              "coverage": 1,
-              "selectiveAccuracy": 1
+              "eligibleCases": 12,
+              "coverage": 0.8,
+              "selectiveAccuracy": 0.16666666666666666
             },
             {
               "threshold": 0.9,
-              "eligibleCases": 15,
-              "coverage": 1,
-              "selectiveAccuracy": 1
+              "eligibleCases": 8,
+              "coverage": 0.5333333333333333,
+              "selectiveAccuracy": 0.25
             }
           ],
           "usage": {
-            "inputTokens": null,
-            "outputTokens": null,
+            "inputTokens": 5947,
+            "outputTokens": 300,
             "estimatedCostUsd": null
           }
         }
       }
-    },
-    "openai": {
-      "provider": "openai",
-      "model": null,
-      "status": "not_configured",
-      "verified": false,
-      "warmupUsed": false,
-      "reason": "DECISION_PROVIDER_NOT_CONFIGURED",
-      "overall": null,
-      "suites": {}
-    },
-    "jev": {
-      "provider": "jev",
-      "model": "jev-latest",
-      "status": "not_configured",
-      "verified": false,
-      "warmupUsed": false,
-      "reason": "DECISION_PROVIDER_NOT_CONFIGURED",
-      "overall": null,
-      "suites": {}
     }
   },
   "truthfulness": {
@@ -250,8 +230,8 @@
     "POLICY_ENGINE_CHANGED": false,
     "AI_EXECUTION_PERMISSION": false,
     "REAL_OPENAI_BENCHMARK_VERIFIED": false,
-    "REAL_JEV_BENCHMARK_VERIFIED": false,
-    "JEV_STATUS": "not_configured"
+    "REAL_JEV_BENCHMARK_VERIFIED": true,
+    "JEV_STATUS": "verified"
   },
   "productionIntegration": false
 }

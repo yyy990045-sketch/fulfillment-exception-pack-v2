@@ -26,7 +26,7 @@
 | Manufacturing Pack | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | Manufacturing Fulfillment 示例 Pack，含规则、Evidence、治理与 Outcome projection。 |
 | Finance Reconciliation Pack | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 财务对账示例 Pack，通过 Generic Workspace 展示同一底座复用。 |
 | OpenAI Provider | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | Provider、strict schema、citation/numeric validation 已实现并本地验证；没有真实 API key 时明确返回 not_configured。 |
-| Jev | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | 官方 object-map contract、Choice/Score/Noul normalization 已实现并 fixture 验证；live Jev 未验证。 |
+| Jev | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | LIVE_VERIFIED | LIVE_VERIFIED | 真实 Jev API 已通过 Decision Runtime smoke 和 51-case synthetic live benchmark；这证明 provider/runtime live integration，不证明真实客户数据质量或生产自动决策安全性。 |
 | Open supOS Adapter | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | Adapter、UNS mapping、inbound contract 已实现；真实 Open supOS runtime 未启动、未验证。 |
 | Connector SDK | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 包含安装、secretRef、transactional outbox、lease、attempt、receipt；reference HTTP connector 只连接本地测试服务器。 |
 | Inbound Connector Runtime | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 只读 readPage、provider-opaque cursor、sync run/state、ledger、mapping version 和 commit/cursor 边界已实现并本地验证。 |
@@ -64,7 +64,7 @@ Adapter 已实现。真实 Open supOS runtime 当前是 `NOT_VERIFIED`。
 
 ### Jev
 
-Jev contract 已实现并本地验证。Live Jev 当前是 `NOT_VERIFIED`。
+Jev 可用于受治理的 Decision Runtime 辅助判断；当前 `human-governance` synthetic benchmark 存在 3 / 15 unsafe answers，因此不得绕过 deterministic Policy / human approval，不得获得 execution authority。
 
 ### OpenAI
 
@@ -89,6 +89,7 @@ OpenAI provider 已实现并通过本地 contract / mock / validation 测试。�
 | AI 辅助解释 | 输出是基于 Evidence 的辅助分析，不是人工事实确认。 |
 | 根因假设 | 是待验证 hypothesis，不是真实根因结论。 |
 | 决策建议 | 是候选建议，必须人工决策，不是自动执行指令。 |
+| Jev 受治理辅助判断 | 已通过真实 API smoke 和 51-case synthetic live benchmark；验证的是 provider/runtime live integration，不证明真实客户数据质量或生产自动决策安全性。不得绕过 Policy、human approval 或职责分离。 |
 | 人工审批与职责分离 | 依赖配置的角色、subjectId 和审批边界；正式 RBAC 管理后台未实现。 |
 | 处置治理流程 | 支持受控人工治理闭环；外部系统影响仍需 Connector 验证。 |
 | 内部执行动作 | 当前只验证内部 work item / reference/local delivery。 |
@@ -105,7 +106,9 @@ OpenAI provider 已实现并通过本地 contract / mock / validation 测试。�
 - 已真实接入 WMS
 - 已真实接入 QMS
 - Open supOS 已生产验证
-- Jev 已 live 验证
+- Jev 已生产自动决策验证
+- Jev 可替代人工治理
+- Jev 可直接授权外部执行
 - AI 判断等于真实根因
 - Outcome 等于因果效果
 - 所有外部动作可自动执行
@@ -146,7 +149,7 @@ OpenAI provider 已实现并通过本地 contract / mock / validation 测试。�
 - “AI 输出为基于证据的辅助判断，不是人工事实确认。”
 - “后续测量用于观察业务状态，不证明前序动作导致结果变化。”
 - “Open supOS adapter 已实现，真实 runtime 尚未验证。”
-- “Jev contract 已实现，live provider 尚未验证。”
+- “Jev provider/runtime live integration 已通过真实 API smoke 和 51-case synthetic live benchmark；验证不证明真实客户数据质量或生产自动决策安全性。”
 
 不能说：
 
@@ -156,4 +159,7 @@ OpenAI provider 已实现并通过本地 contract / mock / validation 测试。�
 - “处置后一定提高经营指标”
 - “已完成 Open supOS 生产落地”
 - “Jev 已在生产环境验证”
+- “Jev 已生产自动决策验证”
+- “Jev 可替代人工治理”
+- “Jev 可直接授权外部执行”
 - “所有外部系统动作已经自动执行”
