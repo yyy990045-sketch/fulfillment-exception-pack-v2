@@ -1,4 +1,4 @@
-import type { ActionType } from "../types.js";
+import type { ActionType, PersistedActionType } from "../types.js";
 import type { PolicyCandidateSource, PolicyDefinitionRecord, PolicyEvaluationRecord, PolicyMode } from "../domain/v2/policy-types.js";
 import type { FulfillmentExceptionCode, V2Exception } from "../domain/v2/index.js";
 
@@ -7,16 +7,20 @@ export type PolicyEffectClass =
   | "internal_evidence_request"
   | "external_communication"
   | "internal_review"
+  | "commercial_decision"
   | "customer_decision";
 
 export type PolicyActionMetadata = {
-  actionType: ActionType;
+  actionType: PersistedActionType;
   label: string;
   effectClass: PolicyEffectClass;
   customerFacing: boolean;
   financialMovement: boolean;
   legalEffect: boolean;
   reversible: boolean;
+  humanReviewTransition: boolean;
+  requiresApprovalBeforeExecution: boolean;
+  materialBusinessEffect: boolean;
 };
 
 export type PolicyCondition =

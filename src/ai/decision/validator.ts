@@ -1,11 +1,18 @@
-import type { ActionType } from "../../types.js";
+import type { ActionType, PersistedActionType } from "../../types.js";
 import { DecisionAiError, type DecisionRecommendationInput, type DecisionRecommendationOutput, type DecisionRecommendationValidation } from "./types.js";
 
 const OPTION_KEYS = new Set(["id", "actionType", "title", "actionSummary", "rationale", "evidenceIds", "supportingFacts", "historyClaims", "assumptions", "missingEvidence"]);
 const FACT_KEYS = new Set(["kind", "key", "value", "evidenceIds"]);
 const HISTORY_KEYS = new Set(["key", "value", "statement"]);
 const HIDDEN_KEYS = new Set(["chainOfThought", "reasoning", "internalReasoning", "scratchpad"]);
-const ACTIONS = new Set<ActionType>(["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"]);
+const ACTIONS = new Set<ActionType>([
+  "supplement_evidence",
+  "urge_follow_up",
+  "reject_overclaim",
+  "route_quotation_to_review",
+  "approve_or_change_quotation_terms",
+  "create_task",
+]);
 const OUTCOME_PATTERNS = [/成功率/, /最佳实践/, /最有效/, /历史证明有效/, /通常能解决/, /最优方案/];
 const CAUSAL_PATTERNS = [/导致/, /造成/, /因为/, /由于/, /根因/, /责任/, /负责/, /违约/, /赔偿/, /客户实际收到[^。；，]*\d+/];
 
@@ -113,7 +120,7 @@ function historyValue(input: DecisionRecommendationInput, key: string): string |
   if (key === "sameExceptionWithResolutionCount") return input.history.sameExceptionWithResolutionCount;
   if (key === "closedResolutionCaseCount") return input.history.closedResolutionCaseCount;
   if (key === "rejectedResolutionCaseCount") return input.history.rejectedResolutionCaseCount;
-  if (key.startsWith("actionTypeCounts.")) return input.history.actionTypeCounts[key.slice("actionTypeCounts.".length) as ActionType];
+  if (key.startsWith("actionTypeCounts.")) return input.history.actionTypeCounts[key.slice("actionTypeCounts.".length) as PersistedActionType];
   if (key.startsWith("resolutionStatusCounts.")) return input.history.resolutionStatusCounts[key.slice("resolutionStatusCounts.".length)];
   return undefined;
 }

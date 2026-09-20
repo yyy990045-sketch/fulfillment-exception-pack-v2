@@ -94,7 +94,7 @@ Core baseline eligibility is:
 - `supplement_evidence`: eligible
 - `reject_overclaim`: ineligible
 
-Packs may add domain-specific eligibility such as `urge_follow_up` or `review_quotation`.
+Packs may add domain-specific eligibility such as `urge_follow_up` or `route_quotation_to_review`. `approve_or_change_quotation_terms` remains human-governed and is not auto-executable.
 
 Policy, Automation, Grounded AI, and Root Cause remain Core capabilities.
 

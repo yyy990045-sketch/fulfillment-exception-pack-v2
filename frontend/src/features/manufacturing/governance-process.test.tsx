@@ -176,7 +176,7 @@ describe("governance process", () => {
     expect(summary).toHaveValue("收集客户签收单和物流记录。");
 
     view.rerenderSelection("option-review");
-    await waitFor(() => expect(action).toHaveValue("review_quotation"));
+    await waitFor(() => expect(action).toHaveValue("route_quotation_to_review"));
     expect(summary).toHaveValue("由业务人员复核当前差异。");
   });
 

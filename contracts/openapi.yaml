@@ -788,7 +788,7 @@ paths:
                   additionalProperties: false
                   required: [actionType]
                   properties:
-                    actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+                    actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, create_task] }
                 - type: object
                   additionalProperties: false
                   required: [recommendationId, optionId]
@@ -1415,7 +1415,7 @@ components:
       additionalProperties: false
       required: [type, label]
       properties:
-        type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, create_task] }
         label: { type: string }
     PackBoundContext:
       type: object
@@ -1712,7 +1712,7 @@ components:
             additionalProperties: false
             required: [type, total, draft, pending_approval, authorized, succeeded, verified, failed]
             properties:
-              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
               total: { type: integer }
               draft: { type: integer }
               pending_approval: { type: integer }
@@ -1950,7 +1950,7 @@ components:
       required: [id, actionType, title, actionSummary, rationale, evidenceIds, supportingFacts, historyClaims, assumptions, missingEvidence]
       properties:
         id: { type: string }
-        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, create_task] }
         title: { type: string }
         actionSummary: { type: string }
         rationale: { type: string }
@@ -2011,11 +2011,13 @@ components:
             actionTypeCounts:
               type: object
               additionalProperties: false
-              required: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task]
+              required: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task]
               properties:
                 supplement_evidence: { type: integer, minimum: 0 }
                 urge_follow_up: { type: integer, minimum: 0 }
                 reject_overclaim: { type: integer, minimum: 0 }
+                route_quotation_to_review: { type: integer, minimum: 0 }
+                approve_or_change_quotation_terms: { type: integer, minimum: 0 }
                 review_quotation: { type: integer, minimum: 0 }
                 create_task: { type: integer, minimum: 0 }
             resolutionStatusCounts: { type: object, additionalProperties: { type: integer, minimum: 0 } }
@@ -2029,7 +2031,7 @@ components:
             additionalProperties: false
             required: [actionType, eligible, reason]
             properties:
-              actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+              actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, create_task] }
               eligible: { type: boolean }
               reason: { type: string }
         stale: { type: boolean }
@@ -2045,14 +2047,17 @@ components:
     PolicyActionMetadata:
       type: object
       additionalProperties: false
-      required: [actionType, effectClass, customerFacing, financialMovement, legalEffect, reversible]
+      required: [actionType, effectClass, customerFacing, financialMovement, legalEffect, reversible, humanReviewTransition, requiresApprovalBeforeExecution, materialBusinessEffect]
       properties:
-        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
-        effectClass: { type: string, enum: [internal_task, internal_evidence_request, external_communication, internal_review, customer_decision] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
+        effectClass: { type: string, enum: [internal_task, internal_evidence_request, external_communication, internal_review, commercial_decision, customer_decision] }
         customerFacing: { type: boolean }
         financialMovement: { type: boolean }
         legalEffect: { type: boolean }
         reversible: { type: boolean }
+        humanReviewTransition: { type: boolean }
+        requiresApprovalBeforeExecution: { type: boolean }
+        materialBusinessEffect: { type: boolean }
     PolicyContextFacts:
       type: object
       additionalProperties: false
@@ -2060,7 +2065,7 @@ components:
       properties:
         exceptionCode: { type: string }
         severity: { type: string, enum: [low, medium, high, critical] }
-        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
         evidenceCount: { type: integer, minimum: 0 }
         sourceSystemCount: { type: integer, minimum: 0 }
         hasClaimEvidence: { type: boolean }
@@ -2089,7 +2094,7 @@ components:
         id: { type: string }
         contextId: { type: string }
         exceptionId: { type: string }
-        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
         candidateSource: { type: string, enum: [human, ai_recommendation] }
         sourceRecommendationId: { type: string }
         sourceOptionId: { type: string }
@@ -2128,7 +2133,7 @@ components:
         exceptionId: { type: string }
         kind: { type: string, enum: [task, evidence_request] }
         source: { type: string, enum: [policy_automation] }
-        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        actionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
         title: { type: string }
         description: { type: string }
         status: { type: string, enum: [open, completed, cancelled] }
@@ -2151,7 +2156,7 @@ components:
         contextId: { type: string }
         exceptionId: { type: string }
         policyEvaluationId: { type: string }
-        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+        candidateActionType: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, review_quotation, create_task] }
         sourceRecommendationId: { type: string }
         sourceOptionId: { type: string }
         executor: { type: string }
@@ -2411,7 +2416,7 @@ components:
             type: object
             required: [type, summary]
             properties:
-              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, review_quotation, create_task] }
+              type: { type: string, enum: [supplement_evidence, urge_follow_up, reject_overclaim, route_quotation_to_review, approve_or_change_quotation_terms, create_task] }
               summary: { type: string, minLength: 1 }
     CurrentActorContext:
       type: object

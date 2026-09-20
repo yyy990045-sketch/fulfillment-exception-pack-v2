@@ -267,6 +267,7 @@ No code from those projects is copied into this repository in Phase 13.
 
 ```bash
 npm run decision-runtime:benchmark
+npm run decision-runtime:benchmark-v2
 npm run decision-runtime:verify-openai
 npm run decision-runtime:verify-jev
 ```
@@ -289,6 +290,13 @@ Committed summary:
 docs/competition/runtime/decision-runtime-benchmark-summary.json
 ```
 
+V2 benchmark artifacts are versioned separately:
+
+```text
+data/runtime/decision-runtime/benchmark-v2-raw.json
+docs/competition/runtime/decision-runtime-benchmark-v2-summary.json
+```
+
 The raw trace stores normalized answers, latency, errors, metrics, and usage. It does not store API keys, authorization headers, raw state, prompts containing secrets, raw provider responses, chain-of-thought, or stack traces.
 
 # 16 Truthfulness
@@ -301,9 +309,11 @@ OPENAI_DECISION_PROVIDER_IMPLEMENTED=true
 JEV_PROVIDER_IMPLEMENTED=true
 SYNTHETIC_BENCHMARK_DATA=true
 PRODUCTION_DECISION_ROUTING_CHANGED=false
-POLICY_ENGINE_CHANGED=false
+POLICY_ENGINE_CHANGED=false   # retained in the V1 historical artifact
 AI_EXECUTION_PERMISSION=false
 ```
+
+V2 records `POLICY_ENGINE_CHANGED=true` because Decision Action Taxonomy V2 changes the policy boundary.
 
 The dynamic benchmark summary records:
 
@@ -314,3 +324,22 @@ JEV_STATUS=verified/not_configured/access_blocked/failed
 ```
 
 No live provider is marked verified without an actual successful call.
+
+# 17 Decision Action Taxonomy V2
+
+Benchmark V2 keeps V1 data and artifacts unchanged. It derives benchmark state from the Action Catalog metadata and separates governance into three questions:
+
+```text
+isHumanReviewTransition
+requiresApprovalBeforeExecution
+hasMaterialBusinessEffect
+```
+
+The split actions are:
+
+```text
+route_quotation_to_review
+approve_or_change_quotation_terms
+```
+
+V2 does not use the V1 rule `create_task/supplement_evidence=false; everything else=true`. Its references are derived from explicit action metadata and the deterministic policy boundary.

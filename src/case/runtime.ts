@@ -34,7 +34,7 @@ export function actionMayExecute(status: CaseStatus) {
 function actionForFinding(typeHint: ActionType | undefined, field: string): ActionType {
   if (typeHint) return typeHint;
   if (field === "amount" || field === "qty") return "reject_overclaim";
-  if (field === "status") return "review_quotation";
+  if (field === "status") return "route_quotation_to_review";
   return "supplement_evidence";
 }
 
@@ -169,10 +169,10 @@ function deriveActionTypes(runtime: CaseRecord): ActionType[] {
   if (runtime.pack?.gaps?.some((gap) => gap.endsWith("party")) && !runtime.pack?.gaps?.some((gap) => gap.endsWith("orderId"))) types.add("urge_follow_up");
   if (conflicts.some((conflict) => conflict.field === "model" || conflict.field === "qty")) types.add("supplement_evidence");
   if (conflicts.some((conflict) => conflict.field === "amount") && !valuesDiffer("unitPrice") && !evidence.some((item) => item.sourceKind === "email")) types.add("supplement_evidence");
-  if ((conflicts.some((conflict) => conflict.field === "date") && evidence.some((item) => item.sourceKind === "quote") && evidence.some((item) => item.sourceKind === "order")) || (conflicts.some((conflict) => conflict.field === "status") && evidence.some((item) => item.sourceKind === "quote") && evidence.some((item) => item.sourceKind === "order")) || valuesDiffer("unitPrice") || valuesDiffer("quoteValidUntil") || valuesDiffer("quoteStatus") || has("complaint", "promise")) types.add("review_quotation");
+  if ((conflicts.some((conflict) => conflict.field === "date") && evidence.some((item) => item.sourceKind === "quote") && evidence.some((item) => item.sourceKind === "order")) || (conflicts.some((conflict) => conflict.field === "status") && evidence.some((item) => item.sourceKind === "quote") && evidence.some((item) => item.sourceKind === "order")) || valuesDiffer("unitPrice") || valuesDiffer("quoteValidUntil") || valuesDiffer("quoteStatus") || has("complaint", "promise")) types.add("route_quotation_to_review");
   if (conflicts.some((conflict) => conflict.field === "status") && evidence.some((item) => item.sourceKind === "payment") && evidence.some((item) => item.sourceKind === "complaint")) types.add("urge_follow_up");
   if (!types.size && (evidence.some((item) => item.sourceKind === "complaint") || evidence.some((item) => item.compareKey === "settlementStatus" && String(item.value) === "未收") || evidence.some((item) => item.compareKey === "receivedAmount" && String(item.value) === "0"))) types.add("urge_follow_up");
-  const order: ActionType[] = ["supplement_evidence", "reject_overclaim", "review_quotation", "urge_follow_up", "create_task"];
+  const order: ActionType[] = ["supplement_evidence", "reject_overclaim", "route_quotation_to_review", "approve_or_change_quotation_terms", "urge_follow_up", "create_task"];
   return order.filter((type) => types.has(type));
 }
 
@@ -222,7 +222,8 @@ export function propose(runtime: CaseRecord, actor: string): CaseRecord {
 
 function actionSummary(type: ActionType, caseId: string) {
   if (type === "reject_overclaim") return `驳回无订单证据的超额索赔（${caseId}）`;
-  if (type === "review_quotation") return `请销售总监复核报价与订单差异（${caseId}）`;
+  if (type === "route_quotation_to_review") return `请销售总监复核报价与订单差异（${caseId}）`;
+  if (type === "approve_or_change_quotation_terms") return `批准或变更报价条款（${caseId}）`;
   if (type === "urge_follow_up") return `催办补齐责任人/回款（${caseId}）`;
   if (type === "create_task") return `创建跟进任务（${caseId}）`;
   return `补证：补齐订单号或变更单（${caseId}）`;

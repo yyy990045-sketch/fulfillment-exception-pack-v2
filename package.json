@@ -24,6 +24,7 @@
     "demo:packs:prepare": "tsx src/demo/solution-packs/prepare-all.ts",
     "connector:worker": "tsx src/connectors/run-worker.ts",
     "decision-runtime:benchmark": "tsx src/intelligence/benchmark/cli.ts benchmark",
+    "decision-runtime:benchmark-v2": "tsx src/intelligence/benchmark/cli.ts benchmark-v2",
     "decision-runtime:verify-openai": "tsx src/intelligence/benchmark/cli.ts verify-openai",
     "decision-runtime:verify-jev": "tsx src/intelligence/benchmark/cli.ts verify-jev",
     "frontend:dev": "vite --config frontend/vite.config.ts",

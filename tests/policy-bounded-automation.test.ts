@@ -74,7 +74,7 @@ describe("policy-bounded automation", () => {
   });
 
   it("does not execute approval-required or human-only policy modes", () => {
-    for (const actionType of ["urge_follow_up", "review_quotation", "reject_overclaim"] as const) {
+    for (const actionType of ["urge_follow_up", "approve_or_change_quotation_terms", "reject_overclaim"] as const) {
       const store = openStore();
       const exception = heroException(store);
       const evaluation = evaluateDecisionPolicy(store, "demo-manufacturing", "ctx-so-mfg-001", exception.id, { actionType }, "quality-owner");

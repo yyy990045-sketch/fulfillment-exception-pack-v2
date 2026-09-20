@@ -95,7 +95,7 @@ export function buildGoldSet(): GoldCase[] {
     fx("002", "报价与订单单价不一致", mats("FX-002", {
       quote: { csv: quoteCsv("TY-QT-002,NC-CUST-02,NC-PRJ-02,NX-110,2026-06-02,50,88,2000,400,100,50,13,是,2026-07-01,周周,已审批,") },
       order: { csv: orderCsv("TY-SO-002,NC-CUST-02,NC-PRJ-02,NX-110,2026-06-10,50,72,2026-07-18,待确认,正常,无异常,周周,单价被改") },
-    }), [{ field: "amount", left: 88, right: 72 }], ["review_quotation"]),
+    }), [{ field: "amount", left: 88, right: 72 }], ["route_quotation_to_review"]),
     fx("003", "订单总额与应收不一致", mats("FX-003", {
       order: { csv: orderCsv("TY-SO-003,NC-CUST-03,NC-PRJ-03,NX-110,2026-06-11,40,100,2026-07-19,已发货,正常,无异常,陈晨,") },
       payment: { csv: paymentCsv("TY-PAY-003,NC-CUST-03,TY-SO-003,5000,0,月结30天,2026-08-18,,到期前提醒,应收写成5000") },
@@ -115,22 +115,22 @@ export function buildGoldSet(): GoldCase[] {
     fx("007", "交货日期晚于报价有效期", mats("FX-007", {
       quote: { csv: quoteCsv("TY-QT-007,NC-CUST-07,NC-PRJ-07,NX-240,2026-06-01,12,80,500,100,20,10,13,是,2026-06-20,陈晨,已审批,") },
       order: { csv: orderCsv("TY-SO-007,NC-CUST-07,NC-PRJ-07,NX-240,2026-06-25,12,80,2026-07-30,待确认,正常,无异常,陈晨,有效期后下单") },
-    }), [{ field: "date", left: "2026-06-20", right: "2026-06-25" }], ["review_quotation"]),
+    }), [{ field: "date", left: "2026-06-20", right: "2026-06-25" }], ["route_quotation_to_review"]),
     fx("008", "报价仍待审批但订单已生产", mats("FX-008", {
       quote: { csv: quoteCsv("TY-QT-008,NC-CUST-08,NC-PRJ-08,NX-240,2026-06-01,8,70,300,80,20,10,13,是,2026-07-01,陈晨,待审批,") },
       order: { csv: orderCsv("TY-SO-008,NC-CUST-08,NC-PRJ-08,NX-240,2026-06-03,8,70,2026-07-01,生产中,正常,无异常,陈晨,") },
-    }), [{ field: "status", left: "待审批", right: "生产中" }], ["review_quotation"]),
+    }), [{ field: "status", left: "待审批", right: "生产中" }], ["route_quotation_to_review"]),
     fx("009", "报价v2替换v1单价", mats("FX-009", {
       quote: { csv: quoteCsv("TY-QT-009,NC-CUST-09,NC-PRJ-09,NX-240,2026-05-01,30,28.5,400,80,20,10,13,是,2026-06-01,陈晨,已审批,旧版"), version: "v1" },
     }).concat(mats("FX-009b", {
       quote: { csv: quoteCsv("TY-QT-009,NC-CUST-09,NC-PRJ-09,NX-240,2026-06-01,30,18.5,400,80,20,10,13,是,2026-07-01,陈晨,已审批,新版"), version: "v2" },
-    })), [{ field: "amount", left: 28.5, right: 18.5 }], ["review_quotation"]),
+    })), [{ field: "amount", left: 28.5, right: 18.5 }], ["route_quotation_to_review"]),
     fx("010", "客诉无责任部门与负责人", mats("FX-010", {
       complaint: { csv: complaintCsv("TY-CMP-010,NC-CUST-10,NC-PRJ-10,TY-SO-010,2026-08-01,外观,漆面脱落,重大,,,,,,待处理,,,,否,") },
     }), [], ["urge_follow_up"], { expectedGaps: ["complaint.party"], ownerRole: "品质负责人" }),
     fx("011", "客诉描述含越权承诺", mats("FX-011", {
       complaint: { csv: complaintCsv("TY-CMP-011,NC-CUST-11,NC-PRJ-11,TY-SO-011,2026-08-02,售后,销售已口头保证包赔并终身免费,重大,销售部,陈晨,先安抚,待分析,,待处理,,,,否,") },
-    }), [], ["review_quotation"], { expectedGaps: [] }),
+    }), [], ["route_quotation_to_review"], { expectedGaps: [] }),
     fx("012", "同一客户型号三条客诉聚集", mats("FX-012", {
       complaint: { csv: complaintCsv(
         "TY-CMP-012A,NC-CUST-12,NC-PRJ-12,TY-SO-012,2026-08-01,尺寸,偏大,一般,品质部,黄工,,,待处理,,,,否,,\nTY-CMP-012B,NC-CUST-12,NC-PRJ-12,TY-SO-012,2026-08-03,尺寸,偏大,一般,品质部,黄工,,,待处理,,,,否,,\nTY-CMP-012C,NC-CUST-12,NC-PRJ-12,TY-SO-012,2026-08-05,尺寸,偏大,高,品质部,黄工,,,待处理,,,,否,,",
@@ -147,7 +147,7 @@ export function buildGoldSet(): GoldCase[] {
     fx("015", "含税口径冲突", mats("FX-015", {
       quote: { csv: quoteCsv("TY-QT-015,NC-CUST-15,NC-PRJ-15,NX-240,2026-06-01,10,113,500,100,20,10,13,是,2026-07-01,陈晨,已审批,含税") },
       order: { csv: orderCsv("TY-SO-015,NC-CUST-15,NC-PRJ-15,NX-240,2026-06-04,10,100,2026-07-10,待确认,正常,无异常,陈晨,未税") },
-    }), [{ field: "amount", left: 113, right: 100 }], ["review_quotation"]),
+    }), [{ field: "amount", left: 113, right: 100 }], ["route_quotation_to_review"]),
     fx("016", "跨租户材料必须失败", mats("FX-016", {
       quote: { csv: quoteCsv("TY-QT-016,NC-CUST-16,NC-PRJ-16,NX-240,2026-06-01,5,10,10,1,1,1,13,是,2026-07-01,陈晨,已审批,") },
       order: { csv: orderCsv("TY-SO-016,NC-CUST-16,NC-PRJ-16,NX-240,2026-06-04,5,99,2026-07-10,待确认,正常,无异常,陈晨,外来租户"), tenantId: OTHER },
@@ -184,18 +184,18 @@ export function buildGoldSet(): GoldCase[] {
     fx("025", "报价失效后仍下单", mats("FX-025", {
       quote: { csv: quoteCsv("TY-QT-025,NC-CUST-25,NC-PRJ-25,NX-240,2026-05-01,15,60,400,80,20,10,13,是,2026-05-20,陈晨,已失效,") },
       order: { csv: orderCsv("TY-SO-025,NC-CUST-25,NC-PRJ-25,NX-240,2026-06-01,15,60,2026-07-01,待确认,正常,无异常,陈晨,") },
-    }), [{ field: "status", left: "已失效", right: "待确认" }], ["review_quotation"]),
+    }), [{ field: "status", left: "已失效", right: "待确认" }], ["route_quotation_to_review"]),
     fx("026", "单价冲突", mats("FX-026", {
       quote: { csv: quoteCsv("TY-QT-026,NC-CUST-26,NC-PRJ-26,NX-240,2026-06-01,7,55,200,40,10,5,13,是,2026-07-01,陈晨,已审批,") },
       order: { csv: orderCsv("TY-SO-026,NC-CUST-26,NC-PRJ-26,NX-240,2026-06-03,7,48,2026-07-08,待确认,正常,无异常,陈晨,") },
-    }), [{ field: "amount", left: 55, right: 48 }], ["review_quotation"]),
+    }), [{ field: "amount", left: 55, right: 48 }], ["route_quotation_to_review"]),
     fx("027", "重大客诉无负责人", mats("FX-027", {
       complaint: { csv: complaintCsv("TY-CMP-027,NC-CUST-27,NC-PRJ-27,TY-SO-027,2026-08-08,功能,开机失败,重大,品质部,,,,待处理,,,,否,,") },
     }), [], ["urge_follow_up"], { expectedGaps: ["complaint.party"] }),
     fx("028", "两侧官方金额均有出处且无法裁决", mats("FX-028", {
       quote: { csv: quoteCsv("TY-QT-028,NC-CUST-28,NC-PRJ-28,NX-240,2026-06-01,11,200,800,100,20,10,13,是,2026-07-01,陈晨,已审批,批准价") },
       order: { csv: orderCsv("TY-SO-028,NC-CUST-28,NC-PRJ-28,NX-240,2026-06-06,11,180,2026-07-16,待确认,正常,无异常,陈晨,合同价") },
-    }), [{ field: "amount", left: 200, right: 180 }], ["review_quotation"]),
+    }), [{ field: "amount", left: 200, right: 180 }], ["route_quotation_to_review"]),
     fx("029", "对齐案件不应误报冲突", mats("FX-029", {
       quote: { csv: quoteCsv("TY-QT-029,NC-CUST-29,NC-PRJ-29,NX-240,2026-06-01,16,25,200,40,10,5,13,是,2026-07-01,陈晨,已审批,") },
       order: { csv: orderCsv("TY-SO-029,NC-CUST-29,NC-PRJ-29,NX-240,2026-06-02,16,25,2026-07-10,待确认,正常,无异常,陈晨,") },

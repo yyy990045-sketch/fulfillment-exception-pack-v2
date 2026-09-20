@@ -84,6 +84,9 @@ export function policyListFixture(mode: "human_only" | "approval_required" | "au
           financialMovement: false,
           legalEffect: false,
           reversible: true,
+          humanReviewTransition: false,
+          requiresApprovalBeforeExecution: false,
+          materialBusinessEffect: false,
         },
         facts: {
           exceptionCode: "CUSTOMER_RECEIPT_CLAIM_MISMATCH",

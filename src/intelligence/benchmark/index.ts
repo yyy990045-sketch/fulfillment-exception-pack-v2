@@ -5,3 +5,4 @@ export * from "./metrics.js";
 export * from "./pricing.js";
 export * from "./report.js";
 export * from "./cli.js";
+export * from "./v2.js";

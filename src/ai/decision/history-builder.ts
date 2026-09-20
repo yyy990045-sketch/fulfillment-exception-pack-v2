@@ -1,8 +1,16 @@
-import type { ActionType } from "../../types.js";
+import type { PersistedActionType } from "../../types.js";
 import type { V2SqliteStore } from "../../domain/v2/index.js";
 import type { DecisionHistorySummary } from "./types.js";
 
-const ACTIONS: ActionType[] = ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"];
+const ACTIONS: PersistedActionType[] = [
+  "supplement_evidence",
+  "urge_follow_up",
+  "reject_overclaim",
+  "route_quotation_to_review",
+  "approve_or_change_quotation_terms",
+  "review_quotation",
+  "create_task",
+];
 
 function resolutionCategory(status: string, actions: Array<{ status: string }>) {
   if (status === "proposed") return actions.some((action) => action.status === "pending_approval") ? "pending_approval" : "proposed_draft";
@@ -16,7 +24,7 @@ export function buildDecisionHistorySummary(
   currentExceptionId: string,
   exceptionCode: string,
 ): DecisionHistorySummary {
-  const actionTypeCounts = Object.fromEntries(ACTIONS.map((action) => [action, 0])) as Record<ActionType, number>;
+  const actionTypeCounts = Object.fromEntries(ACTIONS.map((action) => [action, 0])) as Record<PersistedActionType, number>;
   const resolutionStatusCounts: Record<string, number> = {};
   let sameExceptionCount = 0;
   let sameExceptionWithResolutionCount = 0;

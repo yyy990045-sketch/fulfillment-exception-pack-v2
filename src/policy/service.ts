@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import type { ActionType } from "../types.js";
 import type { V2SqliteStore } from "../domain/v2/index.js";
 import type { PolicyCandidateSource, PolicyEvaluationRecord } from "../domain/v2/policy-types.js";
-import { getPolicyActionMetadata } from "./action-catalog.js";
+import { getPolicyActionMetadata, isWritableActionType } from "./action-catalog.js";
 import { provisionDefaultDecisionPolicies } from "./definitions.js";
 import { evaluatePolicyDefinitions } from "./evaluator.js";
 import { policySnapshotHash } from "./snapshot.js";
@@ -32,6 +32,7 @@ function currentFacts(store: V2SqliteStore, tenantId: string, contextId: string,
 }
 
 function policyActionMetadata(actionType: ActionType) {
+  if (!isWritableActionType(actionType)) throw new PolicyError("POLICY_ACTION_INVALID", 422);
   const metadata = getPolicyActionMetadata(actionType);
   if (!metadata) throw new PolicyError("POLICY_ACTION_INVALID", 422);
   return metadata;

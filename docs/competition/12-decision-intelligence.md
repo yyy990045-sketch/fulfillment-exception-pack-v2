@@ -68,11 +68,12 @@ Only existing ActionTypes are allowed:
 supplement_evidence
 urge_follow_up
 reject_overclaim
-review_quotation
+route_quotation_to_review
+approve_or_change_quotation_terms
 create_task
 ```
 
-The guard is separate from a future Policy Engine. In Phase 8A, `reject_overclaim` is ineligible because entitlement and policy proof are not available.
+The guard is separate from the Policy Engine. `reject_overclaim` and `approve_or_change_quotation_terms` are ineligible for AI recommendation by default because entitlement, policy proof, or human commercial decision is required. `route_quotation_to_review` is eligible only where the Pack explicitly allows the internal review transition.
 
 # 7 Structured Recommendation
 

@@ -15,12 +15,17 @@ export type CaseStatus =
   | "verified"
   | "closed";
 
+export type LegacyActionType = "review_quotation";
+
 export type ActionType =
   | "supplement_evidence"
   | "urge_follow_up"
   | "reject_overclaim"
-  | "review_quotation"
+  | "route_quotation_to_review"
+  | "approve_or_change_quotation_terms"
   | "create_task";
+
+export type PersistedActionType = ActionType | LegacyActionType;
 
 export type ActionStatus =
   | "draft"
@@ -157,7 +162,7 @@ export type Finding = {
 
 export type ActionRecord = {
   id: string;
-  type: ActionType;
+  type: PersistedActionType;
   summary: string;
   status: ActionStatus;
   idempotencyKey: string;

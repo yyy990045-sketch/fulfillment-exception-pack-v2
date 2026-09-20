@@ -178,7 +178,8 @@ export const installedPacksFixture: SolutionPackInstalledListView = {
         { type: "supplement_evidence", label: "补充证据" },
         { type: "urge_follow_up", label: "跟进催办" },
         { type: "reject_overclaim", label: "驳回超额主张" },
-        { type: "review_quotation", label: "复核报价" },
+        { type: "route_quotation_to_review", label: "送入报价复核" },
+        { type: "approve_or_change_quotation_terms", label: "批准或变更报价条款" },
         { type: "create_task", label: "创建任务" },
       ],
       boundContexts: [{ contextId: "ctx-mfg", businessKey: "SO-MFG-001", contextType: "sales_order", status: "active", updatedAt: createdAt, exceptionCount: 4, resolutionCaseCount: 2, workbenchPath: "/manufacturing/ctx-mfg" }],
@@ -189,7 +190,7 @@ export const installedPacksFixture: SolutionPackInstalledListView = {
       supportedActions: [
         { type: "supplement_evidence", label: "补充证据" },
         { type: "urge_follow_up", label: "跟进催办" },
-        { type: "review_quotation", label: "复核报价" },
+        { type: "route_quotation_to_review", label: "送入报价复核" },
         { type: "create_task", label: "创建任务" },
       ],
       boundContexts: [{ contextId: "ctx-fin", businessKey: "FIN-REC-001", contextType: "finance_reconciliation", status: "active", updatedAt: createdAt, exceptionCount: 3, resolutionCaseCount: 1, workbenchPath: "/workspace/ctx-fin" }],

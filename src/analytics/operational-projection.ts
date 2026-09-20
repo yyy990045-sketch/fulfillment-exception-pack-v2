@@ -1,4 +1,4 @@
-import type { ActionType, CaseStatus } from "../types.js";
+import type { CaseStatus, PersistedActionType } from "../types.js";
 import type {
   FulfillmentContext,
   V2Exception,
@@ -16,7 +16,15 @@ import {
 } from "./operational-types.js";
 import { buildOutcomeAnalytics } from "../outcomes/analytics.js";
 
-const ACTION_TYPES: ActionType[] = ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"];
+const ACTION_TYPES: PersistedActionType[] = [
+  "supplement_evidence",
+  "urge_follow_up",
+  "reject_overclaim",
+  "route_quotation_to_review",
+  "approve_or_change_quotation_terms",
+  "review_quotation",
+  "create_task",
+];
 const ACTION_STATUSES = ["draft", "pending_approval", "authorized", "succeeded", "verified", "failed"] as const;
 
 function resolutionCategory(status: CaseStatus, actions: Array<{ status: string }>): OperationalResolutionStatus {

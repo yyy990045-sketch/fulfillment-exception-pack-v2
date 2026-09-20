@@ -16,7 +16,9 @@ const ACTION_TYPES = {
   supplement_evidence: "补充核验证据",
   urge_follow_up: "催办业务跟进",
   reject_overclaim: "驳回无依据超额主张",
-  review_quotation: "复核报价与订单",
+  route_quotation_to_review: "送入报价复核",
+  approve_or_change_quotation_terms: "批准或变更报价条款",
+  review_quotation: "复核报价与订单（历史）",
   create_task: "创建跟进任务",
 };
 

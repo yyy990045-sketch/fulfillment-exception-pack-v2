@@ -236,7 +236,7 @@ export const decisionFixture: DecisionRecommendationView = {
       },
       {
         id: "option-review",
-        actionType: "review_quotation",
+        actionType: "route_quotation_to_review",
         title: "人工复核",
         actionSummary: "由业务人员复核当前差异。",
         rationale: "需要人工确认后续处理边界。",
@@ -268,6 +268,8 @@ export const decisionFixture: DecisionRecommendationView = {
       supplement_evidence: 0,
       urge_follow_up: 0,
       reject_overclaim: 0,
+      route_quotation_to_review: 0,
+      approve_or_change_quotation_terms: 0,
       review_quotation: 0,
       create_task: 0,
     },

@@ -11,7 +11,7 @@ import { financeRuleContributions } from "./rules.js";
 
 export const financeReconciliationPack: SolutionPack = {
   manifest: FINANCE_RECONCILIATION_MANIFEST,
-  supportedActionTypes: ["supplement_evidence", "urge_follow_up", "review_quotation", "create_task"],
+  supportedActionTypes: ["supplement_evidence", "urge_follow_up", "route_quotation_to_review", "create_task"],
   ruleContributions: financeRuleContributions,
   outcomeDefinitions: financeOutcomeDefinitions,
   presentation: financePresentation,

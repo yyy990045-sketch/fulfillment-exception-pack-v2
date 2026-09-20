@@ -68,9 +68,12 @@ Allowed action types are exactly:
 supplement_evidence
 urge_follow_up
 reject_overclaim
-review_quotation
+route_quotation_to_review
+approve_or_change_quotation_terms
 create_task
 ```
+
+历史持久化记录中的 `review_quotation` 仍可读取，但新提案不再写入该 action。
 
 Every action summary is human-authored. The UI does not use AI output to fill proposal text.
 

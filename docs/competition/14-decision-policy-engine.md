@@ -51,7 +51,8 @@ The catalog describes action effects without adding business logic:
 - `create_task`: internal task
 - `supplement_evidence`: internal evidence request
 - `urge_follow_up`: external communication
-- `review_quotation`: internal review
+- `route_quotation_to_review`: internal review transition
+- `approve_or_change_quotation_terms`: commercial decision
 - `reject_overclaim`: customer-facing financial and legal decision
 
 # 5 Policy DSL
@@ -78,12 +79,15 @@ reject_overclaim -> human_only
 legalEffect=true -> human_only
 financialMovement=true -> human_only
 urge_follow_up -> approval_required
-review_quotation -> approval_required
+route_quotation_to_review -> auto_eligible
+approve_or_change_quotation_terms -> human_only
 internal create_task -> auto_eligible
 internal supplement_evidence -> auto_eligible
 ```
 
 If no policy matches, the result is `human_only`.
+
+`route_quotation_to_review` is itself the transition into human review and therefore does not require a separate pre-review approval gate. `approve_or_change_quotation_terms` is the commercial decision and is human-only.
 
 # 7 Default Deny
 

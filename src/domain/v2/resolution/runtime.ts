@@ -1,4 +1,5 @@
 import type { ActionRecord } from "../../../types.js";
+import { isWritableActionType } from "../../../policy/action-catalog.js";
 import { createHash } from "node:crypto";
 import { approve, assertTransition, execute, submitForApproval, verifyAndClose } from "../../../case/runtime.js";
 import { isAssignableOwnerRole } from "../../../authorization.js";
@@ -147,9 +148,8 @@ export function proposeResolution(
   if (current.status !== "confirmed") throw new Error("resolution_proposal_not_allowed");
   if (!input.actions.length) throw new Error("resolution_actions_required");
   const at = input.proposedAt ?? nowIso();
-  const allowedTypes = new Set<ActionRecord["type"]>(["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"]);
   const actions: ActionRecord[] = input.actions.map((action, index) => {
-    if (!allowedTypes.has(action.type)) throw new Error("invalid_action_type");
+    if (!isWritableActionType(action.type)) throw new Error("invalid_action_type");
     assertHumanText(action.summary, "resolution_action_summary_required");
     return {
       id: `${current.id}-act-${index + 1}`,

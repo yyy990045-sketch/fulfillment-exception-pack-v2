@@ -2488,7 +2488,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+                        actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "create_task";
                     } | {
                         recommendationId: string;
                         optionId: string;
@@ -3699,7 +3699,7 @@ export interface components {
         };
         PackSupportedAction: {
             /** @enum {string} */
-            type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "create_task";
             label: string;
         };
         PackBoundContext: {
@@ -3941,7 +3941,7 @@ export interface components {
             }[];
             actionBreakdown: {
                 /** @enum {string} */
-                type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+                type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
                 total: number;
                 draft: number;
                 pending_approval: number;
@@ -4138,7 +4138,7 @@ export interface components {
         DecisionRecommendationOption: {
             id: string;
             /** @enum {string} */
-            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "create_task";
             title: string;
             actionSummary: string;
             rationale: string;
@@ -4192,6 +4192,8 @@ export interface components {
                     supplement_evidence: number;
                     urge_follow_up: number;
                     reject_overclaim: number;
+                    route_quotation_to_review: number;
+                    approve_or_change_quotation_terms: number;
                     review_quotation: number;
                     create_task: number;
                 };
@@ -4205,7 +4207,7 @@ export interface components {
             };
             eligibility: {
                 /** @enum {string} */
-                actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+                actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "create_task";
                 eligible: boolean;
                 reason: string;
             }[];
@@ -4221,20 +4223,23 @@ export interface components {
         };
         PolicyActionMetadata: {
             /** @enum {string} */
-            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
             /** @enum {string} */
-            effectClass: "internal_task" | "internal_evidence_request" | "external_communication" | "internal_review" | "customer_decision";
+            effectClass: "internal_task" | "internal_evidence_request" | "external_communication" | "internal_review" | "commercial_decision" | "customer_decision";
             customerFacing: boolean;
             financialMovement: boolean;
             legalEffect: boolean;
             reversible: boolean;
+            humanReviewTransition: boolean;
+            requiresApprovalBeforeExecution: boolean;
+            materialBusinessEffect: boolean;
         };
         PolicyContextFacts: {
             exceptionCode: string;
             /** @enum {string} */
             severity: "low" | "medium" | "high" | "critical";
             /** @enum {string} */
-            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
             evidenceCount: number;
             sourceSystemCount: number;
             hasClaimEvidence: boolean;
@@ -4262,7 +4267,7 @@ export interface components {
             contextId: string;
             exceptionId: string;
             /** @enum {string} */
-            candidateActionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            candidateActionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
             /** @enum {string} */
             candidateSource: "human" | "ai_recommendation";
             sourceRecommendationId?: string;
@@ -4299,7 +4304,7 @@ export interface components {
             /** @enum {string} */
             source: "policy_automation";
             /** @enum {string} */
-            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            actionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
             title: string;
             description: string;
             /** @enum {string} */
@@ -4320,7 +4325,7 @@ export interface components {
             exceptionId: string;
             policyEvaluationId: string;
             /** @enum {string} */
-            candidateActionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+            candidateActionType: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "review_quotation" | "create_task";
             sourceRecommendationId?: string;
             sourceOptionId?: string;
             executor: string;
@@ -4519,7 +4524,7 @@ export interface components {
         ResolutionProposalRequest: {
             actions: {
                 /** @enum {string} */
-                type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "review_quotation" | "create_task";
+                type: "supplement_evidence" | "urge_follow_up" | "reject_overclaim" | "route_quotation_to_review" | "approve_or_change_quotation_terms" | "create_task";
                 summary: string;
             }[];
         };

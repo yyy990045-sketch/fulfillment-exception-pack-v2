@@ -57,7 +57,9 @@ export function actionTypeLabel(actionType: string) {
     supplement_evidence: "补充证据",
     urge_follow_up: "跟进催办",
     reject_overclaim: "驳回超额主张",
-    review_quotation: "复核报价",
+    route_quotation_to_review: "送入报价复核",
+    approve_or_change_quotation_terms: "批准或变更报价条款",
+    review_quotation: "复核报价（历史）",
     create_task: "创建任务",
   };
   return labels[actionType] ?? actionType;

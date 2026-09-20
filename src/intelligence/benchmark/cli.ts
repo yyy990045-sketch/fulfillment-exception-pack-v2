@@ -21,6 +21,7 @@ import {
   writeBenchmarkArtifacts,
   type BenchmarkProviderExecution,
 } from "./report.js";
+import { runDecisionBenchmarkV2 } from "./v2.js";
 
 export type DecisionBenchmarkProviderName = "deterministic" | "openai" | "jev";
 
@@ -201,6 +202,12 @@ async function main() {
   const command = process.argv[2] ?? "benchmark";
   if (command === "benchmark") {
     const result = await runDecisionBenchmark();
+    console.log(JSON.stringify(result.summary, null, 2));
+    if (!Object.values(result.summary.providers).some((item) => item.verified)) process.exitCode = 1;
+    return;
+  }
+  if (command === "benchmark-v2") {
+    const result = await runDecisionBenchmarkV2();
     console.log(JSON.stringify(result.summary, null, 2));
     if (!Object.values(result.summary.providers).some((item) => item.verified)) process.exitCode = 1;
     return;

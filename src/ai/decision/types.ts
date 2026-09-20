@@ -1,4 +1,4 @@
-import type { ActionType } from "../../types.js";
+import type { ActionType, PersistedActionType } from "../../types.js";
 import type {
   DecisionRecommendationDisposition,
   DecisionRecommendationRecord,
@@ -15,7 +15,7 @@ import type {
 export type DecisionHistorySummary = {
   sameExceptionCount: number;
   sameExceptionWithResolutionCount: number;
-  actionTypeCounts: Record<ActionType, number>;
+  actionTypeCounts: Record<PersistedActionType, number>;
   resolutionStatusCounts: Record<string, number>;
   closedResolutionCaseCount: number;
   rejectedResolutionCaseCount: number;

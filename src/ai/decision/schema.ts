@@ -15,7 +15,7 @@ export const DECISION_RECOMMENDATION_JSON_SCHEMA = {
         required: ["id", "actionType", "title", "actionSummary", "rationale", "evidenceIds", "supportingFacts", "historyClaims", "assumptions", "missingEvidence"],
         properties: {
           id: { type: "string" },
-          actionType: { type: "string", enum: ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"] },
+          actionType: { type: "string", enum: ["supplement_evidence", "urge_follow_up", "reject_overclaim", "route_quotation_to_review", "approve_or_change_quotation_terms", "create_task"] },
           title: { type: "string" },
           actionSummary: { type: "string" },
           rationale: { type: "string" },

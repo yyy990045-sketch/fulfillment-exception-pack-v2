@@ -5,7 +5,7 @@ export function manufacturingEligibility(exceptionCode: string): PackDecisionEli
     return [{ actionType: "urge_follow_up", eligible: true, reason: "operational_follow_up_available" }];
   }
   if (exceptionCode === "QUOTE_ORDER_QUANTITY_MISMATCH") {
-    return [{ actionType: "review_quotation", eligible: true, reason: "exception_relates_to_quote_and_order" }];
+    return [{ actionType: "route_quotation_to_review", eligible: true, reason: "exception_relates_to_quote_and_order" }];
   }
   return undefined;
 }

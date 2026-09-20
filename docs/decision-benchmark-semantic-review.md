@@ -9,6 +9,8 @@
 
 This review does not reclassify or overwrite the existing Jev live artifacts. Jev remains `LIVE_VERIFIED` for provider/runtime integration. The original decision-quality result remains:
 
+> Implementation note: Decision Action Taxonomy V2 was added after this review. The V1 findings below remain the historical audit of the original `review_quotation` ambiguity.
+
 ```text
 runtime success = 51 / 51
 exactAccuracy = 0.49019607843137253

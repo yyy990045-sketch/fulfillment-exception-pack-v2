@@ -7,7 +7,14 @@ export interface DecisionActionEligibilityResolver {
   resolve(exception: V2Exception): DecisionActionEligibility[];
 }
 
-const ACTIONS: ActionType[] = ["supplement_evidence", "urge_follow_up", "reject_overclaim", "review_quotation", "create_task"];
+const ACTIONS: ActionType[] = [
+  "supplement_evidence",
+  "urge_follow_up",
+  "reject_overclaim",
+  "route_quotation_to_review",
+  "approve_or_change_quotation_terms",
+  "create_task",
+];
 
 export class DefaultDecisionActionEligibilityResolver implements DecisionActionEligibilityResolver {
   resolve(exception: V2Exception): DecisionActionEligibility[] {
@@ -29,6 +36,11 @@ export class DefaultDecisionActionEligibilityResolver implements DecisionActionE
       actionType: "reject_overclaim",
       eligible: false,
       reason: "requires_entitlement_or_policy_proof",
+    });
+    eligible.set("approve_or_change_quotation_terms", {
+      actionType: "approve_or_change_quotation_terms",
+      eligible: false,
+      reason: "requires_human_commercial_decision",
     });
     return ACTIONS.map((actionType) => eligible.get(actionType)!);
   }

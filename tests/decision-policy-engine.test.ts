@@ -50,8 +50,8 @@ describe("Decision Policy Engine", () => {
   it("requires explicit default policy provisioning", () => {
     const store = openStore();
     expect(store.listPolicyDefinitions("demo-manufacturing")).toHaveLength(0);
-    expect(provisionDefaultDecisionPolicies(store, "demo-manufacturing")).toHaveLength(7);
-    expect(store.listPolicyDefinitions("demo-manufacturing")).toHaveLength(7);
+    expect(provisionDefaultDecisionPolicies(store, "demo-manufacturing")).toHaveLength(8);
+    expect(store.listPolicyDefinitions("demo-manufacturing")).toHaveLength(8);
   });
 
   it("maps internal actions to auto_eligible and customer-facing actions to approval", () => {
@@ -61,7 +61,8 @@ describe("Decision Policy Engine", () => {
       ["create_task", "auto_eligible"],
       ["supplement_evidence", "auto_eligible"],
       ["urge_follow_up", "approval_required"],
-      ["review_quotation", "approval_required"],
+      ["route_quotation_to_review", "auto_eligible"],
+      ["approve_or_change_quotation_terms", "human_only"],
       ["reject_overclaim", "human_only"],
     ] as const;
     for (const [actionType, mode] of cases) {
