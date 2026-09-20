@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -195,6 +195,59 @@ describe("sqlite backup and restore safety", () => {
     expect(rows.c).toBe(1);
     expect(integrityCheck(snapshot).ok).toBe(true);
     expect((await sha256File(snapshot)).length).toBe(64);
+  });
+
+  it("clears a stale target WAL so restore cannot silently keep pre-restore data", async () => {
+    const directory = tempDir("fep-ops-stale-wal-");
+    // 备份侧：一份含 NEW 的一致性快照
+    const sourceDb = join(directory, "source.sqlite");
+    const source = openSqlite(sourceDb);
+    source.exec("PRAGMA journal_mode = WAL; CREATE TABLE t(v TEXT); INSERT INTO t VALUES('NEW');");
+    source.exec("PRAGMA wal_checkpoint(TRUNCATE);");
+    source.close();
+    const backupDir = join(directory, "backup");
+    mkdirSync(backupDir, { recursive: true });
+    const backupFile = join(backupDir, "pack-cases.sqlite");
+    createConsistentSnapshot(sourceDb, backupFile);
+
+    // 目标侧：旧数据 OLD 仍留在未 checkpoint 的 -wal 中，且进程被强杀（模拟上次异常退出）。
+    // 这是恢复最常见的真实场景，也是原实现会静默出错的场景：
+    // 覆盖主文件后旧 WAL 会在打开时重放，命令报 restored:true 但读到的仍是 OLD。
+    const target = join(directory, "target.sqlite");
+    const holder = spawn(process.execPath, ["-e", [
+      'const { DatabaseSync } = require("node:sqlite");',
+      `const db = new DatabaseSync(${JSON.stringify(target)});`,
+      'db.exec("PRAGMA journal_mode = WAL; PRAGMA wal_autocheckpoint = 0;");',
+      'db.exec("CREATE TABLE IF NOT EXISTS t(v TEXT); INSERT INTO t VALUES(\'OLD\');");',
+      'process.stdout.write("ready\\n");',
+      'setInterval(() => {}, 1000);',
+    ].join("\n")], { stdio: ["ignore", "pipe", "inherit"] });
+    await new Promise<void>((ready) => holder.stdout!.once("data", () => ready()));
+    expect(existsSync(`${target}-wal`)).toBe(true);
+    holder.kill("SIGKILL");
+    await new Promise((settle) => setTimeout(settle, 300));
+
+    execFileSync("npx", ["tsx", "src/ops/cli/db-restore.ts", "--from", backupDir, "--to", target, "--force"], { encoding: "utf8", stdio: "pipe" });
+
+    const restored = openSqlite(target);
+    const rows = restored.prepare("SELECT v FROM t").all() as Array<{ v: string }>;
+    restored.close();
+    expect(rows.map((row) => row.v)).toEqual(["NEW"]);
+  });
+
+  it("refuses a backup that carries a non-empty -wal (not a consistent snapshot)", () => {
+    const directory = tempDir("fep-ops-backup-wal-");
+    const backupDir = join(directory, "backup");
+    mkdirSync(backupDir, { recursive: true });
+    const backupFile = join(backupDir, "pack-cases.sqlite");
+    const sourceDb = join(directory, "source.sqlite");
+    const source = seedDatabase(sourceDb);
+    source.close();
+    createConsistentSnapshot(sourceDb, backupFile);
+    writeFileSync(`${backupFile}-wal`, "pretend uncommitted frames");
+
+    expect(() => execFileSync("npx", ["tsx", "src/ops/cli/db-restore.ts", "--from", backupDir, "--to", join(directory, "target.sqlite")], { encoding: "utf8", stdio: "pipe" }))
+      .toThrowError(/RESTORE_BACKUP_HAS_STALE_WAL/);
   });
 
   it("refuses to restore over an existing target unless --force is given", () => {

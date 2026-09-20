@@ -55,8 +55,29 @@ npm run db:restore -- --from backups/20260920-201530 --to /data/pack-cases.sqlit
 sha256 与 manifest 不一致 → RESTORE_CHECKSUM_MISMATCH
 源或目标的 SQLite 完整性检查失败 → RESTORE_BACKUP_INTEGRITY_FAILED / RESTORE_TARGET_INTEGRITY_FAILED
 备份 schema 高于当前应用支持（无 unknown 版本）→ RESTORE_SCHEMA_UNSUPPORTED
+备份旁边带着非空 -wal（不是一致性快照）→ RESTORE_BACKUP_HAS_STALE_WAL
+复制后目标 sha256 与备份不一致 → RESTORE_COPY_INCOMPLETE
 恢复后首次打开只做 forward migration，不会 downgrade、不会重建
 ```
+
+### 目标侧 WAL 旁文件必须先清掉
+
+这是本手册里最容易踩、而且**最隐蔽**的一条：
+
+```text
+若目标位置残留着旧库的 -wal（上次异常退出、或恢复时服务仍在运行），
+把备份主文件覆盖上去之后，SQLite 下次打开会把旧 WAL 里的页重放到新主文件上。
+于是命令报 restored:true、integrity_check 也是 ok，但读出来的是恢复之前的旧数据。
+```
+
+`db:restore` 因此会在复制**前后**删除目标侧的 `<db>-wal` / `<db>-shm`，并复检复制后的
+sha256 与 `integrity_check`。`tests/ops-runtime.test.ts` 里有一条专门的回归测试
+（先造出未 checkpoint 的 -wal 并强杀写入进程，再恢复，断言读到的是备份里的数据）。
+
+运维侧仍然应当：**恢复前先停掉服务**，避免恢复过程中仍有进程持有该库。
+
+> 注意：`db:verify-backup` 与 `ops:recovery-drill` 都恢复到全新的空路径，所以它们
+> 天然不会覆盖这条路径——这也正是该缺陷只在「覆盖已有库」时才暴露的原因。
 
 ## 恢复验证：`npm run db:verify-backup`
 
