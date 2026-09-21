@@ -1,0 +1,21 @@
+{
+  "projectName": "fulfillment-exception-pack",
+  "version": "0.1.0",
+  "releaseLine": "competition-candidate",
+  "commitSha": "c198add5093be2d27fbd26757dd6cd5c1489ecce",
+  "judgeScenario": "production-shortfall",
+  "judgeCommand": "npm run demo:judge",
+  "implementedCapabilities": ["evidence-trace", "traceability-gate", "industrial-simulator", "uns-semantic-layer", "rbac", "tenant-isolation", "backup-recovery", "human-governance", "execution-read-back"],
+  "locallyVerifiedCapabilities": ["judge-demo", "evidence-replay-idempotency", "simulated-industrial-scenarios", "local-superset-history"],
+  "contractVerifiedCapabilities": ["open-supos-inbound-connector", "uns-mqtt-boundary", "optional-powerbi-surface", "optional-jev-provider-surface"],
+  "blockedCapabilities": ["license-decision", "current-environment-superset-embed", "real-open-supos-runtime"],
+  "notVerifiedCapabilities": ["real-customer", "real-factory", "real-mes", "production-deployment"],
+  "truthBoundary": { "realCustomerVerified": false, "realFactoryVerified": false, "realMesVerified": false, "realOpenSuposRuntimeVerified": false, "productionDeploymentVerified": false },
+  "requiredRuntime": { "node": ">=22.5.0", "packageManager": "npm", "coreDemoExternalServices": false },
+  "optionalIntegrations": {
+    "superset": { "implemented": true, "localDashboardVerified": true, "currentEnvironmentVerification": "BLOCKED_BY_ENVIRONMENT" },
+    "openSupos": { "implemented": true, "unsMqttContract": "LOCALLY_VERIFIED", "runtime": "NOT_VERIFIED" },
+    "powerbi": { "implemented": true, "runtime": "NOT_VERIFIED" },
+    "jev": { "implemented": true, "runtime": "NOT_VERIFIED" }
+  }
+}

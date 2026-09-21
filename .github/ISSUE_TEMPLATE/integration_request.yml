@@ -1,0 +1,30 @@
+name: Integration request
+description: Propose an external or industrial connector
+title: "[integration] "
+body:
+  - type: input
+    id: source_system
+    attributes:
+      label: Source system
+  - type: input
+    id: protocol
+    attributes:
+      label: Protocol or API
+  - type: textarea
+    id: payload
+    attributes:
+      label: Payload example
+      description: Provide a redacted example only.
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Mapping requirement
+  - type: input
+    id: tenant
+    attributes:
+      label: Tenant requirement
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Verification evidence
+      description: Explain whether evidence is contract-only, local, or from a real runtime.

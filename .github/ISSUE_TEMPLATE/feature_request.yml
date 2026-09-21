@@ -1,0 +1,18 @@
+name: Feature request
+description: Propose a bounded change
+title: "[feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and evidence
+      description: Describe the user problem and the evidence for it.
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Truth boundary
+      description: State what would remain simulated, local, contract-only, or unverified.
+    validations:
+      required: true
