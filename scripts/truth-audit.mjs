@@ -9,7 +9,7 @@ const findings = [];
 async function walk(path) {
   const info = await stat(path);
   if (info.isDirectory()) for (const child of await readdir(path)) await walk(resolve(path, child));
-  else if (/\.(md|json|yml|yaml|ts|tsx)$/.test(path)) {
+  else if (/\.(md|json|yml|yaml|ts|tsx)$/.test(path) && !path.endsWith("docs/open-source/truth-audit.json")) {
     const text = await readFile(path, "utf8");
     const matches = [...text.matchAll(risky)].map((match) => match[0]);
     if (matches.length) findings.push({ file: path.slice(root.length + 1), count: matches.length, review: "context-required" });
@@ -22,14 +22,14 @@ async function collectText(path) {
     const info = await stat(path);
     if (info.isDirectory()) {
       for (const child of await readdir(path)) await collectText(resolve(path, child));
-    } else if (/\.(md|json|yml|yaml|ts|tsx)$/.test(path)) {
+    } else if (/\.(md|json|yml|yaml|ts|tsx)$/.test(path) && !path.endsWith("docs/open-source/truth-audit.json")) {
       markerTexts.push(await readFile(path, "utf8"));
     }
   } catch { /* optional paths are handled as absent */ }
 }
 for (const target of targets) await collectText(resolve(root, target));
 const missing = boundaryMarkers.filter((marker) => !markerTexts.join("\n").includes(marker));
-const report = { generatedAt: new Date().toISOString(), status: missing.length === 0 ? "TRUTH_CLAIM_AUDIT_LOCALLY_VERIFIED" : "TRUTH_CLAIM_AUDIT_BLOCKED", boundaryMarkersMissing: missing, riskyTermFiles: findings };
+const report = { status: missing.length === 0 ? "TRUTH_CLAIM_AUDIT_LOCALLY_VERIFIED" : "TRUTH_CLAIM_AUDIT_BLOCKED", boundaryMarkersMissing: missing, riskyTermFiles: findings };
 await mkdir(resolve(root, "docs/open-source"), { recursive: true });
 await writeFile(resolve(root, "docs/open-source/truth-audit.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(report.status);
