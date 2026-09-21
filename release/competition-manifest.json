@@ -2,7 +2,7 @@
   "projectName": "fulfillment-exception-pack",
   "version": "0.1.0",
   "releaseLine": "competition-candidate",
-  "commitSha": "c198add5093be2d27fbd26757dd6cd5c1489ecce",
+  "commitSha": "ee455708ae8fe48cd63b7c2cb7d61b638a5d4c18",
   "judgeScenario": "production-shortfall",
   "judgeCommand": "npm run demo:judge",
   "implementedCapabilities": ["evidence-trace", "traceability-gate", "industrial-simulator", "uns-semantic-layer", "rbac", "tenant-isolation", "backup-recovery", "human-governance", "execution-read-back"],
