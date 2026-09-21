@@ -83,6 +83,22 @@ async function spawnGateServer(input: { port: number; demoMode: boolean; provide
   return gateChild;
 }
 
+/**
+ * gate server 端口表。全部在 beforeAll 并发预启动。
+ *
+ * 为什么必须预启动：每个 gate server 都是一台冷启动的 `tsx` 进程（解释启动 + 模块加载 +
+ * SQLite 初始化），其内部健康等待预算为 15s，而 vitest 默认 per-test 预算是 5s。
+ * 把冷启动放在测试体内，满负载并行时会被外层 5s 掐断，真正的诊断信息
+ * （"server did not become healthy"）永远没机会打印。预启动后测试体只做请求断言。
+ */
+const GATE_PORTS = {
+  noProvider: gatePort,
+  unknownProvider: gatePort + 1,
+  productionDeterministic: gatePort + 2,
+  getIndependent: gatePort + 3,
+  openaiWithoutKey: gatePort + 4,
+} as const;
+
 beforeAll(async () => {
   storeDir = mkdtempSync(join(tmpdir(), "fep-grounded-http-"));
   process.env.PACK_STORE_DIR = storeDir;
@@ -90,8 +106,15 @@ beforeAll(async () => {
   provisionV2DemoData();
   const evaluated = evaluateContextRules(openV2SqliteStore(), "demo-industrial", "ctx-so-demo-001")!;
   exceptionId = evaluated.exceptions.find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")!.id;
-  child = await spawnGateServer({ port, demoMode: true, provider: "deterministic" });
-});
+  [child] = await Promise.all([
+    spawnGateServer({ port, demoMode: true, provider: "deterministic" }),
+    spawnGateServer({ port: GATE_PORTS.noProvider, demoMode: true }),
+    spawnGateServer({ port: GATE_PORTS.unknownProvider, demoMode: true, provider: "unknown-provider" }),
+    spawnGateServer({ port: GATE_PORTS.productionDeterministic, demoMode: false, provider: "deterministic" }),
+    spawnGateServer({ port: GATE_PORTS.getIndependent, demoMode: true }),
+    spawnGateServer({ port: GATE_PORTS.openaiWithoutKey, demoMode: true, provider: "openai" }),
+  ]);
+}, 30_000);
 
 afterAll(() => {
   child?.kill("SIGTERM");
@@ -173,8 +196,7 @@ describe("grounded AI explanation HTTP boundary", () => {
   });
 
   it("fails closed when the deterministic provider is not explicitly configured", async () => {
-    const targetPort = gatePort;
-    await spawnGateServer({ port: targetPort, demoMode: true });
+    const targetPort = GATE_PORTS.noProvider;
     const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
     const countBefore = openV2SqliteStore().listGroundedExplanations("demo-industrial", "ctx-so-demo-001", exceptionId).length;
     const response = await callAt(targetPort, "POST", path, {});
@@ -185,8 +207,7 @@ describe("grounded AI explanation HTTP boundary", () => {
   });
 
   it("rejects unknown provider names", async () => {
-    const targetPort = gatePort + 1;
-    await spawnGateServer({ port: targetPort, demoMode: true, provider: "unknown-provider" });
+    const targetPort = GATE_PORTS.unknownProvider;
     const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
     const response = await callAt(targetPort, "POST", path, {});
     expect(response.status).toBe(503);
@@ -194,8 +215,7 @@ describe("grounded AI explanation HTTP boundary", () => {
   });
 
   it("rejects OpenAI without an explicit API key", async () => {
-    const targetPort = gatePort + 4;
-    await spawnGateServer({ port: targetPort, demoMode: true, provider: "openai" });
+    const targetPort = GATE_PORTS.openaiWithoutKey;
     const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
     const response = await callAt(targetPort, "POST", path, {});
     expect(response.status).toBe(503);
@@ -203,8 +223,7 @@ describe("grounded AI explanation HTTP boundary", () => {
   });
 
   it("rejects deterministic provider outside demo mode", async () => {
-    const targetPort = gatePort + 2;
-    await spawnGateServer({ port: targetPort, demoMode: false, provider: "deterministic" });
+    const targetPort = GATE_PORTS.productionDeterministic;
     const path = `/api/v2/contexts/ctx-so-demo-001/exceptions/${exceptionId}/explanations`;
     const response = await callAt(targetPort, "POST", path, {}, { Authorization: `Bearer ${productionToken()}` });
     expect(response.status).toBe(503);
@@ -216,8 +235,7 @@ describe("grounded AI explanation HTTP boundary", () => {
     const generated = await call("POST", path, {});
     expect(generated.status).toBe(200);
     const explanationId = (generated.json.explanation as { id: string }).id;
-    const targetPort = gatePort + 3;
-    await spawnGateServer({ port: targetPort, demoMode: true });
+    const targetPort = GATE_PORTS.getIndependent;
     const list = await callAt(targetPort, "GET", path);
     const detail = await callAt(targetPort, "GET", `${path}/${explanationId}`);
     expect(list.status).toBe(200);

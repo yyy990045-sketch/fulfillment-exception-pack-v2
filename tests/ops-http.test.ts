@@ -56,6 +56,9 @@ async function waitFor(url: string, timeoutMs = 25_000) {
   throw new Error(`server not healthy: ${url}`);
 }
 
+let shutdownChild: ChildProcess | undefined;
+let shutdownBase = "";
+
 beforeAll(async () => {
   storeDir = mkdtempSync(join(tmpdir(), "fep-ops-http-"));
   process.env.PACK_STORE_DIR = storeDir;
@@ -65,15 +68,21 @@ beforeAll(async () => {
   exceptionId = evaluated.exceptions[0]!.id;
 
   base = `http://127.0.0.1:${basePort}`;
-  server = startServer(basePort, {});
-  await waitFor(`${base}/api/health`);
+  // 三台服务器并发预启动：测试体内只做请求与信号断言，不承担冷启动成本。
+  const shutdownPort = basePort + 11;
+  shutdownBase = `http://127.0.0.1:${shutdownPort}`;
+  [server, shutdownChild] = await Promise.all([
+    Promise.resolve(startServer(basePort, {})),
+    Promise.resolve(startServer(shutdownPort, {})),
+  ]);
+  await Promise.all([waitFor(`${base}/api/health`), waitFor(`${shutdownBase}/api/health`)]);
 });
 
 afterAll(async () => {
-  if (server && server.exitCode === null) {
-    server.kill("SIGKILL");
-    await new Promise((resolve) => setTimeout(resolve, 300));
+  for (const instance of [server, shutdownChild]) {
+    if (instance && instance.exitCode === null) instance.kill("SIGKILL");
   }
+  await new Promise((resolve) => setTimeout(resolve, 300));
   rmSync(storeDir, { recursive: true, force: true });
 });
 
@@ -166,11 +175,12 @@ describe("request id and structured logs", () => {
 });
 
 describe("graceful shutdown", () => {
+  // 这条用例等的是**进程退出**，内部等待上限 12s（超时后 resolve(null) 并断言失败，
+  // 因此不会挂死）。外层 per-test 预算必须不小于它，否则 5s 默认值会在内部上限
+  // 生效之前掐断用例，把"退出太慢"这个真实信号变成一条没有诊断价值的 timeout。
   it("exits cleanly on SIGTERM after closing the server", async () => {
-    const port = basePort + 11;
-    const child = startServer(port, {});
-    const childBase = `http://127.0.0.1:${port}`;
-    await waitFor(`${childBase}/api/health`);
+    const child = shutdownChild!;
+    await waitFor(`${shutdownBase}/api/health`);
     const exitCode = await new Promise<number | null>((resolve) => {
       child.once("exit", (code) => resolve(code));
       child.kill("SIGTERM");
@@ -179,7 +189,7 @@ describe("graceful shutdown", () => {
     expect(exitCode).toBe(0);
     const shutdownLogged = logLines.some((line) => line.includes("ops.shutdown.complete"));
     expect(shutdownLogged).toBe(true);
-  });
+  }, 20_000);
 });
 
 describe("readiness gating for explicitly required integrations", () => {

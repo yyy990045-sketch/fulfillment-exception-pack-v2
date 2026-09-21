@@ -62,7 +62,8 @@
 | F1 | 一条命令完成核心演示 | CLI 11 阶段全 PASS | `npm install && npm run demo:judge` | `JUDGE_DEMO_VERIFIED` | LOCALLY_VERIFIED |
 | F2 | 不依赖 Power BI / Superset / open supOS 运行时 / 外部 AI | `--ai none` 时 10/11 阶段通过；BI 不可用不影响 `[11] Analytics` | `npm run demo:judge -- --ai none` | 阶段报告 | LOCALLY_VERIFIED |
 | F3 | 清场命令安全：只删 judge 专属工作区 | 路径安全闸门拒绝仓库根 / `.preview` / HOME / `.sqlite` / 越界路径 | `npm test -- judge-demo`；`npm run demo:judge:reset` | `JUDGE_WORKSPACE_RESET ok=true` | LOCALLY_VERIFIED |
-| F4 | 全量测试通过 | 后端 590+ / 前端 / e2e / typecheck / eval | `npm test && npm run frontend:test && npm run frontend:e2e && npm run typecheck && npm run eval` | 见提交说明 | LOCALLY_VERIFIED |
+| F4 | 全量测试通过且结果可复现（不是"偶尔绿"） | 后端 86 文件 / **620 用例全绿**、前端 68/68、e2e 6/6、typecheck、eval | `npm test && npm run frontend:test && npm run frontend:e2e && npm run typecheck && npm run eval` | 一次干净运行约 65s，无 failed/skipped 之外的不确定性 | LOCALLY_VERIFIED |
+| F4b | 既有 flaky 已做根因审计并修复（不是放大超时） | 4 处 flaky 全部定位到「内部等待预算 > 外层预算」或「等待了非 UI 信号」；记录在 `docs/operations/production-operations.md` | `npm test`（跑前先清理残留 `src/server.ts`） | 同上 | LOCALLY_VERIFIED |
 | F5 | 备份恢复与灾备可复现 | `db:verify-backup` 10/10；`ops:recovery-drill` 12/12 | `npm run db:verify-backup && npm run ops:recovery-drill` | `BACKUP_RESTORE_VERIFIED` / `RECOVERY_DRILL_VERIFIED` | LOCALLY_VERIFIED |
 | F6 | Superset 嵌入链路 | 本机无 Docker，无法启动 Superset | `npm run superset:verify-embed` | `ECONNREFUSED 127.0.0.1:8088` | **BLOCKED_BY_ENVIRONMENT**（此前已有真实本地验证历史，本轮不复核） |
 | F7 | Power BI 嵌入 | 未配置凭据 | — | — | **NOT_VERIFIED** |
