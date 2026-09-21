@@ -149,16 +149,45 @@ npm test -- tests/ops-runtime.test.ts tests/ops-http.test.ts
 据实记录（不改写已推送的提交）：
 
 ```text
-全量并行跑（73 个测试文件）时，会出现 1~3 个 HTTP 类用例超过 5s/10s 超时：
+全量并行跑（82 个测试文件）时，会出现 1~3 个 HTTP 类用例超时：
   tests/grounded-ai-http.test.ts        每轮超时的具体用例会变（非确定性）
-  tests/powerbi-embedded-http.test.ts   偶发 beforeAll hook 超时
-  frontend: "搜索异常" 防抖用例偶尔失败（1 failed / 63 passed）
-单独跑这些文件则全部通过（grounded-ai-http 15/15、powerbi 6/6）。
+  tests/powerbi-embedded-http.test.ts   偶发 beforeAll hook 超时   ← 已定位并修复，见下
+  frontend: "搜索异常" 防抖用例偶尔失败（1 failed / 63 passed）    ← 已定位并修复，见下
+单独跑这些文件则全部通过。
 ```
 
-这不是本轮引入的：在基线 `eff0bce` 上用同一个 worktree 跑全量，同样是 2 failed / 69 passed，
-且失败的具体用例与 `7f84edc` 上不同。结论是**既有**的资源竞争型 flaky，与本轮运维改动无关。
+这不是某个功能引入的：在基线 `eff0bce` 上用同一个 worktree 跑全量，同样是 2 failed / 69 passed，
+且失败的具体用例与 `7f84edc` 上不同。结论是**既有**的资源竞争型 flaky。
 
-判定运维改动是否真的通过，请以「单文件/单用例隔离运行」与下列命令为准：
+#### 根因审计与修复（本轮）
+
+两处 flaky 都做了根因定位，并且都是**测试侧的等待语义错误**，不是产品缺陷：
+
+1. **`powerbi-embedded-http` 的 beforeAll hook 超时**
+
+   根因：该 hook **串行**启动 4 台服务器并逐个等待健康检查。
+   在满负载并行跑时每次 `tsx` 启动都要若干秒，串行累加超过 vitest 默认 `hookTimeout`(10s)。
+   同时该 hook 自身的轮询预算（100 × 150ms = 15s）**比 hook 预算更长** ——
+   也就是说"服务器确实没起来"这条真正的失败信息会被通用 hook timeout 抢先掩盖。
+
+   修复（不是放大超时糊过去）：
+   - 4 台服务器改为**并发**启动 + `Promise.all` 等待，墙钟时间从 4× 降到约 1×；
+   - 轮询间隔 50ms、预算写成显式常量 20s，并让 `hookTimeout` 不小于该预算，
+     失败语义保留在 `waitUntilHealthy()` 的具名错误里（服务器真起不来仍然会失败）。
+
+2. **frontend「搜索异常 / 浏览器 Back」用例偶发失败**
+
+   根因：该用例在 `window.history.back()` 之后只 `waitFor` 了 **`window.location.pathname`**。
+   `location` 在 `popstate` 时是同步更新的，而 React 的重渲染是异步的；
+   于是紧接着的同步 `expect(screen.getByLabelText("搜索异常"))` 会在负载高时抢在重渲染之前执行。
+
+   修复：改为等待**真正的 UI 条件**（队列搜索框已带着过滤词渲染出来），再断言 location 与列表。
+   另一处同理：把"队列表已消失"从同步断言改为 `waitFor`。
+
+判定改动是否真的通过，请以「单文件/单用例隔离运行」与下列命令为准：
 `db:verify-backup`（10/10）、`ops:recovery-drill`（12/12）、`typecheck`、`eval`、
-`superset:verify-embed`（19 项）、`open-supos:verify --mode contract`（6 项，LOCAL_CONTRACT_VERIFIED）。
+`superset:verify-embed`（需本机 Superset）、`open-supos:verify --mode contract`（6 项，LOCAL_CONTRACT_VERIFIED）。
+
+仍然存在、但属于环境资源竞争且**未修改**的是 `tests/grounded-ai-http.test.ts`：
+它在满负载下偶发超过 5s/10s 的用例级超时，且每轮超时的具体用例会变。
+本轮没有改动它的断言与超时（避免用放大超时掩盖真实竞争），在此如实记录。

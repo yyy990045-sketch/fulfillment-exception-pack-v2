@@ -161,8 +161,8 @@ describe("Manufacturing information architecture", () => {
     await user.click(screen.getByRole("button", { name: /回款未结清/ }));
     await waitFor(() => expect(window.location.pathname).toBe("/manufacturing/ctx-fixture/exceptions/exception-payment/overview"));
     expect(new URLSearchParams(window.location.search).get("q")).toBe("回款");
-    expect(screen.queryByTestId("exception-queue-table")).not.toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "回款未结清" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByTestId("exception-queue-table")).not.toBeInTheDocument());
   });
 
   it("returns from an exception to the filtered queue with browser Back", async () => {
@@ -175,8 +175,10 @@ describe("Manufacturing information architecture", () => {
     await user.click(screen.getByRole("button", { name: /回款未结清/ }));
     await screen.findByRole("heading", { name: "回款未结清" });
     window.history.back();
-    await waitFor(() => expect(window.location.pathname).toBe("/manufacturing/ctx-fixture"));
-    expect(screen.getByLabelText("搜索异常")).toHaveValue("回款");
+    // 等待真正的 UI 条件（队列搜索框已带着过滤词渲染），而不是等 window.location：
+    // popstate 后 location 是同步更新的，React 还没重渲染，同步断言会偶发失败。
+    await waitFor(() => expect(screen.getByLabelText("搜索异常")).toHaveValue("回款"));
+    expect(window.location.pathname).toBe("/manufacturing/ctx-fixture");
     expect(screen.getAllByTestId("exception-item")).toHaveLength(1);
   });
 

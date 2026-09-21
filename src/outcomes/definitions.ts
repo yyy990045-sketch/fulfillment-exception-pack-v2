@@ -55,6 +55,22 @@ export const DEFAULT_MANUFACTURING_OUTCOME_DEFINITIONS: OutcomeDefinitionInput[]
     enabled: true,
     metadata: { syntheticPortfolio: true, unit: "quantity" },
   },
+  {
+    // 比赛主场景（生产缺口）的结果定义。
+    // 基线取自异常的 shortfall 指标；当前值取自执行回读后 MES 回报的剩余缺口。
+    // 它测量「缺口是否归零」，**不**主张是某个处置动作导致了归零。
+    id: "outcome-order-production-shortfall-closed",
+    version: "1.0.0",
+    name: "Production completion shortfall closed",
+    exceptionCode: "ORDER_PRODUCTION_COMPLETION_SHORTFALL",
+    baselineMetricKey: "shortfall",
+    currentEvidenceField: "remainingShortfall",
+    comparison: "eq",
+    targetValue: 0,
+    betterDirection: "lower",
+    enabled: true,
+    metadata: { syntheticPortfolio: true, unit: "quantity", source: "execution_readback" },
+  },
 ];
 
 export function provisionDefaultManufacturingOutcomeDefinitions(

@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, Building2, ChartNoAxesCombined, ChevronDown, Menu, ShieldAlert, UserRound } from "lucide-react";
+import { BarChart3, Boxes, Building2, ChartNoAxesCombined, ChevronDown, Gavel, Menu, ShieldAlert, UserRound } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ const navItems = [
   { to: "/manufacturing/operations", label: "运营视图", icon: ChartNoAxesCombined },
   { to: "/manufacturing/analytics", label: "分析", icon: BarChart3 },
   { to: "/manufacturing/workspace", label: "方案包", icon: Boxes },
+  { to: "/manufacturing/demo/judge", label: "评委视图", icon: Gavel },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

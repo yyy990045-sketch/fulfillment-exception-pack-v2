@@ -848,6 +848,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/demo/judge/manifest": {
+        parameters: {
+            query?: {
+                /** @description Defaults to the context carrying the main production-shortfall exception */
+                contextId?: string;
+                exceptionId?: string;
+            };
+            header?: {
+                /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                "x-actor"?: components["parameters"]["DemoActorHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Defaults to the context carrying the main production-shortfall exception */
+                    contextId?: string;
+                    exceptionId?: string;
+                };
+                header?: {
+                    /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
+                    "x-tenant-id"?: components["parameters"]["DemoTenantHeader"];
+                    /** @description Development-only actor selector for demo writes. Production uses the bearer subject. */
+                    "x-actor"?: components["parameters"]["DemoActorHeader"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Read-only judge acceptance projection of already-persisted facts (same document that demo:judge writes to .preview/judge-demo/evidence.json). It creates no new data. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JudgeEvidenceManifest"];
+                    };
+                };
+                401: components["responses"]["Unauthorized"];
+                404: components["responses"]["NotFound"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/analytics/operational": {
         parameters: {
             query?: {
@@ -3727,6 +3782,26 @@ export interface components {
             sourceSystems: {
                 [key: string]: unknown;
             }[];
+        };
+        /** @description Judge-facing acceptance manifest. Nested shapes are intentionally not exhaustively modelled here; the authoritative producer is src/demo/judge/manifest.ts. */
+        JudgeEvidenceManifest: {
+            schemaVersion: string;
+            /** Format: date-time */
+            generatedAt: string;
+            scenario: string;
+            scenarioLabel?: string;
+            businessQuestion: string;
+            businessFacts: {
+                orderedQuantity: number;
+                productionCompletedQuantity: number;
+                difference: number;
+                unit: string;
+            };
+            truthBoundary: {
+                [key: string]: unknown;
+            };
+        } & {
+            [key: string]: unknown;
         };
         V2ManufacturingWorkbenchResponse: {
             context: {

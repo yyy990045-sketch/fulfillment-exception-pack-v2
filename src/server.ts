@@ -92,6 +92,8 @@ import {
 import { assertStartupSafety } from "./ops/startup.js";
 import { buildOpsStatus, evaluateReadiness } from "./ops/readiness.js";
 import { resolveDatabasePaths } from "./ops/db-path.js";
+import { defaultUnsStreamPath, evaluateTraceabilityGate } from "./traceability/index.js";
+import { buildJudgeManifest, readExecutionReadbackArtifact, resolveJudgeContextId } from "./demo/judge/index.js";
 import {
   RESOLUTION_APPROVER_ROLES,
   RESOLUTION_OWNER_ROLES,
@@ -158,6 +160,23 @@ function getV2Store() {
 function storeDatabase() {
   if (!v2Store) return undefined;
   return v2StoreDatabase;
+}
+
+/**
+ * 原始载荷留存路径（回源闸门用它重算 rawHash）。
+ *
+ * 默认指向 judge demo 工作区；可用 JUDGE_UNS_STREAM 指向真实部署里保存的原始响应/对象存储清单。
+ * 拿不到载荷时闸门一律 fail-closed，不会把"未检查"当成"已验证"。
+ */
+function resolveTraceabilityStreamPath() {
+  const configured = process.env.JUDGE_UNS_STREAM?.trim();
+  return configured ? resolve(configured) : defaultUnsStreamPath();
+}
+
+/** 执行回读产物路径（judge demo 写入；缺失时 judge manifest 显示 not_started）。 */
+function resolveReadbackArtifactPath() {
+  const configured = process.env.JUDGE_READBACK_ARTIFACT?.trim();
+  return configured ? resolve(configured) : join(dirname(resolveTraceabilityStreamPath()), "execution-readback.json");
 }
 
 function exceptionListItem(store: V2SqliteStore, tenantId: string, exception: V2Exception) {
@@ -467,6 +486,8 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       (
         url.pathname === "/operations" ||
         url.pathname === "/operations/" ||
+        url.pathname === "/demo/judge" ||
+        url.pathname === "/demo/judge/" ||
         url.pathname === "/analytics" ||
         url.pathname === "/analytics/" ||
         url.pathname === "/workspace" ||
@@ -1096,6 +1117,26 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       if (!view) return json(res, 404, { error: "not_found" });
       return json(res, 200, view);
     }
+    if (req.method === "GET" && url.pathname === "/api/v2/demo/judge/manifest") {
+      // 比赛评委视图：现有数据的只读聚合，不新增 Dashboard、不产生新数据。
+      const auth = authOf(req);
+      assertScope(auth, "context:read");
+      const tenantId = auth.tenantId;
+      const store = getV2Store();
+      const requested = url.searchParams.get("contextId");
+      const contextId = requested ?? resolveJudgeContextId(store, tenantId);
+      if (!contextId) return json(res, 404, { error: "no_context_available" });
+      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
+      const exceptionId = url.searchParams.get("exceptionId");
+      return json(res, 200, buildJudgeManifest({
+        store,
+        tenantId,
+        contextId,
+        exceptionId,
+        payloadSourcePath: resolveTraceabilityStreamPath(),
+        readback: readExecutionReadbackArtifact(resolveReadbackArtifactPath()),
+      }));
+    }
     if (req.method === "GET" && url.pathname === "/api/cases") {
       const auth = authOf(req);
       const tenantId = auth.tenantId;
@@ -1396,6 +1437,32 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       if (action === "approve") {
         if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
         assertResolutionPermission(canApproveResolution(actor, current));
+        // 回源闸门：证据无法回源时，异常保留但不允许进入审批（fail-closed）。
+        const gate = evaluateTraceabilityGate({
+          store,
+          tenantId,
+          contextId: current.contextId,
+          exceptionId: current.exceptionId,
+          payloadSourcePath: resolveTraceabilityStreamPath(),
+          stage: "approval",
+        });
+        if (!gate.decision.allowed) {
+          recordSecurityAudit(store, {
+            auth,
+            action: "resolution.approve",
+            resourceType: "resolution_case",
+            resourceId: caseId,
+            result: "denied",
+            metadata: { reasonCode: gate.decision.reasonCode, traceStatus: gate.trace.status },
+          });
+          return json(res, 409, {
+            error: gate.decision.reasonCode,
+            status: gate.decision.status,
+            reason: gate.decision.reason,
+            traceStatus: gate.trace.status,
+            failures: gate.decision.failures,
+          });
+        }
         const resolution = approveResolutionCase(store, tenantId, caseId, actor);
         recordSecurityAudit(store, {
           auth,
@@ -1410,6 +1477,31 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       if (action === "execute") {
         if (input.actor !== undefined || input.roles !== undefined) return json(res, 400, { error: "actor_and_roles_from_auth_required" });
         assertResolutionPermission(canExecuteResolution(actor, current));
+        const executeGate = evaluateTraceabilityGate({
+          store,
+          tenantId,
+          contextId: current.contextId,
+          exceptionId: current.exceptionId,
+          payloadSourcePath: resolveTraceabilityStreamPath(),
+          stage: "execution",
+        });
+        if (!executeGate.decision.allowed) {
+          recordSecurityAudit(store, {
+            auth,
+            action: "resolution.execute",
+            resourceType: "resolution_case",
+            resourceId: caseId,
+            result: "denied",
+            metadata: { reasonCode: executeGate.decision.reasonCode, traceStatus: executeGate.trace.status },
+          });
+          return json(res, 409, {
+            error: executeGate.decision.reasonCode,
+            status: executeGate.decision.status,
+            reason: executeGate.decision.reason,
+            traceStatus: executeGate.trace.status,
+            failures: executeGate.decision.failures,
+          });
+        }
         const idempotencyKey = typeof input.idempotencyKey === "string" && input.idempotencyKey.trim() ? input.idempotencyKey.trim() : undefined;
         const resolution = executeResolutionCase(store, tenantId, caseId, actor, idempotencyKey);
         recordSecurityAudit(store, {

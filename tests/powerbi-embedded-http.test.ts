@@ -29,16 +29,25 @@ function jwt(claims: { tenantId: string; scopes: string[] }) {
   return `${header}.${payload}.${signature}`;
 }
 
+/**
+ * 启动等待：轮询间隔 50ms、总预算 20s。
+ * 预算写成显式常量，并让 hook 的 timeout 不小于它 —— 这样"服务器没起来"会由这里
+ * 抛出具名错误，而不是被 vitest 的通用 hook timeout 抢先打断（那会掩盖真正的原因）。
+ */
+const HEALTH_PROBE_INTERVAL_MS = 50;
+const HEALTH_PROBE_BUDGET_MS = 20_000;
+const HEALTH_PROBE_ATTEMPTS = HEALTH_PROBE_BUDGET_MS / HEALTH_PROBE_INTERVAL_MS;
+
 async function waitUntilHealthy(target: string) {
-  for (let index = 0; index < 100; index += 1) {
+  for (let index = 0; index < HEALTH_PROBE_ATTEMPTS; index += 1) {
     try {
       if ((await fetch(`${target}/api/health`)).ok) return;
     } catch {
       // server is not ready
     }
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, HEALTH_PROBE_INTERVAL_MS));
   }
-  throw new Error("powerbi embedded server did not become healthy");
+  throw new Error(`powerbi embedded server did not become healthy within ${HEALTH_PROBE_BUDGET_MS}ms: ${target}`);
 }
 
 function startServer(port: number, extraEnv: NodeJS.ProcessEnv) {
@@ -71,6 +80,9 @@ const CONFIGURED_POWERBI_ENV = {
   POWERBI_REPORT_ID: "report-id",
 } as NodeJS.ProcessEnv;
 
+// 四台服务器并发启动：串行启动在高并发全量跑时会累加成 4 倍启动时间，
+// 这才是 hook 超时的真实原因（不是"服务器起不来"）。
+// hookTimeout 显式设为 ≥ 健康探测预算 20s，失败语义保留在 waitUntilHealthy 里。
 beforeAll(async () => {
   child = startServer(unconfiguredPort, {
     PACK_STORE_DIR: mkdtempSync(join(tmpdir(), "fep-powerbi-http-")),
@@ -81,14 +93,10 @@ beforeAll(async () => {
     POWERBI_WORKSPACE_ID: "",
     POWERBI_REPORT_ID: "",
   });
-  await waitUntilHealthy(base);
-
   configuredChild = startServer(configuredPort, {
     PACK_STORE_DIR: mkdtempSync(join(tmpdir(), "fep-powerbi-http-configured-")),
     ...CONFIGURED_POWERBI_ENV,
   });
-  await waitUntilHealthy(configuredBase);
-
   demoChild = startServer(demoPort, {
     DEMO_MODE: "true",
     PACK_STORE_DIR: mkdtempSync(join(tmpdir(), "fep-powerbi-http-demo-")),
@@ -99,15 +107,18 @@ beforeAll(async () => {
     POWERBI_WORKSPACE_ID: "",
     POWERBI_REPORT_ID: "",
   });
-  await waitUntilHealthy(demoBase);
-
   demoConfiguredChild = startServer(demoConfiguredPort, {
     DEMO_MODE: "true",
     PACK_STORE_DIR: mkdtempSync(join(tmpdir(), "fep-powerbi-http-demo-configured-")),
     ...CONFIGURED_POWERBI_ENV,
   });
-  await waitUntilHealthy(demoConfiguredBase);
-});
+  await Promise.all([
+    waitUntilHealthy(base),
+    waitUntilHealthy(configuredBase),
+    waitUntilHealthy(demoBase),
+    waitUntilHealthy(demoConfiguredBase),
+  ]);
+}, 30_000);
 
 afterAll(() => {
   child?.kill("SIGTERM");

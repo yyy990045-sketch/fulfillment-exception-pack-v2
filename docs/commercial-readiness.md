@@ -30,6 +30,10 @@
 | Canonical Industrial Event | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | SourceRecordEnvelope 与 Domain Event 之间的统一事件语言，含工业空间与字段翻译 provenance；未改动 Connector Core 契约。 |
 | Factory Simulator | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 确定性多系统仿真（5 个场景、16 条定时事件、7 个来源系统），local/inmem/mqtt 三种传输。**这是 SIMULATED INDUSTRIAL ENVIRONMENT，不是真实工厂。** |
 | Industrial Context Summary / Traceability | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | Context 的工业归属投影 + 履约链前向追溯；无 UNS 绑定时返回 null 而非编造。 |
+| Judge Demo Orchestrator | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | `npm run demo:judge`：11 阶段主流程 + 面向评委的证据清单；不依赖真实运行时与外部 AI/BI。 |
+| Evidence Trace Verification | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | `npm run evidence:verify`：证据 → 账本 → rawHash 重算 → mapping 版本 → UNS → 规范事件 → 来源系统，逐跳校验；缺留存载荷一律不通过。 |
+| Traceability Gate | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 证据不可回源时异常保留但禁止审批与执行（HTTP 与 CLI 两条路径都拦，并写审计 denied）。只对主张连接器来源的 Context 生效，历史合成 fixture 明确标记 not_applicable。 |
+| Execution Read-Back | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | requested→accepted→verified\|failed；回读不一致即为 failed，绝不升级为 verified。API write 成功不等于业务动作完成。 |
 | Finance Reconciliation Pack | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 财务对账示例 Pack，通过 Generic Workspace 展示同一底座复用。 |
 | OpenAI Provider | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | Provider、strict schema、citation/numeric validation 已实现并本地验证；没有真实 API key 时明确返回 not_configured。 |
 | Jev | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | LIVE_VERIFIED | LIVE_VERIFIED | 真实 Jev API 已通过 Decision Runtime smoke 和 51-case synthetic live benchmark；这证明 provider/runtime live integration，不证明真实客户数据质量或生产自动决策安全性。 |
@@ -86,6 +90,33 @@ REAL_FACTORY_VERIFIED=false
 不允许的表述是 *real factory* / *已接入某厂 MES*。
 即使 `npm run simulator:manufacturing -- --transport mqtt` 成功投递到真实 broker，
 也只证明「同一份仿真数据能穿过真实传输层」，不升级任何 `REAL_*_VERIFIED`。
+
+### Judge Demo Truth Flags
+
+`npm run demo:judge` 跑完后打印（不是文档手写声明）：
+
+```text
+JUDGE_DEMO_IMPLEMENTED=true
+JUDGE_DEMO_LOCALLY_VERIFIED=true
+EVIDENCE_TRACE_VERIFICATION_IMPLEMENTED=true
+EVIDENCE_TRACE_LOCALLY_VERIFIED=true
+TRACEABILITY_GATE_IMPLEMENTED=true
+TRACEABILITY_GATE_LOCALLY_VERIFIED=true
+EXECUTION_READBACK_IMPLEMENTED=true
+EXECUTION_READBACK_LOCALLY_VERIFIED=true
+DEMO_REPRODUCIBILITY_LOCALLY_VERIFIED=true
+
+REAL_FACTORY_VERIFIED=false
+REAL_MES_VERIFIED=false
+REAL_OPEN_SUPOS_RUNTIME_VERIFIED=false
+REAL_CUSTOMER_VERIFIED=false
+```
+
+注意 `EVIDENCE_TRACE_LOCALLY_VERIFIED` 的边界：它证明「本仓库能验证证据回源这件事是成立的」，
+`--scenario evidence-broken` 下 trace 状态是 `EVIDENCE_NOT_VERIFIABLE`（这正是默认场景要演示的能力），
+因此该 flag 在两种场景下都为真，但**含义不同**：
+默认场景是"回源成功"，备用场景是"回源失败被检出并阻断执行"。
+逐条对照见 `docs/competition/judge-acceptance-matrix.md`。
 
 ### Jev
 

@@ -257,6 +257,22 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/V2ManufacturingWorkbenchResponse' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/demo/judge/manifest:
+    parameters:
+      - { name: contextId, in: query, required: false, schema: { type: string }, description: Defaults to the context carrying the main production-shortfall exception }
+      - { name: exceptionId, in: query, required: false, schema: { type: string } }
+      - { $ref: '#/components/parameters/DemoTenantHeader' }
+      - { $ref: '#/components/parameters/DemoActorHeader' }
+    get:
+      responses:
+        '200':
+          description: >-
+            Read-only judge acceptance projection of already-persisted facts (same document that
+            demo:judge writes to .preview/judge-demo/evidence.json). It creates no new data.
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/JudgeEvidenceManifest' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /api/v2/analytics/operational:
     parameters:
       - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
@@ -1334,6 +1350,29 @@ components:
         evidence: { type: array, items: { type: object, additionalProperties: true } }
         sourceDocuments: { type: array, items: { type: object, additionalProperties: true } }
         sourceSystems: { type: array, items: { type: object, additionalProperties: true } }
+    JudgeEvidenceManifest:
+      description: >-
+        Judge-facing acceptance manifest. Nested shapes are intentionally not exhaustively modelled
+        here; the authoritative producer is src/demo/judge/manifest.ts.
+      type: object
+      additionalProperties: true
+      required: [schemaVersion, generatedAt, scenario, businessQuestion, businessFacts, sources, uns, evidence, rule, governance, execution, outcome, ai, trace, truthBoundary, artifacts]
+      properties:
+        schemaVersion: { type: string }
+        generatedAt: { type: string, format: date-time }
+        scenario: { type: string }
+        scenarioLabel: { type: string }
+        businessQuestion: { type: string }
+        businessFacts:
+          type: object
+          additionalProperties: false
+          required: [orderedQuantity, productionCompletedQuantity, difference, unit]
+          properties:
+            orderedQuantity: { type: number }
+            productionCompletedQuantity: { type: number }
+            difference: { type: number }
+            unit: { type: string }
+        truthBoundary: { type: object, additionalProperties: true }
     V2ManufacturingWorkbenchResponse:
       type: object
       required: [context, stats, thread, rules, exceptions, resolutionCases, truthfulness]

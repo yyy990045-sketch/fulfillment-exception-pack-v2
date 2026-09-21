@@ -207,6 +207,8 @@ export type SimulationRunResult = {
   };
   messageCount: number;
   topics: string[];
+  /** 实际发布出去的那一串 UNS 消息（原始载荷留存的来源） */
+  emittedMessages: Array<{ topic: string; payload: string }>;
   canonicalEvents: CanonicalIndustrialEvent[];
   sourceSystems: string[];
   eventCount: number;
@@ -336,6 +338,7 @@ export async function runIndustrialSimulation(options: SimulationRunOptions): Pr
     },
     messageCount: messages.length,
     topics: dedupe(messages.map((item) => item.topic)),
+    emittedMessages: messages.map((item) => ({ topic: item.topic, payload: item.payload })),
     canonicalEvents,
     sourceSystems: dedupe(replay.evidence.map((item) => item.sourceSystemId)).sort(),
     eventCount: replay.events.length,

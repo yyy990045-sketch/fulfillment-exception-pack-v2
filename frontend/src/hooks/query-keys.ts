@@ -34,4 +34,5 @@ export const queryKeys = {
     ["resolution-capabilities", tenantId, actorId, contextId, exceptionId] as const,
   outcomeEvaluations: (tenantId: string, contextId: string, exceptionId: string) =>
     ["outcome-evaluations", tenantId, contextId, exceptionId] as const,
+  judgeManifest: (tenantId: string, contextId: string) => ["judge-manifest", tenantId, contextId] as const,
 };
