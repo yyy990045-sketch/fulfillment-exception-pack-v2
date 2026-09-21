@@ -7,11 +7,13 @@ import { promisify } from "node:util";
 const exec = promisify(execFile);
 const root = process.cwd();
 const temp = await mkdtemp(resolve(tmpdir(), "fulfillment-competition-package-"));
+const archive = join(temp, "source.tar");
 const out = resolve(root, "dist/competition");
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 try {
-  await exec("git", ["archive", "HEAD", "|", "tar", "-x", "-C", temp], { cwd: root, shell: true });
+  await exec("git", ["archive", "--format=tar", "--output", archive, "HEAD"], { cwd: root });
+  await exec("tar", ["-xf", archive, "-C", temp], { cwd: root });
   const include = ["README.md", "CHANGELOG.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "package.json", "package-lock.json", "docs/competition", "docs/industrial", "docs/open-source", "release", "artifacts", "contracts"];
   for (const relative of include) { try { await access(join(temp, relative)); await cp(join(temp, relative), join(out, relative), { recursive: true }); } catch { /* optional until owner decision */ } }
   if (!(await access(join(out, "LICENSE")).then(() => true).catch(() => false))) await writeFile(join(out, "LICENSE_DECISION_REQUIRED.txt"), "Project license is not selected. See docs/open-source/license-audit.md.\n", "utf8");

@@ -1,13 +1,15 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 const exec = promisify(execFile);
 const root = process.cwd();
 const temp = await mkdtemp(resolve(tmpdir(), "fulfillment-competition-clean-room-"));
+const archive = join(temp, "source.tar");
 try {
-  await exec("git", ["archive", "HEAD", "|", "tar", "-x", "-C", temp], { cwd: root, shell: true, maxBuffer: 4 * 1024 * 1024 });
+  await exec("git", ["archive", "--format=tar", "--output", archive, "HEAD"], { cwd: root, maxBuffer: 4 * 1024 * 1024 });
+  await exec("tar", ["-xf", archive, "-C", temp], { cwd: root, maxBuffer: 4 * 1024 * 1024 });
   await exec("npm", ["ci", "--ignore-scripts"], { cwd: temp, maxBuffer: 16 * 1024 * 1024 });
   await exec("npm", ["run", "typecheck"], { cwd: temp, maxBuffer: 16 * 1024 * 1024 });
   const demo = await exec("npm", ["run", "demo:judge"], { cwd: temp, maxBuffer: 16 * 1024 * 1024 });
