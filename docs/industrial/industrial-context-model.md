@@ -195,7 +195,53 @@ REAL_FACTORY_VERIFIED=false
 | `Entity` / `Event` / `Evidence` | 未改结构 |
 | `UNS manifest`（`SO_MFG_001_UNS_MANIFEST`） | 保留 legacy 6 段 topic；带 `unsSpace` 绑定的信封走新的 11 段式子 |
 
-## 8 相关文档
+## 8 附录：本轮开始前的模型审计
+
+### CURRENT_MODEL（审计时已存在，均未被删除）
+
+| 对象 | 位置 | 说明 |
+| --- | --- | --- |
+| `SO-MFG-001` fixture | `src/domain/v2/fixtures/so-mfg-001.ts` | 静态制造业演示数据：1 Context、7 SourceSystem、8 Entity、8 EntityReference、8 SourceDocument、**11 条事件**、11 条 Evidence |
+| 业务对象 | 同上 | Quote / SalesOrder / ProductionOrder / QualityEvent / Shipment / Receivable / Payment / Complaint（8 类实体，11 条事件） |
+| Manufacturing Pack | `src/solution-packs/manufacturing-fulfillment/` | 规则 + Outcome + Presentation + Eligibility + Demo provisioning |
+| 制造业规则 | `src/domain/v2/rules/so-mfg-001-rules.ts` | 7 条（4 条基础履约 + 3 条制造业专属），tenant `demo-manufacturing`、profile `manufacturing` |
+| `OpenSuposInboundConnector` | `src/integrations/open-supos/connector.ts` | push 语义 → `InboundConnector` 契约，含 checkpoint cursor 与 `OpenSuposSourceAdapter` |
+| UNS 信封 | `src/integrations/open-supos/envelope.ts` | `OpenSupOSUnsEnvelope` schemaVersion 1.0 + 严格解析 |
+| UNS manifest | `src/integrations/open-supos/manifests/so-mfg-001.ts` | SO-MFG-001 的 11 条 UNS 信封 |
+| `SourceRecordEnvelope` | `src/connectors/core/types.ts` | 摄取证据契约（Connector Core） |
+| Connector Runtime | `src/connectors/core/inbound-runtime.ts` | Source Ledger / cursor / 幂等 / 重放 / 下游完成标记 |
+| Entity / Event / Evidence | `src/domain/v2/types.ts` | 领域事实与证据 |
+| Rules / Exception | `src/domain/v2/rule-engine.ts` | 确定性规则引擎，输出 RuleEvaluation + Exception candidate |
+| A/B 契约用例 | `src/integrations/open-supos/ab-cases.ts` | `normal-order`（0 异常）与 `exception-order`（1 异常），共用同一条连接器入口 |
+
+### MISSING_INDUSTRIAL_SEMANTICS（本轮之前缺失的能力）
+
+| 缺失 | 后果 |
+| --- | --- |
+| 没有工业层级 | 业务对象无法回答「发生在哪个 Enterprise/Site/Area/Line/Equipment」 |
+| 没有集中定义的 UNS topic 约定 | topic 只在 6 段 legacy 式子里，且不含工业空间；无集中定义处 |
+| 没有 Mapping Manifest | 来源系统字段名 → 规范字段的翻译散落在适配器代码里，一线业务与甲方 IT 无法复核 |
+| 没有 Canonical Industrial Event | 多系统数据没有统一的中间语义层；「MES/ERP/QMS/WMS/Finance 映射成同一语言」不可检查 |
+| 没有数据产生器 | 只有静态 fixture，无法演示时间顺序、多系统来源、短少/不合格/短装/短款的判别力 |
+| 没有 replay/判别力闸门 | 只有 A/B 两个点，缺 5 场景 + 重放的自动化 A/B 验证 |
+| Context 无工业投影 | Context 页面拿不到 enterprise/site/area/line/sourceSystems/equipment |
+| analytics 无工业维度 | 无法按 site / line / sourceSystem 看异常 |
+
+### REUSABLE_COMPONENTS（本轮复用而非重写的东西）
+
+| 复用对象 | 复用于 |
+| --- | --- |
+| Connector Core `runInboundSync` | 仿真的 ledger / cursor / 幂等 / 重放，全部沿用，未新增 ingestion framework |
+| `OpenSuposInboundConnector` + `OpenSupOSUnsQueue` | 仿真信封的摄取入口；MQTT 载荷就是它现有契约 |
+| `OpenSuposSourceAdapter` + `mapUnsEnvelopeToDomainPlan` | 领域写计划，完全未改；Canonical Event 只是链路中多出的一层 |
+| `MANUFACTURING_RULE_DEFINITIONS/VERSIONS`（7 条规则） | 5 个仿真场景直接使用同一套规则，未改规则语义、未新增质量规则 |
+| `evaluateContextRules` / `buildResolutionCapabilities` | demo 的第 07/08/09 步 |
+| `buildOperationalAnalytics` | demo 的第 10 步；只做最小字段扩展 |
+| `buildV2WorkbenchView` | Context 页面；只新增 `industrial` 只读投影 |
+| `FULFILLMENT_EVENT_TYPES` | 新增 `PRODUCTION_PROGRESSED` 一项（既有的 `SHIPMENT_CREATED` / `SHIPMENT_SIGNED` / `INVOICE_CREATED` 直接复用） |
+| `InMemoryUnsTransport` / `OpenSupOSMqttTransport` | transport 抽象的两个实现直接复用 |
+
+## 9 相关文档
 
 - `docs/industrial/uns-topic-convention.md` — topic 式子与双向映射
 - `docs/industrial/mapping-manifest.md` — 声明式字段翻译
