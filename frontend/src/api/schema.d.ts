@@ -859,6 +859,12 @@ export interface paths {
                 exceptionCode?: string;
                 severity?: "low" | "medium" | "high" | "critical";
                 resolutionStatus?: "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected";
+                /** @description Industrial UNS site dimension */
+                site?: string;
+                /** @description Industrial UNS line dimension */
+                line?: string;
+                /** @description Source system dimension (ERP/MES/QMS/WMS/Finance/...) */
+                sourceSystem?: string;
             };
             header?: {
                 /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
@@ -880,6 +886,12 @@ export interface paths {
                     exceptionCode?: string;
                     severity?: "low" | "medium" | "high" | "critical";
                     resolutionStatus?: "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected";
+                    /** @description Industrial UNS site dimension */
+                    site?: string;
+                    /** @description Industrial UNS line dimension */
+                    line?: string;
+                    /** @description Source system dimension (ERP/MES/QMS/WMS/Finance/...) */
+                    sourceSystem?: string;
                 };
                 header?: {
                     /** @description Development-only tenant selector. Ignored when a bearer token supplies tenant_id. */
@@ -3720,6 +3732,10 @@ export interface components {
             context: {
                 [key: string]: unknown;
             };
+            /** @description Industrial semantic projection (ISA-95 space, multi-system provenance, traceability chain). Null when the context has no UNS space binding. */
+            industrial?: {
+                [key: string]: unknown;
+            } | null;
             stats: {
                 [key: string]: unknown;
             };
@@ -4086,6 +4102,14 @@ export interface components {
                 systemType: string;
                 involvedExceptionCount: number;
             }[];
+            /** @description Exception counts by industrial dimension (site / line / sourceSystem) */
+            industrialBreakdown?: {
+                /** @enum {string} */
+                dimension: "site" | "line" | "sourceSystem";
+                value: string;
+                exceptionCount: number;
+                contextCount: number;
+            }[];
             contexts: {
                 contextId: string;
                 businessKey: string;
@@ -4105,6 +4129,13 @@ export interface components {
                 latestChangeAt: string;
                 outcomeMeasurementCount: number;
                 outcomeStatuses: string[];
+                /** @description Industrial UNS space of this context; null when unbound */
+                industrial: {
+                    enterpriseId: string;
+                    siteId: string;
+                    areaId: string;
+                    lineId: string;
+                } | null;
                 sourceSystemIds: string[];
             }[];
             metricDefinitions: {

@@ -26,6 +26,7 @@ import {
 } from "../../connectors/core/types.js";
 import { parseOpenSupOSUnsEnvelope } from "./envelope.js";
 import { mapUnsEnvelopeToDomainPlan } from "./mapper.js";
+import { parseIndustrialSpace } from "../../industrial/hierarchy.js";
 import type { OpenSupOSUnsEnvelope } from "./types.js";
 
 export const OPEN_SUPOS_INBOUND_MANIFEST: ConnectorManifest = {
@@ -47,6 +48,12 @@ export const OPEN_SUPOS_INBOUND_MANIFEST: ConnectorManifest = {
 export const OPEN_SUPOS_MAPPING_ID = "open-supos-uns";
 export const OPEN_SUPOS_MAPPING_VERSION = "1.0.0";
 export const OPEN_SUPOS_RECORD_TYPE = "OPEN_SUPOS.UNS.EVENT";
+
+/**
+ * 允许的 topic 前缀：legacy `fulfillment` 与正式 UNS 式子 `enterprise/*`。
+ * 两者都集中定义在 src/industrial/uns-topic.ts，这里只做白名单。
+ */
+export const UNS_TOPIC_PREFIXES = ["fulfillment", "enterprise"] as const;
 
 export type OpenSupOSUnsMessage = {
   topic: string;
@@ -72,6 +79,7 @@ export class OpenSupOSUnsQueue {
     const { envelope, topic } = message;
     const cursor = openSupOSCheckpointCursor(envelope);
     if (this.buffered.some((item) => item.cursor === cursor)) return false;
+    const space = parseIndustrialSpace(envelope.metadata?.unsSpace);
     this.buffered.push({
       cursor,
       record: {
@@ -82,13 +90,23 @@ export class OpenSupOSUnsQueue {
         sourceVersion: envelope.source.sourceVersion,
         locator: {
           // provenance：这条记录来自哪个 open supOS namespace / topic / 对象
-          namespace: `fulfillment/${envelope.tenantKey}`,
+          namespace: space ? `enterprise/${space.enterpriseId}` : `fulfillment/${envelope.tenantKey}`,
           topic,
           contextBusinessKey: envelope.context.businessKey,
           entityType: envelope.entity.entityType,
           entityBusinessKey: envelope.entity.businessKey,
           eventType: envelope.event.eventType,
           messageId: envelope.messageId,
+          // 工业空间坐标：只有带 unsSpace 绑定的信封才有（UNS 原生式子的产品）
+          ...(space
+            ? {
+              enterpriseId: space.enterpriseId,
+              siteId: space.siteId,
+              areaId: space.areaId,
+              lineId: space.lineId,
+              ...(space.equipmentId ? { equipmentId: space.equipmentId } : {}),
+            }
+            : {}),
         },
         payload: envelope as unknown as Record<string, unknown>,
       },
@@ -115,7 +133,7 @@ export class OpenSupOSUnsQueue {
 
 export function validateOpenSuposInboundConfig(config: Record<string, unknown>) {
   const topicPrefix = typeof config.topicPrefix === "string" ? config.topicPrefix.trim() : "";
-  if (topicPrefix && !topicPrefix.startsWith("fulfillment")) {
+  if (topicPrefix && !UNS_TOPIC_PREFIXES.includes(topicPrefix as (typeof UNS_TOPIC_PREFIXES)[number])) {
     throw new ConnectorError("CONNECTOR_TOPIC_PREFIX_INVALID", 422, { retryable: false });
   }
   return { topicPrefix: topicPrefix || "fulfillment" };

@@ -95,8 +95,43 @@ export type ResolutionCaseSummaryView = {
   updatedAt: string;
 };
 
+/**
+ * 工业语义层投影：ISA-95 空间 + 多系统来源 + 可追溯履约链。
+ * 上下文没有 UNS 绑定时为 null —— 现有页面消费这些字段时不需要理解 ISA-95。
+ */
+export type IndustrialContextSummaryView = {
+  schemaVersion: string;
+  tenantId: string;
+  contextId: string;
+  businessKey: string;
+  space: { enterpriseId: string; siteId: string; areaId: string; lineId: string; equipmentId?: string } | null;
+  unsRootPath: string | null;
+  environment: string;
+  sourceSystems: Array<{ id: string; name: string; systemType: string; authorityLevel: string }>;
+  entities: Array<{ id: string; entityType: string; businessKey: string; eventCount: number }>;
+  eventCount: number;
+  evidenceCount: number;
+  exceptionCount: number;
+  evaluationCount: number;
+  trace: Array<{
+    position: number;
+    entityType: string;
+    entityId: string;
+    businessKey: string;
+    sourceSystemId: string | null;
+    sourceSystemType: string | null;
+    domain: string | null;
+    occurredAt: string | null;
+    eventCount: number;
+    evidenceIds: string[];
+  }>;
+  mappingVersions: string[];
+  truthfulness: Record<string, string | boolean>;
+};
+
 export type WorkbenchView = Omit<GeneratedWorkbench, "context" | "stats" | "thread" | "rules" | "exceptions" | "resolutionCases"> & {
   context: WorkbenchContext;
+  industrial?: IndustrialContextSummaryView | null;
   stats: WorkbenchStats;
   thread: ThreadStage[];
   rules: RuleView[];

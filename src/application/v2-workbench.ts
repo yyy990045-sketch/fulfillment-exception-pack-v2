@@ -13,6 +13,7 @@ import {
   v2FieldLabel,
 } from "./v2-workbench-labels.js";
 import { resolutionGovernanceStage } from "../domain/v2/resolution/governance-stage.js";
+import { buildIndustrialContextSummary } from "../industrial/context-summary.js";
 
 const THREAD_ORDER: BusinessEntityType[] = [
   "quote",
@@ -220,6 +221,8 @@ export function buildV2WorkbenchView(
   const defaultException = exceptionSummaries.find((item) => item.code === "CUSTOMER_RECEIPT_CLAIM_MISMATCH")
     ?? exceptionSummaries[0]
     ?? null;
+  // 工业语义层投影：现有 Context 页面直接消费这些字段，无需理解 ISA-95。
+  const industrial = buildIndustrialContextSummary(store, tenantId, contextId);
 
   return {
     context: {
@@ -230,6 +233,7 @@ export function buildV2WorkbenchView(
       openedAt: replay.context.openedAt,
       updatedAt: replay.context.updatedAt,
     },
+    industrial,
     stats: {
       sourceSystems: replay.sourceSystems.length,
       entities: replay.entities.length,

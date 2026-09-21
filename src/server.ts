@@ -545,6 +545,10 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
         exceptionCode: url.searchParams.get("exceptionCode") ?? undefined,
         severity: (url.searchParams.get("severity") as "low" | "medium" | "high" | "critical" | null) ?? undefined,
         resolutionStatus: (url.searchParams.get("resolutionStatus") as "no_case" | "triaged" | "confirmed" | "proposed_draft" | "pending_approval" | "approved" | "executed" | "closed" | "rejected" | null) ?? undefined,
+        // 工业维度（可选）：site / line / sourceSystem
+        site: url.searchParams.get("site") ?? undefined,
+        line: url.searchParams.get("line") ?? undefined,
+        sourceSystem: url.searchParams.get("sourceSystem") ?? undefined,
       });
       return json(res, 200, analytics);
     }

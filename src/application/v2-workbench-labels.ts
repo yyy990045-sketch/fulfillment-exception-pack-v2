@@ -15,6 +15,7 @@ export const V2_EVENT_LABELS: Record<string, string> = {
   QUOTE_CREATED: "报价创建",
   ORDER_CREATED: "订单创建",
   PRODUCTION_STARTED: "生产开始",
+  PRODUCTION_PROGRESSED: "生产报工",
   PRODUCTION_COMPLETED: "生产完成",
   QUALITY_INSPECTED: "质量检验",
   QUALITY_PASSED: "质量合格",

@@ -67,6 +67,11 @@ export const operationalAnalyticsFixture: OperationalAnalyticsView = {
     { sourceSystemId: "wms", name: "WMS", systemType: "wms", involvedExceptionCount: 2 },
     { sourceSystemId: "finance", name: "Finance", systemType: "finance", involvedExceptionCount: 1 },
   ],
+  industrialBreakdown: [
+    { dimension: "site", value: "factory-shanghai-01", exceptionCount: 4, contextCount: 1 },
+    { dimension: "line", value: "line-a", exceptionCount: 4, contextCount: 1 },
+    { dimension: "sourceSystem", value: "wms", exceptionCount: 2, contextCount: 1 },
+  ],
   contexts: [
     {
       contextId: "ctx-mfg",
@@ -85,6 +90,12 @@ export const operationalAnalyticsFixture: OperationalAnalyticsView = {
       outcomeMeasurementCount: 1,
       outcomeStatuses: ["target_met"],
       sourceSystemIds: ["wms", "finance"],
+      industrial: {
+        enterpriseId: "demo-manufacturing",
+        siteId: "factory-shanghai-01",
+        areaId: "assembly-workshop",
+        lineId: "line-a",
+      },
     },
     {
       contextId: "ctx-fin",
@@ -103,6 +114,7 @@ export const operationalAnalyticsFixture: OperationalAnalyticsView = {
       outcomeMeasurementCount: 0,
       outcomeStatuses: [],
       sourceSystemIds: ["finance"],
+      industrial: null,
     },
   ],
   outcomes: {

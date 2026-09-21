@@ -267,6 +267,9 @@ paths:
       - { name: exceptionCode, in: query, required: false, schema: { type: string } }
       - { name: severity, in: query, required: false, schema: { type: string, enum: [low, medium, high, critical] } }
       - { name: resolutionStatus, in: query, required: false, schema: { type: string, enum: [no_case, triaged, confirmed, proposed_draft, pending_approval, approved, executed, closed, rejected] } }
+      - { name: site, in: query, required: false, schema: { type: string }, description: Industrial UNS site dimension }
+      - { name: line, in: query, required: false, schema: { type: string }, description: Industrial UNS line dimension }
+      - { name: sourceSystem, in: query, required: false, schema: { type: string }, description: Source system dimension (ERP/MES/QMS/WMS/Finance/...) }
       - { $ref: '#/components/parameters/DemoTenantHeader' }
       - { $ref: '#/components/parameters/DemoActorHeader' }
     get:
@@ -1336,6 +1339,13 @@ components:
       required: [context, stats, thread, rules, exceptions, resolutionCases, truthfulness]
       properties:
         context: { type: object, additionalProperties: true }
+        industrial:
+          description: >-
+            Industrial semantic projection (ISA-95 space, multi-system provenance,
+            traceability chain). Null when the context has no UNS space binding.
+          type: object
+          additionalProperties: true
+          nullable: true
         stats:
           type: object
           additionalProperties: true
@@ -1786,12 +1796,24 @@ components:
               name: { type: string }
               systemType: { type: string }
               involvedExceptionCount: { type: integer }
+        industrialBreakdown:
+          description: Exception counts by industrial dimension (site / line / sourceSystem)
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [dimension, value, exceptionCount, contextCount]
+            properties:
+              dimension: { type: string, enum: [site, line, sourceSystem] }
+              value: { type: string }
+              exceptionCount: { type: integer }
+              contextCount: { type: integer }
         contexts:
           type: array
           items:
             type: object
             additionalProperties: false
-            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, resolutionOwnerRoles, highestSeverity, latestChangeAt, outcomeMeasurementCount, outcomeStatuses, sourceSystemIds]
+            required: [contextId, businessKey, contextType, status, openedAt, ruleEvaluationCount, exceptionCount, exceptionCodes, resolutionCaseCount, resolutionStatuses, resolutionOwnerRoles, highestSeverity, latestChangeAt, outcomeMeasurementCount, outcomeStatuses, sourceSystemIds, industrial]
             properties:
               contextId: { type: string }
               businessKey: { type: string }
@@ -1808,6 +1830,17 @@ components:
               latestChangeAt: { type: string, format: date-time }
               outcomeMeasurementCount: { type: integer }
               outcomeStatuses: { type: array, items: { type: string } }
+              industrial:
+                description: Industrial UNS space of this context; null when unbound
+                type: object
+                nullable: true
+                additionalProperties: false
+                required: [enterpriseId, siteId, areaId, lineId]
+                properties:
+                  enterpriseId: { type: string }
+                  siteId: { type: string }
+                  areaId: { type: string }
+                  lineId: { type: string }
               sourceSystemIds: { type: array, items: { type: string } }
         metricDefinitions:
           type: object

@@ -68,6 +68,8 @@ export type OpenSupOSInboundResult = {
 };
 
 export type OpenSupOSTopicParts = {
+  /** legacy 6 段式子；industrial 11 段式子由 `ParsedIndustrialUnsTopic` 表达 */
+  form: "legacy";
   tenantKey: string;
   contextBusinessKey: string;
   entityType: BusinessEntityType;

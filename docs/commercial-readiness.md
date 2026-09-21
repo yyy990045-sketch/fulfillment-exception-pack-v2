@@ -24,6 +24,12 @@
 | Operational Analytics | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 只读运营投影，支持 Context 与异常 occurrence 时间口径。 |
 | Solution Pack Platform | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 支持 Pack 安装、显式 Context binding、Workbench projection 和跨领域复用。 |
 | Manufacturing Pack | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | Manufacturing Fulfillment 示例 Pack，含规则、Evidence、治理与 Outcome projection。 |
+| ISA-95 / UNS Hierarchy | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | Enterprise→Site→Area→Line→Equipment 层级与 fail-closed 校验；**是仿真环境的层级，不是任何真实工厂的资产模型**。 |
+| UNS Topic Convention | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 11 段 industrial 式子集中定义，与 legacy 6 段式子并存；topic 描述工业空间，不描述业务链。 |
+| Industrial Mapping Manifest | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 声明式字段翻译（source→semantic→target），覆盖 Order/Production/Quality/Shipment/Payment，双向查表 + fail-closed。声明本身不证明已接入任何真实系统。 |
+| Canonical Industrial Event | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | SourceRecordEnvelope 与 Domain Event 之间的统一事件语言，含工业空间与字段翻译 provenance；未改动 Connector Core 契约。 |
+| Factory Simulator | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | 确定性多系统仿真（5 个场景、16 条定时事件、7 个来源系统），local/inmem/mqtt 三种传输。**这是 SIMULATED INDUSTRIAL ENVIRONMENT，不是真实工厂。** |
+| Industrial Context Summary / Traceability | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | LOCALLY_VERIFIED | Context 的工业归属投影 + 履约链前向追溯；无 UNS 绑定时返回 null 而非编造。 |
 | Finance Reconciliation Pack | IMPLEMENTED | LOCALLY_VERIFIED | DEMO_VERIFIED | NOT_VERIFIED | DEMO_VERIFIED | 财务对账示例 Pack，通过 Generic Workspace 展示同一底座复用。 |
 | OpenAI Provider | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | NOT_VERIFIED | Provider、strict schema、citation/numeric validation 已实现并本地验证；没有真实 API key 时明确返回 not_configured。 |
 | Jev | IMPLEMENTED | LOCALLY_VERIFIED | NOT_VERIFIED | LIVE_VERIFIED | LIVE_VERIFIED | 真实 Jev API 已通过 Decision Runtime smoke 和 51-case synthetic live benchmark；这证明 provider/runtime live integration，不证明真实客户数据质量或生产自动决策安全性。 |
@@ -61,6 +67,25 @@ Connector SDK 和 reference/local connector 能力已经实现。它们不能被
 ### Open supOS
 
 Adapter 已实现。真实 Open supOS runtime 当前是 `NOT_VERIFIED`。
+
+### Industrial Simulation
+
+Factory Simulator 产出的是 **SIMULATED INDUSTRIAL ENVIRONMENT** 数据。它证明的是链路保真：
+真实的事件顺序、多系统来源、UNS topic、mapping、connector、ledger、evidence、rule、exception、governance
+全部真实执行。它**不证明**任何真实工厂、真实 MES/ERP/QMS/WMS 已接入：
+
+```text
+REAL_MES_VERIFIED=false
+REAL_ERP_VERIFIED=false
+REAL_QMS_VERIFIED=false
+REAL_WMS_VERIFIED=false
+REAL_FACTORY_VERIFIED=false
+```
+
+允许的表述是 *high-fidelity industrial simulation*（链路保真），
+不允许的表述是 *real factory* / *已接入某厂 MES*。
+即使 `npm run simulator:manufacturing -- --transport mqtt` 成功投递到真实 broker，
+也只证明「同一份仿真数据能穿过真实传输层」，不升级任何 `REAL_*_VERIFIED`。
 
 ### Jev
 

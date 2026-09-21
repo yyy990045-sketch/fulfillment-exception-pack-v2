@@ -15,6 +15,13 @@ import {
   type OperationalSeverity,
 } from "./operational-types.js";
 import { buildOutcomeAnalytics } from "../outcomes/analytics.js";
+import { industrialSpaceOfContext } from "../industrial/context-summary.js";
+import {
+  OPERATIONAL_INDUSTRIAL_DIMENSIONS,
+  type OperationalIndustrialBreakdownRow,
+  type OperationalIndustrialContext,
+  type OperationalIndustrialDimension,
+} from "./operational-types.js";
 
 const ACTION_TYPES: PersistedActionType[] = [
   "supplement_evidence",
@@ -67,9 +74,29 @@ export function buildOperationalAnalytics(
   if (filters.severity && !OPERATIONAL_SEVERITIES.includes(filters.severity)) throw new OperationalAnalyticsError("ANALYTICS_INVALID_FILTER");
   if (filters.resolutionStatus && !OPERATIONAL_RESOLUTION_STATUSES.includes(filters.resolutionStatus)) throw new OperationalAnalyticsError("ANALYTICS_INVALID_FILTER");
 
+  const industrialByContext = new Map<string, OperationalIndustrialContext>();
+  for (const context of store.listContexts(tenantId)) {
+    const space = industrialSpaceOfContext(context);
+    if (space) industrialByContext.set(context.id, {
+      enterpriseId: space.enterpriseId,
+      siteId: space.siteId,
+      areaId: space.areaId,
+      lineId: space.lineId,
+    });
+  }
+  const matchesIndustrialFilter = (contextId: string) => {
+    if (!filters.site && !filters.line) return true;
+    const space = industrialByContext.get(contextId);
+    if (!space) return false;
+    if (filters.site && space.siteId !== filters.site) return false;
+    if (filters.line && space.lineId !== filters.line) return false;
+    return true;
+  };
+
   const allContexts = store.listContexts(tenantId);
   const contexts = allContexts.filter((context) =>
     (!filters.contextType || context.contextType === filters.contextType) &&
+    matchesIndustrialFilter(context.id) &&
     (timeBasis === "exception_occurrence" || inRange(context.openedAt, from, to)),
   );
   const definitions = store.listEnabledRuleDefinitions(tenantId);
@@ -107,6 +134,11 @@ export function buildOperationalAnalytics(
         const resolution = caseByException.get(exception.id);
         return resolutionCategory(resolution?.status ?? "new", resolution?.runtime.actions ?? []) === filters.resolutionStatus;
       })
+      .filter((exception) => {
+        if (!filters.sourceSystem) return true;
+        return (store.getExceptionEvidenceBundle(tenantId, exception.id)?.sourceSystems ?? [])
+          .some((item) => item.id === filters.sourceSystem);
+      })
       .map((exception): OperationalExceptionRow => {
         const resolution = caseByException.get(exception.id);
         const status = resolution ? resolutionCategory(resolution.status, resolution.runtime.actions) : "no_case";
@@ -114,6 +146,7 @@ export function buildOperationalAnalytics(
         for (const sourceSystem of bundle?.sourceSystems ?? []) {
           sourceSystemById.set(sourceSystem.id, { name: sourceSystem.name, systemType: sourceSystem.systemType });
         }
+        const space = industrialByContext.get(context.id);
         return {
           contextId: context.id,
           contextBusinessKey: context.businessKey,
@@ -124,6 +157,8 @@ export function buildOperationalAnalytics(
           occurrenceAt: exceptionOccurrenceAt(store, tenantId, exception),
           resolutionStatus: status,
           sourceSystemIds: bundle?.sourceSystems.map((item) => item.id) ?? [],
+          siteId: space?.siteId ?? null,
+          lineId: space?.lineId ?? null,
         };
       });
     const exceptionRows = timeBasis === "exception_occurrence"
@@ -254,6 +289,24 @@ export function buildOperationalAnalytics(
   };
   const outcomes = buildOutcomeAnalytics(store, tenantId, { exceptionCode: filters.exceptionCode });
 
+  const industrialBreakdown: OperationalIndustrialBreakdownRow[] = OPERATIONAL_INDUSTRIAL_DIMENSIONS.flatMap((dimension) => {
+    const valuesFor = (row: OperationalExceptionRow): string[] => {
+      if (dimension === "site") return row.siteId ? [row.siteId] : [];
+      if (dimension === "line") return row.lineId ? [row.lineId] : [];
+      return row.sourceSystemIds;
+    };
+    const values = [...new Set(allExceptionRows.flatMap(valuesFor))].sort();
+    return values.map((value) => {
+      const rows = allExceptionRows.filter((row) => valuesFor(row).includes(value));
+      return {
+        dimension: dimension as OperationalIndustrialDimension,
+        value,
+        exceptionCount: rows.length,
+        contextCount: new Set(rows.map((row) => row.contextId)).size,
+      };
+    });
+  });
+
   return {
     window: {
       from: filters.from ?? null,
@@ -273,6 +326,7 @@ export function buildOperationalAnalytics(
     rulePerformance,
     actionBreakdown,
     sourceSystemInvolvement,
+    industrialBreakdown,
     contexts: contextRows.map((row) => ({
       contextId: row.context.id,
       businessKey: row.context.businessKey,
@@ -288,6 +342,7 @@ export function buildOperationalAnalytics(
       highestSeverity: row.highestSeverity,
       latestChangeAt: row.latestChangeAt,
       sourceSystemIds: row.sourceSystemIds,
+      industrial: industrialByContext.get(row.context.id) ?? null,
       outcomeMeasurementCount: row.outcomeMeasurementCount,
       outcomeStatuses: row.outcomeStatuses,
     })),
