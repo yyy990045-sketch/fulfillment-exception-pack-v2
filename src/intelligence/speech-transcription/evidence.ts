@@ -26,7 +26,7 @@ import {
   type SourceDocument,
   type V2Evidence,
 } from "../../domain/v2/index.js";
-import { assertTimestampProvenance, type AudioArtifactRef, type TranscriptSegment } from "./types.js";
+import { assertArtifactDerivation, assertTimestampProvenance, type AudioArtifactRef, type TranscriptSegment } from "./types.js";
 
 /** 音频工件 → `SourceDocument`（语义身份；contentHash 是身份真相）。 */
 export function sourceDocumentFromArtifact(input: {
@@ -39,6 +39,8 @@ export function sourceDocumentFromArtifact(input: {
   version: string;
   receivedAt: string;
 }): SourceDocument {
+  // §5 门禁：转码产物不得声称自己就是原始录音
+  assertArtifactDerivation(input.artifact);
   return createSourceDocument({
     id: input.id,
     tenantId: input.tenantId,
@@ -58,6 +60,10 @@ export function sourceDocumentFromArtifact(input: {
       ...(input.artifact.byteSize !== undefined ? { byteSize: input.artifact.byteSize } : {}),
       ...(input.artifact.sampleRateHz !== undefined ? { sampleRateHz: input.artifact.sampleRateHz } : {}),
       ...(input.artifact.channels !== undefined ? { channels: input.artifact.channels } : {}),
+      // §5：原始采集溯源与转码关系必须随工件落库，否则 reload 之后无法区分
+      // "原始录音" 与 "转码后的 WAV"
+      ...(input.artifact.capture ? { capture: { ...input.artifact.capture } } : {}),
+      ...(input.artifact.derivedFrom ? { derivedFrom: { ...input.artifact.derivedFrom } } : {}),
     },
   });
 }

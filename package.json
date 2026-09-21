@@ -43,7 +43,10 @@
     "db:restore": "tsx src/ops/cli/db-restore.ts",
     "db:verify-backup": "tsx src/ops/cli/db-verify-backup.ts",
     "ops:recovery-drill": "tsx src/ops/cli/recovery-drill.ts",
-    "speech:verify": "tsx scripts/verify-speech-transcription.ts"
+    "speech:verify": "tsx scripts/verify-speech-transcription.ts",
+    "mic:capture": "bash scripts/capture-mic-audio.sh",
+    "mic:verify": "tsx scripts/verify-mic-capture.ts",
+    "mic:prepare": "bash scripts/prepare-mic-capture.sh"
   },
   "engines": {
     "node": ">=22.5.0"

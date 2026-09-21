@@ -74,9 +74,13 @@ const artifact: Record<string, unknown> = {
   audio: null,
   result: null,
   temporalEvidence: null,
+  // §14 细化真值标志：不再只用一个含糊的 REAL_AUDIO_TO_TEMPORAL_EVIDENCE_VERIFIED
   realProviderVerified: false,
-  realAudioToTemporalEvidenceVerified: false,
+  realProviderTranscriptionVerified: false,
+  authorizedAudioFileToTemporalEvidenceVerified: false,
+  realWorldMicCaptureToTemporalEvidenceVerified: false,
   temporalEvidenceReverseTraceVerified: false,
+  audioSourceCategory: "SYNTHESIZED_AUTHORIZED_AUDIO",
   verdict: "BLOCKED",
   blocker: null,
   notes: [],
@@ -265,8 +269,11 @@ async function main() {
     (artifact.temporalEvidence as Record<string, unknown>).reverseTrace = reverseTrace;
 
     artifact.realProviderVerified = true;
-    artifact.realAudioToTemporalEvidenceVerified = preserved;
+    artifact.realProviderTranscriptionVerified = true;
+    artifact.authorizedAudioFileToTemporalEvidenceVerified = preserved;
     artifact.temporalEvidenceReverseTraceVerified = reverseTraceOk;
+    // 本工件的音频来源是本地合成（授权、非敏感），**不是**真人麦克风采集
+    artifact.realWorldMicCaptureToTemporalEvidenceVerified = false;
 
     if (!preserved) {
       artifact.verdict = "FAILED";

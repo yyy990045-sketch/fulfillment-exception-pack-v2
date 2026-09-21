@@ -56,27 +56,93 @@ export type DashScopeRealtimeConfig = {
 };
 
 /** 解析 WAV，取出 PCM 数据段（不假设固定 44 字节头）。 */
-export function extractPcmFromWav(buffer: Buffer): { pcm: Buffer; sampleRateHz: number; channels: number } {
-  if (buffer.length < 12 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
-    throw new SpeechTranscriptionError("SPEECH_AUDIO_UNREADABLE", 422, "not a RIFF/WAVE file");
+/**
+ * 解析 WAV 并取出 PCM 数据段。
+ *
+ * **只接受未压缩 PCM**（§6）。这是 `readAudioInterval` 能把毫秒确定性换算成
+ * 字节偏移的前提；缺了这些条件，任何"按比例估算"的切片都会给出一个
+ * 看起来非空、实际错误的 slice。
+ *
+ * 明确拒绝（fail closed，不估算、不猜 codec）：
+ *   - 非 RIFF/WAVE 容器：MP3 / AAC / M4A / OGG / FLAC …
+ *   - WAV 容器内的**压缩**格式：ADPCM(0x0002) / A-law(0x0006) / µ-law(0x0007) /
+ *     MP3-in-WAV(0x0055) 等 —— 这类文件以前会被静默错误切片
+ *   - WAVE_FORMAT_EXTENSIBLE(0xFFFE) 且子格式不是 PCM
+ *   - 采样率 / 声道 / 位深缺失或与 blockAlign 不一致
+ *   - data chunk 越界
+ */
+export function extractPcmFromWav(buffer: Buffer): {
+  pcm: Buffer;
+  sampleRateHz: number;
+  channels: number;
+  bitsPerSample: number;
+  bytesPerSecond: number;
+} {
+  // 用函数声明（而非 const 箭头函数），TS 才会在 never 返回后正确收窄类型
+  function reject(detail: string): never {
+    throw new SpeechTranscriptionError("SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM", 422, detail);
   }
+  if (buffer.length < 12 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
+    // MP3(ID3/0xFFFx) / M4A(ftyp) / OGG / FLAC 都会走到这里
+    reject("not a RIFF/WAVE container");
+  }
+
   let offset = 12;
-  let sampleRateHz = 16000;
-  let channels = 1;
-  let bitsPerSample = 16;
+  let fmt: { audioFormat: number; channels: number; sampleRateHz: number; blockAlign: number; bitsPerSample: number } | null = null;
+  let data: Buffer | null = null;
+
   while (offset + 8 <= buffer.length) {
     const id = buffer.toString("ascii", offset, offset + 4);
-    const size = buffer.readUInt32LE(offset + 4);
+    const declaredSize = buffer.readUInt32LE(offset + 4);
     const body = offset + 8;
+    // 容错：某些导出工具把 size 写错，用实际可用长度兜底后再校验
+    const size = Math.min(declaredSize, buffer.length - body);
+
     if (id === "fmt ") {
-      channels = buffer.readUInt16LE(body + 2);
-      sampleRateHz = buffer.readUInt32LE(body + 4);
-      bitsPerSample = buffer.readUInt16LE(body + 14);
+      if (size < 16) reject("fmt chunk too small");
+      const audioFormat = buffer.readUInt16LE(body + 0);
+      const channels = buffer.readUInt16LE(body + 2);
+      const sampleRateHz = buffer.readUInt32LE(body + 4);
+      const blockAlign = buffer.readUInt16LE(body + 12);
+      const bitsPerSample = buffer.readUInt16LE(body + 14);
+      if (audioFormat !== 1) {
+        // 0xFFFE = WAVE_FORMAT_EXTENSIBLE：再读子格式 GUID 的前两字节
+        if (audioFormat === 0xfffe && size >= 40) {
+          const subFormatFirst2 = buffer.readUInt16LE(body + 24);
+          if (subFormatFirst2 !== 1) reject(`WAVE_FORMAT_EXTENSIBLE with non-PCM subformat 0x${subFormatFirst2.toString(16)}`);
+        } else {
+          reject(`compressed WAV format 0x${audioFormat.toString(16)} is not supported for byte slicing`);
+        }
+      }
+      if (channels <= 0) reject("invalid channel count");
+      if (sampleRateHz <= 0) reject("invalid sample rate");
+      if (bitsPerSample <= 0 || bitsPerSample % 8 !== 0) reject(`invalid bit depth ${bitsPerSample}`);
+      const expectedBlockAlign = channels * (bitsPerSample / 8);
+      if (blockAlign !== expectedBlockAlign) {
+        reject(`blockAlign ${blockAlign} inconsistent with channels*bitsPerSample (${expectedBlockAlign})`);
+      }
+      fmt = { audioFormat: 1, channels, sampleRateHz, blockAlign, bitsPerSample };
     }
-    if (id === "data") return { pcm: buffer.subarray(body, body + size), sampleRateHz, channels };
+    if (id === "data") {
+      if (declaredSize > buffer.length - body) reject("data chunk exceeds file size");
+      data = buffer.subarray(body, body + declaredSize);
+      break;
+    }
     offset = body + size + (size % 2);
   }
-  throw new SpeechTranscriptionError("SPEECH_AUDIO_UNREADABLE", 422, "WAVE has no data chunk");
+
+  if (!fmt) reject("WAVE has no usable fmt chunk");
+  if (!data) reject("WAVE has no data chunk");
+  if (data.length === 0) reject("WAVE data chunk is empty");
+  if (data.length % fmt.blockAlign !== 0) reject("data length is not a whole number of frames");
+
+  return {
+    pcm: data,
+    sampleRateHz: fmt.sampleRateHz,
+    channels: fmt.channels,
+    bitsPerSample: fmt.bitsPerSample,
+    bytesPerSecond: fmt.sampleRateHz * fmt.blockAlign,
+  };
 }
 
 function loadPcm(handle: SpeechAudioInputHandle): { pcm: Uint8Array; sampleRateHz: number; channels: number } {
@@ -102,11 +168,17 @@ export class DashScopeRealtimeSpeechTranscriptionProvider implements SpeechTrans
   readonly supportsTimestamps = true;
   readonly isRealProvider = true;
   /**
-   * R1：`paraformer-realtime-v2` 返回的是**声学对齐**产生的句级/逐词时间
-   * （`result-generated` 事件的 `sentence.begin_time/end_time` 与 `words[].begin_time/end_time`），
-   * 不是模型自由生成的时间线。实测依据见 docs/competition/runtime/speech-transcription-verification.json。
+   * R1：来源名称只描述**可证事实**。
+   *
+   * 官方文档（help.aliyun.com/zh/model-studio/paraformer-server-events）把
+   * `sentence.begin_time/end_time` 定义为「句子开始（结束）时间（ms）」，
+   * `words[].begin_time/end_time` 定义为「字时间戳信息」——
+   * 即 provider **正式声明并报告**的时间戳字段。
+   *
+   * 文档**没有**说明这些时间戳由何种内部算法产生，因此这里**不**声称
+   * "acoustic alignment"（那是对 provider 内部实现的推断）。
    */
-  readonly timestampProvenance = "provider_acoustic_alignment" as const;
+  readonly timestampProvenance = "provider_reported_timestamps" as const;
 
   constructor(private readonly config: DashScopeRealtimeConfig) {
     if (!config.apiKey?.trim()) throw new SpeechTranscriptionError("SPEECH_PROVIDER_NOT_CONFIGURED", 503, "DASHSCOPE_API_KEY missing");

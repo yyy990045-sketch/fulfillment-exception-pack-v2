@@ -38,6 +38,8 @@ import {
   type SpeechTranscriptionProvider,
   ALLOWED_TIMESTAMP_PROVENANCE,
   FORBIDDEN_TIMESTAMP_PROVENANCE,
+  assertTimestampProvenance,
+  assertArtifactDerivation,
   traceEvidenceToArtifactAndInterval,
   reverseTraceEvidenceToAudio,
   sliceAudioInterval,
@@ -294,7 +296,7 @@ describe("6. speaker attribution boundary", () => {
     const evidence = evidenceFromTranscriptSegment({
       id: "ev-speaker", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
       sourceDocumentId: "doc-1", sourceVersion: "v1", segment: segments[0]!, observedAt: NOW, createdAt: NOW,
-      timestampProvenance: "provider_acoustic_alignment",
+      timestampProvenance: "provider_reported_timestamps",
     });
     expect(evidence.metadata.speakerRef).toBe("0");
     expect(evidence.metadata.speakerRefIsIdentity).toBe(false);
@@ -355,7 +357,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
       sourceDocumentId: "doc-1", sourceVersion: "v1", entityId: "ent-1",
       segment, observedAt: NOW, createdAt: NOW,
       transcriptOffsets: transcriptOffsetsFor(result.segments, 1),
-      timestampProvenance: "provider_acoustic_alignment",
+      timestampProvenance: "provider_reported_timestamps",
     });
 
     expect(evidence.locator.startMs).toBe(4460);
@@ -377,7 +379,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
     store.saveEvidence(evidenceFromTranscriptSegment({
       id: "ev-1", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1",
       sourceDocumentId: "doc-1", sourceVersion: "v1", segment: result.segments[0]!, observedAt: NOW, createdAt: NOW,
-      timestampProvenance: "provider_acoustic_alignment",
+      timestampProvenance: "provider_reported_timestamps",
     }));
     db.close();
 
@@ -396,7 +398,7 @@ describe("10-11. temporal evidence from a provider segment", () => {
       sourceDocumentId: "doc-1", sourceVersion: "v1",
       segment: { index: 0, text: "x", startMs: 500, endMs: 100, speakerRef: null },
       observedAt: NOW, createdAt: NOW,
-      timestampProvenance: "provider_acoustic_alignment",
+      timestampProvenance: "provider_reported_timestamps",
     })).toThrowError(DomainError);
   });
 });
@@ -452,14 +454,14 @@ describe("credential hygiene", () => {
 describe("R1 · timestamp provenance", () => {
   it("declares an admissible provenance on the real provider", () => {
     const { provider } = dashscopeWith({ sentences: [] });
-    expect(provider.timestampProvenance).toBe("provider_acoustic_alignment");
+    expect(provider.timestampProvenance).toBe("provider_reported_timestamps");
     expect(ALLOWED_TIMESTAMP_PROVENANCE).toContain(provider.timestampProvenance);
   });
 
   it("carries the provider-declared provenance through to the result", async () => {
     const { provider } = dashscopeWith({ sentences: [{ id: 1, begin: 120, end: 900, text: "三号电机" }] });
     const result = await provider.transcribe({ artifact: ARTIFACT, audio: pcmFrames() });
-    expect(result.timestampProvenance).toBe("provider_acoustic_alignment");
+    expect(result.timestampProvenance).toBe("provider_reported_timestamps");
     // 时间戳确实来自协议里的 begin_time/end_time，而不是任何本地推导
     expect(result.segments[0]!.startMs).toBe(120);
     expect(result.segments[0]!.endMs).toBe(900);
@@ -599,7 +601,7 @@ describe("R2/R3 · artifact + interval traceability", () => {
     expect(trace.interval.endMs).toBe(10_200);
     expect(trace.intervalIsNonEmpty).toBe(true);
     expect(trace.locatorUsesFileName).toBe(false);
-    expect(trace.timestampProvenance).toBe("provider_acoustic_alignment");
+    expect(trace.timestampProvenance).toBe("provider_reported_timestamps");
   });
 
   it("proves the interval fits inside the real audio duration", async () => {
@@ -660,5 +662,173 @@ describe("R2/R3 · artifact + interval traceability", () => {
       evidence: { id: "ev-doc", tenantId: TENANT, contextId: "ctx-1", sourceSystemId: "sys-1", sourceDocumentId: "doc", sourceVersion: "v1", field: "f", value: "v", valueType: "string", locator: { fileName: "a.csv" }, quote: "q", confidence: 1, support: "supported", observedAt: NOW, createdAt: NOW, metadata: {} },
       sourceDocument: { id: "doc", tenantId: TENANT, sourceSystemId: "sys-1", externalDocumentId: "a", documentType: "t", contentHash: "h", receivedAt: NOW, effectiveAt: null, version: "v1", metadata: {} },
     })).toThrowError(/SPEECH_SEGMENT_BOUNDS_INVALID/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase A2.1 — Real-World Microphone Capture Closure
+// §18.5 compressed / non-PCM media cannot use PCM byte slicing
+// ---------------------------------------------------------------------------
+
+/** 造一个 **压缩** WAV 容器：RIFF/WAVE 但 audioFormat != 1。 */
+function writeCompressedWav(path: string, audioFormat: number, bitsPerSample = 4) {
+  const body = Buffer.alloc(64);
+  body.write("RIFF", 0, "ascii");
+  body.writeUInt32LE(60, 4);
+  body.write("WAVE", 8, "ascii");
+  body.write("fmt ", 12, "ascii");
+  body.writeUInt32LE(16, 16);
+  body.writeUInt16LE(audioFormat, 20); // ← 关键：非 PCM
+  body.writeUInt16LE(1, 22);
+  body.writeUInt32LE(16000, 24);
+  body.writeUInt32LE(8000, 28);
+  body.writeUInt16LE(2, 32);
+  body.writeUInt16LE(bitsPerSample, 34);
+  body.write("data", 36, "ascii");
+  body.writeUInt32LE(20, 40);
+  writeFileSync(path, body);
+  return path;
+}
+
+describe("A2.1 · compressed media must not use PCM byte slicing", () => {
+  it("rejects MP3 / M4A / OGG style containers", () => {
+    const dir = workspace();
+    const mp3 = join(dir, "clip.mp3");
+    writeFileSync(mp3, Buffer.concat([Buffer.from("ID3"), Buffer.alloc(200)]));
+    const m4a = join(dir, "clip.m4a");
+    writeFileSync(m4a, Buffer.concat([Buffer.from([0, 0, 0, 0x20]), Buffer.from("ftypM4A ", "ascii"), Buffer.alloc(100)]));
+    const ogg = join(dir, "clip.ogg");
+    writeFileSync(ogg, Buffer.concat([Buffer.from("OggS"), Buffer.alloc(100)]));
+
+    for (const path of [mp3, m4a, ogg]) {
+      expect(() => sliceAudioInterval(path, 0, 500)).toThrowError(/SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM/);
+    }
+  });
+
+  it("rejects a compressed WAV container instead of silently mis-slicing it", () => {
+    const dir = workspace();
+    // 0x0002 = ADPCM, 0x0055 = MP3-in-WAV, 0x0006 = A-law, 0x0007 = µ-law
+    for (const fmt of [0x0002, 0x0055, 0x0006, 0x0007]) {
+      const path = writeCompressedWav(join(dir, `compressed-${fmt.toString(16)}.wav`), fmt);
+      expect(() => sliceAudioInterval(path, 0, 100)).toThrowError(/SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM/);
+    }
+  });
+
+  it("rejects a WAV whose blockAlign contradicts channels × bit depth", () => {
+    const dir = workspace();
+    const path = join(dir, "bad-align.wav");
+    const buf = Buffer.alloc(64);
+    buf.write("RIFF", 0, "ascii"); buf.writeUInt32LE(56, 4); buf.write("WAVE", 8, "ascii");
+    buf.write("fmt ", 12, "ascii"); buf.writeUInt32LE(16, 16);
+    buf.writeUInt16LE(1, 20); buf.writeUInt16LE(2, 22); buf.writeUInt32LE(16000, 24);
+    buf.writeUInt32LE(64000, 28); buf.writeUInt16LE(99, 32); buf.writeUInt16LE(16, 34); // blockAlign 应为 4
+    buf.write("data", 36, "ascii"); buf.writeUInt32LE(16, 40);
+    writeFileSync(path, buf);
+    expect(() => sliceAudioInterval(path, 0, 1)).toThrowError(/SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM/);
+  });
+
+  it("never falls back to a size-proportional estimate for unsupported media", () => {
+    const dir = workspace();
+    const mp3 = join(dir, "ratio.mp3");
+    writeFileSync(mp3, Buffer.alloc(50_000, 7));
+    // 若实现按文件大小线性映射就会"成功"返回一个非空 slice —— 必须是报错
+    expect(() => sliceAudioInterval(mp3, 100, 900)).toThrowError(/SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM/);
+  });
+
+  it("still slices genuine uncompressed PCM WAV", () => {
+    const dir = workspace();
+    const wav = writeSilentWav(join(dir, "pcm.wav"), 3_000);
+    expect(sliceAudioInterval(wav.path, 100, 900).length).toBe(25_600);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// §18.9 timestamp provenance must not claim an unverified internal algorithm
+// ---------------------------------------------------------------------------
+describe("A2.1 · timestamp provenance is not an algorithm claim", () => {
+  it("no longer accepts the removed acoustic-alignment claim", () => {
+    expect(ALLOWED_TIMESTAMP_PROVENANCE as readonly string[]).not.toContain("provider_acoustic_alignment");
+    expect(() => assertTimestampProvenance("provider_acoustic_alignment"))
+      .toThrowError(/SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED/);
+  });
+
+  it("accepts only provenance that describes an observable fact", () => {
+    // provider_reported_timestamps = 「provider 报告了这些时间戳」——可观测事实
+    expect(assertTimestampProvenance("provider_reported_timestamps")).toBeUndefined();
+    // 我们自己跑并验证过的对齐机制也允许
+    expect(assertTimestampProvenance("forced_alignment")).toBeUndefined();
+    expect(assertTimestampProvenance("deterministic_audio_alignment")).toBeUndefined();
+  });
+
+  it("the real provider declares provider_reported_timestamps", () => {
+    const { provider } = dashscopeWith({ sentences: [] });
+    expect(provider.timestampProvenance).toBe("provider_reported_timestamps");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// §18.1-4 capture provenance + original/normalized artifact separation
+// ---------------------------------------------------------------------------
+describe("A2.1 · capture provenance and artifact derivation", () => {
+  const ORIGINAL_HASH = "b".repeat(64);
+  const NORMALIZED_HASH = "c".repeat(64);
+  const capture = {
+    captureType: "microphone" as const,
+    deviceCategory: "built_in_microphone" as const,
+    originalMediaType: "audio/x-caf",
+    originalContentHash: ORIGINAL_HASH,
+    originalByteSize: 480_000,
+    originalDurationMs: 20_000,
+  };
+
+  it("keeps original and normalized artifacts distinguishable", () => {
+    const ref = { ...ARTIFACT, contentHash: NORMALIZED_HASH, capture, derivedFrom: { contentHash: ORIGINAL_HASH, relationship: "normalized_from" as const } };
+    expect(() => assertArtifactDerivation(ref)).not.toThrow();
+    expect(ref.contentHash).not.toBe(ref.capture.originalContentHash);
+  });
+
+  it("refuses a normalized artifact that pretends to be the original", () => {
+    expect(() => assertArtifactDerivation({
+      ...ARTIFACT, contentHash: ORIGINAL_HASH, capture, derivedFrom: { contentHash: ORIGINAL_HASH, relationship: "normalized_from" },
+    })).toThrowError(/SPEECH_ARTIFACT_DERIVATION_INVALID/);
+  });
+
+  it("refuses a derivedFrom that disagrees with the capture hash", () => {
+    expect(() => assertArtifactDerivation({
+      ...ARTIFACT, contentHash: NORMALIZED_HASH, capture,
+      derivedFrom: { contentHash: "d".repeat(64), relationship: "normalized_from" },
+    })).toThrowError(/SPEECH_ARTIFACT_DERIVATION_INVALID/);
+  });
+
+  it("refuses derivedFrom without capture provenance", () => {
+    expect(() => assertArtifactDerivation({
+      ...ARTIFACT, contentHash: NORMALIZED_HASH,
+      derivedFrom: { contentHash: ORIGINAL_HASH, relationship: "normalized_from" },
+    })).toThrowError(/SPEECH_ARTIFACT_DERIVATION_INVALID/);
+  });
+
+  it("carries capture provenance into the SourceDocument so it survives reload", async () => {
+    const dir = workspace();
+    const dbPath = join(dir, "pack-cases.sqlite");
+    const db = new DatabaseSync(dbPath);
+    db.exec("PRAGMA foreign_keys = ON");
+    runV2Migrations(db);
+    const store = new V2SqliteStore(db);
+    store.saveContext(createFulfillmentContext({ id: "ctx-cap", tenantId: TENANT, businessKey: "SO-CAP", contextType: "professional_advisory", status: "active", openedAt: NOW, updatedAt: NOW, metadata: {} }));
+    store.saveSourceSystem(createSourceSystem({ id: "sys-cap", tenantId: TENANT, name: "麦克风采集", systemType: "file", authorityLevel: "contributing", status: "active", metadata: {} }));
+    store.saveSourceDocument(sourceDocumentFromArtifact({
+      id: "doc-cap", tenantId: TENANT, sourceSystemId: "sys-cap", contextId: "ctx-cap",
+      artifact: { ...ARTIFACT, contentHash: NORMALIZED_HASH, capture, derivedFrom: { contentHash: ORIGINAL_HASH, relationship: "normalized_from" } },
+      version: "v1", receivedAt: NOW,
+    }));
+    db.close();
+    const reopened = new DatabaseSync(dbPath, { readOnly: true });
+    openDbs.push(reopened);
+    const doc = new V2SqliteStore(reopened).getSourceDocument(TENANT, "doc-cap")!;
+    const meta = doc.metadata as Record<string, unknown>;
+    expect((meta.capture as Record<string, unknown>).deviceCategory).toBe("built_in_microphone");
+    expect((meta.capture as Record<string, unknown>).originalContentHash).toBe(ORIGINAL_HASH);
+    expect((meta.derivedFrom as Record<string, unknown>).contentHash).toBe(ORIGINAL_HASH);
+    expect(doc.contentHash).toBe(NORMALIZED_HASH);
   });
 });

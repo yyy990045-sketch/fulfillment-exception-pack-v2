@@ -124,16 +124,21 @@ export type AudioSlice = {
 /**
  * R3：确定性地把毫秒区间换算成 PCM 字节区间，并从真实文件里读回那一段。
  *
- * 只支持未压缩 PCM WAV（本阶段测试素材即此格式）。不能确定性换算时一律报错。
+ * **只支持未压缩 PCM WAV。** 这依赖四个必须可确证的条件：
+ * 采样率、声道数、位深、以及可可靠解析的 header/data 布局——
+ * 全部由 `extractPcmFromWav` 校验。
+ *
+ * 明确 fail closed（不估算、不猜 codec、不按文件大小比例映射）：
+ * MP3 / AAC / M4A / OGG / FLAC、WAV 容器内的压缩格式、位深异常、data 越界。
  */
 export function readAudioInterval(audioPath: string, startMs: number, endMs: number): AudioSlice {
   if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs < 0 || endMs <= startMs) {
     throw new SpeechTranscriptionError("SPEECH_SEGMENT_BOUNDS_INVALID", 422, `invalid interval ${startMs}..${endMs}`);
   }
   const file = readFileSync(audioPath);
-  const { pcm, sampleRateHz, channels } = extractPcmFromWav(file);
-  const bitsPerSample = 16;
-  const bytesPerMs = (sampleRateHz * channels * (bitsPerSample / 8)) / 1000;
+  // extractPcmFromWav 只接受未压缩 PCM；压缩媒体/未知编解码会在此 fail closed（§6）
+  const { pcm, sampleRateHz, channels, bitsPerSample, bytesPerSecond } = extractPcmFromWav(file);
+  const bytesPerMs = bytesPerSecond / 1000;
   const audioDurationMs = Math.floor(pcm.length / bytesPerMs);
 
   if (endMs > audioDurationMs) {

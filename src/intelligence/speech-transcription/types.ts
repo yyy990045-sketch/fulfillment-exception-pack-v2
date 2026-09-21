@@ -35,6 +35,27 @@ export type SpeechTranscriptionInterfaceKey = typeof SPEECH_TRANSCRIPTION_INTERF
  * `contentHash` 是身份真相：同一份音频重复运行必须得到同一个 hash，
  * 不得依赖临时路径、上传时间或当前机器目录。
  */
+/** 采集来源类别。粒度以**能确认的**为准，不猜型号。 */
+export type CaptureSourceCategory =
+  | "built_in_microphone"
+  | "external_usb_microphone"
+  | "phone_recording_import"
+  | "unknown_controlled_microphone";
+
+/** 真实采集溯源（仅当本工件的源头是麦克风采集时存在）。 */
+export type CaptureProvenance = {
+  captureType: "microphone";
+  deviceCategory: CaptureSourceCategory;
+  /** 原始采集文件的媒体类型（可能不是 PCM WAV） */
+  originalMediaType: string;
+  /** 原始采集文件的内容哈希 —— 转码**不得**改变它 */
+  originalContentHash: string;
+  originalByteSize?: number;
+  originalDurationMs?: number;
+  /** 只有在真实可靠时才记录；不可靠就不写，**不猜** */
+  capturedAt?: string;
+};
+
 export type AudioArtifactRef = {
   /** 稳定的工件标识（例如 `recording-20260920-1015`）。 */
   artifactId: string;
@@ -54,6 +75,16 @@ export type AudioArtifactRef = {
    * runtime 若能可靠取得就填上，R2/R3 的"区间不超出时长"校验依赖它。
    */
   durationMs?: number;
+  /** 真实采集溯源（§5）：原始采集工件与规范化工件必须可区分 */
+  capture?: CaptureProvenance;
+  /**
+   * 若本工件是转码产物，指向原始采集工件。
+   * 存在时**必须**与 `capture.originalContentHash` 一致。
+   */
+  derivedFrom?: {
+    contentHash: string;
+    relationship: "normalized_from";
+  };
 };
 
 /**
@@ -108,11 +139,22 @@ export type TranscriptSegment = {
  * **可验证的音频处理机制**。这份白名单就是那个可检查的边界。
  */
 export const ALLOWED_TIMESTAMP_PROVENANCE = [
-  /** provider 侧的真实声学对齐输出 */
-  "provider_acoustic_alignment",
-  /** 强制对齐（forced alignment） */
+  /**
+   * provider **正式声明**的时间戳字段。
+   *
+   * 这是对"我们实际观察到的事实 + provider 正式承诺的事实"的准确描述：
+   * 官方文档把 `sentence.begin_time/end_time` 与 `words[].begin_time/end_time`
+   * 定义为「句子/字开始（结束）时间（ms）」——即**provider 报告的时间戳**。
+   *
+   * 注意它**不**声称这些时间戳由何种内部算法产生。
+   * （曾经使用的 `provider_acoustic_alignment` 已被移除：官方文档并未说明
+   *  begin_time/end_time 由声学对齐产生，那是对 provider 内部实现的推断。
+   *  依据：help.aliyun.com/zh/model-studio/paraformer-server-events）
+   */
+  "provider_reported_timestamps",
+  /** 我们自己执行并验证过的强制对齐（forced alignment） */
   "forced_alignment",
-  /** 确定性的音频对齐处理 */
+  /** 我们自己执行并验证过的确定性音频对齐 */
   "deterministic_audio_alignment",
 ] as const;
 export type AllowedTimestampProvenance = (typeof ALLOWED_TIMESTAMP_PROVENANCE)[number];
@@ -200,6 +242,44 @@ export type SpeechTranscriptionResult = {
   latencyMs: number;
 };
 
+/**
+ * 校验「原始采集工件」与「规范化工件」的关系（§5）。
+ *
+ * 规则：
+ *   - 声明了 `derivedFrom` 就必须同时有 `capture`（否则说不清"从哪来"）
+ *   - `derivedFrom.contentHash` 必须等于 `capture.originalContentHash`
+ *   - 规范化产物的 contentHash **必须**与原始不同（相同就不该声明 derivedFrom）
+ *
+ * 这条门禁的意义：禁止让转码后的 WAV 假装自己就是原始录音。
+ */
+export function assertArtifactDerivation(ref: AudioArtifactRef): void {
+  if (ref.derivedFrom === undefined) return;
+  if (ref.capture === undefined) {
+    throw new SpeechTranscriptionError(
+      "SPEECH_ARTIFACT_DERIVATION_INVALID",
+      422,
+      `artifact ${ref.artifactId} declares derivedFrom without capture provenance`,
+    );
+  }
+  if (ref.derivedFrom.relationship !== "normalized_from") {
+    throw new SpeechTranscriptionError("SPEECH_ARTIFACT_DERIVATION_INVALID", 422, `unknown derivation relationship`);
+  }
+  if (ref.derivedFrom.contentHash !== ref.capture.originalContentHash) {
+    throw new SpeechTranscriptionError(
+      "SPEECH_ARTIFACT_DERIVATION_INVALID",
+      422,
+      `derivedFrom.contentHash (${ref.derivedFrom.contentHash}) must equal capture.originalContentHash (${ref.capture.originalContentHash})`,
+    );
+  }
+  if (ref.contentHash === ref.capture.originalContentHash) {
+    throw new SpeechTranscriptionError(
+      "SPEECH_ARTIFACT_DERIVATION_INVALID",
+      422,
+      `normalized artifact must not claim derivation while sharing the original contentHash`,
+    );
+  }
+}
+
 export type SpeechTranscriptionErrorCode =
   | "SPEECH_PROVIDER_NOT_CONFIGURED"
   | "SPEECH_PROVIDER_UNAVAILABLE"
@@ -209,6 +289,8 @@ export type SpeechTranscriptionErrorCode =
   | "SPEECH_SEGMENT_TEXT_EMPTY"
   | "SPEECH_SEGMENT_BOUNDS_INVALID"
   | "SPEECH_SEGMENT_EXCEEDS_DURATION"
+  | "SPEECH_ARTIFACT_DERIVATION_INVALID"
+  | "SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM"
   | "SPEECH_TIMESTAMP_PROVENANCE_UNDECLARED"
   | "SPEECH_TIMESTAMP_PROVENANCE_FORBIDDEN"
   | "SPEECH_PROVIDER_TIMEOUT"

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "real-world-mic-capture-verification/v1",
+  "generatedAt": "2026-09-21T01:22:16.719Z",
+  "interfaceKey": "speech_transcription",
+  "provider": "dashscope",
+  "capabilityId": "dashscope-paraformer-realtime@v1",
+  "model": "paraformer-realtime-v2",
+  "captureSource": {
+    "captureType": null,
+    "deviceCategory": null,
+    "note": "未取得真人麦克风录音"
+  },
+  "originalArtifact": null,
+  "normalizedArtifact": null,
+  "transcription": null,
+  "temporalEvidence": null,
+  "realProviderVerified": false,
+  "realHumanMicCaptureVerified": false,
+  "temporalEvidenceReverseTraceVerified": false,
+  "verdict": "PARTIAL",
+  "blocker": "REAL_WORLD_MIC_CAPTURE_UNAVAILABLE",
+  "notes": [
+    "本阶段可完成的全部代码与审计工作已完成并验证（见 a2-1-codeWork）",
+    "真实麦克风 E2E 因 macOS 权限模型未执行；按 phase §22，缺真人麦克风时 A2.1 = PARTIAL，不得 PASS"
+  ],
+  "blockerDetail": {
+    "category": "EXTERNAL_BLOCKER",
+    "platform": "macOS",
+    "cause": "macOS TCC（隐私权限）对**已脱离终端、无 App bundle** 的进程默认不授予麦克风权限：不弹授权框，也不报错，而是向 CoreAudio 交付**全零缓冲**。",
+    "observedEvidence": [
+      "system_profiler SPAudioDataType 确认默认输入设备存在：Built-in / MacBook Air麦克风 / 1 channel / 48000 Hz",
+      "ffmpeg avfoundation 可成功打开 ':0'，输入流为 pcm_f32le 48000Hz mono（无权限错误）",
+      "但 4 秒采集的 PCM 全部为 0：frames=9541 peak=0 rms=0.00 nonzero_samples=0/9541",
+      "进程父链：bash -> node .../dsh web -> pnpm dlx ...（父进程为 PID 1，已脱离可授权的终端 App）"
+    ],
+    "userDecision": "先跳过录音",
+    "howToUnblock": [
+      "用 QuickTime Player / macOS 语音备忘录 / iPhone 录音后导入，再执行 npm run mic:prepare -- <输入音频> <输出目录> <deviceCategory>",
+      "或从终端重新启动 dsh web，并在 系统设置 → 隐私与安全性 → 麦克风 中给该终端 App 授权，然后执行 npm run mic:capture"
+    ]
+  },
+  "a2_1_codeWork": {
+    "timestampProvenanceRenamed": true,
+    "newName": "provider_reported_timestamps",
+    "removedName": "provider_acoustic_alignment",
+    "officialEvidence": "help.aliyun.com/zh/model-studio/paraformer-server-events 将 sentence.begin_time/end_time 定义为「句子开始（结束）时间（ms）」、words[].begin_time/end_time 定义为「字时间戳信息」，**未**说明内部算法",
+    "compressedMediaFailClosed": true,
+    "newErrorCode": "SPEECH_AUDIO_NOT_UNCOMPRESSED_PCM",
+    "captureProvenanceAdded": true,
+    "artifactDerivationSplit": "ORIGINAL_CAPTURE_ARTIFACT / NORMALIZED_AUDIO_ARTIFACT",
+    "semanticCoreChanges": 0,
+    "capabilityRuntimeChanges": 0
+  }
+}
