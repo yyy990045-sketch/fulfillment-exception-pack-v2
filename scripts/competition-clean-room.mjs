@@ -1,14 +1,15 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
 const root = process.cwd();
 const realHome = process.env.HOME ?? "";
-const temp = await mkdtemp(resolve(tmpdir(), "fulfillment-competition-clean-room-"));
+const temp = join("/tmp", `fep-cr-${randomBytes(4).toString("hex")}`);
+await mkdir(temp, { recursive: true });
 const archive = join(temp, "source.tar");
 const home = join(temp, "empty-home");
 const scratch = join(temp, "tmp");
