@@ -22,8 +22,8 @@ function cleanEnv() {
     LANG: process.env.LANG ?? "C.UTF-8",
     LC_ALL: process.env.LC_ALL ?? process.env.LANG ?? "C.UTF-8",
     npm_config_cache: join(scratch, "npm-cache"),
-    npm_config_userconfig: join(scratch, "empty-npmrc"),
-    npm_config_globalconfig: join(scratch, "empty-npmrc"),
+    npm_config_userconfig: join(scratch, "user-npmrc"),
+    npm_config_globalconfig: join(scratch, "global-npmrc"),
     NPM_CONFIG_UPDATE_NOTIFIER: "false",
   };
 }
@@ -98,7 +98,8 @@ async function runChecked(command, args, label, sandbox) {
 try {
   await mkdir(home);
   await mkdir(scratch);
-  await writeFile(join(scratch, "empty-npmrc"), "fund=false\n");
+  await writeFile(join(scratch, "user-npmrc"), "fund=false\n");
+  await writeFile(join(scratch, "global-npmrc"), "fund=false\n");
   await exec("git", ["archive", "--format=tar", "--output", archive, "HEAD"], { cwd: root, maxBuffer: outputLimit });
   await exec("tar", ["-xf", archive, "-C", temp], { cwd: root, maxBuffer: outputLimit });
   const tracked = await filesUnder(temp);
