@@ -86,6 +86,7 @@ async function runChecked(command, args, label, sandbox) {
       "(allow default)",
       ...denied.flatMap((path) => [`(deny file-read* (subpath "${path}"))`, `(deny file-write* (subpath "${path}"))`]),
       "(deny network*)",
+      "(allow network* (local unix-socket))",
     ];
     await writeFile(profile, `${rules.join("\n")}\n`, "utf8");
     return await exec("sandbox-exec", ["-f", profile, command, ...args], { cwd: temp, env, maxBuffer: outputLimit });
