@@ -54,6 +54,7 @@
     "mic:verify": "tsx scripts/verify-mic-capture.ts",
     "mic:prepare": "bash scripts/prepare-mic-capture.sh",
     "licenses:verify": "node scripts/verify-licenses.mjs",
+    "secrets:scan": "node scripts/secret-scan.mjs",
     "sbom": "node scripts/generate-sbom.mjs",
     "competition:doctor": "node scripts/competition-doctor.mjs",
     "competition:verify": "node scripts/competition-verify.mjs",

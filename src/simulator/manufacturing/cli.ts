@@ -1,7 +1,7 @@
 /**
  * `npm run simulator:manufacturing` —— 运行 Factory Simulator。
  *
- * 它不是 fixture loader：Simulator 按**时间**产生事件，并且每条事件来自不同的真实系统。
+ * 它不是 fixture loader：Simulator 按时间产生事件，并且每条事件来自不同的来源系统角色。
  *
  *   npm run simulator:manufacturing                                  # 默认 normal，1x 速度（1 工业日 ≈ 1 秒）
  *   npm run simulator:manufacturing -- --scenario production-shortfall --speed 100

@@ -297,7 +297,7 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
     emit({
       step: "01", id: "industrial_simulation", title: "Industrial Simulation", status: "pass",
       input: `scenario=${scenario.id} seed=${seed}`,
-      process: "Factory Simulator 按 14 天工业日历产生 16 条事件，来自 7 个真实系统角色",
+      process: "Factory Simulator 按 14 天工业日历产生 16 条事件，来自 7 个来源系统角色",
       output: `context=${run.businessKey} (${run.contextId})，${run.messageCount} 条事件，${run.sourceSystems.length} 个来源系统`,
       proof: `SIMULATED INDUSTRIAL ENVIRONMENT  uns=${run.unsRootPath}`,
     });

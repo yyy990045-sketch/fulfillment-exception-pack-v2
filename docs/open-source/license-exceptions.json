@@ -1,0 +1,4 @@
+{
+  "note": "Only entries with ownerApproved true are honored. An empty list grants no exception. Missing npm license metadata is never an implicit allow.",
+  "packages": []
+}

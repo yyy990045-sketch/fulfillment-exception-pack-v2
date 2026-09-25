@@ -1,5 +1,8 @@
 # 履约例外处理台目标架构（阶段 1 封板）
 
+> 这是阶段 1 的历史目标，不是当前参赛主架构。当前主链只看 `README.md` 和 `docs/competition/architecture-one-page.md`：
+> Industrial Systems → open supOS / UNS boundary → Semantic Mapping → Evidence → Exception → AI Assistance → Human Governance → Execution → Outcome → Analytics。
+
 # 1. 项目目标
 
 当前项目起点是 Case-centric 的履约异常演示包：

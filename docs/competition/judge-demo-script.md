@@ -32,7 +32,7 @@ npm run demo                # 打开 http://127.0.0.1:3410 → 左侧导航「�
 
 命令行：`npm run simulator:manufacturing -- --scenario production-shortfall --speed 100`
 
-> 「这是仿真工厂：**16 条事件按 14 天工业日历发生**，来自 **7 个真实系统角色**
+> 「这是仿真工厂：**16 条事件按 14 天工业日历发生**，来自 **7 个来源系统角色**
 > ——ERP 下订单、MES 开工报工完工、QMS 检验、WMS 发货、财务开票收款、服务记录客诉。」
 >
 > 「注意每条事件带的是**该系统自己的字段名**：ERP 是 `order_qty`，MES 是 `completed_qty`。

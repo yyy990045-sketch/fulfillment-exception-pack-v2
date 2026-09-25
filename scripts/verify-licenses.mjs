@@ -1,18 +1,27 @@
-import { access, readFile } from "node:fs/promises";
+import { access } from "node:fs/promises";
 import { resolve } from "node:path";
+import { readLicenseInventory } from "./license-inventory.mjs";
 
 const root = process.cwd();
-const packageJson = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-const lock = JSON.parse(await readFile(resolve(root, "package-lock.json"), "utf8"));
-const allowed = new Set(["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "0BSD", "MIT-0", "BlueOak-1.0.0", "MPL-2.0", "CC0-1.0", "CC-BY-4.0", "Python-2.0", "(MIT OR CC0-1.0)"]);
-const dependencyLicenses = Object.entries(lock.packages ?? {})
-  .filter(([name]) => name.startsWith("node_modules/"))
-  .map(([, value]) => value.license ?? "UNKNOWN");
-const unknown = [...new Set(dependencyLicenses)].filter((license) => !allowed.has(license));
-const projectLicense = packageJson.license ?? (await access(resolve(root, "LICENSE")).then(() => "FILE_PRESENT").catch(() => null));
-if (!projectLicense || unknown.length > 0) {
+const { packageJson, packages, directNames } = await readLicenseInventory(root);
+const blocked = packages.filter((item) => item.status !== "allowed");
+const unclassified = [...directNames].filter((name) => packages.some((item) => item.direct && item.name === name && item.purpose === "UNCLASSIFIED"));
+let projectLicense = packageJson.license ?? null;
+if (!projectLicense) {
+  projectLicense = await access(resolve(root, "LICENSE")).then(() => "FILE_PRESENT").catch(() => null);
+}
+
+if (!projectLicense) console.log("LICENSE_DECISION_REQUIRED");
+console.log(`DEPENDENCY_PACKAGES=${packages.length}`);
+console.log(`DEPENDENCY_REVIEW=${blocked.length}`);
+
+if (blocked.length > 0 || unclassified.length > 0) {
   console.error("LICENSE_AUDIT_BLOCKED");
-  if (!projectLicense) console.error("LICENSE_DECISION_REQUIRED: project has no LICENSE or package license");
-  if (unknown.length > 0) console.error(`UNKNOWN_DEPENDENCY_LICENSES: ${unknown.join(", ")}`);
+  for (const item of blocked) {
+    console.error(`REVIEW ${item.marker} ${item.name}@${item.version} license=${item.license}`);
+  }
+  for (const name of unclassified) console.error(`UNCLASSIFIED_DIRECT_PURPOSE ${name}`);
   process.exitCode = 1;
-} else console.log("LICENSE_AUDIT_VERIFIED");
+} else {
+  console.log("LICENSE_AUDIT_VERIFIED");
+}

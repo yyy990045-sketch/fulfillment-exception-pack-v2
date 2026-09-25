@@ -1,21 +1,94 @@
 {
   "projectName": "fulfillment-exception-pack",
   "version": "0.1.0",
-  "releaseLine": "competition-candidate",
-  "commitSha": "32a3352acadda987a5f97e7c002df83931289a54",
+  "versionLine": "competition-candidate-pre-1.0",
+  "versionRationale": "仓库版本在封口前已经是 0.1.0，运行时代码也引用这个版本。本次不升到 1.0.0，也不把它叫做 production。",
+  "releaseTag": "competition-v0.1.0",
+  "commitSha": "STAMPED_IN_DIST_BUNDLE",
+  "commitShaPolicy": "提交无法把自身哈希写进同一提交。npm run competition:package 只把 dist 副本里的 commitSha 写成当时的 git rev-parse HEAD。",
   "judgeScenario": "production-shortfall",
   "judgeCommand": "npm run demo:judge",
-  "implementedCapabilities": ["evidence-trace", "traceability-gate", "industrial-simulator", "uns-semantic-layer", "rbac", "tenant-isolation", "backup-recovery", "human-governance", "execution-read-back"],
-  "locallyVerifiedCapabilities": ["judge-demo", "evidence-replay-idempotency", "simulated-industrial-scenarios", "local-superset-history"],
-  "contractVerifiedCapabilities": ["open-supos-inbound-connector", "uns-mqtt-boundary", "optional-powerbi-surface", "optional-jev-provider-surface"],
-  "blockedCapabilities": ["license-decision", "current-environment-superset-embed", "real-open-supos-runtime"],
-  "notVerifiedCapabilities": ["real-customer", "real-factory", "real-mes", "production-deployment"],
-  "truthBoundary": { "realCustomerVerified": false, "realFactoryVerified": false, "realMesVerified": false, "realOpenSuposRuntimeVerified": false, "productionDeploymentVerified": false },
-  "requiredRuntime": { "node": ">=22.5.0", "packageManager": "npm", "coreDemoExternalServices": false },
+  "implementedCapabilities": [
+    "evidence-trace",
+    "traceability-gate",
+    "execution-read-back",
+    "human-governance",
+    "industrial-simulator",
+    "uns-semantic-layer",
+    "rbac",
+    "tenant-isolation",
+    "backup-recovery"
+  ],
+  "locallyVerifiedCapabilities": [
+    "judge-demo",
+    "evidence-replay-idempotency",
+    "simulated-industrial-scenarios",
+    "local-superset-history"
+  ],
+  "contractVerifiedCapabilities": [
+    "open-supos-inbound-connector",
+    "uns-mqtt-boundary",
+    "optional-powerbi-surface",
+    "optional-jev-provider-surface"
+  ],
+  "blockedCapabilities": [
+    "project-license-decision",
+    "current-environment-superset-embed",
+    "real-open-supos-runtime"
+  ],
+  "notVerifiedCapabilities": [
+    "real-customer",
+    "real-factory",
+    "real-mes",
+    "production-deployment"
+  ],
+  "truthBoundary": {
+    "realCustomerVerified": false,
+    "realFactoryVerified": false,
+    "realMesVerified": false,
+    "realOpenSuposRuntimeVerified": false,
+    "productionDeploymentVerified": false
+  },
+  "truthFlags": {
+    "OPEN_SOURCE_GOVERNANCE_IMPLEMENTED": true,
+    "DEPENDENCY_LICENSE_AUDIT_LOCALLY_VERIFIED": true,
+    "SBOM_GENERATED": true,
+    "COMPETITION_CLEAN_ROOM_VERIFIED": true,
+    "COMPETITION_ACCEPTANCE_LOCALLY_VERIFIED": true,
+    "COMPETITION_RELEASE_PACKAGE_VERIFIED": true,
+    "TRUTH_CLAIM_AUDIT_LOCALLY_VERIFIED": true,
+    "REAL_CUSTOMER_VERIFIED": false,
+    "REAL_FACTORY_VERIFIED": false,
+    "REAL_MES_VERIFIED": false,
+    "REAL_OPEN_SUPOS_RUNTIME_VERIFIED": false,
+    "PRODUCTION_DEPLOYMENT_VERIFIED": false
+  },
+  "requiredRuntime": {
+    "node": ">=22.5.0",
+    "packageManager": "npm",
+    "coreDemoExternalServices": false,
+    "dockerRequiredForCoreDemo": false
+  },
   "optionalIntegrations": {
-    "superset": { "implemented": true, "localDashboardVerified": true, "currentEnvironmentVerification": "BLOCKED_BY_ENVIRONMENT" },
-    "openSupos": { "implemented": true, "unsMqttContract": "LOCALLY_VERIFIED", "runtime": "NOT_VERIFIED" },
-    "powerbi": { "implemented": true, "runtime": "NOT_VERIFIED" },
-    "jev": { "implemented": true, "runtime": "NOT_VERIFIED" }
+    "superset": {
+      "SUPERSET_EMBED_IMPLEMENTED": true,
+      "SUPERSET_LOCAL_DASHBOARD_VERIFIED": true,
+      "CURRENT_ENV_SUPERSET_VERIFY": "BLOCKED_BY_ENVIRONMENT",
+      "note": "SUPERSET_LOCAL_DASHBOARD_VERIFIED records earlier local historical evidence. This environment has not rerun that check."
+    },
+    "openSupos": {
+      "OpenSuposInboundConnector": "IMPLEMENTED",
+      "unsMqttContract": "LOCALLY_VERIFIED",
+      "REAL_OPEN_SUPOS_RUNTIME": "NOT_VERIFIED"
+    },
+    "powerbi": {
+      "implemented": true,
+      "runtime": "NOT_VERIFIED"
+    },
+    "jev": {
+      "implemented": true,
+      "runtime": "NOT_VERIFIED",
+      "realCustomerDecisionQualityVerified": false
+    }
   }
 }

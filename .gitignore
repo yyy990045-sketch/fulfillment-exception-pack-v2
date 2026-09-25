@@ -10,6 +10,7 @@ dist/
 !.env.decision-ai.example
 !.env.root-cause-ai.example
 !.env.automation.example
+!.env.example
 .preview
 .playwright/
 playwright-report/
@@ -18,3 +19,15 @@ data/
 .data/
 # 运维备份产物（一致性快照 + manifest），不入库
 backups/
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.pem
+*.key
+id_rsa
+id_ed25519
+coverage/
+logs/
+*.log

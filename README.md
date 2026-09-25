@@ -34,9 +34,7 @@
 ## 架构（一条链，不是 30 个框）
 
 ```text
-Industrial Systems → open supOS / UNS → Semantic Mapping → Evidence Layer
-  → Exception Engine → AI Assistance（advisory only）→ Human Governance
-  → Execution / Outcome → Analytics（可选）
+Industrial Systems → open supOS / UNS boundary → Semantic Mapping → Evidence → Exception → AI Assistance → Human Governance → Execution → Outcome → Analytics
 ```
 
 完整说明见 `docs/competition/architecture-one-page.md`。

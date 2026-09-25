@@ -3,7 +3,7 @@
  *
  * 它不是 fixture loader：
  *   1. 按**时间**发生——每条记录有自己的工业日历时刻（见 PHASE_TIMELINE）；
- *   2. 每条记录来自**不同的真实系统**（ERP / MES / QMS / WMS / Finance / CRM / Service），
+ *   2. 每条记录来自不同的来源系统角色（ERP / MES / QMS / WMS / Finance / CRM / Service），
  *      并且带的是**该系统自己的原始字段名**（`completed_qty` / `report_qty` / `ar_amount` …）；
  *   3. 原始字段经 Industrial Mapping Manifest 翻译成规范字段，再组装成
  *      与 `OpenSuposInboundConnector` 契约一致的 UNS 信封（禁止另造比赛专用协议）；

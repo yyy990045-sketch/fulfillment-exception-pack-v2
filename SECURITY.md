@@ -1,17 +1,41 @@
-# Security policy
+# 安全政策
 
-## Supported versions
+## 支持范围
 
-Security fixes are considered for the latest commit on the competition release line. This repository is a pre-1.0 competition candidate, not a production support commitment.
+安全修复考虑参赛发布线的最新提交，当前版本是 `0.1.0`（`competition-v0.1.0`）。这是 pre-1.0 参赛候选，不是生产支持承诺。
 
-## Reporting a vulnerability
+## 如何报告漏洞
 
-Do not publish credentials, exploit details, personal data, or tenant data in a public issue. If GitHub private security advisories are enabled, use one. Otherwise contact the repository owner through the private repository channel before disclosure. No public email address is asserted here.
+不要在公开 issue 里贴凭据、利用细节、个人数据或租户数据。
 
-## Security boundaries
+如果这个 GitHub 仓库开启了私密安全通告，请用私密通告报告：
 
-- Never commit `.env`, tokens, private keys, database credentials, JWT secrets, or customer exports.
-- Use the production JWT boundary and tenant/role checks; demo compatibility headers are not production authentication.
-- Treat evidence payloads, source URLs, logs, backups, and screenshots as potentially sensitive.
-- Preserve evidence hashes, source provenance, replay/idempotency checks, and fail-closed traceability gates.
-- Never describe a local simulator, contract test, or historical local dashboard verification as a live external system or production result.
+`https://github.com/yyy990045-sketch/fulfillment-exception-pack/security/advisories/new`
+
+本文件不提供公开邮箱。仓库没有官方安全邮箱时，不要发明一个地址。私密通告不可用时，私下联系仓库维护者，仍然不要公开披露细节。
+
+## 凭据
+
+- 不提交 `.env`、令牌、私钥、数据库口令、JWT 密钥或客户导出。
+- 只提交 `.env.*.example` 这种空模板。
+- 不要求别人把密钥贴进 issue、拉取请求或聊天记录。
+
+## 密钥处理
+
+密钥只从环境或密钥管理器进入进程。日志、错误响应、证据导出和截图里不回显令牌、口令或连接串。发现密钥已经进入 git 历史时，停止扩散，只报告位置和类别，不把密钥再写进新的日志。
+
+## 租户隔离
+
+案件、证据和执行记录按租户分开。演示请求头不是生产身份认证。生产模式要求 `NODE_ENV=production`、`DEMO_MODE=false`，以及长度不少于 32 字节的 `AUTH_SECRET`；JWT 需要包含 `sub`、`tenant_id`、`roles`、`scopes`、`exp`。这些要求是代码边界，不是生产部署已验证。
+
+## 敏感日志
+
+证据载荷、来源地址、备份、截图和审计日志都可能带有敏感内容。公开问题时只描述现象和版本，不附原始载荷、备份或客户数据。
+
+## 安全边界
+
+- 仿真工业环境不是真实工厂，也不是真实 MES。
+- 证据不可回源时，审批和执行必须被挡住。
+- 同一个人不能批准自己提交的方案。
+- AI 只解释和推荐，不批准，不执行。
+- 本地契约、历史本地仪表板和可选外部集成，都不能写成生产环境已验证。

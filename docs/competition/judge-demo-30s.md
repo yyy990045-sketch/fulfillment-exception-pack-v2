@@ -6,7 +6,7 @@
 
 **Input**
 
-仿真工厂按 14 天工业日历产出 16 条事件，来自 7 个真实系统角色（ERP / MES / QMS / WMS / Finance / CRM / Service），每条带的是**该系统自己的字段名**（`order_qty`、`completed_qty`）。事件落到标准 UNS topic，经声明式 Mapping Manifest 翻译成统一工业语义。
+仿真工厂按 14 天工业日历产出 16 条事件，来自 7 个来源系统角色（ERP / MES / QMS / WMS / Finance / CRM / Service），每条带的是**该系统自己的字段名**（`order_qty`、`completed_qty`）。事件落到标准 UNS topic，经声明式 Mapping Manifest 翻译成统一工业语义。
 
 **Difference**
 

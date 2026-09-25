@@ -6,25 +6,37 @@ body:
     id: source_system
     attributes:
       label: Source system
+    validations:
+      required: true
   - type: input
     id: protocol
     attributes:
       label: Protocol or API
+    validations:
+      required: true
   - type: textarea
     id: payload
     attributes:
       label: Payload example
       description: Provide a redacted example only.
+    validations:
+      required: true
   - type: textarea
     id: mapping
     attributes:
       label: Mapping requirement
+    validations:
+      required: true
   - type: input
     id: tenant
     attributes:
       label: Tenant requirement
+    validations:
+      required: true
   - type: textarea
     id: evidence
     attributes:
       label: Verification evidence
-      description: Explain whether evidence is contract-only, local, or from a real runtime.
+      description: State whether this is contract-only, local simulation, or a real runtime. Do not call a simulation a real factory.
+    validations:
+      required: true

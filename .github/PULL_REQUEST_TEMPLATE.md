@@ -1,27 +1,25 @@
-## Summary
+## 摘要
 
-<!-- What changed and why? -->
+<!-- 改了什么，为什么改。 -->
 
-## Verification
+## 检查项
 
-- [ ] Backend tests run
-- [ ] Frontend tests/e2e run when applicable
-- [ ] `npm run typecheck`
-- [ ] Docs updated
-- [ ] Migration reviewed (or not applicable)
-- [ ] Security and secret handling reviewed
-- [ ] Tenant isolation reviewed
-- [ ] Truth flags and claim language reviewed
-- [ ] Backward compatibility reviewed
-- [ ] Evidence/provenance impact reviewed
+- [ ] tests
+- [ ] docs
+- [ ] migration
+- [ ] security
+- [ ] tenant isolation
+- [ ] truth flags
+- [ ] backward compatibility
+- [ ] evidence/provenance impact
 
-## Integration boundary
+## 集成验证
 
-- [ ] No integration change
-- [ ] Contract-only / fixture-only
-- [ ] Local runtime verified
-- [ ] Real external runtime verified with artifact: <!-- link/path -->
+不涉及集成时勾选「不适用」。涉及集成时，下面三项必须勾清一项，不能同时写成已经在真实环境验证。
 
-## Release notes
+- [ ] real runtime verified
+- [ ] contract only
+- [ ] simulation only
+- [ ] not applicable
 
-<!-- State what remains simulated, blocked, or externally unverified. -->
+真实运行时验证需要写明证据位置。契约验证和仿真验证不能写成真实工厂或生产环境已验证。

@@ -5,6 +5,24 @@
 
 状态词只有：`LOCALLY_VERIFIED` / `DEMO_VERIFIED` / `LIVE_VERIFIED` / `NOT_VERIFIED` / `NOT_IMPLEMENTED` / `BLOCKED_BY_ENVIRONMENT`。
 
+下面这张表是唯一事实索引。后面的 A–G 是同一批主张的展开，不另起一套结论。`LOCALLY_VERIFIED` 就是本地验证，不是真实工厂或生产环境。
+
+| CLAIM | STATUS | COMMAND | TEST | ARTIFACT | LIMITATION |
+| --- | --- | --- | --- | --- | --- |
+| 工业多系统高仿真 | LOCALLY_VERIFIED | `npm run simulator:verify` | `tests/industrial-scenarios-ab.test.ts` | `INDUSTRIAL_SIMULATOR_LOCALLY_VERIFIED` | 仿真环境，不是真实工厂 |
+| Evidence trace | LOCALLY_VERIFIED | `npm run evidence:verify -- --context <id>` | `tests/traceability-gate.test.ts` | `EVIDENCE_TRACE_VERIFIED` | 验证的是本地留存证据，不是客户现场 |
+| 评委主场景 production-shortfall | LOCALLY_VERIFIED | `npm run demo:judge` | `tests/judge-demo.test.ts` | `JUDGE_DEMO_VERIFIED` | 不依赖外部运行时 |
+| 证据不可回源时阻止审批和执行 | LOCALLY_VERIFIED | `npm run demo:judge -- --scenario evidence-broken` | `tests/judge-http.test.ts` | `EVIDENCE_NOT_VERIFIABLE` | 闸门在本地演示和 HTTP 测试中生效 |
+| 重放幂等 | LOCALLY_VERIFIED | `npm run simulator:verify` | `tests/industrial-scenarios-ab.test.ts` | `replay.idempotent_all` | 只覆盖仿真场景 |
+| 备份和恢复 | LOCALLY_VERIFIED | `npm run db:verify-backup` | `npm run ops:recovery-drill` | `BACKUP_RESTORE_VERIFIED` | 本地数据库演练，不是生产灾备 |
+| open supOS 连接器与 UNS/MQTT 契约 | LOCALLY_VERIFIED | `npm run open-supos:verify -- --mode contract` | `tests/open-supos-adapter.test.ts` | `LOCAL_CONTRACT_VERIFIED` | 契约验证不是运行时验证 |
+| open supOS runtime | NOT_VERIFIED | `npm run open-supos:verify -- --mode live` | — | `BLOCKED` | `REAL_OPEN_SUPOS_RUNTIME=NOT_VERIFIED` |
+| real MES | NOT_VERIFIED | — | — | — | `REAL_MES_VERIFIED=false` |
+| 真实工厂 / 真实客户 / 生产部署 | NOT_VERIFIED | — | — | — | 四项部署与客户标记保持 false |
+| Superset 嵌入实现 | LOCALLY_VERIFIED | — | `tests/superset-guest-token.test.ts` | 历史本地仪表板记录 | 当前环境 `superset:verify-embed` 为 `BLOCKED_BY_ENVIRONMENT` |
+| 依赖许可证与 SBOM | LOCALLY_VERIFIED | `npm run licenses:verify` | `npm run sbom` | `artifacts/sbom.cdx.json` | 项目许可证仍是 `LICENSE_DECISION_REQUIRED` |
+| 干净目录复现 | LOCALLY_VERIFIED | `npm run competition:clean-room` | `npm run competition:verify` | `COMPETITION_CLEAN_ROOM_VERIFIED` | 不包含可选外部系统的现场验证 |
+
 ---
 
 ## A. 工业仿真与多系统来源

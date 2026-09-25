@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 安全漏洞
+    url: https://github.com/yyy990045-sketch/fulfillment-exception-pack/security/advisories/new
+    about: 使用 GitHub 私密安全通告。不要在公开 issue 中粘贴密钥、租户数据或利用细节。
