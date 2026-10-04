@@ -1,0 +1,12 @@
+{
+  "id": "phase-j1-judge-path-convergence",
+  "title": "Phase J1 Judge Path Convergence",
+  "status": "completed",
+  "complexity": "L+",
+  "risk": "high",
+  "domain": "competition-judge-path",
+  "currentPhase": "completed",
+  "nextAction": "归档 J1 任务并提交归档记录",
+  "createdAt": "2026-10-04T00:00:00Z",
+  "branch": "main"
+}
