@@ -5,7 +5,7 @@
  * 这里只声明页面真正消费的字段 —— 不做全量镜像，避免前端成为第二份契约。
  */
 export type JudgeSourceRefView = {
-  role: "order" | "production";
+  role: "order" | "production" | "quality" | "shipment";
   systemKey: string;
   systemType: string | null;
   evidenceId: string;
@@ -41,6 +41,8 @@ export type JudgeManifestView = {
   sources: {
     order: JudgeSourceRefView | null;
     production: JudgeSourceRefView | null;
+    quality?: JudgeSourceRefView | null;
+    shipment?: JudgeSourceRefView | null;
   };
   uns: {
     orderTopic: string | null;
@@ -112,5 +114,38 @@ export type JudgeManifestView = {
     unsStream: string | null;
     evidenceManifest: string | null;
     readback: string | null;
+  };
+  fulfillment?: {
+    version: string;
+    contract: string;
+    businessKey: string;
+    currentCase: "A" | "B" | "C" | "D" | "E";
+    facts: {
+      businessKey: string;
+      sourceOrderLineRef: string;
+      workOrderRef: string;
+      productionLotRef: string;
+      shipmentSourceRef: string;
+      requiredQty: number;
+      dueAt: string;
+      completedQty: number;
+      productionState: string;
+      releasedQty: number;
+      executionCommittedQty: number;
+      sourceProgress: Record<string, string>;
+    };
+    lineage: { status: string; relation: string };
+    cases: Array<{
+      caseId: "A" | "B" | "C" | "D" | "E";
+      label: string;
+      status: string;
+      reason: string;
+      observedStateConflict: boolean;
+      globalWatermark: string;
+      dueAtWithGrace: string;
+      disposition: { status: string; authorizedQty: number | null; authority: string };
+      externalObligation: string;
+    }>;
+    realOpenSuposRuntimeVerified: false;
   };
 };

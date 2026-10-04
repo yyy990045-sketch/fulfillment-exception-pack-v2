@@ -61,6 +61,13 @@ export type SimulatedIndustrialRecord = {
   sourceVersion: string;
   /** 来源系统的原始字段（Mapping Manifest 的输入），不是规范字段 */
   sourceFields: Record<string, unknown>;
+  /** 明确的跨系统业务关系，不依赖各系统 entityId 相同。 */
+  sourceRelations: {
+    sourceOrderLineRef: string;
+    workOrderRef?: string;
+    productionLotRef?: string;
+    shipmentSourceRef?: string;
+  };
   locator: EvidenceLocator;
   quote: string;
 };
@@ -86,7 +93,7 @@ const PHASE_BLUEPRINTS: PhaseBlueprint[] = [
   },
   {
     phase: "order.created", canonicalEventType: "ORDER_CREATED", system: "ERP", offsetMinutes: 240, entitySuffix: "sales_order",
-    sourceFields: (s) => ({ order_qty: s.parameters.orderQty }),
+    sourceFields: (s) => ({ order_qty: s.parameters.orderQty, due_at: s.parameters.dueAt }),
   },
   {
     phase: "production.started", canonicalEventType: "PRODUCTION_STARTED", system: "MES", offsetMinutes: 1440, entitySuffix: "production_order",
@@ -122,7 +129,7 @@ const PHASE_BLUEPRINTS: PhaseBlueprint[] = [
   },
   {
     phase: "shipment.dispatched", canonicalEventType: "SHIPMENT_DISPATCHED", system: "WMS", offsetMinutes: 7320, entitySuffix: "shipment",
-    sourceFields: (s) => ({ shipped_qty: s.parameters.shipmentQty }),
+    sourceFields: (s) => ({ execution_committed_qty: s.parameters.shipmentQty }),
   },
   {
     phase: "shipment.received", canonicalEventType: "SHIPMENT_SIGNED", system: "WMS", offsetMinutes: 10080, entitySuffix: "shipment",
@@ -203,6 +210,12 @@ function isoFromMinutes(baseIso: string, minutes: number) {
   return new Date(Date.parse(baseIso) + minutes * 60_000).toISOString();
 }
 
+function sourceProgressAt(scenario: SimulationScenario) {
+  // 模拟连接器 checkpoint：这是“截至该时间以前的数据已完整”的承诺，
+  // 与单条事件的 latestEventTime 有意分开。
+  return isoFromMinutes(scenario.parameters.dueAt, 360);
+}
+
 function documentKeyFor(scenario: SimulationScenario, entityType: string) {
   const index = scenario.businessKey.replace(/^SO-IND-/, "");
   return `${ENTITY_PREFIX[entityType] ?? "DOC"}-IND-${index}`;
@@ -231,6 +244,7 @@ export function buildSimulatedRecords(input: {
     const phaseCount = (seenPhaseCount.get(blueprint.phase) ?? 0) + 1;
     seenPhaseCount.set(blueprint.phase, phaseCount);
     const sourceFields = blueprint.sourceFields(input.scenario, { documentKey: entityBusinessKey });
+    const sourceOrderLineRef = `ERP:${input.scenario.businessKey}:LINE-01`;
     return {
       sequence: index,
       phase: blueprint.phase,
@@ -246,6 +260,12 @@ export function buildSimulatedRecords(input: {
       documentType: blueprint.entitySuffix,
       sourceVersion: "v1",
       sourceFields,
+      sourceRelations: {
+        sourceOrderLineRef,
+        ...(blueprint.system === "MES" ? { workOrderRef: `MES:${entityBusinessKey}` } : {}),
+        ...(blueprint.system === "QMS" ? { productionLotRef: `QMS:${entityBusinessKey}:LOT-01` } : {}),
+        ...(blueprint.system === "WMS" ? { shipmentSourceRef: `WMS:${entityBusinessKey}` } : {}),
+      },
       locator: { fileName: `${entityBusinessKey}.json`, row: phaseCount, line: phaseCount },
       quote: Object.entries(sourceFields).map(([key, value]) => `${key}=${String(value)}`).join(" "),
     };
@@ -324,6 +344,9 @@ export function buildUnsMessage(input: {
         phase: record.phase,
         sequence: record.sequence,
         sourceFieldNames: Object.keys(record.sourceFields),
+        lineage: record.sourceRelations,
+        sourceProgressAt: sourceProgressAt(scenario),
+        checkpointKind: "demo-source-checkpoint",
         shift: operatorContext.shift,
         operatorId: operatorContext.operatorId,
         workstation: operatorContext.workstation,

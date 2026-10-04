@@ -27,6 +27,8 @@ export const SIMULATION_SCENARIO_IDS: SimulationScenarioId[] = [
 export type ScenarioParameters = {
   /** ERP 销售订单数量 */
   orderQty: number;
+  /** ERP 对外承诺交期（来源事实，不由 Judge 推算） */
+  dueAt: string;
   /** MES 工单累计完工数量 */
   productionCompleted: number;
   /** MES 报工过程（累计值，最后一项必须等于 productionCompleted） */
@@ -104,11 +106,12 @@ function scenario(input: {
 export const SIMULATION_SCENARIOS: SimulationScenario[] = [
   scenario({
     id: "normal",
-    index: 1,
+    index: 0,
     label: "正常履约：订单/生产/质检/发货/回款全部一致",
     narrative: "A 线按单生产 100 件，100 件送检全部合格，100 件发货并被客户签收，全额回款。",
     parameters: {
       orderQty: 100,
+      dueAt: "2026-09-04T01:00:00.000Z",
       productionCompleted: 100,
       productionReports: [40, 82, 100],
       qualityInspected: 100,
@@ -125,15 +128,16 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
   }),
   scenario({
     id: "production-shortfall",
-    index: 2,
-    label: "生产短少：工单完工 96 < 订单 100",
-    narrative: "A 线工单完工 96 件（比订单少 4 件）；缺口由成品库存 4 件补足，因此出货检验、发货与回款仍然完整。",
+    index: 1,
+    label: "跨系统履约冲突：QMS 放行 96，WMS 已承诺执行 100",
+    narrative: "SO-IND-001 的 MES 已到终态但只完成 96 件，QMS 仅放行 96 件，而 WMS 已将 100 件释放到实际发运执行阶段。",
     parameters: {
       orderQty: 100,
+      dueAt: "2026-09-04T01:00:00.000Z",
       productionCompleted: 96,
       productionReports: [38, 74, 96],
-      qualityInspected: 100,
-      qualityPassed: 100,
+      qualityInspected: 96,
+      qualityPassed: 96,
       qualityFailed: 0,
       shipmentQty: 100,
       invoiceAmount: 100000,
@@ -141,10 +145,10 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
       paymentAmount: 100000,
       claimedReceivedQty: 100,
     },
-    exceptionCodes: ["ORDER_PRODUCTION_COMPLETION_SHORTFALL"],
+    exceptionCodes: ["ORDER_PRODUCTION_COMPLETION_SHORTFALL", "QUALITY_SHIPMENT_QUANTITY_MISMATCH"],
     rationale:
-      "只有 R5 命中（完工 96 < 订单 100）。出货检验覆盖的是整批发货批次（工单 96 + 库存结转 4 = 100），"
-      + "所以 R6/R7 不命中；发货与回款完整，所以 R2/R3/R4 不命中 —— 恰好 1 个异常，且缺口被准确定位在 MES。",
+      "J1 主链不再用单一数量差直接开案：四个来源事实在 dueAt 后的共同水位上，"
+      + "通过订单行/工单/批次/发运关系确认属于同一履约链，再由 FULFILLMENT_STATE_CONFLICT@1.0 判定。",
   }),
   scenario({
     id: "quality-failure",
@@ -153,6 +157,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
     narrative: "工单完工 100 件，终检判定 6 件不合格只能报废；可发货量降到 94 件，实际发货 94 件，按 94 件开票收款。",
     parameters: {
       orderQty: 100,
+      dueAt: "2026-09-04T01:00:00.000Z",
       productionCompleted: 100,
       productionReports: [42, 88, 100],
       qualityInspected: 100,
@@ -177,6 +182,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
     narrative: "工单完工 100 件，但本次只放行 96 件进入出货检验并全部合格，4 件留在成品待处理区；实际发货 96 件。",
     parameters: {
       orderQty: 100,
+      dueAt: "2026-09-04T01:00:00.000Z",
       productionCompleted: 100,
       productionReports: [40, 82, 100],
       qualityInspected: 96,
@@ -200,6 +206,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
     narrative: "订单 100 件全部生产、检验、发货并签收，全额开票并挂应收 100000；财务只收到 80000。",
     parameters: {
       orderQty: 100,
+      dueAt: "2026-09-04T01:00:00.000Z",
       productionCompleted: 100,
       productionReports: [45, 90, 100],
       qualityInspected: 100,

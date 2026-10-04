@@ -50,21 +50,73 @@ export function JudgePage() {
     ? `/manufacturing/${encodeURIComponent(contextId)}/exceptions/${encodeURIComponent(view.exception.id)}/evidence`
     : null;
   const sourceSystems = [...new Set(
-    [view.sources.order?.systemKey, view.sources.production?.systemKey].filter((item): item is string => Boolean(item)),
+    [view.sources.order?.systemKey, view.sources.production?.systemKey, view.sources.quality?.systemKey, view.sources.shipment?.systemKey].filter((item): item is string => Boolean(item)),
   )];
+  const fulfillment = view.fulfillment;
+  const currentCase = fulfillment?.cases.find((item) => item.caseId === fulfillment.currentCase);
+  const statusLabel = (status: string) => ({
+    NO_CONFLICT: "无冲突",
+    WAITING_FOR_SOURCE_PROGRESS: "等待来源水位",
+    FULFILLMENT_STATE_CONFLICT: "跨系统履约冲突",
+    WAITING_FOR_EXECUTION_VERIFICATION: "等待执行回读",
+    REVALIDATED_CLOSED: "重新验证并关闭",
+  }[status] ?? status);
 
   return (
     <ProductPage className="space-y-3 py-5">
       <ProductHeader
+        leading={<div className="mb-0.5 text-xs font-semibold text-interactive">履约哨兵 · Fulfillment Sentinel</div>}
         title="比赛评委视图"
-        description={view.businessQuestion}
-        badges={<Badge variant="success">High-Fidelity Simulated Industrial Environment</Badge>}
+        description="基于 open supOS UNS 的跨系统生产履约状态冲突处置 APP"
+        badges={<Badge variant="info">SO-IND-001 · 离散制造</Badge>}
         footer={
           <span data-testid="judge-truth-boundary">
             场景 {view.scenario} · 仿真工业环境，不是真实工厂 · open supOS 运行时未验证
           </span>
         }
       />
+
+      {fulfillment ? (
+        <ProductSection className={recordWidthClass} data-testid="judge-fulfillment-summary">
+          <SectionHeader
+            title="当前履约状态"
+            description="订单承诺 100 件，MES 已完成 96 件；四套工业系统属于同一订单行，并在共同水位上判断"
+            meta={<StatusDotBadge variant={currentCase?.observedStateConflict ? "danger" : "success"}>{statusLabel(currentCase?.status ?? "")}</StatusDotBadge>}
+          />
+          <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
+            <FactCard system="ERP Order" value={`${fulfillment.facts.requiredQty} 件`} detail={`交期 ${fulfillment.facts.dueAt}`} tone="neutral" />
+            <FactCard system="MES Production" value={`${fulfillment.facts.completedQty} / ${fulfillment.facts.requiredQty} 件`} detail={fulfillment.facts.productionState} tone="warning" />
+            <FactCard system="QMS Quality" value={`released ${fulfillment.facts.releasedQty} 件`} detail="可放行数量" tone="warning" />
+            <FactCard system="WMS Shipment" value={`execution committed ${fulfillment.facts.executionCommittedQty} 件`} detail="实际发运执行承诺" tone={fulfillment.facts.executionCommittedQty > fulfillment.facts.releasedQty ? "danger" : "neutral"} />
+          </div>
+          <div className="grid gap-3 border-t border-border p-4 md:grid-cols-3">
+            <SummaryItem label="Global Watermark" value={currentCase?.globalWatermark || "—"} hint={`判断门槛 ${currentCase?.dueAtWithGrace || "—"}`} />
+            <SummaryItem label="Business Lineage" value={fulfillment.lineage.status} hint={fulfillment.lineage.relation} />
+            <SummaryItem label="Current Result" value={statusLabel(currentCase?.status ?? "")} hint={currentCase?.reason ?? "—"} />
+          </div>
+          <div className="border-t border-border px-4 py-3 text-sm text-text-secondary">
+            {currentCase?.reason ?? "—"} <span className="ml-2 text-text-muted">{currentCase?.externalObligation}</span>
+          </div>
+        </ProductSection>
+      ) : null}
+
+      {fulfillment ? (
+        <ProductSection className={recordWidthClass} data-testid="judge-case-path">
+          <SectionHeader title="Judge Path A-E" description="处置不会让冲突消失；新的 WMS 来源事实到达后才重新验证关闭" />
+          <div className="grid gap-2 p-4 md:grid-cols-5">
+            {fulfillment.cases.map((item) => (
+              <div key={item.caseId} className={`rounded-lg border p-3 ${item.caseId === fulfillment.currentCase ? "border-interactive bg-interactive/[0.06]" : "border-border bg-surface-subtle"}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold">{item.caseId} · {item.label}</span>
+                  {item.observedStateConflict ? <StatusDotBadge variant="danger">冲突</StatusDotBadge> : <StatusDotBadge variant="success">事实一致</StatusDotBadge>}
+                </div>
+                <p className="mt-2 text-xs font-medium text-text-secondary">{statusLabel(item.status)}</p>
+                <p className="mt-1 text-xs leading-5 text-text-muted">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+        </ProductSection>
+      ) : null}
 
       <ProductSection className={recordWidthClass}>
         <SectionHeader title="工业位置" description="UNS 空间：这条业务链发生在哪条产线上" />
@@ -82,7 +134,7 @@ export function JudgePage() {
       </ProductSection>
 
       <ProductSection className={recordWidthClass}>
-        <SectionHeader title="关键事实" description="订单承诺与实际完工的差异，以及数据来自哪些系统" />
+        <SectionHeader title="关键事实" description="订单承诺 100 件，MES 已完成 96 件；数据来自哪些系统并保持可回溯" />
         <SummaryStrip label="关键事实明细">
           <SummaryItem label="订单承诺" value={view.businessFacts.orderedQuantity} hint={view.businessFacts.unit} />
           <SummaryItem label="MES 实际完工" value={view.businessFacts.productionCompletedQuantity} hint={view.businessFacts.unit} />
@@ -100,6 +152,8 @@ export function JudgePage() {
         <div className="grid gap-3 p-4 md:grid-cols-2">
           <SourceCard title="订单数量（期望）" source={view.sources.order} fallback="ERP 订单" />
           <SourceCard title="生产完工（实际）" source={view.sources.production} fallback="MES 工单" />
+          {view.sources.quality ? <SourceCard title="质量放行数量" source={view.sources.quality} fallback="QMS 检验" /> : null}
+          {view.sources.shipment ? <SourceCard title="实际发运执行承诺" source={view.sources.shipment} fallback="WMS 发运" /> : null}
         </div>
         <details className="mx-4 mb-4 rounded-md border border-border bg-surface-subtle p-3 text-xs text-text-secondary">
           <summary className="cursor-pointer">查看 UNS topic 与留存载荷</summary>
@@ -170,6 +224,17 @@ export function JudgePage() {
         </details>
       </ProductSection>
     </ProductPage>
+  );
+}
+
+function FactCard({ system, value, detail, tone }: { system: string; value: string; detail: string; tone: "neutral" | "warning" | "danger" }) {
+  const toneClass = tone === "danger" ? "bg-danger/[0.06]" : tone === "warning" ? "bg-warning/[0.06]" : "bg-surface";
+  return (
+    <div className={`min-h-[116px] p-4 ${toneClass}`}>
+      <p className="text-xs font-medium text-text-muted">{system}</p>
+      <p className="mt-2 text-xl font-semibold tabular-nums text-text-primary">{value}</p>
+      <p className="mt-1 text-xs text-text-secondary">{detail}</p>
+    </div>
   );
 }
 

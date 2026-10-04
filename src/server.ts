@@ -93,7 +93,7 @@ import { assertStartupSafety } from "./ops/startup.js";
 import { buildOpsStatus, evaluateReadiness } from "./ops/readiness.js";
 import { resolveDatabasePaths } from "./ops/db-path.js";
 import { defaultUnsStreamPath, evaluateTraceabilityGate } from "./traceability/index.js";
-import { buildJudgeManifest, readExecutionReadbackArtifact, resolveJudgeContextId } from "./demo/judge/index.js";
+import { buildJudgeManifest, JUDGE_CONTRACT_ARTIFACT, openExistingJudgeStore, readExecutionReadbackArtifact, readJudgeContractArtifact, resolveJudgeContextId } from "./demo/judge/index.js";
 import {
   RESOLUTION_APPROVER_ROLES,
   RESOLUTION_OWNER_ROLES,
@@ -1122,20 +1122,43 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       const auth = authOf(req);
       assertScope(auth, "context:read");
       const tenantId = auth.tenantId;
-      const store = getV2Store();
       const requested = url.searchParams.get("contextId");
-      const contextId = requested ?? resolveJudgeContextId(store, tenantId);
-      if (!contextId) return json(res, 404, { error: "no_context_available" });
-      if (!store.getContext(tenantId, contextId)) return json(res, 404, { error: "not_found" });
       const exceptionId = url.searchParams.get("exceptionId");
-      return json(res, 200, buildJudgeManifest({
-        store,
-        tenantId,
-        contextId,
-        exceptionId,
-        payloadSourcePath: resolveTraceabilityStreamPath(),
-        readback: readExecutionReadbackArtifact(resolveReadbackArtifactPath()),
-      }));
+      const payloadSourcePath = resolveTraceabilityStreamPath();
+      const judgeDatabasePath = join(dirname(payloadSourcePath), "pack-cases.sqlite");
+      let judgeStoreHandle: ReturnType<typeof openExistingJudgeStore> | null = null;
+      // 默认评委页必须和最近一次 demo:judge 使用同一个隔离库，避免 Contract 是新产物而证据回源落到旧业务库。
+      if (!requested && existsSync(judgeDatabasePath)) {
+        try {
+          judgeStoreHandle = openExistingJudgeStore(judgeDatabasePath);
+        } catch {
+          judgeStoreHandle = null;
+        }
+      }
+      const store = judgeStoreHandle?.store ?? getV2Store();
+      const contextId = requested ?? resolveJudgeContextId(store, tenantId);
+      if (!contextId) {
+        judgeStoreHandle?.close();
+        return json(res, 404, { error: "no_context_available" });
+      }
+      if (!store.getContext(tenantId, contextId)) {
+        judgeStoreHandle?.close();
+        return json(res, 404, { error: "not_found" });
+      }
+      const contractPath = join(dirname(payloadSourcePath), JUDGE_CONTRACT_ARTIFACT);
+      try {
+        return json(res, 200, buildJudgeManifest({
+          store,
+          tenantId,
+          contextId,
+          exceptionId,
+          payloadSourcePath,
+          readback: readExecutionReadbackArtifact(resolveReadbackArtifactPath()),
+          contract: readJudgeContractArtifact(contractPath),
+        }));
+      } finally {
+        judgeStoreHandle?.close();
+      }
     }
     if (req.method === "GET" && url.pathname === "/api/cases") {
       const auth = authOf(req);

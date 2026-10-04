@@ -16,7 +16,7 @@ function manifest(overrides: Partial<JudgeManifestView> = {}): JudgeManifestView
     generatedAt: "2026-09-21T00:00:00.000Z",
     scenario: "production-shortfall",
     scenarioLabel: "生产短少：工单完工 96 < 订单 100",
-    businessQuestion: "订单承诺 100 件，但 MES 仅完成 96 件。如何从 ERP/MES 等跨系统数据中自动发现差异，给出可回源证据，并推动异常完成治理闭环？",
+    businessQuestion: "订单承诺 100 件，MES 已完成 96 件；订单事实与来源系统保持可回溯。如何从 ERP/MES 等跨系统数据中自动发现差异，给出可回源证据，并推动异常完成治理闭环？",
     industrialContext: {
       enterpriseId: "demo-manufacturing",
       siteId: "factory-shanghai-01",

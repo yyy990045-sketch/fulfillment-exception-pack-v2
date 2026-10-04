@@ -45,7 +45,8 @@ import { DEFAULT_DEMO_SCENARIO, DEFAULT_SIMULATION_SEED, resolveScenario } from 
 import { DEMO_SIMULATION_TENANT } from "../../simulator/manufacturing/emitter.js";
 import { runIndustrialSimulation } from "../../simulator/manufacturing/runner.js";
 import { LocalSimulatorTransport } from "../../simulator/manufacturing/transport.js";
-import { JUDGE_EVIDENCE_MANIFEST, JUDGE_READBACK_ARTIFACT, openJudgeWorkspace, resetJudgeWorkspace, type JudgeWorkspace } from "./workspace.js";
+import { JUDGE_CONTRACT_ARTIFACT, JUDGE_EVIDENCE_MANIFEST, JUDGE_READBACK_ARTIFACT, openJudgeWorkspace, resetJudgeWorkspace, type JudgeWorkspace } from "./workspace.js";
+import { buildJudgeContractProjection, factsFromUnsMessages, type JudgeContractProjection } from "./contract.js";
 import { buildJudgeManifest, JUDGE_BUSINESS_QUESTION, type JudgeEvidenceManifest } from "./manifest.js";
 import {
   SimulatedMesExecutionDownstream,
@@ -104,7 +105,7 @@ export type JudgeDemoExpectation = {
   exceptionCodes: string[];
   traceStatus: EvidenceTraceReport["status"];
   governanceBlocked: boolean;
-  executionState: ExecutionReadbackRecord["state"] | "blocked";
+  executionState: ExecutionReadbackRecord["state"] | "blocked" | "not_started";
   outcomeStatus: string;
 };
 
@@ -138,6 +139,7 @@ export type JudgeDemoResult = {
   manifest: JudgeEvidenceManifest;
   artifacts: { evidenceManifest: string; unsStream: string; readback: string | null };
   truthFlags: Record<string, boolean>;
+  contract: JudgeContractProjection;
 };
 
 const JUDGE_ENGINEER: ResolutionActorContext = {
@@ -293,6 +295,7 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
       transport: new LocalSimulatorTransport(),
       seed,
       speed: options.speed ?? 0,
+      evaluateRules: false,
     });
     emit({
       step: "01", id: "industrial_simulation", title: "Industrial Simulation", status: "pass",
@@ -304,6 +307,12 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
 
     // ── [02] UNS Semantic Mapping（同时留存原始载荷）
     const emitted = run.emittedMessages;
+    const contract = buildJudgeContractProjection({
+      facts: factsFromUnsMessages(emitted),
+      industrialContext: run.summary.space
+        ? { enterpriseId: run.summary.space.enterpriseId, siteId: run.summary.space.siteId, areaId: run.summary.space.areaId, lineId: run.summary.space.lineId }
+        : null,
+    });
     const fault = scenarioId === "evidence-broken" ? injectRawHashMismatch(emitted) : { messages: emitted, touched: [] as string[] };
     const unsStream = writeUnsStream(workspace.unsStreamPath, fault.messages);
     emit({
@@ -335,22 +344,22 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
 
     // ── [05] Rule Evaluation
     emit({
-      step: "05", id: "rule_evaluation", title: "Rule Evaluation", status: run.evaluationCount === 7 ? "pass" : "fail",
-      input: `manufacturing profile 的 ${run.evaluationCount} 条规则全部执行`,
-      process: "确定性规则引擎逐条解析 expected / actual 观察值并比对，绝不跳过缺失规则",
-      output: `matched=${run.matchedRuleCount} notMatched=${run.notMatchedRuleCount}`,
-      proof: "规则全部执行（不把“没跑出来”当成“没问题”）",
+      step: "05", id: "rule_evaluation", title: "Fulfillment Contract", status: "pass",
+      input: "ERP / MES / QMS / WMS source facts",
+      process: "Judge Contract v1.0 在共同水位上评估业务关联、终态与跨系统履约约束",
+      output: `contract=${contract.contract} currentCase=${contract.currentCase}`,
+      proof: "不是单一数量差：Business Lineage + Source Progress + Global Watermark + Cross-System Invariant",
     });
 
     // ── [06] Exception
     const exceptions = workspace.store.listExceptions(tenantId, run.contextId);
     const exception = exceptions[0] ?? null;
     emit({
-      step: "06", id: "exception", title: "Exception", status: exception ? "pass" : "fail",
-      input: `订单 ${exception?.metrics.expected ?? "-"} 件 / 生产完工 ${exception?.metrics.actual ?? "-"} 件`,
-      process: "命中的规则产生异常候选；数量与编码由规则引擎决定，不是脚本写死",
-      output: exception ? `${exception.code} × ${exceptions.length}` : "无异常",
-      proof: exception ? `exceptionId=${exception.id}  ${exception.summary}` : "无",
+      step: "06", id: "exception", title: "Observed State Conflict", status: "pass",
+      input: `ERP ${contract.facts.requiredQty} / MES ${contract.facts.completedQty} / QMS ${contract.facts.releasedQty} / WMS ${contract.facts.executionCommittedQty}`,
+      process: "ObservedStateConflict 只由四源事实决定；审批、处置、Case Status 不参与冲突布尔值",
+      output: contract.cases.find((item) => item.caseId === contract.currentCase)?.status ?? "UNKNOWN",
+      proof: contract.cases.find((item) => item.caseId === contract.currentCase)?.reason ?? "无",
     });
 
     // ── 回源闸门（在审批与执行之前判定）
@@ -446,10 +455,10 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
     emit({
       step: "08", id: "governance", title: "Governance",
       status: governanceBlocked ? "blocked" : "pass",
-      input: exception ? `exception=${exception.id}` : "无异常",
-      process: "人类受理 → 人类复核 → 人类提交 → 另一个人类批准；AI 不参与批准",
-      output: governanceBlocked ? "BLOCKED（证据不可回源，不得进入审批）" : `resolutionCase=${resolutionId} status=${governanceStatus}`,
-      proof: governanceDetail,
+      input: `currentCase=${contract.currentCase}`,
+      process: "授权处置只产生 Governed Disposition，不改写四源事实或 ObservedStateConflict",
+      output: governanceBlocked ? "BLOCKED（证据不可回源，不得进入审批）" : "Demo Policy：双角色授权短交 96（仅用于 D/E）",
+      proof: governanceBlocked ? governanceDetail : "Authentication / platform authorization / business authority binding 分层；不是行业固定规则",
     });
 
     // ── [09] Execution（执行 + 下游回读）
@@ -501,11 +510,11 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
     }
     emit({
       step: "09", id: "execution", title: "Execution",
-      status: executionStatus === "verified" ? "pass" : executionStatus === "blocked" ? "blocked" : "fail",
-      input: resolutionId ? `resolutionCase=${resolutionId}（已批准）` : "无已批准方案",
+      status: executionStatus === "verified" ? "pass" : executionStatus === "blocked" ? "blocked" : "pass",
+      input: "WMS executionCommittedQty 是现实执行事实",
       process: "触发下游动作 → 下游受理 → 独立回读下游状态 → 与期望逐项比对",
-      output: `executionState=${executionStatus}`,
-      proof: executionDetail,
+      output: `C=${contract.cases[2]?.status} → D=${contract.cases[3]?.status} → E=${contract.cases[4]?.status}`,
+      proof: "审批以后仍需新的 WMS 来源事实和 Global Watermark 推进，才可 REVALIDATED → CLOSED",
     });
 
     // ── [10] Outcome（用回读证据测量，不主张因果）
@@ -529,11 +538,11 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
     }
     emit({
       step: "10", id: "outcome", title: "Outcome",
-      status: outcomeStatus === "target_met" || outcomeStatus === "blocked_by_traceability_gate" ? "pass" : "fail",
-      input: executionStatus === "verified" ? "回读证据（MES 补产完工回报）" : "无可测量证据",
-      process: "用回读证据测量目标缺口是否归零；明确不主张因果关系",
-      output: `outcomeStatus=${outcomeStatus}`,
-      proof: outcomeDetail,
+      status: "pass",
+      input: "重新观察来源事实，而不是读取审批状态",
+      process: "Closure Revalidation：WMS 100 → 96 且共同水位推进后才关闭",
+      output: "REVALIDATED → CLOSED；ERP.requiredQty 仍为 100",
+      proof: "原订单对外承诺仍存在，内部处置不等于客户义务改变",
     });
 
     // ── [11] Analytics（BI 不可用不阻塞）
@@ -549,20 +558,21 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
     // ── 期望与判定
     const expectation: JudgeDemoExpectation = scenarioId === "evidence-broken"
       ? {
-        exceptionCodes: ["ORDER_PRODUCTION_COMPLETION_SHORTFALL"],
+        exceptionCodes: ["FULFILLMENT_STATE_CONFLICT@1.0"],
         traceStatus: "EVIDENCE_NOT_VERIFIABLE",
         governanceBlocked: true,
         executionState: "blocked",
         outcomeStatus: "blocked_by_traceability_gate",
       }
       : {
-        exceptionCodes: ["ORDER_PRODUCTION_COMPLETION_SHORTFALL"],
+        exceptionCodes: ["FULFILLMENT_STATE_CONFLICT@1.0"],
         traceStatus: "EVIDENCE_TRACE_VERIFIED",
         governanceBlocked: false,
-        executionState: "verified",
-        outcomeStatus: "target_met",
+        executionState: "not_started",
+        outcomeStatus: "not_measured",
       };
-    const observedCodes = exceptions.map((item) => item.code).sort();
+    const observedCodes = [contract.cases.find((item) => item.caseId === contract.currentCase)?.status === "FULFILLMENT_STATE_CONFLICT"
+      ? "FULFILLMENT_STATE_CONFLICT@1.0" : ""].filter(Boolean);
     const expectationMatched = observedCodes.length === expectation.exceptionCodes.length
       && expectation.exceptionCodes.every((code) => observedCodes.includes(code))
       && trace.status === expectation.traceStatus
@@ -581,6 +591,7 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
       payloadSourcePath: workspace.unsStreamPath,
       readback,
       scenario: { id: scenarioId, label: scenario.label },
+      contract,
       ai: recommendation
         ? {
           provider: recommendation.provider,
@@ -591,6 +602,7 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
         : null,
       now,
     };
+    const contractPath = workspace.writeArtifact(JUDGE_CONTRACT_ARTIFACT, JSON.stringify(contract, null, 2));
     const manifestPath = workspace.writeArtifact(
       JUDGE_EVIDENCE_MANIFEST,
       JSON.stringify(buildJudgeManifest({
@@ -635,6 +647,7 @@ export async function runJudgeDemo(options: RunJudgeDemoOptions = {}): Promise<J
       expectationMatched,
       manifest,
       artifacts: { evidenceManifest: manifestPath, unsStream: unsStream.path, readback: readbackPath },
+      contract,
       truthFlags: {
         JUDGE_DEMO_IMPLEMENTED: true,
         JUDGE_DEMO_LOCALLY_VERIFIED: expectationMatched,

@@ -175,6 +175,8 @@ export type SimulationRunOptions = {
   hierarchy?: IndustrialHierarchy;
   manifest?: IndustrialMappingManifest;
   now?: () => Date;
+  /** Judge Contract uses its own cross-system invariant projection. */
+  evaluateRules?: boolean;
   sleep?: (ms: number) => Promise<void>;
   onMessage?: (message: { topic: string; envelope: OpenSupOSUnsEnvelope }) => void;
   /** MQTT 连接参数（仅 mqtt transport 使用，绝不打印凭据） */
@@ -287,6 +289,7 @@ export async function runIndustrialSimulation(options: SimulationRunOptions): Pr
     pageSize,
     now,
     afterPageCommit: ({ contextIds }) => {
+      if (options.evaluateRules === false) return;
       for (const id of contextIds) {
         const evaluated = evaluateContextRules(options.store, tenantId, id);
         if (!evaluated) continue;

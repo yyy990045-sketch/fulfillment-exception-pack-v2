@@ -68,12 +68,13 @@ function entry(input: {
 /** 被 §5 要求覆盖的最小业务对象：Order / Production / Quality / Shipment / Payment。 */
 export const REQUIRED_MAPPING_TARGETS = [
   { entityTypeCanonical: "sales_order", canonicalField: "qty" },
+  { entityTypeCanonical: "sales_order", canonicalField: "dueAt" },
   { entityTypeCanonical: "production_order", canonicalField: "plannedQty" },
   { entityTypeCanonical: "production_order", canonicalField: "completedQty" },
   { entityTypeCanonical: "quality_event", canonicalField: "inspectedQty" },
   { entityTypeCanonical: "quality_event", canonicalField: "passedQty" },
   { entityTypeCanonical: "quality_event", canonicalField: "failedQty" },
-  { entityTypeCanonical: "shipment", canonicalField: "qty" },
+  { entityTypeCanonical: "shipment", canonicalField: "executionCommittedQty" },
   { entityTypeCanonical: "receivable", canonicalField: "amount" },
   { entityTypeCanonical: "payment", canonicalField: "amount" },
 ] as const;
@@ -91,6 +92,12 @@ const ENTRIES: IndustrialMappingEntry[] = [
     semanticEntityType: "SalesOrder", semanticEntityTypeCanonical: "sales_order", semanticField: "orderedQuantity", dataType: "number", unit: "pcs",
     domain: "sales", topicEventType: "order.created", canonicalField: "qty",
     description: "ERP 销售订单数量 → 销售订单实体 qty（跨系统比对的基准量）",
+  }),
+  entry({
+    id: "erp.sales_order.due_at", sourceSystem: "erp", sourceField: "due_at",
+    semanticEntityType: "SalesOrder", semanticEntityTypeCanonical: "sales_order", semanticField: "dueAt", dataType: "datetime", unit: null,
+    domain: "sales", topicEventType: "order.created", canonicalField: "dueAt",
+    description: "ERP 销售订单交期 → 销售订单 dueAt（终态判断的外部承诺时点）",
   }),
   // ── Production（MES 工单）
   entry({
@@ -138,10 +145,10 @@ const ENTRIES: IndustrialMappingEntry[] = [
     description: "WMS 计划发货数量 → 发货实体 plannedQty",
   }),
   entry({
-    id: "wms.shipment.dispatched", sourceSystem: "wms", sourceField: "shipped_qty",
-    semanticEntityType: "Shipment", semanticEntityTypeCanonical: "shipment", semanticField: "shippedQuantity", dataType: "number", unit: "pcs",
-    domain: "shipment", topicEventType: "shipment.dispatched", canonicalField: "qty",
-    description: "WMS 实发数量 → 发货实体 qty（订单发货短少的实际量）",
+    id: "wms.shipment.dispatched", sourceSystem: "wms", sourceField: "execution_committed_qty",
+    semanticEntityType: "Shipment", semanticEntityTypeCanonical: "shipment", semanticField: "executionCommittedQuantity", dataType: "number", unit: "pcs",
+    domain: "shipment", topicEventType: "shipment.dispatched", canonicalField: "executionCommittedQty",
+    description: "WMS 已释放到实际发运执行阶段的数量 → Shipment.executionCommittedQty",
   }),
   entry({
     id: "wms.shipment.received", sourceSystem: "wms", sourceField: "signed_qty",

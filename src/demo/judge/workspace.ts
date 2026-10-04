@@ -15,6 +15,7 @@ type DatabaseSyncConstructor = new (path: string) => SqliteDatabaseLike & { clos
 export const JUDGE_WORKSPACE_DIR = DEFAULT_JUDGE_WORKSPACE_DIR;
 export const JUDGE_EVIDENCE_MANIFEST = "evidence.json";
 export const JUDGE_READBACK_ARTIFACT = "execution-readback.json";
+export const JUDGE_CONTRACT_ARTIFACT = "judge-contract.json";
 
 export type JudgeWorkspace = {
   rootDir: string;
@@ -23,6 +24,7 @@ export type JudgeWorkspace = {
   unsStreamPath: string;
   evidenceManifestPath: string;
   readbackPath: string;
+  contractPath: string;
   writeArtifact: (name: string, content: string) => string;
   close: () => void;
 };
@@ -82,6 +84,7 @@ export function openJudgeWorkspace(target = JUDGE_WORKSPACE_DIR, baseDir = proce
     unsStreamPath: join(absolute, UNS_STREAM_ARTIFACT_NAME),
     evidenceManifestPath: join(absolute, JUDGE_EVIDENCE_MANIFEST),
     readbackPath: join(absolute, JUDGE_READBACK_ARTIFACT),
+    contractPath: join(absolute, JUDGE_CONTRACT_ARTIFACT),
     close: () => database.close?.(),
     writeArtifact: (name, content) => {
       const path = join(absolute, name);

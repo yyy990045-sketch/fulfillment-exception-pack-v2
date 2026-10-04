@@ -19,9 +19,10 @@ import { UNS_TOPIC_CONVENTION } from "../../industrial/uns-topic.js";
 import { resolutionGovernanceStage } from "../../domain/v2/resolution/governance-stage.js";
 import { buildEvidenceTrace, type BuildEvidenceTraceInput, type EvidenceTraceReport } from "../../traceability/index.js";
 import type { ExecutionReadbackRecord } from "../../traceability/types.js";
+import type { JudgeContractProjection } from "./contract.js";
 
 export const JUDGE_BUSINESS_QUESTION =
-  "订单承诺 100 件，但 MES 仅完成 96 件。如何从 ERP/MES 等跨系统数据中自动发现差异，给出可回源证据，并推动异常完成治理闭环？";
+  "履约哨兵：基于 open supOS UNS 的跨系统生产履约状态冲突处置 APP";
 
 /**
  * 选出 judge 视图默认展示的 Context：
@@ -48,7 +49,7 @@ export function readExecutionReadbackArtifact(path: string | null): ExecutionRea
 }
 
 export type JudgeSourceRef = {
-  role: "order" | "production";
+  role: "order" | "production" | "quality" | "shipment";
   systemKey: string;
   systemType: string | null;
   evidenceId: string;
@@ -84,6 +85,8 @@ export type JudgeEvidenceManifest = {
   sources: {
     order: JudgeSourceRef | null;
     production: JudgeSourceRef | null;
+    quality: JudgeSourceRef | null;
+    shipment: JudgeSourceRef | null;
   };
   uns: {
     orderTopic: string | null;
@@ -164,6 +167,7 @@ export type JudgeEvidenceManifest = {
     evidenceManifest: string | null;
     readback: string | null;
   };
+  fulfillment: JudgeContractProjection;
 };
 
 export type BuildJudgeManifestInput = {
@@ -177,6 +181,7 @@ export type BuildJudgeManifestInput = {
   ai?: Partial<JudgeEvidenceManifest["ai"]> | null;
   artifacts?: Partial<JudgeEvidenceManifest["artifacts"]> | null;
   scenario?: { id: string; label: string } | null;
+  contract?: JudgeContractProjection | null;
   now?: () => Date;
 };
 
@@ -207,7 +212,7 @@ export function buildJudgeManifest(input: BuildJudgeManifestInput): JudgeEvidenc
   const linkByRole = (role: string) => trace.evidence.find((item) => item.role === role) ?? null;
   const orderLink = linkByRole("expected");
   const productionLink = linkByRole("actual");
-  const toSourceRef = (role: "order" | "production", link: typeof orderLink): JudgeSourceRef | null => link
+  const toSourceRef = (role: "order" | "production" | "quality" | "shipment", link: typeof orderLink): JudgeSourceRef | null => link
     ? {
       role,
       systemKey: link.sourceSystemId,
@@ -229,9 +234,11 @@ export function buildJudgeManifest(input: BuildJudgeManifestInput): JudgeEvidenc
     : null;
 
   const scenarioMeta = (context.metadata.simulation ?? {}) as Record<string, unknown>;
+  const contract = input.contract ?? null;
   const scenarioId = input.scenario?.id
+    ?? (contract ? contract.businessKey : undefined)
     ?? (typeof scenarioMeta.scenario === "string" ? scenarioMeta.scenario : "unknown");
-  const scenarioLabel = input.scenario?.label ?? scenarioId;
+  const scenarioLabel = input.scenario?.label ?? (contract ? "SO-IND-001 · 跨系统履约冲突" : scenarioId);
 
   const resolutionCase = exception ? store.getResolutionCaseByException(tenantId, exception.id) : undefined;
   const receipts = resolutionCase ? store.listResolutionReceipts(tenantId, resolutionCase.id) : [];
@@ -245,28 +252,46 @@ export function buildJudgeManifest(input: BuildJudgeManifestInput): JudgeEvidenc
   const actual = numberOrNull(exception?.metrics.actual);
   const equipmentIds = collectEquipmentIds(trace);
 
+  const currentContract = contract?.cases.find((item) => item.caseId === contract.currentCase) ?? null;
+  const contractSource = (role: JudgeSourceRef["role"], systemKey: string, systemType: string, field: string, value: unknown, observedAt: string): JudgeSourceRef => ({
+    role, systemKey, systemType, evidenceId: "", sourceDocumentId: "", field, value, valueType: typeof value === "number" ? "number" : "datetime", observedAt, unsTopic: null, rawHash: null,
+  });
   return {
     schemaVersion: "judge-evidence-manifest/v1",
     generatedAt: now().toISOString(),
     scenario: scenarioId,
     scenarioLabel,
     businessQuestion: JUDGE_BUSINESS_QUESTION,
-    industrialContext: lineSpace
+    industrialContext: contract?.industrialContext
+      ? { ...contract.industrialContext, equipmentIds, unsRootPath: industrialSpaceRootPath(contract.industrialContext) }
+      : (lineSpace
       ? {
         ...lineSpace,
         equipmentIds,
         unsRootPath: industrialSpaceRootPath(lineSpace),
       }
-      : null,
+        : null),
     businessFacts: {
-      orderedQuantity: expected ?? 0,
-      productionCompletedQuantity: actual ?? 0,
-      difference: difference ?? 0,
+      orderedQuantity: contract?.facts.requiredQty ?? expected ?? 0,
+      productionCompletedQuantity: contract?.facts.completedQty ?? actual ?? 0,
+      difference: contract ? contract.facts.requiredQty - contract.facts.completedQty : difference ?? 0,
       unit: "pcs",
     },
     sources: {
-      order: toSourceRef("order", orderLink),
-      production: toSourceRef("production", productionLink),
+      order: contract
+        ? contractSource("order", "ERP-DEMO", "erp", "requiredQty", contract.facts.requiredQty, contract.facts.sourceProgress.ERP)
+        : toSourceRef("order", orderLink),
+      production: contract
+        ? contractSource("production", "MES-DEMO", "mes", "completedQty", contract.facts.completedQty, contract.facts.sourceProgress.MES)
+        : toSourceRef("production", productionLink),
+      quality: contract ? {
+        role: "quality", systemKey: "QMS-DEMO", systemType: "qms", evidenceId: "", sourceDocumentId: "",
+        field: "releasedQty", value: contract.facts.releasedQty, valueType: "number", observedAt: contract.facts.sourceProgress.QMS, unsTopic: null, rawHash: null,
+      } : null,
+      shipment: contract ? {
+        role: "shipment", systemKey: "WMS-DEMO", systemType: "wms", evidenceId: "", sourceDocumentId: "",
+        field: "executionCommittedQty", value: contract.facts.executionCommittedQty, valueType: "number", observedAt: contract.facts.sourceProgress.WMS, unsTopic: null, rawHash: null,
+      } : null,
     },
     uns: {
       orderTopic: orderLink?.unsTopic ?? null,
@@ -278,14 +303,30 @@ export function buildJudgeManifest(input: BuildJudgeManifestInput): JudgeEvidenc
       productionEvidenceId: productionLink?.evidenceId ?? null,
       totalCount: bundle?.evidence.length ?? trace.evidence.length,
     },
-    rule: {
-      code: rule?.code ?? exception?.ruleId ?? "unknown",
-      result: exception ? "matched" : "not_matched",
-      expected,
-      actual,
-      difference,
-    },
-    exception: exception
+    rule: contract && currentContract
+      ? {
+        code: contract.contract,
+        result: currentContract.observedStateConflict ? "matched" : "not_matched",
+        expected: contract.facts.requiredQty,
+        actual: contract.facts.releasedQty,
+        difference: contract.facts.requiredQty - contract.facts.releasedQty,
+      }
+      : {
+        code: rule?.code ?? exception?.ruleId ?? "unknown",
+        result: exception ? "matched" : "not_matched",
+        expected,
+        actual,
+        difference,
+      },
+    exception: currentContract?.status === "FULFILLMENT_STATE_CONFLICT"
+      ? {
+        id: exception?.id ?? "judge-contract-fulfillment-state-conflict",
+        code: "FULFILLMENT_STATE_CONFLICT@1.0",
+        severity: "high",
+        title: "跨系统生产履约状态冲突",
+        summary: currentContract.reason,
+      }
+      : exception
       ? {
         id: exception.id,
         code: exception.code,
@@ -348,6 +389,22 @@ export function buildJudgeManifest(input: BuildJudgeManifestInput): JudgeEvidenc
       unsStream: input.artifacts?.unsStream ?? null,
       evidenceManifest: input.artifacts?.evidenceManifest ?? null,
       readback: input.artifacts?.readback ?? null,
+    },
+    fulfillment: contract ?? {
+      version: "judge-contract/v1.0",
+      contract: "FULFILLMENT_STATE_CONFLICT@1.0",
+      businessKey: "SO-IND-001",
+      industrialContext: null,
+      currentCase: "C",
+      facts: {
+        businessKey: "SO-IND-001", sourceOrderLineRef: "", workOrderRef: "", productionLotRef: "", shipmentSourceRef: "",
+        requiredQty: expected ?? 0, dueAt: "", completedQty: actual ?? 0, productionState: "in_progress", releasedQty: 0, executionCommittedQty: 0,
+        sourceProgress: { ERP: "", MES: "", QMS: "", WMS: "" },
+      },
+      sourceSystems: ["ERP", "MES", "QMS", "WMS"],
+      lineage: { status: "NOT_EVALUABLE", relation: "" },
+      cases: [],
+      realOpenSuposRuntimeVerified: false,
     },
   };
 }

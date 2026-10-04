@@ -84,6 +84,11 @@ export function formatJudgeResult(result: JudgeDemoResult) {
   lines.push(`outcomeStatus   = ${result.outcomeStatus}`);
   lines.push(`aiProvider      = ${result.aiProvider}/${result.aiModel}`);
   lines.push("");
+  lines.push("─── JUDGE CASES A-E ───");
+  for (const item of result.contract.cases) {
+    lines.push(`${item.caseId} ${item.label}: ${item.status} · observedConflict=${item.observedStateConflict}`);
+  }
+  lines.push("");
   lines.push(`evidence manifest = ${result.artifacts.evidenceManifest}`);
   lines.push(`uns stream        = ${result.artifacts.unsStream}`);
   if (result.artifacts.readback) lines.push(`execution readback= ${result.artifacts.readback}`);
