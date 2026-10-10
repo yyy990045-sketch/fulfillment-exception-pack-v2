@@ -1,0 +1,12 @@
+{
+  "id": "phase-2f-p0-backend-delivery",
+  "title": "交付城市配送新场景规划契约与可核查对照",
+  "status": "completed",
+  "complexity": "L+",
+  "risk": "medium",
+  "domain": "backend",
+  "currentPhase": "completed",
+  "nextAction": "归档任务并交接前端",
+  "createdAt": "2026-10-10T00:00:00Z",
+  "branch": "working-tree"
+}
