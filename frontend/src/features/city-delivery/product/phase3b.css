@@ -4,4 +4,4 @@
 .city-product[data-page="packing"] .p-playback-controls p,.city-product[data-page="packing"] .p-playback-controls>small{font-size:9px}
 .city-product[data-page="packing"] .p-result-version{display:none}
 .city-product[data-page="packing"] .p-packing-layout{height:calc(100vh - 275px)}
-@media (min-width:1101px) and (max-height:760px){.city-product[data-page="packing"] .p-playback{display:none}.city-product[data-page="packing"] .p-packing-layout{height:calc(100vh - 235px)}}
+@media (min-width:1101px) and (max-height:760px){.city-product[data-page="packing"] .p-packing-layout{height:calc(100vh - 275px)}}

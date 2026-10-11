@@ -4,12 +4,22 @@ import json
 from decision import V2, checks, assess, fingerprint_v1, revise_order, revise_fleet, scoped_scenario
 
 
+def frozen_shape(value):
+    """Frozen v2 predates the two additive display metrics; retain all other facts."""
+    if isinstance(value, dict):
+        return {key: frozen_shape(item) for key, item in value.items()
+                if key not in ("spaceUtilizationRatio", "spaceUtilizationPercent")}
+    if isinstance(value, list):
+        return [frozen_shape(item) for item in value]
+    return value
+
+
 def replay(scenario, result):
     vehicle = next(v for v in scenario["vehicles"] if v["vehicleId"] == result["vehicleId"])
     positions = result["placements"]["positions"]
     scoped = scoped_scenario(scenario, vehicle, result["stopOrder"])
     geometry = checks.geometry(scoped, positions)
-    assert geometry == result["loadingCheck"]
+    assert frozen_shape(geometry) == frozen_shape(result["loadingCheck"])
     check = assess(scenario, vehicle, result["stopOrder"], positions, result["planId"])
     assert check["unloading"] == result["unloading"]
     assert check["timeWindowCheck"] == result["timeWindowCheck"]
@@ -41,7 +51,7 @@ def verify():
     examples = json.loads((V2 / "order-adjustment-examples.json").read_text())["examples"]
     for example in examples:
         response = revise_order(example["request"])
-        assert response == example["response"]
+        assert frozen_shape(response) == frozen_shape(example["response"])
         replay(response["scenario"], response["originalLayoutCheck"])
         replay(response["scenario"], response["result"])
     assert examples[0]["response"]["originalLayoutReusable"]
