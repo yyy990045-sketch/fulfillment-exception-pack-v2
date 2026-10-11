@@ -35,7 +35,7 @@ test('真实路网导入、三车→两车、相机保持、配载确认、全�
  const canvas=await page.locator('.p-geo-city-host canvas').boundingBox();await page.mouse.move(canvas!.x+canvas!.width*.5,canvas!.y+canvas!.height*.4);await page.mouse.down();await page.mouse.move(canvas!.x+canvas!.width*.57,canvas!.y+canvas!.height*.45,{steps:8});await page.mouse.up();await page.mouse.wheel(0,-100);await page.waitForTimeout(1600);
  let settled:string|null=null;
  await expect.poll(async()=>{const next=await page.locator('.p-geo-city-host').getAttribute('data-camera');const same=next===settled;settled=next;return same;},{timeout:12000,intervals:[400]}).toBe(true);
- const rotated=settled;expect(rotated).not.toBe(camera);
+ const rotated=await page.locator('.p-geo-city-host').getAttribute('data-camera');expect(rotated).not.toBe(camera);
  await page.getByRole('button',{name:'改变条件',exact:true}).click();await page.locator('.p-standard-vehicles label').filter({hasText:'V01'}).getByRole('checkbox').uncheck();
  const secondRequest=page.waitForResponse(r=>r.url().endsWith('/plan-scene')&&r.request().method()==='POST');await page.getByRole('button',{name:'提交条件并重新规划',exact:true}).click();const two=await(await secondRequest).json();expect(two.executable).toBe(true);expect(two.result.totals.vehicleCount).toBe(2);
  await expect(page.locator('[data-geo-plan]')).toHaveAttribute('data-geo-plan',two.planId);checkRoadPlan(await geoRoutes(page),two);expect(await geoRoutes(page)).not.toEqual(threeRoads);

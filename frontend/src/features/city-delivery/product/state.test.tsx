@@ -42,6 +42,20 @@ test('service rejection cannot inherit an old confirmation',async()=>{
  expect(result.current.confirmed.planId).toBe(response.planId);
 });
 
+test('an HTTP 200 duration failure cannot be confirmed, executed or exported',async()=>{
+ const {result}=await planned();act(()=>result.current.confirmCandidate());
+ const rejected=read('docs/competition/phase7b-evidence/after-joint-feedback.json') as decisions.StandardDecision;
+ vi.mocked(decisions.planStandardScene).mockResolvedValueOnce(structuredClone(rejected));
+ await act(async()=>{await result.current.importStandardScenario(rejected.scenario);});
+ await act(async()=>{await result.current.planImportedStandard('joint-feedback');});
+ expect(result.current.current.feasibility.executable).toBe(false);
+ expect(result.current.current.feasibility.reasons.some(reason=>reason.type==='max_route_duration')).toBe(true);
+ expect(result.current.candidate).toBeNull();expect(result.current.canExecute).toBe(false);
+ act(()=>result.current.confirmCandidate());act(()=>result.current.startExecution());
+ expect(result.current.startedPlan).toBeNull();expect(result.current.standardPlanConfirmed).toBe(false);
+ expect(result.current.exportCurrentPlan()).toBe(false);
+});
+
 test('late results cannot replace a newer imported task',async()=>{
  const {result}=await planned();let resolve!:(value:decisions.StandardDecision)=>void;
  vi.mocked(decisions.planStandardScene).mockReturnValueOnce(new Promise(r=>{resolve=r;}));

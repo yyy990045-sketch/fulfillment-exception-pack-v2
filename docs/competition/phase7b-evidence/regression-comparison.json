@@ -1,0 +1,225 @@
+{
+  "baseline": "fd7b8dea2bcd48dd1c88c93ecf131d9af3c5314d",
+  "baselineExecution": "Loaded unmodified git baseline standard.py outside repository; shared decision/build_demo unchanged. Fixed output is actual HTTP, no mocks or service replacement.",
+  "records": [
+    {
+      "name": "six",
+      "endpoint": "plan-scene",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 1,
+        "distanceKm": 16,
+        "drivingMinutes": 32,
+        "totalDurationMinutes": 68,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 150,
+        "drivingCost": 44.8,
+        "totalCost": 194.8
+      },
+      "afterTotals": {
+        "vehicleCount": 1,
+        "distanceKm": 16,
+        "drivingMinutes": 32,
+        "totalDurationMinutes": 68,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 150,
+        "drivingCost": 44.8,
+        "totalCost": 194.8
+      }
+    },
+    {
+      "name": "nine-three-fixed",
+      "endpoint": "revise-fleet",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 3,
+        "distanceKm": 50,
+        "drivingMinutes": 100,
+        "totalDurationMinutes": 66,
+        "currency": "CNY",
+        "vehicleFixedCost": 440,
+        "drivingCost": 152.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 592.0
+      },
+      "afterTotals": {
+        "vehicleCount": 3,
+        "distanceKm": 50,
+        "drivingMinutes": 100,
+        "totalDurationMinutes": 66,
+        "currency": "CNY",
+        "vehicleFixedCost": 440,
+        "drivingCost": 152.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 592.0
+      }
+    },
+    {
+      "name": "nine-two-fixed",
+      "endpoint": "revise-fleet",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 38,
+        "drivingMinutes": 76,
+        "totalDurationMinutes": 70,
+        "currency": "CNY",
+        "vehicleFixedCost": 330,
+        "drivingCost": 120.4,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 450.4
+      },
+      "afterTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 38,
+        "drivingMinutes": 76,
+        "totalDurationMinutes": 70,
+        "currency": "CNY",
+        "vehicleFixedCost": 330,
+        "drivingCost": 120.4,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 450.4
+      }
+    },
+    {
+      "name": "berlin-three",
+      "endpoint": "plan-scene",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 3,
+        "distanceKm": 10.801,
+        "drivingMinutes": 25.92,
+        "totalDurationMinutes": 35.95999999999992,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 440,
+        "drivingCost": 32.5,
+        "totalCost": 472.5
+      },
+      "afterTotals": {
+        "vehicleCount": 3,
+        "distanceKm": 10.801,
+        "drivingMinutes": 25.92,
+        "totalDurationMinutes": 35.95999999999992,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 440,
+        "drivingCost": 32.5,
+        "totalCost": 472.5
+      }
+    },
+    {
+      "name": "berlin-two",
+      "endpoint": "plan-scene",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 10.828,
+        "drivingMinutes": 25.98,
+        "totalDurationMinutes": 44.14999999999998,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 330,
+        "drivingCost": 34.45,
+        "totalCost": 364.45
+      },
+      "afterTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 10.828,
+        "drivingMinutes": 25.98,
+        "totalDurationMinutes": 44.14999999999998,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 330,
+        "drivingCost": 34.45,
+        "totalCost": 364.45
+      }
+    },
+    {
+      "name": "T06-unchanged",
+      "endpoint": "plan-scene",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 31,
+        "drivingMinutes": 62,
+        "totalDurationMinutes": 52,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 90,
+        "drivingCost": 99.2,
+        "totalCost": 189.2
+      },
+      "afterTotals": {
+        "vehicleCount": 2,
+        "distanceKm": 31,
+        "drivingMinutes": 62,
+        "totalDurationMinutes": 52,
+        "currency": "CNY",
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "vehicleFixedCost": 90,
+        "drivingCost": 99.2,
+        "totalCost": 189.2
+      }
+    },
+    {
+      "name": "four-repaired",
+      "endpoint": "revise-order",
+      "entireResultUnchanged": true,
+      "beforeTotals": {
+        "currency": "CNY",
+        "vehicleCount": 1,
+        "vehicleFixedCost": 180,
+        "drivingCost": 56.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "waitingCost": 0,
+        "totalCost": 236.0,
+        "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+      },
+      "afterTotals": {
+        "currency": "CNY",
+        "vehicleCount": 1,
+        "vehicleFixedCost": 180,
+        "drivingCost": 56.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "waitingCost": 0,
+        "totalCost": 236.0,
+        "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+      }
+    }
+  ],
+  "frozenV1V2Unchanged": true,
+  "frozenHashes": {
+    "frontend/public/demo/city-delivery/v1/comparison.json": "47c425cf43e45d524f242866a70b15bc2fbe7d3de6a125165698a8d4813d6897",
+    "frontend/public/demo/city-delivery/v1/manifest.json": "a98a2437df751eaf81a5d38435cb5058014eb60a6124a0d0d8ebf5ead802e300",
+    "frontend/public/demo/city-delivery/v1/placements.json": "6734f969266743995889e798716c1ce9dd0aeb8cacc473bc3ab276a69794027f",
+    "frontend/public/demo/city-delivery/v1/plans.json": "2dc29ccd973a3c60c90429b16c72fb20075bda23b540d1bbe80de4239318d5a5",
+    "frontend/public/demo/city-delivery/v1/scenario.json": "2ab085f8d20863baa0cb861f9ec44ef9a4fe3dfaf5aa7b316099ceb7b640aa3f",
+    "frontend/public/demo/city-delivery/v1/unloading-steps.json": "51f7b6cd97bef9d43a6b0cf575b14b745f47634ccdfdf9a68217d02911795878",
+    "frontend/public/demo/city-delivery/v2/comparison.json": "70fa253a02ba127927d5c33aba0e7bca485ae7f4fa71e1350c3d2e18ccb3e7a3",
+    "frontend/public/demo/city-delivery/v2/decision-contract.json": "ef23e842074866c683f81b820a9d30c6b023d6a6c49e4ead6b5c5596f9c493f6",
+    "frontend/public/demo/city-delivery/v2/fleet-adjustment-example.json": "2344eb3a8856da74d17cb6d71863182e5363cc1b2b1e11087c3f3e4cbd7635c8",
+    "frontend/public/demo/city-delivery/v2/manifest.json": "7bce90b6eddfbfc30de458f9a991f22f48e2e29583c41afb15895ecdd2e8aded",
+    "frontend/public/demo/city-delivery/v2/order-adjustment-examples.json": "0481a13654045fd61fe943ae8b0ffa3bfc56b9a086b718cf5c2c69ad920199ef",
+    "frontend/public/demo/city-delivery/v2/placements.json": "dee6a7508bb6ac9f2748790c15930545f9413742f1a3973fe4900ba0bda814eb",
+    "frontend/public/demo/city-delivery/v2/plans.json": "2ebe88ea998e3961188363d2c7486c531c7cca144ca2ee4fec8fb20070e4514a",
+    "frontend/public/demo/city-delivery/v2/scenario.json": "552f35596c1676eceb633237f55053501e7794d920dd3f8437cdbccea6fb5056",
+    "frontend/public/demo/city-delivery/v2/unloading-steps.json": "824ca183e7c39a58846454a4a91d942e40e7a5c8269ce3b5d48f6634d52f8b1e"
+  }
+}

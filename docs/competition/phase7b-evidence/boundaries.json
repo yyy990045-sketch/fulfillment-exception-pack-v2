@@ -1,0 +1,716 @@
+{
+  "independentArithmetic": "Decimal replay of input travel, waiting, service and return; no evaluator imports",
+  "records": [
+    {
+      "case": "A-479.99",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480.0,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 479.99,
+          "drivingMinutes": 479.99,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 221.751
+    },
+    {
+      "case": "A-479.99",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480.0,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 479.99,
+          "drivingMinutes": 479.99,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 200.768
+    },
+    {
+      "case": "A-479.99",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480.0,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 479.99,
+          "drivingMinutes": 479.99,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 160.681
+    },
+    {
+      "case": "B-480",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 149.687
+    },
+    {
+      "case": "B-480",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 183.296
+    },
+    {
+      "case": "B-480",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 152.085
+    },
+    {
+      "case": "C-480.01",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.01,
+          "drivingMinutes": 480.01,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 171.503
+    },
+    {
+      "case": "C-480.01",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.01,
+          "drivingMinutes": 480.01,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 220.553
+    },
+    {
+      "case": "C-480.01",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.01,
+          "drivingMinutes": 480.01,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 250.816
+    },
+    {
+      "case": "D-T12-500",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 262.162
+    },
+    {
+      "case": "D-T12-500",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 259.599
+    },
+    {
+      "case": "D-T12-500",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 280.318
+    },
+    {
+      "case": "E-wait-and-service",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 481.0,
+          "drivingMinutes": 400.0,
+          "waitingMinutes": 40.0,
+          "serviceMinutes": 41.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 306.732
+    },
+    {
+      "case": "E-wait-and-service",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 481.0,
+          "drivingMinutes": 400.0,
+          "waitingMinutes": 40.0,
+          "serviceMinutes": 41.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 287.23
+    },
+    {
+      "case": "E-wait-and-service",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 481.0,
+          "drivingMinutes": 400.0,
+          "waitingMinutes": 40.0,
+          "serviceMinutes": 41.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 238.423
+    },
+    {
+      "case": "F-return-leg",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 501.0,
+          "drivingMinutes": 501.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 177.131
+    },
+    {
+      "case": "F-return-leg",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 501.0,
+          "drivingMinutes": 501.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 152.172
+    },
+    {
+      "case": "F-return-leg",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 501.0,
+          "drivingMinutes": 501.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 252.862
+    },
+    {
+      "case": "G-one-vehicle-over-limit",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        },
+        {
+          "vehicleId": "V02",
+          "active": true,
+          "durationMinutes": 40.0,
+          "drivingMinutes": 40.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 174.881
+    },
+    {
+      "case": "G-one-vehicle-over-limit",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        },
+        {
+          "vehicleId": "V02",
+          "active": true,
+          "durationMinutes": 40.0,
+          "drivingMinutes": 40.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 202.604
+    },
+    {
+      "case": "G-one-vehicle-over-limit",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        },
+        {
+          "vehicleId": "V02",
+          "active": true,
+          "durationMinutes": 40.0,
+          "drivingMinutes": 40.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 252.438
+    },
+    {
+      "case": "H-unused-vehicle",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        },
+        {
+          "vehicleId": "V02",
+          "active": false,
+          "durationMinutes": 0.0,
+          "drivingMinutes": 0.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 234.83
+    },
+    {
+      "case": "H-unused-vehicle",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        },
+        {
+          "vehicleId": "V02",
+          "active": false,
+          "durationMinutes": 0.0,
+          "drivingMinutes": 0.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 189.232
+    },
+    {
+      "case": "H-unused-vehicle",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 480,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 480.0,
+          "drivingMinutes": 480.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        },
+        {
+          "vehicleId": "V02",
+          "active": false,
+          "durationMinutes": 0.0,
+          "drivingMinutes": 0.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 148.309
+    },
+    {
+      "case": "K-authorized-valid-reassignment",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 510.0,
+          "drivingMinutes": 510.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 141.67
+    },
+    {
+      "case": "K-authorized-valid-reassignment",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 510.0,
+          "drivingMinutes": 510.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 127.307
+    },
+    {
+      "case": "K-authorized-valid-reassignment",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 180,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 100.0,
+          "drivingMinutes": 100.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": false
+        }
+      ],
+      "clientInterfaceMs": 192.51
+    },
+    {
+      "case": "L-layout-and-duration-failure",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 125.956
+    },
+    {
+      "case": "L-layout-and-duration-failure",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 131.676
+    },
+    {
+      "case": "L-layout-and-duration-failure",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "independentArithmetic": [
+        {
+          "vehicleId": "V01",
+          "active": true,
+          "durationMinutes": 500.0,
+          "drivingMinutes": 500.0,
+          "waitingMinutes": 0.0,
+          "serviceMinutes": 0.0,
+          "durationLimitMinutes": 480,
+          "violatesLimit": true
+        }
+      ],
+      "clientInterfaceMs": 185.06
+    },
+    {
+      "case": "J-T12-automatic",
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false
+    },
+    {
+      "case": "J-T12-automatic",
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false
+    },
+    {
+      "case": "J-T12-automatic",
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false
+    }
+  ]
+}

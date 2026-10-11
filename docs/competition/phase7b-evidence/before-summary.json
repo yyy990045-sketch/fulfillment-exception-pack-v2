@@ -1,0 +1,70 @@
+{
+  "baseline": "fd7b8dea2bcd48dd1c88c93ecf131d9af3c5314d",
+  "records": [
+    {
+      "strategy": "route-first",
+      "supplied": true,
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "durationMinutes": 500
+    },
+    {
+      "strategy": "route-first",
+      "supplied": false,
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "durationMinutes": null
+    },
+    {
+      "strategy": "layout-repair",
+      "supplied": true,
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "durationMinutes": 500
+    },
+    {
+      "strategy": "layout-repair",
+      "supplied": false,
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "durationMinutes": null
+    },
+    {
+      "strategy": "joint-feedback",
+      "supplied": true,
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "durationMinutes": 500
+    },
+    {
+      "strategy": "joint-feedback",
+      "supplied": false,
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "durationMinutes": null
+    }
+  ],
+  "frozenHashes": {
+    "frontend/public/demo/city-delivery/v1/comparison.json": "47c425cf43e45d524f242866a70b15bc2fbe7d3de6a125165698a8d4813d6897",
+    "frontend/public/demo/city-delivery/v1/manifest.json": "a98a2437df751eaf81a5d38435cb5058014eb60a6124a0d0d8ebf5ead802e300",
+    "frontend/public/demo/city-delivery/v1/placements.json": "6734f969266743995889e798716c1ce9dd0aeb8cacc473bc3ab276a69794027f",
+    "frontend/public/demo/city-delivery/v1/plans.json": "2dc29ccd973a3c60c90429b16c72fb20075bda23b540d1bbe80de4239318d5a5",
+    "frontend/public/demo/city-delivery/v1/scenario.json": "2ab085f8d20863baa0cb861f9ec44ef9a4fe3dfaf5aa7b316099ceb7b640aa3f",
+    "frontend/public/demo/city-delivery/v1/unloading-steps.json": "51f7b6cd97bef9d43a6b0cf575b14b745f47634ccdfdf9a68217d02911795878",
+    "frontend/public/demo/city-delivery/v2/comparison.json": "70fa253a02ba127927d5c33aba0e7bca485ae7f4fa71e1350c3d2e18ccb3e7a3",
+    "frontend/public/demo/city-delivery/v2/decision-contract.json": "ef23e842074866c683f81b820a9d30c6b023d6a6c49e4ead6b5c5596f9c493f6",
+    "frontend/public/demo/city-delivery/v2/fleet-adjustment-example.json": "2344eb3a8856da74d17cb6d71863182e5363cc1b2b1e11087c3f3e4cbd7635c8",
+    "frontend/public/demo/city-delivery/v2/manifest.json": "7bce90b6eddfbfc30de458f9a991f22f48e2e29583c41afb15895ecdd2e8aded",
+    "frontend/public/demo/city-delivery/v2/order-adjustment-examples.json": "0481a13654045fd61fe943ae8b0ffa3bfc56b9a086b718cf5c2c69ad920199ef",
+    "frontend/public/demo/city-delivery/v2/placements.json": "dee6a7508bb6ac9f2748790c15930545f9413742f1a3973fe4900ba0bda814eb",
+    "frontend/public/demo/city-delivery/v2/plans.json": "2ebe88ea998e3961188363d2c7486c531c7cca144ca2ee4fec8fb20070e4514a",
+    "frontend/public/demo/city-delivery/v2/scenario.json": "552f35596c1676eceb633237f55053501e7794d920dd3f8437cdbccea6fb5056",
+    "frontend/public/demo/city-delivery/v2/unloading-steps.json": "824ca183e7c39a58846454a4a91d942e40e7a5c8269ce3b5d48f6634d52f8b1e"
+  }
+}
