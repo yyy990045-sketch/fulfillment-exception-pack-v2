@@ -1,0 +1,12 @@
+{
+  "id": "phase-5-functional-audit",
+  "title": "城市配送全功能审查与分阶段开发规划",
+  "status": "completed",
+  "complexity": "L+",
+  "risk": "medium",
+  "domain": "fullstack-logistics",
+  "currentPhase": "completed",
+  "nextAction": "等待 Owner 确认 P0/P1 开发范围，不进入业务编码",
+  "createdAt": "2026-10-11T00:00:00Z",
+  "branch": "main"
+}
