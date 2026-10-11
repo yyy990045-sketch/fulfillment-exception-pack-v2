@@ -3,5 +3,9 @@
 .city-product[data-page="packing"] .p-playback-controls{height:32px;padding-top:0;border-top:0}
 .city-product[data-page="packing"] .p-playback-controls p,.city-product[data-page="packing"] .p-playback-controls>small{font-size:9px}
 .city-product[data-page="packing"] .p-result-version{display:none}
-.city-product[data-page="packing"] .p-packing-layout{height:calc(100vh - 275px)}
-@media (min-width:1101px) and (max-height:760px){.city-product[data-page="packing"] .p-playback{display:none}.city-product[data-page="packing"] .p-packing-layout{height:calc(100vh - 235px)}}
+@media(min-width:1101px){
+ .city-product[data-page="packing"] .p-main{display:flex;flex-direction:column;padding-bottom:48px}
+ .city-product[data-page="packing"] .p-main>*{flex-shrink:0}
+ .city-product[data-page="packing"] .p-packing-layout{flex:1;min-height:0;height:auto;overflow:hidden}
+ .city-product[data-page="packing"] .p-packing-stops{overflow:auto}
+}
