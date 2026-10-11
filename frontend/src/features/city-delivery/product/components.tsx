@@ -7,6 +7,7 @@ import type { PackingState } from '../packing-objects';
 import { useCityProduct, emptyPlayback, productSteps } from './state';
 import { routeReasons, type Totals } from './api';
 import { GeoCityMap } from './geo-city-map';
+import { geoRegion } from './geo-model';
 
 export const vehicleColors:Record<string,string>={V01:'#82c7b3',V02:'#86adeb',V03:'#c6a3df'};
 export const colorForVehicle=(id:string)=>vehicleColors[id]??['#82c7b3','#86adeb','#c6a3df','#d7a66f','#9fc4c9'][[...id].reduce((n,c)=>n+c.charCodeAt(0),0)%5];
@@ -14,19 +15,19 @@ export const money=(value:number)=>value.toLocaleString('zh-CN',{maximumFraction
 export function Status({valid,label}:{valid:boolean;label?:string}){return <span className={`p-status ${valid?'is-good':'is-bad'}`}>{valid?<CircleCheck size={13}/>:<TriangleAlert size={13}/>} {label??(valid?'已校验可执行':'需调整')}</span>;}
 
 export function PlanBar(){
- const p=useCityProduct(),options=p.mode==='fleet'?p.sets.fleet.plans.plans:p.mode==='single'?p.sets.single.plans.plans:[];
+ const p=useCityProduct(),historical=p.mode==='fleet'&&!p.candidate&&!p.inspectionKind&&p.sets.fleet.plans.plans.includes(p.current),options=p.mode==='fleet'?p.sets.fleet.plans.plans:p.mode==='single'?p.sets.single.plans.plans:[];
  if(p.mode==='standard') return <section className="p-planbar"><div className="p-plan-current"><Status valid={p.current.feasibility.executable} label={p.resultLabel}/><span>{p.standardMeta.solverStatus==='VALID'?'已通过字段检查':p.standardMeta.solverStatus==='SEARCH_EXHAUSTED'?'当前搜索范围未找到可执行计划':p.standardMeta.solverStatus==='TIMEOUT'?'计算预算耗尽，未发布可执行计划':p.standardNeedsPlanning?'条件变化后需要重新规划':p.standardMeta.solverStatus==='FEASIBLE'?p.standardPlanConfirmed?'计算完成，计划已确认':'计算完成，等待确认':'待提交规划'}</span></div><div className="p-standard-plan-meta"><span>{p.standardPlanConfirmed?'已确认':'待规划或确认'}</span><span>{p.current.totals.vehicleCount} 辆 · {p.current.totals.distanceKm} km · <b>¥{money(p.current.totals.totalCost)}</b></span><Button disabled={p.busy||!!p.startedPlan||p.standardMeta.validation!=='valid'} onClick={p.openEditor}><Route size={14}/>改变条件</Button></div></section>;
  return <section className="p-planbar"><div className="p-plan-options">{options.map((plan,i)=>{
   const totals='totals' in plan?plan.totals:{distanceKm:plan.distanceKm,totalCost:plan.costs.totalCost,vehicleCount:1};
   const selected=p.current.planId===plan.planId&&!p.inspectionKind&&!p.candidate;
   return <Button key={plan.planId} className={selected?'is-selected':''} aria-pressed={selected} disabled={p.busy||!!p.startedPlan} onClick={()=>p.choosePlan(plan.planId)}><span>{i===0?'A':'B'}</span><div><strong>{p.mode==='fleet'?i===0?'三车基础方案':'两车候选方案':i===0?'基础配送 · 卸货受阻':'可执行调整方案'}</strong><small>{totals.vehicleCount} 辆 · {totals.distanceKm} km · ¥{money(totals.totalCost)}</small></div>{selected&&<Check size={14}/>}</Button>;
- })}</div><div className="p-plan-current"><Status valid={p.current.feasibility.executable} label={p.resultLabel}/><span>{p.current.totals.vehicleCount} 辆 · {p.current.totals.distanceKm} km · <b>¥{money(p.current.totals.totalCost)}</b></span></div></section>;
+ })}</div><div className="p-plan-current"><Status valid={p.current.feasibility.executable} label={historical?'历史预先计算方案':p.resultLabel}/>{historical&&<small className="p-plan-source">切换不触发重新优化</small>}<span>{p.current.totals.vehicleCount} 辆 · {p.current.totals.distanceKm} km · <b>¥{money(p.current.totals.totalCost)}</b></span></div></section>;
 }
 
 export function FleetMap({overview=false,simulation=false}:{overview?:boolean;simulation?:boolean}){
  const p=useCityProduct();
- if(p.mode!=='fleet'||!['FLEET_BASELINE','FLEET_ADJUSTED'].includes(p.current.planId))return <SpatialFleetMap overview={overview} simulation={simulation}/>;
- return <GeoCityMap overview={overview} simulation={simulation} key={`${p.mode}:${p.current.planId}:${p.vehicleId}:${p.startedPlan?'running':'idle'}`}/>;
+ if(!geoRegion(p.mode,p.scenario.scenarioId))return <SpatialFleetMap overview={overview} simulation={simulation}/>;
+ return <GeoCityMap overview={overview} simulation={simulation}/>;
 }
 
 function SpatialFleetMap({overview=false,simulation=false}:{overview?:boolean;simulation?:boolean}){
@@ -102,7 +103,7 @@ function LegacyFleetMap({overview=false,simulation=false}:{overview?:boolean;sim
 }
 
 export function VehicleList({compact=false}:{compact?:boolean}){
- const p=useCityProduct();return <div className={`p-vehicle-list ${compact?'is-compact':''}`}>{p.scenario.vehicles.map(v=>{const r=p.current.routes.find(r=>r.vehicleId===v.vehicleId)!;return <button key={v.vehicleId} className={v.vehicleId===p.vehicleId?'is-current':''} onClick={()=>p.selectVehicle(v.vehicleId)} style={{'--vehicle-color':colorForVehicle(v.vehicleId)} as CSSProperties}><div className="p-vehicle-line"><span className="p-vehicle-icon"><Truck size={22}/></span><div><strong>{v.vehicleId} · {v.name}</strong><small>{v.compartment.length} × {v.compartment.width} × {v.compartment.height} m</small></div><span className={`p-tag ${r.active===false?'':'is-good'}`}>{r.active===false?'空闲':!r.feasibility.executable?'需调整':'已分配'}</span></div><div className="p-vehicle-task"><span>{r.stopOrder.length} 家门店 · {r.cargoIds.length} 件</span><strong>{r.distanceKm} km</strong></div>{!compact&&<div className="p-vehicle-stops">{r.stopOrder.map(id=><span key={id}>{p.scenario.stops.find(s=>s.stopId===id)?.name}</span>)}</div>}</button>;})}</div>;
+ const p=useCityProduct();return <div className={`p-vehicle-list ${compact?'is-compact':''}`}>{p.scenario.vehicles.map(v=>{const r=p.current.routes.find(r=>r.vehicleId===v.vehicleId)!;return <button key={v.vehicleId} className={v.vehicleId===p.vehicleId?'is-current':''} onClick={()=>p.selectVehicle(v.vehicleId)} style={{'--vehicle-color':colorForVehicle(v.vehicleId)} as CSSProperties}><div className="p-vehicle-line"><span className="p-vehicle-icon"><Truck size={22}/></span><div><strong>{v.vehicleId} · {v.name}</strong><small>{v.compartment.length} × {v.compartment.width} × {v.compartment.height} m</small></div><span className={`p-tag ${r.active===false?'':'is-good'}`}>{r.active===false?'空闲':!r.feasibility.executable?'需调整':'已分配'}</span></div><div className="p-vehicle-task"><span>{r.stopOrder.length} 家门店 · {r.cargoIds.length} 件</span><strong>{Number(r.distanceKm.toFixed(3))} km</strong></div>{!compact&&<div className="p-vehicle-stops">{r.stopOrder.map(id=><span key={id}>{p.scenario.stops.find(s=>s.stopId===id)?.name}</span>)}</div>}</button>;})}</div>;
 }
 
 export function RouteStops(){const p=useCityProduct();return <ol className="p-route-stops">{p.route.stopOrder.map((id,i)=>{const s=p.scenario.stops.find(s=>s.stopId===id)!;const arrival=p.route.arrivals.find(a=>a.stopId===id)!;return <li key={id}><button onClick={()=>p.selectStop(id)} className={id===p.selectedStopId?'is-current':''}><span style={{color:s.color,borderColor:s.color}}>{i+1}</span><div><strong>{s.name}</strong><small>{s.timeWindow.start}–{s.timeWindow.end}</small></div><b>{arrival.arrivalTime}</b></button></li>;})}{!p.route.stopOrder.length&&<li className="p-muted">本车空闲，无配送任务。</li>}</ol>;}
@@ -149,7 +150,7 @@ export function DecisionFeedback(){
   </div>
   {(p.inspectionKind||!revision?.executable)&&<details className="p-feedback-reasons" open={!p.current.feasibility.executable}><summary>约束检查详情</summary>{[...reasons,...(!revision?.executable?finalReasons:[])].filter((r,i,arr)=>arr.findIndex(v=>v.message===r.message&&v.stopId===r.stopId&&v.type===r.type)===i).map((r,i)=><p key={i}>{reasonText(r,p.scenario)}</p>)}</details>}
   {revision?.executable&&'submittedCheck' in revision&&revision.revision.reallocated&&<div className="p-reassignment-changes">{(revision.result.assignments as Array<{stopId:string;vehicleId:string}>).filter((a)=>revision.submittedCheck.assignments.find((b:{stopId:string;vehicleId:string})=>b.stopId===a.stopId)?.vehicleId!==a.vehicleId).map((a)=><span key={a.stopId}>{p.scenario.stops.find((s)=>s.stopId===a.stopId)?.name} <b>{revision.submittedCheck.assignments.find((b:{stopId:string;vehicleId:string})=>b.stopId===a.stopId)?.vehicleId} → {a.vehicleId}</b></span>)}</div>}
-  {revision?.executable&&<div className="p-revision-cost"><span>本次规划结果</span>{standard&&standardAfter?<strong>{standardAfter.distanceKm} km · ¥{money(standardAfter.totalCost)} · {standardAfter.totalDurationMinutes} 分钟</strong>:(()=>{const d='submittedCheck' in revision?revision.delta:revision.comparison.delta;return <strong>{d.distanceKm>=0?'+':''}{d.distanceKm} km · {d.totalCost>=0?'+':''}{money(d.totalCost)} 元 · {d.totalDurationMinutes>=0?'+':''}{d.totalDurationMinutes} 分钟</strong>;})()}</div>}
+  {revision?.executable&&<div className="p-revision-cost"><span>本次规划结果</span>{standard&&standardAfter?<strong>{standardAfter.distanceKm} km · ¥{money(standardAfter.totalCost)} · {Number(standardAfter.totalDurationMinutes.toFixed(2))} 分钟</strong>:(()=>{const d='submittedCheck' in revision?revision.delta:revision.comparison.delta;return <strong>{d.distanceKm>=0?'+':''}{d.distanceKm} km · {d.totalCost>=0?'+':''}{money(d.totalCost)} 元 · {d.totalDurationMinutes>=0?'+':''}{d.totalDurationMinutes} 分钟</strong>;})()}</div>}
   {revision&&<small>本次为发车前规划检查；不是现场执行。重装工时费用未计入。{!revision.executable?'不可执行提交方案的费用仅为名义推演。':''}</small>}
  </section>;
 }
