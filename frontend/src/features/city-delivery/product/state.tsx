@@ -84,7 +84,7 @@ function useProductModel(sets:DataSets,page:Page) {
  async function check(){const ctrl=new AbortController();const timeout=window.setTimeout(()=>ctrl.abort(),2500);const abort=()=>ctrl.abort();health.signal.addEventListener('abort',abort);try{const response=await fetch('/api/city-delivery/health',{signal:ctrl.signal,cache:'no-store'});const value=await response.json();if(alive)setServiceReady(response.ok&&value.ready===true);}catch{if(alive)setServiceReady(false);}finally{window.clearTimeout(timeout);health.signal.removeEventListener('abort',abort);}}
   check();const timer=window.setInterval(check,5000);return()=>{alive=false;health.abort();window.clearInterval(timer);};
  },[sets.fleet.contract]);
- useEffect(()=>{pause();},[page]);
+ useEffect(()=>{pause();if(page==='execution'){setPlaybacks(old=>Object.fromEntries(Object.entries(old).map(([key,value])=>[key,value.phase==='loading'?{...emptyPlayback,speed:value.speed}:value])));if(playback.phase==='loading'){manualInspection.current=false;setStop(route.stopOrder[0]??'');setCargo(undefined);}}},[page]);
  const live=useRef({current,playbacks,mode,inspectionKind,page});live.current={current,playbacks,mode,inspectionKind,page};
  const hasPlaying=Object.values(playbacks).some(p=>p.playing);
  useEffect(()=>{

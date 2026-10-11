@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
- testDir:'./e2e',testMatch:'city-delivery.spec.ts',workers:1,timeout:90_000,
+ testDir:'./e2e',testMatch:['city-delivery.spec.ts','city-delivery-screening.spec.ts'],workers:1,timeout:90_000,
  reporter:'list',use:{baseURL:'http://127.0.0.1:8111',trace:'retain-on-failure'},
  projects:[{name:'city-delivery-desktop',use:{...devices['Desktop Chrome'],viewport:{width:1440,height:900}}}],
  webServer:[
