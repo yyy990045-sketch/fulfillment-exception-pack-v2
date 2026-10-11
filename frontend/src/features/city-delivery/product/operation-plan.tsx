@@ -57,7 +57,7 @@ export function OperationPlan(){
      </details>)}
     </>}
    </section>)}
-   <details><summary>作业来源核对</summary><p>计划：{p.current.planId}；场景：{p.current.scenarioId}；修订：{p.standardResponse?.revisionId}；约束：{p.standardResponse?.constraintVersion}</p><p>输入指纹：{p.standardResponse?.scenarioFingerprint}；来源：{p.standardResponse?.resultSource?.kind}；确认状态：{p.standardPlanConfirmed?'已确认':'待确认'}</p></details>
+   <details><summary>作业来源核对</summary><p>计划：{p.current.planId}；场景：{p.current.scenarioId}；修订：{p.standardResponse?.revisionId}；约束：{p.standardResponse?.constraintVersion}</p><p>输入指纹：{p.standardResponse?.scenarioFingerprint}；来源：{p.standardResponse?.resultSource?.kind}；确认状态：{p.standardPlanConfirmed?'已确认':p.standardNeedsPlanning?'条件需要重新规划':p.standardResponse?.executable?'等待确认':'本次未找到可执行方案'}</p></details>
   </article>
  </section>;
 }
