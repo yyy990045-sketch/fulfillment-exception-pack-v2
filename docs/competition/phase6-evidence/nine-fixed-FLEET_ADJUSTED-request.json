@@ -1,0 +1,1 @@
+{"scenarioId":"city-delivery-multivehicle-synthetic-001","routes":[{"vehicleId":"V01","stopOrder":[]},{"vehicleId":"V02","stopOrder":["S03","S06","S08","S07"]},{"vehicleId":"V03","stopOrder":["S09","S05","S04","S02","S01"]}],"allowReassignment":false}
