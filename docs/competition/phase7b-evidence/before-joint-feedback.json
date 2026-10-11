@@ -1,0 +1,1178 @@
+{
+  "schemaVersion": "3.0.0",
+  "scenarioId": "phase7a-T12",
+  "scenarioFingerprint": "8ec0123c4719",
+  "planId": "PLAN-c0a26bce91f6",
+  "revisionId": "REV-c0a26bce91f6",
+  "constraintVersion": "city-rear-door-3d-1.0",
+  "executionMode": "computed-per-request",
+  "solverStatus": "FEASIBLE",
+  "executable": true,
+  "source": {
+    "dataType": "synthetic",
+    "name": "Phase 7A 固定构造",
+    "description": "种子202610117；场景T12；非历史案例或企业数据。",
+    "license": "project-owned-synthetic",
+    "authorization": "Owner授权本次独立算法审查生成及复核。"
+  },
+  "scenario": {
+    "schemaVersion": "3.0.0",
+    "scenarioId": "phase7a-T12",
+    "name": "Phase 7A 独立对抗 T12",
+    "units": {
+      "dimensions": "m",
+      "weight": "kg",
+      "distance": "km",
+      "time": "minutes",
+      "currency": "CNY"
+    },
+    "source": {
+      "dataType": "synthetic",
+      "name": "Phase 7A 固定构造",
+      "description": "种子202610117；场景T12；非历史案例或企业数据。",
+      "license": "project-owned-synthetic",
+      "authorization": "Owner授权本次独立算法审查生成及复核。"
+    },
+    "warehouse": {
+      "stopId": "DEPOT",
+      "name": "独立中心仓",
+      "x": 0,
+      "y": 0
+    },
+    "stops": [
+      {
+        "stopId": "S01",
+        "name": "独立门店 1",
+        "x": 100,
+        "y": 0,
+        "timeWindow": {
+          "start": "08:00",
+          "end": "13:00"
+        },
+        "serviceDurationMinutes": 0,
+        "color": "#57B8F2"
+      }
+    ],
+    "orders": [
+      {
+        "orderId": "O-S01",
+        "stopId": "S01",
+        "cargoIds": [
+          "S01-C01"
+        ]
+      }
+    ],
+    "cargo": [
+      {
+        "cargoId": "S01-C01",
+        "orderId": "O-S01",
+        "stopId": "S01",
+        "name": "合成包装件",
+        "length": 0.5,
+        "width": 0.5,
+        "height": 0.4,
+        "weightKg": 20,
+        "fragile": false,
+        "maxTopLoadKg": 100,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#57B8F2",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 100 kg"
+        ]
+      }
+    ],
+    "vehicles": [
+      {
+        "vehicleId": "V01",
+        "name": "合成车 V01",
+        "maxPayloadKg": 500,
+        "compartment": {
+          "length": 2.5,
+          "width": 2,
+          "height": 1.8
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 2.5,
+          "xMin": 0,
+          "xMax": 2,
+          "yMin": 0,
+          "yMax": 1.8
+        },
+        "costs": {
+          "vehicleFixedCost": 80,
+          "drivingCostPerKm": 2
+        }
+      }
+    ],
+    "departureTime": "08:00",
+    "routing": {
+      "nodeIds": [
+        "DEPOT",
+        "S01"
+      ],
+      "distanceMatrixKm": [
+        [
+          0,
+          100
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "travelTimeMatrixMinutes": [
+        [
+          0,
+          250
+        ],
+        [
+          250,
+          0
+        ]
+      ],
+      "returnToDepot": true,
+      "timeWindowRule": "服务开始须处于时间窗；提前到店等待。"
+    },
+    "costs": {
+      "currency": "CNY",
+      "waitingCostPerMinute": 0,
+      "extraHandlingCostPerCargoMove": 5
+    },
+    "rules": {
+      "extraction": "rear-door-straight-positive-z",
+      "allowExtraHandling": false,
+      "minimumSupportRatio": 1,
+      "fragileRule": "no-load-on-fragile",
+      "maxRouteDurationMinutes": 480,
+      "supportRule": "full-footprint",
+      "timeWindowRule": "service-start",
+      "loadBearingRule": "area-proportional"
+    },
+    "uncheckedConstraints": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ]
+  },
+  "result": {
+    "planId": "PLAN-c0a26bce91f6",
+    "scenarioId": "phase7a-T12",
+    "routes": [
+      {
+        "planId": "PLAN-c0a26bce91f6",
+        "scenarioId": "phase7a-T12",
+        "vehicleId": "V01",
+        "stopOrder": [
+          "S01"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S01",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S01",
+            "sequence": 1,
+            "arrivalTime": "12:10",
+            "serviceStartTime": "12:10",
+            "departureTime": "12:10",
+            "serviceDurationMinutes": 0,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "13:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S01",
+            "distanceKm": 100,
+            "travelMinutes": 250,
+            "departureTime": "08:00",
+            "arrivalTime": "12:10"
+          },
+          {
+            "fromStopId": "S01",
+            "toStopId": "DEPOT",
+            "distanceKm": 100,
+            "travelMinutes": 250,
+            "departureTime": "12:10",
+            "arrivalTime": "16:20"
+          }
+        ],
+        "distanceKm": 200,
+        "drivingMinutes": 500,
+        "waitingMinutes": 0,
+        "serviceMinutes": 0,
+        "totalDurationMinutes": 500,
+        "returnTime": "16:20",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S01",
+              "sequence": 1,
+              "arrivalTime": "12:10",
+              "serviceStartTime": "12:10",
+              "departureTime": "12:10",
+              "serviceDurationMinutes": 0,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "13:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 80,
+          "drivingCost": 400,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 480,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "S01-C01"
+        ],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 20,
+          "maxPayloadKg": 500,
+          "totalCargoVolumeM3": 0.1,
+          "compartmentVolumeM3": 9.0,
+          "cargoChecks": {
+            "S01-C01": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0.0,
+              "maxTopLoadKg": 100,
+              "loadBearingValid": true,
+              "valid": true
+            }
+          },
+          "spaceUtilizationRatio": 0.011111,
+          "spaceUtilizationPercent": 1.11
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-c0a26bce91f6",
+          "vehicleId": "V01",
+          "positions": [
+            {
+              "cargoId": "S01-C01",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.5,
+              "width": 0.5,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        "unloading": {
+          "planId": "PLAN-c0a26bce91f6",
+          "vehicleId": "V01",
+          "stopOrder": [
+            "S01"
+          ],
+          "initialRemainingCargoIds": [
+            "S01-C01"
+          ],
+          "stations": [
+            {
+              "stopId": "S01",
+              "sequence": 1,
+              "arrivalTime": "12:10",
+              "serviceStartTime": "12:10",
+              "targetCargoIds": [
+                "S01-C01"
+              ],
+              "stepIds": [
+                "PLAN-c0a26bce91f6-V01-U001",
+                "PLAN-c0a26bce91f6-V01-U002",
+                "PLAN-c0a26bce91f6-V01-U003",
+                "PLAN-c0a26bce91f6-V01-U004"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "S01-C01"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": []
+            }
+          ],
+          "steps": [
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U001",
+              "sequence": 1,
+              "stopId": "S01",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U002",
+              "sequence": 2,
+              "stopId": "S01",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "cargoId": "S01-C01",
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 S01-C01，先卸上层，再卸底层。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U003",
+              "sequence": 3,
+              "stopId": "S01",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [],
+              "cargoId": "S01-C01",
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.75
+                },
+                "rotation": 0,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "S01-C01 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U004",
+              "sequence": 4,
+              "stopId": "S01",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [],
+              "remainingCargoIdsAfter": [],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "V01"
+            }
+          ],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "phase7a-T12",
+          "loadingSteps": [
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-L001",
+              "operation": "load",
+              "cargoId": "S01-C01",
+              "stopId": "S01",
+              "loadedCargoIdsBefore": [],
+              "loadedCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.75
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 0,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "V01"
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": [
+            {
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-0"
+            }
+          ]
+        },
+        "active": true,
+        "status": "scheduled"
+      }
+    ],
+    "assignments": [
+      {
+        "stopId": "S01",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "S01-C01"
+        ]
+      }
+    ],
+    "totals": {
+      "vehicleCount": 1,
+      "distanceKm": 200,
+      "drivingMinutes": 500,
+      "totalDurationMinutes": 500,
+      "currency": "CNY",
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "vehicleFixedCost": 80,
+      "drivingCost": 400,
+      "totalCost": 480
+    },
+    "assignmentCheck": {
+      "checked": true,
+      "everyStopServedOnce": true,
+      "everyCargoAssignedOnce": true
+    },
+    "feasibility": {
+      "executable": true,
+      "reasons": [],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    },
+    "globallyOptimal": false,
+    "selectionObjective": {
+      "order": [
+        "totalCost",
+        "totalDurationMinutes",
+        "fleetSpaceUtilizationRatio"
+      ],
+      "score": [
+        480,
+        500,
+        -0.011111111111111112
+      ],
+      "globalOptimal": false
+    }
+  },
+  "initialCheck": {
+    "planId": "PLAN-c0a26bce91f6",
+    "scenarioId": "phase7a-T12",
+    "routes": [
+      {
+        "planId": "PLAN-c0a26bce91f6",
+        "scenarioId": "phase7a-T12",
+        "vehicleId": "V01",
+        "stopOrder": [
+          "S01"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S01",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S01",
+            "sequence": 1,
+            "arrivalTime": "12:10",
+            "serviceStartTime": "12:10",
+            "departureTime": "12:10",
+            "serviceDurationMinutes": 0,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "13:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S01",
+            "distanceKm": 100,
+            "travelMinutes": 250,
+            "departureTime": "08:00",
+            "arrivalTime": "12:10"
+          },
+          {
+            "fromStopId": "S01",
+            "toStopId": "DEPOT",
+            "distanceKm": 100,
+            "travelMinutes": 250,
+            "departureTime": "12:10",
+            "arrivalTime": "16:20"
+          }
+        ],
+        "distanceKm": 200,
+        "drivingMinutes": 500,
+        "waitingMinutes": 0,
+        "serviceMinutes": 0,
+        "totalDurationMinutes": 500,
+        "returnTime": "16:20",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S01",
+              "sequence": 1,
+              "arrivalTime": "12:10",
+              "serviceStartTime": "12:10",
+              "departureTime": "12:10",
+              "serviceDurationMinutes": 0,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "13:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 80,
+          "drivingCost": 400,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 480,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "S01-C01"
+        ],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 20,
+          "maxPayloadKg": 500,
+          "totalCargoVolumeM3": 0.1,
+          "compartmentVolumeM3": 9.0,
+          "cargoChecks": {
+            "S01-C01": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0.0,
+              "maxTopLoadKg": 100,
+              "loadBearingValid": true,
+              "valid": true
+            }
+          },
+          "spaceUtilizationRatio": 0.011111,
+          "spaceUtilizationPercent": 1.11
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-c0a26bce91f6",
+          "vehicleId": "V01",
+          "positions": [
+            {
+              "cargoId": "S01-C01",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.5,
+              "width": 0.5,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        "unloading": {
+          "planId": "PLAN-c0a26bce91f6",
+          "vehicleId": "V01",
+          "stopOrder": [
+            "S01"
+          ],
+          "initialRemainingCargoIds": [
+            "S01-C01"
+          ],
+          "stations": [
+            {
+              "stopId": "S01",
+              "sequence": 1,
+              "arrivalTime": "12:10",
+              "serviceStartTime": "12:10",
+              "targetCargoIds": [
+                "S01-C01"
+              ],
+              "stepIds": [
+                "PLAN-c0a26bce91f6-V01-U001",
+                "PLAN-c0a26bce91f6-V01-U002",
+                "PLAN-c0a26bce91f6-V01-U003",
+                "PLAN-c0a26bce91f6-V01-U004"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "S01-C01"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": []
+            }
+          ],
+          "steps": [
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U001",
+              "sequence": 1,
+              "stopId": "S01",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U002",
+              "sequence": 2,
+              "stopId": "S01",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "cargoId": "S01-C01",
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 S01-C01，先卸上层，再卸底层。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U003",
+              "sequence": 3,
+              "stopId": "S01",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "S01-C01"
+              ],
+              "remainingCargoIdsAfter": [],
+              "cargoId": "S01-C01",
+              "highlightCargoIds": [
+                "S01-C01"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.75
+                },
+                "rotation": 0,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "S01-C01 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "V01"
+            },
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-U004",
+              "sequence": 4,
+              "stopId": "S01",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [],
+              "remainingCargoIdsAfter": [],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "V01"
+            }
+          ],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "phase7a-T12",
+          "loadingSteps": [
+            {
+              "stepId": "PLAN-c0a26bce91f6-V01-L001",
+              "operation": "load",
+              "cargoId": "S01-C01",
+              "stopId": "S01",
+              "loadedCargoIdsBefore": [],
+              "loadedCargoIdsAfter": [
+                "S01-C01"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.75
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 0,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "V01"
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": [
+            {
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-0"
+            }
+          ]
+        },
+        "active": true,
+        "status": "scheduled"
+      }
+    ],
+    "assignments": [
+      {
+        "stopId": "S01",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "S01-C01"
+        ]
+      }
+    ],
+    "totals": {
+      "vehicleCount": 1,
+      "distanceKm": 200,
+      "drivingMinutes": 500,
+      "totalDurationMinutes": 500,
+      "currency": "CNY",
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "vehicleFixedCost": 80,
+      "drivingCost": 400,
+      "totalCost": 480
+    },
+    "assignmentCheck": {
+      "checked": true,
+      "everyStopServedOnce": true,
+      "everyCargoAssignedOnce": true
+    },
+    "feasibility": {
+      "executable": true,
+      "reasons": [],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    },
+    "globallyOptimal": false
+  },
+  "confirmed": false,
+  "authorization": {
+    "allowLayoutRepair": true,
+    "allowReassignment": true,
+    "initialPlanning": false,
+    "automaticConfirmation": false
+  },
+  "strategy": "joint-feedback",
+  "timing": {
+    "solveMs": 0,
+    "constraintCheckMs": 0.342,
+    "layoutGenerationMs": 0.011,
+    "overallComputeMs": 1.121,
+    "budgetMs": 2000,
+    "solverCalls": 0,
+    "routeCandidates": 1,
+    "layoutCandidatesChecked": 1
+  },
+  "search": {
+    "trace": [
+      {
+        "phase": "route-first-check",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S01"
+            ]
+          }
+        ],
+        "executable": true,
+        "failures": []
+      }
+    ],
+    "exhausted": false,
+    "limits": {
+      "stops": 16,
+      "vehicles": 6,
+      "cargo": 96,
+      "cargoPerStop": 16,
+      "budgetMs": 5000,
+      "routeCandidates": 6,
+      "layoutCandidatesPerStop": 8
+    },
+    "notGlobalInfeasibility": false,
+    "candidateEvaluations": [
+      {
+        "vehicleId": "V01",
+        "stopId": "S01",
+        "method": "floor-2-columns-yaw-0",
+        "spanM": 0.5,
+        "feasible": true,
+        "spaceUtilizationRatio": 0.011111,
+        "spaceUtilizationPercent": 1.11,
+        "checkedMs": 0.187,
+        "failureTypes": [],
+        "movementCountBasis": "not-computed-per-stop-candidate",
+        "rank": 1,
+        "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+      }
+    ],
+    "failureEvidence": [],
+    "scope": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ]
+  },
+  "revision": {
+    "changedCargoIds": [],
+    "changes": [],
+    "requiresReloadBeforeDispatch": false,
+    "reassigned": false,
+    "reloadingCostIncluded": false,
+    "confirmed": false
+  },
+  "unassignedStopIds": [],
+  "actualExecutablePlanCost": 480,
+  "capabilityBoundary": [
+    "整站分区，不拆分同店到不同车",
+    "底层直立箱或已有两层承托模式",
+    "后门沿 z 轴直线装卸，不允许额外搬运",
+    "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+    "有限搜索失败不代表全局无解",
+    "不证明全局最优，不支持在途自动重装"
+  ],
+  "resultSource": {
+    "kind": "computed-per-request",
+    "service": "city-delivery-decision",
+    "inputFingerprint": "8ec0123c4719",
+    "historicalStaticComparison": false
+  },
+  "serviceTiming": {
+    "overallInterfaceMs": 114.006,
+    "hardTimeoutSeconds": 8
+  }
+}

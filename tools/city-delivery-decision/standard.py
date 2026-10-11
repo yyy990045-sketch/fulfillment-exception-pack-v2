@@ -412,6 +412,18 @@ def evaluate_routes(scenario, routes, options, plan_id, budget):
             result=assess(scenario,v,order,packed[0],plan_id)
             result["layoutSearch"]={"found":True,"methods":packed[1]}
             failures.extend(result["feasibility"]["reasons"])
+        # Standard v3 also accepts supplied routes, which bypass solve's time
+        # dimension. Check the complete trip after every evaluation, including
+        # waiting, service and the depot return, without changing legacy assess.
+        duration=result["totalDurationMinutes"]
+        limit=scenario["rules"]["maxRouteDurationMinutes"]
+        if order and duration > limit:
+            reason={"type":"max_route_duration","vehicleId":v["vehicleId"],
+                    "actualDurationMinutes":duration,"maxRouteDurationMinutes":limit,
+                    "excessMinutes":duration-limit}
+            result["feasibility"]["executable"]=False
+            result["feasibility"]["reasons"].append(reason)
+            failures.append(reason)
         result.update({"active":bool(order),"status":"idle" if not order else "scheduled" if result["feasibility"]["executable"] else "search_failed"})
         if not order:
             result["costs"].update({"vehicleCount":0,"vehicleFixedCost":0,"totalCost":0})
