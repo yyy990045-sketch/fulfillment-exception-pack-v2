@@ -1,0 +1,592 @@
+{
+  "scenarioId": "city-delivery-holdout-010",
+  "stopCount": 10,
+  "cargoCount": 20,
+  "vehicleCount": 3,
+  "sameBudgetMs": 2000,
+  "rows": [
+    {
+      "strategy": "route-first",
+      "repeat": 0,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "changedCargoCount": 0,
+      "wallMs": 121.621,
+      "timing": {
+        "solveMs": 14.912,
+        "constraintCheckMs": 14.05,
+        "layoutGenerationMs": 0.138,
+        "overallComputeMs": 121.605,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 30
+      },
+      "failureEvidence": []
+    },
+    {
+      "strategy": "route-first",
+      "repeat": 1,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "changedCargoCount": 0,
+      "wallMs": 19.386,
+      "timing": {
+        "solveMs": 3.169,
+        "constraintCheckMs": 13.773,
+        "layoutGenerationMs": 0.136,
+        "overallComputeMs": 19.311,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 30
+      },
+      "failureEvidence": []
+    },
+    {
+      "strategy": "route-first",
+      "repeat": 2,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "changedCargoCount": 0,
+      "wallMs": 18.493,
+      "timing": {
+        "solveMs": 2.978,
+        "constraintCheckMs": 13.162,
+        "layoutGenerationMs": 0.129,
+        "overallComputeMs": 18.455,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 30
+      },
+      "failureEvidence": []
+    },
+    {
+      "strategy": "layout-repair",
+      "repeat": 0,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 71.633,
+      "timing": {
+        "solveMs": 2.975,
+        "constraintCheckMs": 64.154,
+        "layoutGenerationMs": 0.57,
+        "overallComputeMs": 71.578,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    },
+    {
+      "strategy": "layout-repair",
+      "repeat": 1,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 71.278,
+      "timing": {
+        "solveMs": 2.855,
+        "constraintCheckMs": 63.888,
+        "layoutGenerationMs": 0.557,
+        "overallComputeMs": 71.191,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    },
+    {
+      "strategy": "layout-repair",
+      "repeat": 2,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 72.783,
+      "timing": {
+        "solveMs": 2.984,
+        "constraintCheckMs": 65.175,
+        "layoutGenerationMs": 0.567,
+        "overallComputeMs": 72.719,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    },
+    {
+      "strategy": "joint-feedback",
+      "repeat": 0,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 71.605,
+      "timing": {
+        "solveMs": 2.754,
+        "constraintCheckMs": 64.365,
+        "layoutGenerationMs": 0.565,
+        "overallComputeMs": 71.525,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    },
+    {
+      "strategy": "joint-feedback",
+      "repeat": 1,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 71.304,
+      "timing": {
+        "solveMs": 2.908,
+        "constraintCheckMs": 63.853,
+        "layoutGenerationMs": 0.556,
+        "overallComputeMs": 71.222,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    },
+    {
+      "strategy": "joint-feedback",
+      "repeat": 2,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 320.8,
+      "changedCargoCount": 20,
+      "wallMs": 71.097,
+      "timing": {
+        "solveMs": 2.92,
+        "constraintCheckMs": 63.745,
+        "layoutGenerationMs": 0.562,
+        "overallComputeMs": 71.018,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 150
+      },
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-06-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-06-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-06-1",
+            "H-06-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "H-09-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for H-09-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-H-V01-U004",
+          "targetCargoIds": [
+            "H-09-1",
+            "H-09-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ]
+    }
+  ],
+  "scope": "独立保留合成输入；用于验证可复核性，不代表生产规模或企业收益。"
+}

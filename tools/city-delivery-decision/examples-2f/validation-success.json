@@ -1,0 +1,689 @@
+{
+  "httpStatus": 200,
+  "response": {
+    "schemaVersion": "3.0.0",
+    "scenarioId": "city-independent-six-stop-003",
+    "constraintVersion": "city-rear-door-3d-1.0",
+    "executionMode": "validation-only",
+    "solverStatus": "VALID",
+    "valid": true,
+    "scenario": {
+      "scenarioId": "city-independent-six-stop-003",
+      "name": "独立六店混合包装件机制实例",
+      "source": {
+        "dataType": "synthetic",
+        "name": "独立生成六店案例",
+        "description": "本轮独立生成，非传化订单或公开基准。每店货件数量为 1–3，与四店/九店样例不同。",
+        "license": "project-owned-synthetic",
+        "authorization": "本次任务授权构造并在项目内使用；不含第三方数据，外部分发由项目 Owner 决定。"
+      },
+      "warehouse": {
+        "stopId": "DEPOT",
+        "name": "城市配送中心仓",
+        "x": 0,
+        "y": 0
+      },
+      "stops": [
+        {
+          "stopId": "S01",
+          "name": "配送门店 01",
+          "x": 1,
+          "y": 1,
+          "color": "#57B8F2",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        },
+        {
+          "stopId": "S02",
+          "name": "配送门店 02",
+          "x": 2,
+          "y": 1,
+          "color": "#C2A3EE",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        },
+        {
+          "stopId": "S03",
+          "name": "配送门店 03",
+          "x": 1,
+          "y": 2,
+          "color": "#E7AC66",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        },
+        {
+          "stopId": "S04",
+          "name": "配送门店 04",
+          "x": 4,
+          "y": 1,
+          "color": "#65CEAB",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        },
+        {
+          "stopId": "S05",
+          "name": "配送门店 05",
+          "x": 5,
+          "y": 2,
+          "color": "#EF8197",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        },
+        {
+          "stopId": "S06",
+          "name": "配送门店 06",
+          "x": 4,
+          "y": 3,
+          "color": "#8EC86F",
+          "address": "合成街区位置",
+          "timeWindow": {
+            "start": "08:00",
+            "end": "10:30"
+          },
+          "serviceDurationMinutes": 6
+        }
+      ],
+      "cargo": [
+        {
+          "cargoId": "NEW-1-1",
+          "orderId": "ORDER-S01",
+          "stopId": "S01",
+          "name": "独立包装件",
+          "length": 0.65,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 18.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#57B8F2",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-2-1",
+          "orderId": "ORDER-S02",
+          "stopId": "S02",
+          "name": "独立包装件",
+          "length": 0.65,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 18.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#C2A3EE",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-2-2",
+          "orderId": "ORDER-S02",
+          "stopId": "S02",
+          "name": "独立包装件",
+          "length": 0.77,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 19.25,
+          "fragile": true,
+          "maxTopLoadKg": 0,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#C2A3EE",
+          "handlingRequirements": [
+            "保持直立",
+            "上方禁堆"
+          ]
+        },
+        {
+          "cargoId": "NEW-3-1",
+          "orderId": "ORDER-S03",
+          "stopId": "S03",
+          "name": "独立包装件",
+          "length": 0.65,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 18.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#E7AC66",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-3-2",
+          "orderId": "ORDER-S03",
+          "stopId": "S03",
+          "name": "独立包装件",
+          "length": 0.77,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 19.25,
+          "fragile": true,
+          "maxTopLoadKg": 0,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#E7AC66",
+          "handlingRequirements": [
+            "保持直立",
+            "上方禁堆"
+          ]
+        },
+        {
+          "cargoId": "NEW-3-3",
+          "orderId": "ORDER-S03",
+          "stopId": "S03",
+          "name": "独立包装件",
+          "length": 0.89,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 20.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#E7AC66",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-4-1",
+          "orderId": "ORDER-S04",
+          "stopId": "S04",
+          "name": "独立包装件",
+          "length": 0.65,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 18.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#65CEAB",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-5-1",
+          "orderId": "ORDER-S05",
+          "stopId": "S05",
+          "name": "独立包装件",
+          "length": 1.65,
+          "width": 1.05,
+          "height": 0.65,
+          "weightKg": 65.5,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#EF8197",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-5-2",
+          "orderId": "ORDER-S05",
+          "stopId": "S05",
+          "name": "独立包装件",
+          "length": 1.65,
+          "width": 1.05,
+          "height": 0.65,
+          "weightKg": 65.5,
+          "fragile": true,
+          "maxTopLoadKg": 0,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#EF8197",
+          "handlingRequirements": [
+            "保持直立",
+            "上方禁堆"
+          ]
+        },
+        {
+          "cargoId": "NEW-6-1",
+          "orderId": "ORDER-S06",
+          "stopId": "S06",
+          "name": "独立包装件",
+          "length": 0.65,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 18.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#8EC86F",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        },
+        {
+          "cargoId": "NEW-6-2",
+          "orderId": "ORDER-S06",
+          "stopId": "S06",
+          "name": "独立包装件",
+          "length": 0.77,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 19.25,
+          "fragile": true,
+          "maxTopLoadKg": 0,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#8EC86F",
+          "handlingRequirements": [
+            "保持直立",
+            "上方禁堆"
+          ]
+        },
+        {
+          "cargoId": "NEW-6-3",
+          "orderId": "ORDER-S06",
+          "stopId": "S06",
+          "name": "独立包装件",
+          "length": 0.89,
+          "width": 0.55,
+          "height": 0.65,
+          "weightKg": 20.25,
+          "fragile": false,
+          "maxTopLoadKg": 30,
+          "orientation": {
+            "uprightOnly": true,
+            "allowedYawDegrees": [
+              0,
+              90
+            ]
+          },
+          "color": "#8EC86F",
+          "handlingRequirements": [
+            "保持直立",
+            "上方承重不超过 30 kg"
+          ]
+        }
+      ],
+      "vehicles": [
+        {
+          "vehicleId": "V01",
+          "name": "小型厢式配送车",
+          "maxPayloadKg": 400,
+          "compartment": {
+            "length": 4.2,
+            "width": 1.85,
+            "height": 1.9
+          },
+          "rearDoor": {
+            "axis": "z",
+            "position": 4.2,
+            "xMin": 0,
+            "xMax": 1.85,
+            "yMin": 0,
+            "yMax": 1.9
+          },
+          "costs": {
+            "vehicleFixedCost": 110,
+            "drivingCostPerKm": 2.2
+          }
+        },
+        {
+          "vehicleId": "V02",
+          "name": "中型厢式配送车",
+          "maxPayloadKg": 650,
+          "compartment": {
+            "length": 7.0,
+            "width": 2.5,
+            "height": 2.2
+          },
+          "rearDoor": {
+            "axis": "z",
+            "position": 7.0,
+            "xMin": 0,
+            "xMax": 2.5,
+            "yMin": 0,
+            "yMax": 2.2
+          },
+          "costs": {
+            "vehicleFixedCost": 150,
+            "drivingCostPerKm": 2.8
+          }
+        }
+      ],
+      "departureTime": "08:00",
+      "routing": {
+        "nodeIds": [
+          "DEPOT",
+          "S01",
+          "S02",
+          "S03",
+          "S04",
+          "S05",
+          "S06"
+        ],
+        "distanceMatrixKm": [
+          [
+            0,
+            2,
+            3,
+            3,
+            5,
+            7,
+            7
+          ],
+          [
+            2,
+            0,
+            1,
+            1,
+            3,
+            5,
+            5
+          ],
+          [
+            3,
+            1,
+            0,
+            2,
+            2,
+            4,
+            4
+          ],
+          [
+            3,
+            1,
+            2,
+            0,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            3,
+            2,
+            4,
+            0,
+            2,
+            2
+          ],
+          [
+            7,
+            5,
+            4,
+            4,
+            2,
+            0,
+            2
+          ],
+          [
+            7,
+            5,
+            4,
+            4,
+            2,
+            2,
+            0
+          ]
+        ],
+        "travelTimeMatrixMinutes": [
+          [
+            0,
+            4,
+            6,
+            6,
+            10,
+            14,
+            14
+          ],
+          [
+            4,
+            0,
+            2,
+            2,
+            6,
+            10,
+            10
+          ],
+          [
+            6,
+            2,
+            0,
+            4,
+            4,
+            8,
+            8
+          ],
+          [
+            6,
+            2,
+            4,
+            0,
+            8,
+            8,
+            8
+          ],
+          [
+            10,
+            6,
+            4,
+            8,
+            0,
+            4,
+            4
+          ],
+          [
+            14,
+            10,
+            8,
+            8,
+            4,
+            0,
+            4
+          ],
+          [
+            14,
+            10,
+            8,
+            8,
+            4,
+            4,
+            0
+          ]
+        ],
+        "returnToDepot": true,
+        "timeWindowRule": "服务开始须处于时间窗；提前到店等待。"
+      },
+      "costs": {
+        "currency": "CNY",
+        "waitingCostPerMinute": 0,
+        "extraHandlingCostPerCargoMove": 5
+      },
+      "schemaVersion": "3.0.0",
+      "units": {
+        "dimensions": "m",
+        "weight": "kg",
+        "distance": "km",
+        "time": "minutes",
+        "currency": "CNY"
+      },
+      "rules": {
+        "extraction": "rear-door-straight-positive-z",
+        "allowExtraHandling": false,
+        "minimumSupportRatio": 1,
+        "fragileRule": "no-load-on-fragile",
+        "maxRouteDurationMinutes": 480,
+        "supportRule": "full-footprint",
+        "timeWindowRule": "service-start",
+        "loadBearingRule": "area-proportional"
+      },
+      "orders": [
+        {
+          "orderId": "ORDER-S01",
+          "stopId": "S01",
+          "cargoIds": [
+            "NEW-1-1"
+          ]
+        },
+        {
+          "orderId": "ORDER-S02",
+          "stopId": "S02",
+          "cargoIds": [
+            "NEW-2-1",
+            "NEW-2-2"
+          ]
+        },
+        {
+          "orderId": "ORDER-S03",
+          "stopId": "S03",
+          "cargoIds": [
+            "NEW-3-1",
+            "NEW-3-2",
+            "NEW-3-3"
+          ]
+        },
+        {
+          "orderId": "ORDER-S04",
+          "stopId": "S04",
+          "cargoIds": [
+            "NEW-4-1"
+          ]
+        },
+        {
+          "orderId": "ORDER-S05",
+          "stopId": "S05",
+          "cargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ]
+        },
+        {
+          "orderId": "ORDER-S06",
+          "stopId": "S06",
+          "cargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ]
+        }
+      ],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    },
+    "checkedConstraints": [
+      "字段、单位与编号完整性",
+      "订单-门店-货物唯一关联",
+      "车辆车厢与后门范围",
+      "距离/时间矩阵完整性",
+      "时间窗格式",
+      "已声明规则是否受支持"
+    ],
+    "capabilityBoundary": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ],
+    "serviceTiming": {
+      "overallInterfaceMs": 57.467,
+      "hardTimeoutSeconds": 8
+    }
+  }
+}

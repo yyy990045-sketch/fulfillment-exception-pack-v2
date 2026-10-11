@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "2.0.0",
+  "executionMode": "computed-per-request",
+  "serviceBaseUrl": "http://127.0.0.1:8112",
+  "readinessPath": "/health",
+  "endpoints": {
+    "reviseOrder": {
+      "method": "POST",
+      "path": "/api/city-delivery/revise-order",
+      "request": {
+        "scenarioId": "city-delivery-synthetic-001",
+        "basePlanId": "PLAN_B",
+        "stopOrder": [
+          "S01",
+          "S02",
+          "S04",
+          "S03"
+        ],
+        "allowLayoutRepair": true
+      },
+      "optional": {
+        "departureTime": "HH:MM"
+      },
+      "response": {
+        "originalLayoutCheck": "原布局在提交顺序下的检查、阻挡货物和逐步停止结果",
+        "originalLayoutReusable": "仅指空间、装车与卸货；时间窗另看结果，不能代替 executable",
+        "revision": "是否保留/修订及实际货位变化",
+        "result.placements.positions": "最终三维位置，旋转后的尺寸",
+        "result.unloading.steps": "逐步卸货；blocked 时停止",
+        "result.timeWindowCheck": "实际路线的门店时间窗检查",
+        "result.costs": "相同费用规则下的计划代价",
+        "executable": "包含装载、装车、卸货和时间窗的最终结论"
+      },
+      "scope": "v1 一车四店发车前调整；允许任意完整门店排列，不只是 PLAN_A/PLAN_B。"
+    },
+    "reviseFleet": {
+      "method": "POST",
+      "path": "/api/city-delivery/revise-fleet",
+      "request": {
+        "scenarioId": "city-delivery-multivehicle-synthetic-001",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S03"
+            ]
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S04",
+              "S05",
+              "S06"
+            ]
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S07",
+              "S08",
+              "S09"
+            ]
+          }
+        ],
+        "allowReassignment": false
+      },
+      "response": {
+        "submittedCheck.routes": "每辆车的提交分配检查；失败时不伪造货位或装卸步骤",
+        "submittedCheck.feasibility.reasons": "空间不足、超重、时间窗等原因",
+        "result.routes": "每辆车最终路线、货位和装卸动作",
+        "result.assignments": "每家门店的唯一服务车辆及货物",
+        "result.totals": "费用、里程、车辆数量",
+        "revision.reallocated": "是否经授权重新分配车辆与门店",
+        "executable": "最终每车和全体分配均通过声明约束"
+      },
+      "scope": "固定九店三车场景；完整覆盖全部门店。默认只检查提交分配，只有 allowReassignment=true 才允许改车/改序。"
+    }
+  },
+  "requestLimits": {
+    "bodyBytes": 32768,
+    "routingSearchSeconds": 2,
+    "orderRepairLayouts": 24
+  },
+  "http": {
+    "invalidRequest": 422,
+    "computedInfeasibleResult": 200,
+    "unknownPath": 404,
+    "corsOrigins": [
+      "http://127.0.0.1:8111",
+      "http://localhost:8111",
+      "http://127.0.0.1:5173",
+      "http://localhost:5173"
+    ]
+  },
+  "dataSources": {
+    "v1": "/demo/city-delivery/v1/manifest.json",
+    "fleet": "/demo/city-delivery/v2/manifest.json"
+  },
+  "constraints": [
+    "实际货位边界",
+    "货箱不重叠",
+    "朝向",
+    "载重",
+    "易碎",
+    "100% 支撑",
+    "上方承重",
+    "后门直线装车",
+    "逐站直线取货与抽走承托箱限制",
+    "时间窗",
+    "货物与门店唯一分配"
+  ],
+  "notSupported": [
+    "在途自动重装",
+    "任意单箱拖拽",
+    "任意车型或货物输入",
+    "额外搬运",
+    "真实交通",
+    "轴荷重心",
+    "冷链",
+    "任意多层自由装箱",
+    "全局最优性",
+    "生产级服务"
+  ],
+  "truthBoundary": "均为合成机制演示；动画秒数不是现场耗时。布局修订需要发车前重新装车。失败只代表声明的分区方法或有限路线搜索未找到解。"
+}

@@ -477,6 +477,9 @@ const handleRequest = async (req: import("node:http").IncomingMessage, res: impo
       res.end(body);
       return;
     }
+    if (req.method === "GET" && (url.pathname === "/frontend" || url.pathname === "/frontend/" || url.pathname.startsWith("/frontend/"))) {
+      if (serveFrontendSurface(res)) return;
+    }
     if (req.method === "GET" && (url.pathname === "/manufacturing" || url.pathname === "/manufacturing/" || url.pathname.startsWith("/manufacturing/"))) {
       serveManufacturing(res, url.pathname);
       return;

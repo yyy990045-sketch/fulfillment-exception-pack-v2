@@ -1,0 +1,367 @@
+{
+  "schemaVersion": "2.0.0",
+  "scenarioId": "city-delivery-multivehicle-synthetic-001",
+  "baselinePlanId": "FLEET_BASELINE",
+  "adjustedPlanId": "FLEET_ADJUSTED",
+  "sameOrders": true,
+  "sameVehicleResources": true,
+  "sameCostRules": true,
+  "sameConstraints": true,
+  "plans": [
+    {
+      "planId": "FLEET_BASELINE",
+      "vehicleCount": 3,
+      "distanceKm": 50,
+      "drivingMinutes": 100,
+      "totalDurationMinutes": 66,
+      "currency": "CNY",
+      "vehicleFixedCost": 440,
+      "drivingCost": 152.0,
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "totalCost": 592.0,
+      "executable": true,
+      "loadingFeasible": true,
+      "unloadingFeasible": true,
+      "timeWindowsSatisfied": true,
+      "arrivalsByVehicle": [
+        {
+          "vehicleId": "V01",
+          "arrivals": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S01",
+              "sequence": 2,
+              "arrivalTime": "08:14",
+              "serviceStartTime": "08:14",
+              "departureTime": "08:20",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S02",
+              "sequence": 3,
+              "arrivalTime": "08:22",
+              "serviceStartTime": "08:22",
+              "departureTime": "08:28",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        {
+          "vehicleId": "V02",
+          "arrivals": [
+            {
+              "stopId": "S05",
+              "sequence": 1,
+              "arrivalTime": "08:14",
+              "serviceStartTime": "08:14",
+              "departureTime": "08:20",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S04",
+              "sequence": 2,
+              "arrivalTime": "08:24",
+              "serviceStartTime": "08:24",
+              "departureTime": "08:30",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S06",
+              "sequence": 3,
+              "arrivalTime": "08:34",
+              "serviceStartTime": "08:34",
+              "departureTime": "08:40",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        {
+          "vehicleId": "V03",
+          "arrivals": [
+            {
+              "stopId": "S09",
+              "sequence": 1,
+              "arrivalTime": "08:20",
+              "serviceStartTime": "08:20",
+              "departureTime": "08:26",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S07",
+              "sequence": 2,
+              "arrivalTime": "08:34",
+              "serviceStartTime": "08:34",
+              "departureTime": "08:40",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S08",
+              "sequence": 3,
+              "arrivalTime": "08:44",
+              "serviceStartTime": "08:44",
+              "departureTime": "08:50",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "planId": "FLEET_ADJUSTED",
+      "vehicleCount": 2,
+      "distanceKm": 38,
+      "drivingMinutes": 76,
+      "totalDurationMinutes": 70,
+      "currency": "CNY",
+      "vehicleFixedCost": 330,
+      "drivingCost": 120.4,
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "totalCost": 450.4,
+      "executable": true,
+      "loadingFeasible": true,
+      "unloadingFeasible": true,
+      "timeWindowsSatisfied": true,
+      "arrivalsByVehicle": [
+        {
+          "vehicleId": "V01",
+          "arrivals": []
+        },
+        {
+          "vehicleId": "V02",
+          "arrivals": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S06",
+              "sequence": 2,
+              "arrivalTime": "08:20",
+              "serviceStartTime": "08:20",
+              "departureTime": "08:26",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S08",
+              "sequence": 3,
+              "arrivalTime": "08:32",
+              "serviceStartTime": "08:32",
+              "departureTime": "08:38",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S07",
+              "sequence": 4,
+              "arrivalTime": "08:42",
+              "serviceStartTime": "08:42",
+              "departureTime": "08:48",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        {
+          "vehicleId": "V03",
+          "arrivals": [
+            {
+              "stopId": "S09",
+              "sequence": 1,
+              "arrivalTime": "08:20",
+              "serviceStartTime": "08:20",
+              "departureTime": "08:26",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S05",
+              "sequence": 2,
+              "arrivalTime": "08:32",
+              "serviceStartTime": "08:32",
+              "departureTime": "08:38",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S04",
+              "sequence": 3,
+              "arrivalTime": "08:42",
+              "serviceStartTime": "08:42",
+              "departureTime": "08:48",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S02",
+              "sequence": 4,
+              "arrivalTime": "08:52",
+              "serviceStartTime": "08:52",
+              "departureTime": "08:58",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S01",
+              "sequence": 5,
+              "arrivalTime": "09:00",
+              "serviceStartTime": "09:00",
+              "departureTime": "09:06",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "delta": {
+    "direction": "FLEET_ADJUSTED-minus-FLEET_BASELINE",
+    "vehicleCount": -1,
+    "distanceKm": -12,
+    "vehicleFixedCost": -110,
+    "drivingCost": -31.6,
+    "extraHandlingMoves": 0,
+    "extraHandlingCost": 0,
+    "totalCost": -141.6,
+    "drivingMinutes": -24,
+    "totalDurationMinutes": 4
+  },
+  "decision": {
+    "costAdvantageInThisCase": true,
+    "generalizedSavingsClaim": false,
+    "globalOptimalityClaim": false,
+    "explanation": "同一合成订单和三辆异构车辆下，两套都可执行的方案比较；不推断真实企业收益。"
+  }
+}

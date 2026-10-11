@@ -1,0 +1,148 @@
+{
+  "baseUrl": "http://127.0.0.1:8114",
+  "records": [
+    {
+      "name": "new-independent-scene-validation",
+      "httpStatus": 200,
+      "solverStatus": "VALID",
+      "clientInterfaceMs": 68.261
+    },
+    {
+      "name": "new-independent-scene",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "clientInterfaceMs": 141.125,
+      "serviceTiming": {
+        "overallInterfaceMs": 138.53,
+        "hardTimeoutSeconds": 8
+      },
+      "timing": {
+        "solveMs": 5.105,
+        "constraintCheckMs": 20.115,
+        "layoutGenerationMs": 0.242,
+        "overallComputeMs": 74.913,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 60
+      }
+    },
+    {
+      "name": "valid-but-search-failed",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "clientInterfaceMs": 114.34
+    },
+    {
+      "name": "legacy-four-stop",
+      "httpStatus": 200,
+      "executable": true,
+      "clientInterfaceMs": 68.223
+    },
+    {
+      "name": "legacy-nine-stop",
+      "httpStatus": 200,
+      "executable": true,
+      "clientInterfaceMs": 133.109
+    },
+    {
+      "name": "authorization-preserved",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "clientInterfaceMs": 59.856
+    }
+  ],
+  "methodResults": [
+    {
+      "strategy": "route-first",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "clientInterfaceMs": 111.421
+    },
+    {
+      "strategy": "layout-repair",
+      "httpStatus": 200,
+      "solverStatus": "SEARCH_EXHAUSTED",
+      "executable": false,
+      "actualExecutablePlanCost": null,
+      "clientInterfaceMs": 127.165
+    },
+    {
+      "strategy": "joint-feedback",
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "actualExecutablePlanCost": 194.8,
+      "clientInterfaceMs": 131.764
+    }
+  ],
+  "invalidInputsRejected": [
+    {
+      "name": "missing-weight",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.cargo[0]: 缺少字段 weightKg"
+    },
+    {
+      "name": "zero-weight",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.cargo[0].weightKg: 数值超出受支持范围 (0, 30000)"
+    },
+    {
+      "name": "wrong-units",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.units: 必须显式使用 m/kg/km/minutes/CNY；不猜测原始单位"
+    },
+    {
+      "name": "missing-rules",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.rules: 须完整声明受支持规则，不默认缺失约束或静默忽略其他规则"
+    },
+    {
+      "name": "duplicate-cargo",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.cargo[1]: 货物编号重复"
+    },
+    {
+      "name": "missing-matrix",
+      "httpStatus": 422,
+      "solverStatus": "INPUT_INVALID",
+      "error": "scenario.routing.distanceMatrixKm: 矩阵必须为完整 n×n，不接受缺失路段"
+    }
+  ],
+  "concurrentRequests": [
+    {
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "clientInterfaceMs": 138.363
+    },
+    {
+      "httpStatus": 503,
+      "solverStatus": "BUSY",
+      "clientInterfaceMs": 5.583
+    },
+    {
+      "httpStatus": 200,
+      "solverStatus": "FEASIBLE",
+      "clientInterfaceMs": 138.458
+    },
+    {
+      "httpStatus": 503,
+      "solverStatus": "BUSY",
+      "clientInterfaceMs": 4.717
+    },
+    {
+      "httpStatus": 503,
+      "solverStatus": "BUSY",
+      "clientInterfaceMs": 4.181
+    }
+  ],
+  "serviceMode": "HTTP threads + two isolated compute processes; health does not wait behind solver; per-request 8s hard timeout",
+  "wallTimesIncludeProcessStartup": true
+}

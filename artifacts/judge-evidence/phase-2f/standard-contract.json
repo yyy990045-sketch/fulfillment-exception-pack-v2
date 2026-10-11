@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "3.0.0",
+  "constraintVersion": "city-rear-door-3d-1.0",
+  "endpoint": {
+    "method": "POST",
+    "path": "/api/city-delivery/plan-scene"
+  },
+  "validationEndpoint": {
+    "method": "POST",
+    "path": "/api/city-delivery/validate-scene"
+  },
+  "status": {
+    "FEASIBLE": "所有已声明约束已检查，待用户确认",
+    "SEARCH_EXHAUSTED": "本次预算或有限布局/路线集合未找到可行计划，不是全局无解",
+    "INPUT_INVALID": "输入缺失、单位、关联或不支持规则，HTTP 422",
+    "SERVICE_ERROR": "计算发生异常，HTTP 500",
+    "TIMEOUT": "服务硬超时，HTTP 504",
+    "BUSY": "计算槽位已满，HTTP 503"
+  },
+  "limits": {
+    "stops": 16,
+    "vehicles": 6,
+    "cargo": 96,
+    "cargoPerStop": 16,
+    "budgetMs": 5000,
+    "routeCandidates": 6,
+    "layoutCandidatesPerStop": 8
+  },
+  "units": {
+    "dimensions": "m",
+    "weight": "kg",
+    "distance": "km",
+    "time": "minutes",
+    "currency": "CNY"
+  },
+  "rules": {
+    "extraction": "rear-door-straight-positive-z",
+    "allowExtraHandling": false,
+    "minimumSupportRatio": 1,
+    "fragileRule": "no-load-on-fragile",
+    "maxRouteDurationMinutes": 480,
+    "supportRule": "full-footprint",
+    "timeWindowRule": "service-start",
+    "loadBearingRule": "area-proportional"
+  },
+  "strategies": {
+    "route-first": "先求路线，再检查主布局；不使用几何反馈。",
+    "layout-repair": "固定第一次路线，只在同一路线下尝试有限替代布局；不改车、不改路线。",
+    "joint-feedback": "布局失败后，在授权范围内尝试替代布局，再尝试换车或改路线。"
+  },
+  "authorization": "改变用户提交的车辆/路线须 allowReassignment=true，替代布局须 allowLayoutRepair=true；不自动确认结果。",
+  "capabilityBoundary": [
+    "整站分区，不拆分同店到不同车",
+    "底层直立箱或已有两层承托模式",
+    "后门沿 z 轴直线装卸，不允许额外搬运",
+    "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+    "有限搜索失败不代表全局无解",
+    "不证明全局最优，不支持在途自动重装"
+  ]
+}

@@ -1,0 +1,1031 @@
+{
+  "scenarioId": "city-delivery-holdout-010",
+  "name": "保留验证 · 十店异构车辆场景",
+  "source": {
+    "dataType": "synthetic",
+    "name": "Phase 2G reserved holdout",
+    "description": "在算法对照生成后保留的独立合成验证输入；不是传化企业数据。",
+    "license": "project-owned-synthetic",
+    "authorization": "项目内验证授权。"
+  },
+  "warehouse": {
+    "stopId": "DEPOT",
+    "name": "城市配送中心仓",
+    "x": 0,
+    "y": 0
+  },
+  "stops": [
+    {
+      "stopId": "S01",
+      "name": "配送门店 01",
+      "x": 1,
+      "y": 1,
+      "color": "#57B8F2",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "09:20"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S02",
+      "name": "配送门店 02",
+      "x": 2,
+      "y": 1,
+      "color": "#C2A3EE",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "09:20"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S03",
+      "name": "配送门店 03",
+      "x": 1,
+      "y": 2,
+      "color": "#E7AC66",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "09:20"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S04",
+      "name": "配送门店 04",
+      "x": 4,
+      "y": 1,
+      "color": "#65CEAB",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S05",
+      "name": "配送门店 05",
+      "x": 5,
+      "y": 2,
+      "color": "#EF8197",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S06",
+      "name": "配送门店 06",
+      "x": 4,
+      "y": 3,
+      "color": "#8EC86F",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S07",
+      "name": "配送门店 07",
+      "x": 1,
+      "y": 5,
+      "color": "#7ABED0",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S08",
+      "name": "配送门店 08",
+      "x": 3,
+      "y": 5,
+      "color": "#AF99D6",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S09",
+      "name": "配送门店 09",
+      "x": 5,
+      "y": 5,
+      "color": "#E3C174",
+      "address": "合成街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "10:00"
+      },
+      "serviceDurationMinutes": 6
+    },
+    {
+      "stopId": "S10",
+      "name": "保留门店 10",
+      "x": 5,
+      "y": 4,
+      "color": "#D68A78",
+      "address": "保留街区位置",
+      "timeWindow": {
+        "start": "08:00",
+        "end": "11:30"
+      },
+      "serviceDurationMinutes": 7
+    }
+  ],
+  "cargo": [
+    {
+      "cargoId": "H-01-1",
+      "orderId": "H-ORDER-01",
+      "stopId": "S01",
+      "name": "保留验证包装件",
+      "length": 0.62,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 15.5,
+      "fragile": true,
+      "maxTopLoadKg": 0,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#57B8F2"
+    },
+    {
+      "cargoId": "H-01-2",
+      "orderId": "H-ORDER-01",
+      "stopId": "S01",
+      "name": "保留验证包装件",
+      "length": 0.68,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 17.7,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#57B8F2"
+    },
+    {
+      "cargoId": "H-02-1",
+      "orderId": "H-ORDER-02",
+      "stopId": "S02",
+      "name": "保留验证包装件",
+      "length": 0.74,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 16.9,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#C2A3EE"
+    },
+    {
+      "cargoId": "H-02-2",
+      "orderId": "H-ORDER-02",
+      "stopId": "S02",
+      "name": "保留验证包装件",
+      "length": 0.8,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 19.1,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#C2A3EE"
+    },
+    {
+      "cargoId": "H-03-1",
+      "orderId": "H-ORDER-03",
+      "stopId": "S03",
+      "name": "保留验证包装件",
+      "length": 0.86,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 18.3,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#E7AC66"
+    },
+    {
+      "cargoId": "H-03-2",
+      "orderId": "H-ORDER-03",
+      "stopId": "S03",
+      "name": "保留验证包装件",
+      "length": 0.92,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 20.5,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#E7AC66"
+    },
+    {
+      "cargoId": "H-04-1",
+      "orderId": "H-ORDER-04",
+      "stopId": "S04",
+      "name": "保留验证包装件",
+      "length": 0.62,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 19.7,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#65CEAB"
+    },
+    {
+      "cargoId": "H-04-2",
+      "orderId": "H-ORDER-04",
+      "stopId": "S04",
+      "name": "保留验证包装件",
+      "length": 0.68,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 21.9,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#65CEAB"
+    },
+    {
+      "cargoId": "H-05-1",
+      "orderId": "H-ORDER-05",
+      "stopId": "S05",
+      "name": "保留验证包装件",
+      "length": 0.74,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 21.1,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#EF8197"
+    },
+    {
+      "cargoId": "H-05-2",
+      "orderId": "H-ORDER-05",
+      "stopId": "S05",
+      "name": "保留验证包装件",
+      "length": 0.8,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 23.3,
+      "fragile": true,
+      "maxTopLoadKg": 0,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#EF8197"
+    },
+    {
+      "cargoId": "H-06-1",
+      "orderId": "H-ORDER-06",
+      "stopId": "S06",
+      "name": "保留验证包装件",
+      "length": 0.86,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 22.5,
+      "fragile": true,
+      "maxTopLoadKg": 0,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#8EC86F"
+    },
+    {
+      "cargoId": "H-06-2",
+      "orderId": "H-ORDER-06",
+      "stopId": "S06",
+      "name": "保留验证包装件",
+      "length": 0.92,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 24.7,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#8EC86F"
+    },
+    {
+      "cargoId": "H-07-1",
+      "orderId": "H-ORDER-07",
+      "stopId": "S07",
+      "name": "保留验证包装件",
+      "length": 0.62,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 23.9,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#7ABED0"
+    },
+    {
+      "cargoId": "H-07-2",
+      "orderId": "H-ORDER-07",
+      "stopId": "S07",
+      "name": "保留验证包装件",
+      "length": 0.68,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 26.1,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#7ABED0"
+    },
+    {
+      "cargoId": "H-08-1",
+      "orderId": "H-ORDER-08",
+      "stopId": "S08",
+      "name": "保留验证包装件",
+      "length": 0.74,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 25.3,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#AF99D6"
+    },
+    {
+      "cargoId": "H-08-2",
+      "orderId": "H-ORDER-08",
+      "stopId": "S08",
+      "name": "保留验证包装件",
+      "length": 0.8,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 27.5,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#AF99D6"
+    },
+    {
+      "cargoId": "H-09-1",
+      "orderId": "H-ORDER-09",
+      "stopId": "S09",
+      "name": "保留验证包装件",
+      "length": 0.86,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 26.7,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#E3C174"
+    },
+    {
+      "cargoId": "H-09-2",
+      "orderId": "H-ORDER-09",
+      "stopId": "S09",
+      "name": "保留验证包装件",
+      "length": 0.92,
+      "width": 0.5,
+      "height": 0.62,
+      "weightKg": 28.9,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#E3C174"
+    },
+    {
+      "cargoId": "H-10-1",
+      "orderId": "H-ORDER-10",
+      "stopId": "S10",
+      "name": "保留验证包装件",
+      "length": 0.62,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 28.1,
+      "fragile": false,
+      "maxTopLoadKg": 28,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#D68A78"
+    },
+    {
+      "cargoId": "H-10-2",
+      "orderId": "H-ORDER-10",
+      "stopId": "S10",
+      "name": "保留验证包装件",
+      "length": 0.68,
+      "width": 0.58,
+      "height": 0.62,
+      "weightKg": 30.3,
+      "fragile": true,
+      "maxTopLoadKg": 0,
+      "orientation": {
+        "uprightOnly": true,
+        "allowedYawDegrees": [
+          0,
+          90
+        ]
+      },
+      "color": "#D68A78"
+    }
+  ],
+  "vehicles": [
+    {
+      "vehicleId": "H-V01",
+      "name": "保留厢式车",
+      "maxPayloadKg": 300,
+      "compartment": {
+        "length": 5.2,
+        "width": 1.9,
+        "height": 2.0
+      },
+      "rearDoor": {
+        "axis": "z",
+        "position": 5.2,
+        "xMin": 0,
+        "xMax": 1.9,
+        "yMin": 0,
+        "yMax": 2.0
+      },
+      "costs": {
+        "vehicleFixedCost": 70,
+        "drivingCostPerKm": 5.2
+      }
+    },
+    {
+      "vehicleId": "H-V02",
+      "name": "中型厢式车",
+      "maxPayloadKg": 420,
+      "compartment": {
+        "length": 6.6,
+        "width": 2.2,
+        "height": 2.1
+      },
+      "rearDoor": {
+        "axis": "z",
+        "position": 6.6,
+        "xMin": 0,
+        "xMax": 2.2,
+        "yMin": 0,
+        "yMax": 2.1
+      },
+      "costs": {
+        "vehicleFixedCost": 92,
+        "drivingCostPerKm": 5.8
+      }
+    },
+    {
+      "vehicleId": "H-V03",
+      "name": "长厢配送车",
+      "maxPayloadKg": 560,
+      "compartment": {
+        "length": 8.0,
+        "width": 2.45,
+        "height": 2.3
+      },
+      "rearDoor": {
+        "axis": "z",
+        "position": 8.0,
+        "xMin": 0,
+        "xMax": 2.45,
+        "yMin": 0,
+        "yMax": 2.3
+      },
+      "costs": {
+        "vehicleFixedCost": 118,
+        "drivingCostPerKm": 6.3
+      }
+    }
+  ],
+  "departureTime": "08:00",
+  "routing": {
+    "nodeIds": [
+      "DEPOT",
+      "S01",
+      "S02",
+      "S03",
+      "S04",
+      "S05",
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S10"
+    ],
+    "distanceMatrixKm": [
+      [
+        0,
+        2,
+        3,
+        3,
+        5,
+        7,
+        7,
+        6,
+        8,
+        10,
+        9
+      ],
+      [
+        2,
+        0,
+        1,
+        1,
+        3,
+        5,
+        5,
+        4,
+        6,
+        8,
+        7
+      ],
+      [
+        3,
+        1,
+        0,
+        2,
+        2,
+        4,
+        4,
+        5,
+        5,
+        7,
+        6
+      ],
+      [
+        3,
+        1,
+        2,
+        0,
+        4,
+        4,
+        4,
+        3,
+        5,
+        7,
+        6
+      ],
+      [
+        5,
+        3,
+        2,
+        4,
+        0,
+        2,
+        2,
+        7,
+        5,
+        5,
+        4
+      ],
+      [
+        7,
+        5,
+        4,
+        4,
+        2,
+        0,
+        2,
+        7,
+        5,
+        3,
+        2
+      ],
+      [
+        7,
+        5,
+        4,
+        4,
+        2,
+        2,
+        0,
+        5,
+        3,
+        3,
+        2
+      ],
+      [
+        6,
+        4,
+        5,
+        3,
+        7,
+        7,
+        5,
+        0,
+        2,
+        4,
+        5
+      ],
+      [
+        8,
+        6,
+        5,
+        5,
+        5,
+        5,
+        3,
+        2,
+        0,
+        2,
+        3
+      ],
+      [
+        10,
+        8,
+        7,
+        7,
+        5,
+        3,
+        3,
+        4,
+        2,
+        0,
+        1
+      ],
+      [
+        9,
+        7,
+        6,
+        6,
+        4,
+        2,
+        2,
+        5,
+        3,
+        1,
+        0
+      ]
+    ],
+    "travelTimeMatrixMinutes": [
+      [
+        0,
+        4,
+        6,
+        6,
+        10,
+        14,
+        14,
+        12,
+        16,
+        20,
+        18
+      ],
+      [
+        4,
+        0,
+        2,
+        2,
+        6,
+        10,
+        10,
+        8,
+        12,
+        16,
+        14
+      ],
+      [
+        6,
+        2,
+        0,
+        4,
+        4,
+        8,
+        8,
+        10,
+        10,
+        14,
+        12
+      ],
+      [
+        6,
+        2,
+        4,
+        0,
+        8,
+        8,
+        8,
+        6,
+        10,
+        14,
+        12
+      ],
+      [
+        10,
+        6,
+        4,
+        8,
+        0,
+        4,
+        4,
+        14,
+        10,
+        10,
+        8
+      ],
+      [
+        14,
+        10,
+        8,
+        8,
+        4,
+        0,
+        4,
+        14,
+        10,
+        6,
+        4
+      ],
+      [
+        14,
+        10,
+        8,
+        8,
+        4,
+        4,
+        0,
+        10,
+        6,
+        6,
+        4
+      ],
+      [
+        12,
+        8,
+        10,
+        6,
+        14,
+        14,
+        10,
+        0,
+        4,
+        8,
+        10
+      ],
+      [
+        16,
+        12,
+        10,
+        10,
+        10,
+        10,
+        6,
+        4,
+        0,
+        4,
+        6
+      ],
+      [
+        20,
+        16,
+        14,
+        14,
+        10,
+        6,
+        6,
+        8,
+        4,
+        0,
+        2
+      ],
+      [
+        18,
+        14,
+        12,
+        12,
+        8,
+        4,
+        4,
+        10,
+        6,
+        2,
+        0
+      ]
+    ],
+    "returnToDepot": true
+  },
+  "costs": {
+    "currency": "CNY",
+    "waitingCostPerMinute": 0,
+    "extraHandlingCostPerCargoMove": 5
+  },
+  "schemaVersion": "3.0.0",
+  "units": {
+    "dimensions": "m",
+    "weight": "kg",
+    "distance": "km",
+    "time": "minutes",
+    "currency": "CNY"
+  },
+  "rules": {
+    "extraction": "rear-door-straight-positive-z",
+    "allowExtraHandling": false,
+    "minimumSupportRatio": 1,
+    "fragileRule": "no-load-on-fragile",
+    "maxRouteDurationMinutes": 480,
+    "supportRule": "full-footprint",
+    "timeWindowRule": "service-start",
+    "loadBearingRule": "area-proportional"
+  },
+  "orders": [
+    {
+      "orderId": "H-ORDER-01",
+      "stopId": "S01",
+      "cargoIds": [
+        "H-01-1",
+        "H-01-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-02",
+      "stopId": "S02",
+      "cargoIds": [
+        "H-02-1",
+        "H-02-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-03",
+      "stopId": "S03",
+      "cargoIds": [
+        "H-03-1",
+        "H-03-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-04",
+      "stopId": "S04",
+      "cargoIds": [
+        "H-04-1",
+        "H-04-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-05",
+      "stopId": "S05",
+      "cargoIds": [
+        "H-05-1",
+        "H-05-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-06",
+      "stopId": "S06",
+      "cargoIds": [
+        "H-06-1",
+        "H-06-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-07",
+      "stopId": "S07",
+      "cargoIds": [
+        "H-07-1",
+        "H-07-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-08",
+      "stopId": "S08",
+      "cargoIds": [
+        "H-08-1",
+        "H-08-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-09",
+      "stopId": "S09",
+      "cargoIds": [
+        "H-09-1",
+        "H-09-2"
+      ]
+    },
+    {
+      "orderId": "H-ORDER-10",
+      "stopId": "S10",
+      "cargoIds": [
+        "H-10-1",
+        "H-10-2"
+      ]
+    }
+  ]
+}

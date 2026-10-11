@@ -5,22 +5,18 @@ import { defineConfig } from "vite";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root,
-  base: "/manufacturing/",
+  base: command === "serve" ? "/" : "/manufacturing/",
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
     proxy: {
-      "/api": {
-        target: process.env.BACKEND_URL || "http://127.0.0.1:3410",
-        changeOrigin: true,
-      },
+      "/api/city-delivery/health": { target: process.env.CITY_DELIVERY_BACKEND_URL || "http://127.0.0.1:8114", changeOrigin: true, rewrite: () => "/health" },
+      "/api/city-delivery": { target: process.env.CITY_DELIVERY_BACKEND_URL || "http://127.0.0.1:8114", changeOrigin: true },
+      "/api": { target: process.env.BACKEND_URL || "http://127.0.0.1:3410", changeOrigin: true },
     },
   },
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
-    sourcemap: false,
-  },
-});
+  build: { outDir: "dist", emptyOutDir: true, sourcemap: false },
+}));

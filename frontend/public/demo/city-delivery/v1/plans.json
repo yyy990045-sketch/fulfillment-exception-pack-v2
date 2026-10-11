@@ -1,0 +1,1344 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenarioId": "city-delivery-synthetic-001",
+  "plans": [
+    {
+      "planId": "PLAN_A",
+      "scenarioId": "city-delivery-synthetic-001",
+      "vehicleId": "V01",
+      "name": "方案 A · 基础配送",
+      "kind": "baseline",
+      "stopOrder": [
+        "S01",
+        "S02",
+        "S03",
+        "S04"
+      ],
+      "routeNodeIds": [
+        "DEPOT",
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "DEPOT"
+      ],
+      "arrivals": [
+        {
+          "stopId": "S01",
+          "sequence": 1,
+          "arrivalTime": "08:04",
+          "serviceStartTime": "08:05",
+          "departureTime": "08:11",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 1,
+          "timeWindow": {
+            "start": "08:05",
+            "end": "09:05"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S02",
+          "sequence": 2,
+          "arrivalTime": "08:15",
+          "serviceStartTime": "08:15",
+          "departureTime": "08:21",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:00",
+            "end": "09:00"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S03",
+          "sequence": 3,
+          "arrivalTime": "08:25",
+          "serviceStartTime": "08:25",
+          "departureTime": "08:31",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:10",
+            "end": "09:30"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S04",
+          "sequence": 4,
+          "arrivalTime": "08:35",
+          "serviceStartTime": "08:35",
+          "departureTime": "08:41",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:15",
+            "end": "09:20"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        }
+      ],
+      "legs": [
+        {
+          "fromStopId": "DEPOT",
+          "toStopId": "S01",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:00",
+          "arrivalTime": "08:04"
+        },
+        {
+          "fromStopId": "S01",
+          "toStopId": "S02",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:11",
+          "arrivalTime": "08:15"
+        },
+        {
+          "fromStopId": "S02",
+          "toStopId": "S03",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:21",
+          "arrivalTime": "08:25"
+        },
+        {
+          "fromStopId": "S03",
+          "toStopId": "S04",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:31",
+          "arrivalTime": "08:35"
+        },
+        {
+          "fromStopId": "S04",
+          "toStopId": "DEPOT",
+          "distanceKm": 4,
+          "travelMinutes": 8,
+          "departureTime": "08:41",
+          "arrivalTime": "08:49"
+        }
+      ],
+      "distanceKm": 12,
+      "drivingMinutes": 24,
+      "waitingMinutes": 1,
+      "serviceMinutes": 24,
+      "totalDurationMinutes": 49,
+      "returnTime": "08:49",
+      "timeWindowCheck": {
+        "checked": true,
+        "valid": true,
+        "rule": "服务开始必须处于时间窗内；早到等待；结束时间单独记录。",
+        "arrivals": [
+          {
+            "stopId": "S01",
+            "sequence": 1,
+            "arrivalTime": "08:04",
+            "serviceStartTime": "08:05",
+            "departureTime": "08:11",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 1,
+            "timeWindow": {
+              "start": "08:05",
+              "end": "09:05"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S02",
+            "sequence": 2,
+            "arrivalTime": "08:15",
+            "serviceStartTime": "08:15",
+            "departureTime": "08:21",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "09:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S03",
+            "sequence": 3,
+            "arrivalTime": "08:25",
+            "serviceStartTime": "08:25",
+            "departureTime": "08:31",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:10",
+              "end": "09:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S04",
+            "sequence": 4,
+            "arrivalTime": "08:35",
+            "serviceStartTime": "08:35",
+            "departureTime": "08:41",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:15",
+              "end": "09:20"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ]
+      },
+      "costs": {
+        "currency": "CNY",
+        "vehicleCount": 1,
+        "vehicleFixedCost": 180,
+        "drivingCost": 42.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "waitingCost": 0,
+        "totalCost": 222.0,
+        "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+      },
+      "loadingCheck": {
+        "checked": true,
+        "valid": true,
+        "checks": {
+          "boundary": {
+            "checked": true,
+            "valid": true
+          },
+          "collision": {
+            "checked": true,
+            "valid": true
+          },
+          "weight": {
+            "checked": true,
+            "valid": true
+          },
+          "orientation": {
+            "checked": true,
+            "valid": true
+          },
+          "fragile": {
+            "checked": true,
+            "valid": true
+          },
+          "support": {
+            "checked": true,
+            "valid": true
+          },
+          "loadBearing": {
+            "checked": true,
+            "valid": true
+          }
+        },
+        "totalWeightKg": 312,
+        "maxPayloadKg": 1500,
+        "totalCargoVolumeM3": 7.472,
+        "compartmentVolumeM3": 28.072,
+        "cargoChecks": {
+          "C01-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C01-03"
+            ],
+            "topLoadKg": 8.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C01-04"
+            ],
+            "topLoadKg": 8.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C01-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C01-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C02-03"
+            ],
+            "topLoadKg": 9.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C02-04"
+            ],
+            "topLoadKg": 9.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C02-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C02-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C03-03"
+            ],
+            "topLoadKg": 10.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C03-04"
+            ],
+            "topLoadKg": 10.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C03-01"
+              ],
+              "supportRatio": 1.0,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C03-02"
+              ],
+              "supportRatio": 1.0,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C04-03"
+            ],
+            "topLoadKg": 11.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C04-04"
+            ],
+            "topLoadKg": 11.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C04-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C04-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          }
+        }
+      },
+      "unloadingCheck": {
+        "checked": true,
+        "valid": false,
+        "firstFailure": {
+          "stopId": "S01",
+          "stepId": "PLAN_A-U002",
+          "targetCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "blockingCargoIds": [
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C01-03",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-03",
+                "C03-03",
+                "C04-03"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-04",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-04",
+                "C03-04",
+                "C04-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-01",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-01",
+                "C03-01",
+                "C04-01"
+              ],
+              "supportedCargoIds": [
+                "C01-03"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-02",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-02",
+                "C03-02",
+                "C04-02"
+              ],
+              "supportedCargoIds": [
+                "C01-04"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        "rule": "rear-door-straight-positive-z"
+      },
+      "loadingSequenceCargoIds": [
+        "C01-01",
+        "C01-02",
+        "C01-03",
+        "C01-04",
+        "C02-01",
+        "C02-02",
+        "C02-03",
+        "C02-04",
+        "C03-01",
+        "C03-02",
+        "C03-03",
+        "C03-04",
+        "C04-01",
+        "C04-02",
+        "C04-03",
+        "C04-04"
+      ],
+      "feasibility": {
+        "executable": false,
+        "status": "not_executable",
+        "scope": "仅对场景明确声明并实际检查的约束有效。",
+        "uncheckedConstraints": [
+          "轴荷与车辆重心",
+          "车辆行驶稳定性及货物绑扎",
+          "装卸工具及人员活动空间",
+          "冷链与品类隔离",
+          "真实交通和司机工时",
+          "任意旋转或侧门取货",
+          "全局最优性"
+        ],
+        "reasons": [
+          "首站东城店货物被后方其他门店货物挡住，禁止额外搬运，卸货停止。"
+        ]
+      },
+      "computedBy": "tools/city-delivery/build_demo.py",
+      "globalOptimalityClaim": false
+    },
+    {
+      "planId": "PLAN_B",
+      "scenarioId": "city-delivery-synthetic-001",
+      "vehicleId": "V01",
+      "name": "方案 B · 顺序与布局调整",
+      "kind": "adjusted",
+      "stopOrder": [
+        "S02",
+        "S01",
+        "S04",
+        "S03"
+      ],
+      "routeNodeIds": [
+        "DEPOT",
+        "S02",
+        "S01",
+        "S04",
+        "S03",
+        "DEPOT"
+      ],
+      "arrivals": [
+        {
+          "stopId": "S02",
+          "sequence": 1,
+          "arrivalTime": "08:08",
+          "serviceStartTime": "08:08",
+          "departureTime": "08:14",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:00",
+            "end": "09:00"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S01",
+          "sequence": 2,
+          "arrivalTime": "08:18",
+          "serviceStartTime": "08:18",
+          "departureTime": "08:24",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:05",
+            "end": "09:05"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S04",
+          "sequence": 3,
+          "arrivalTime": "08:28",
+          "serviceStartTime": "08:28",
+          "departureTime": "08:34",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:15",
+            "end": "09:20"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S03",
+          "sequence": 4,
+          "arrivalTime": "08:38",
+          "serviceStartTime": "08:38",
+          "departureTime": "08:44",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:10",
+            "end": "09:30"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        }
+      ],
+      "legs": [
+        {
+          "fromStopId": "DEPOT",
+          "toStopId": "S02",
+          "distanceKm": 4,
+          "travelMinutes": 8,
+          "departureTime": "08:00",
+          "arrivalTime": "08:08"
+        },
+        {
+          "fromStopId": "S02",
+          "toStopId": "S01",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:14",
+          "arrivalTime": "08:18"
+        },
+        {
+          "fromStopId": "S01",
+          "toStopId": "S04",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:24",
+          "arrivalTime": "08:28"
+        },
+        {
+          "fromStopId": "S04",
+          "toStopId": "S03",
+          "distanceKm": 2,
+          "travelMinutes": 4,
+          "departureTime": "08:34",
+          "arrivalTime": "08:38"
+        },
+        {
+          "fromStopId": "S03",
+          "toStopId": "DEPOT",
+          "distanceKm": 6,
+          "travelMinutes": 12,
+          "departureTime": "08:44",
+          "arrivalTime": "08:56"
+        }
+      ],
+      "distanceKm": 16,
+      "drivingMinutes": 32,
+      "waitingMinutes": 0,
+      "serviceMinutes": 24,
+      "totalDurationMinutes": 56,
+      "returnTime": "08:56",
+      "timeWindowCheck": {
+        "checked": true,
+        "valid": true,
+        "rule": "服务开始必须处于时间窗内；早到等待；结束时间单独记录。",
+        "arrivals": [
+          {
+            "stopId": "S02",
+            "sequence": 1,
+            "arrivalTime": "08:08",
+            "serviceStartTime": "08:08",
+            "departureTime": "08:14",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "09:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S01",
+            "sequence": 2,
+            "arrivalTime": "08:18",
+            "serviceStartTime": "08:18",
+            "departureTime": "08:24",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:05",
+              "end": "09:05"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S04",
+            "sequence": 3,
+            "arrivalTime": "08:28",
+            "serviceStartTime": "08:28",
+            "departureTime": "08:34",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:15",
+              "end": "09:20"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S03",
+            "sequence": 4,
+            "arrivalTime": "08:38",
+            "serviceStartTime": "08:38",
+            "departureTime": "08:44",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:10",
+              "end": "09:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ]
+      },
+      "costs": {
+        "currency": "CNY",
+        "vehicleCount": 1,
+        "vehicleFixedCost": 180,
+        "drivingCost": 56.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "waitingCost": 0,
+        "totalCost": 236.0,
+        "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+      },
+      "loadingCheck": {
+        "checked": true,
+        "valid": true,
+        "checks": {
+          "boundary": {
+            "checked": true,
+            "valid": true
+          },
+          "collision": {
+            "checked": true,
+            "valid": true
+          },
+          "weight": {
+            "checked": true,
+            "valid": true
+          },
+          "orientation": {
+            "checked": true,
+            "valid": true
+          },
+          "fragile": {
+            "checked": true,
+            "valid": true
+          },
+          "support": {
+            "checked": true,
+            "valid": true
+          },
+          "loadBearing": {
+            "checked": true,
+            "valid": true
+          }
+        },
+        "totalWeightKg": 312,
+        "maxPayloadKg": 1500,
+        "totalCargoVolumeM3": 7.472,
+        "compartmentVolumeM3": 28.072,
+        "cargoChecks": {
+          "C01-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C01-03"
+            ],
+            "topLoadKg": 8.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C01-04"
+            ],
+            "topLoadKg": 8.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C01-01"
+              ],
+              "supportRatio": 1.0,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C01-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C01-02"
+              ],
+              "supportRatio": 1.0,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C02-03"
+            ],
+            "topLoadKg": 9.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C02-04"
+            ],
+            "topLoadKg": 9.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C02-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C02-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C02-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C03-03"
+            ],
+            "topLoadKg": 10.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C03-04"
+            ],
+            "topLoadKg": 10.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C03-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C03-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C03-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-01": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C04-03"
+            ],
+            "topLoadKg": 11.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-02": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "floor",
+              "supportingCargoIds": [],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [
+              "C04-04"
+            ],
+            "topLoadKg": 11.0,
+            "maxTopLoadKg": 40,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-03": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C04-01"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          },
+          "C04-04": {
+            "boundaryValid": true,
+            "collisionFree": true,
+            "overlappingCargoIds": [],
+            "orientationValid": true,
+            "support": {
+              "type": "cargo",
+              "supportingCargoIds": [
+                "C04-02"
+              ],
+              "supportRatio": 1,
+              "minimumSupportRatio": 1.0,
+              "valid": true
+            },
+            "fragileValid": true,
+            "supportedCargoIds": [],
+            "topLoadKg": 0.0,
+            "maxTopLoadKg": 0,
+            "loadBearingValid": true,
+            "valid": true
+          }
+        }
+      },
+      "unloadingCheck": {
+        "checked": true,
+        "valid": true,
+        "firstFailure": null,
+        "rule": "rear-door-straight-positive-z"
+      },
+      "loadingSequenceCargoIds": [
+        "C03-01",
+        "C03-02",
+        "C03-03",
+        "C03-04",
+        "C04-01",
+        "C04-02",
+        "C04-03",
+        "C04-04",
+        "C01-01",
+        "C01-02",
+        "C01-03",
+        "C01-04",
+        "C02-01",
+        "C02-02",
+        "C02-03",
+        "C02-04"
+      ],
+      "feasibility": {
+        "executable": true,
+        "status": "executable_within_declared_constraints",
+        "scope": "仅对场景明确声明并实际检查的约束有效。",
+        "uncheckedConstraints": [
+          "轴荷与车辆重心",
+          "车辆行驶稳定性及货物绑扎",
+          "装卸工具及人员活动空间",
+          "冷链与品类隔离",
+          "真实交通和司机工时",
+          "任意旋转或侧门取货",
+          "全局最优性"
+        ],
+        "reasons": []
+      },
+      "computedBy": "tools/city-delivery/build_demo.py",
+      "globalOptimalityClaim": false
+    }
+  ],
+  "selectedPlanId": "PLAN_B",
+  "planningMode": "precomputed-validated-candidates"
+}

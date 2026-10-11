@@ -1,0 +1,26 @@
+{
+  "time": "2026-10-10T22:25:03.462653+08:00",
+  "changesAfterControlledCalculation": [
+    {
+      "path": "frontend/src/features/city-delivery/product/app.tsx",
+      "atCalculation": "778ce598221578f0bcf79573020326a0e8cb2270bbe4f5fff6800160b1b97b31",
+      "atReviewEnd": "9d3645836ffa705a3a7ebb677dac1fc7d8784470ee36ca30eb46b77626bbe59c"
+    },
+    {
+      "path": "frontend/src/features/city-delivery/product/pages.tsx",
+      "atCalculation": "a8bd8826fc22bfa00dbdfa1695088e749d7719b15e62ea93287fe2559e592ea9",
+      "atReviewEnd": "a64699873d9d82bc9a7148ad1b1d1ba8dadac4f9f724f8057f2372227bc7fde2"
+    },
+    {
+      "path": "frontend/src/features/city-delivery/product/product.css",
+      "atCalculation": "7c1f2133c9a6fa5a1c32201caa697efc24ce18c5178cb0b2955255ae073b26da",
+      "atReviewEnd": "cf1e0e05f9474fe35bfe01204b73a2ff709cc35cb47df95c67378a5bb29b2a2c"
+    }
+  ],
+  "coreAlgorithmsAndScenarioDataUnchanged": true,
+  "auditAgentEditedProtectedFiles": false,
+  "browserEvidenceAppliesToObservedSnapshot": "2026-10-10 ~22:15 Asia/Shanghai",
+  "laterPageEdits": "Other workflow; root URL now navigates overview; final page changes not fully rerun",
+  "canonicalEntry": "http://127.0.0.1:8111/frontend/city-delivery/",
+  "directWorkbench": "http://127.0.0.1:8111/frontend/city-delivery/dispatch"
+}

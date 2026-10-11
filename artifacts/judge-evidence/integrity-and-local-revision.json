@@ -1,0 +1,497 @@
+{
+  "savedPlanChecks": [
+    {
+      "planId": "FLEET_BASELINE",
+      "totals": {
+        "vehicleCount": 3,
+        "distanceKm": 50,
+        "drivingMinutes": 100,
+        "totalDurationMinutes": 66,
+        "currency": "CNY",
+        "vehicleFixedCost": 440,
+        "drivingCost": 152.0,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 592.0
+      },
+      "latestReturn": "09:06",
+      "allGeometryPassed": true,
+      "allTimeWindowsPassed": true,
+      "allCargoUnloaded": true,
+      "uniqueAssignedCargoCount": 36,
+      "assignedCargoCount": 36,
+      "assignedStops": 9
+    },
+    {
+      "planId": "FLEET_ADJUSTED",
+      "totals": {
+        "vehicleCount": 2,
+        "distanceKm": 38,
+        "drivingMinutes": 76,
+        "totalDurationMinutes": 70,
+        "currency": "CNY",
+        "vehicleFixedCost": 330,
+        "drivingCost": 120.4,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 450.4
+      },
+      "latestReturn": "09:10",
+      "allGeometryPassed": true,
+      "allTimeWindowsPassed": true,
+      "allCargoUnloaded": true,
+      "uniqueAssignedCargoCount": 36,
+      "assignedCargoCount": 36,
+      "assignedStops": 9
+    }
+  ],
+  "orders": [
+    {
+      "stopOrder": [
+        "S01",
+        "S02",
+        "S03",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        16,
+        21.6
+      ],
+      "attemptedLayouts": 16,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S01",
+        "S02",
+        "S04",
+        "S03"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 10.8,
+      "minimumWithin24RowLayouts": [
+        8,
+        10.8
+      ],
+      "attemptedLayouts": 3,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S01",
+        "S03",
+        "S02",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        16,
+        32.4
+      ],
+      "attemptedLayouts": 17,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S01",
+        "S03",
+        "S04",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        12,
+        32.4
+      ],
+      "attemptedLayouts": 13,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S01",
+        "S04",
+        "S02",
+        "S03"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        12,
+        21.6
+      ],
+      "attemptedLayouts": 10,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S01",
+        "S04",
+        "S03",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        16,
+        32.4
+      ],
+      "attemptedLayouts": 20,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S01",
+        "S03",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 10.8,
+      "minimumWithin24RowLayouts": [
+        8,
+        10.8
+      ],
+      "attemptedLayouts": 4,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S01",
+        "S04",
+        "S03"
+      ],
+      "revisionStatus": "reused",
+      "movedCargoCount": 0,
+      "sumAbsoluteZMovementM": 0,
+      "minimumWithin24RowLayouts": [
+        0,
+        0
+      ],
+      "attemptedLayouts": 0,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S03",
+        "S01",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        12,
+        21.6
+      ],
+      "attemptedLayouts": 11,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S03",
+        "S04",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        8,
+        21.6
+      ],
+      "attemptedLayouts": 5,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S04",
+        "S01",
+        "S03"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 10.8,
+      "minimumWithin24RowLayouts": [
+        8,
+        10.8
+      ],
+      "attemptedLayouts": 2,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S02",
+        "S04",
+        "S03",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        12,
+        21.6
+      ],
+      "attemptedLayouts": 9,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S01",
+        "S02",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        12,
+        32.4
+      ],
+      "attemptedLayouts": 15,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S01",
+        "S04",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        8,
+        32.4
+      ],
+      "attemptedLayouts": 7,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S02",
+        "S01",
+        "S04"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        16,
+        32.4
+      ],
+      "attemptedLayouts": 19,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S02",
+        "S04",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        12,
+        32.4
+      ],
+      "attemptedLayouts": 12,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S04",
+        "S01",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 43.2,
+      "minimumWithin24RowLayouts": [
+        16,
+        43.2
+      ],
+      "attemptedLayouts": 22,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S03",
+        "S04",
+        "S02",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 43.2,
+      "minimumWithin24RowLayouts": [
+        16,
+        43.2
+      ],
+      "attemptedLayouts": 21,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 8,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        8,
+        21.6
+      ],
+      "attemptedLayouts": 6,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S01",
+        "S03",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        12,
+        32.4
+      ],
+      "attemptedLayouts": 14,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S02",
+        "S01",
+        "S03"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 12,
+      "sumAbsoluteZMovementM": 21.6,
+      "minimumWithin24RowLayouts": [
+        12,
+        21.6
+      ],
+      "attemptedLayouts": 8,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S02",
+        "S03",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 32.4,
+      "minimumWithin24RowLayouts": [
+        16,
+        32.4
+      ],
+      "attemptedLayouts": 18,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S03",
+        "S01",
+        "S02"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 43.2,
+      "minimumWithin24RowLayouts": [
+        16,
+        43.2
+      ],
+      "attemptedLayouts": 24,
+      "executable": true
+    },
+    {
+      "stopOrder": [
+        "S04",
+        "S03",
+        "S02",
+        "S01"
+      ],
+      "revisionStatus": "revised",
+      "movedCargoCount": 16,
+      "sumAbsoluteZMovementM": 43.2,
+      "minimumWithin24RowLayouts": [
+        16,
+        43.2
+      ],
+      "attemptedLayouts": 23,
+      "executable": true
+    }
+  ],
+  "scope": "24 visit orders x 24 existing row-layout permutations, fixed x/y/rotation/stacking; no free-box optimum claim",
+  "protectedFilesUnchanged": true,
+  "sha256": {
+    "frontend/public/demo/city-delivery/v1/comparison.json": "47c425cf43e45d524f242866a70b15bc2fbe7d3de6a125165698a8d4813d6897",
+    "frontend/public/demo/city-delivery/v1/manifest.json": "a98a2437df751eaf81a5d38435cb5058014eb60a6124a0d0d8ebf5ead802e300",
+    "frontend/public/demo/city-delivery/v1/placements.json": "6734f969266743995889e798716c1ce9dd0aeb8cacc473bc3ab276a69794027f",
+    "frontend/public/demo/city-delivery/v1/plans.json": "2dc29ccd973a3c60c90429b16c72fb20075bda23b540d1bbe80de4239318d5a5",
+    "frontend/public/demo/city-delivery/v1/scenario.json": "2ab085f8d20863baa0cb861f9ec44ef9a4fe3dfaf5aa7b316099ceb7b640aa3f",
+    "frontend/public/demo/city-delivery/v1/unloading-steps.json": "51f7b6cd97bef9d43a6b0cf575b14b745f47634ccdfdf9a68217d02911795878",
+    "frontend/public/demo/city-delivery/v2/comparison.json": "01196b3420b6f505444943a5755577aa680c395994303a2c96260f8d46144933",
+    "frontend/public/demo/city-delivery/v2/decision-contract.json": "51d46aed39fa002cb5e8b8a8e616dc7410869369b0ff9217140b2e59c62ea7ba",
+    "frontend/public/demo/city-delivery/v2/fleet-adjustment-example.json": "daa5155a954fdbf21294156a6d376cf0c37383196d18cd5c9349d27eb86de4c6",
+    "frontend/public/demo/city-delivery/v2/manifest.json": "dbfb1f879a7b836acd77493aa62925d783eee830520bae4de999460b62481512",
+    "frontend/public/demo/city-delivery/v2/order-adjustment-examples.json": "753fdca396adb939d4a752a9d7b434d4032b8ea2cb5a4e17850ccbe20901a2b8",
+    "frontend/public/demo/city-delivery/v2/placements.json": "9e2877e586e46f771f3e0d7f8e55ff2787608c64c77daeb5ceb441bfcc9b9136",
+    "frontend/public/demo/city-delivery/v2/plans.json": "e7728660041da03209c3235f6319a28e785dd02f1c98831363f2f0f849022cad",
+    "frontend/public/demo/city-delivery/v2/scenario.json": "27936c68079ca8230f7e0728a7eab8c9873eb6f0b6c064814afcb0e5e93e3197",
+    "frontend/public/demo/city-delivery/v2/unloading-steps.json": "c2842e7c7259b11d3be003a10af05c692b4b26712104bc8a80c6ec5841e32148",
+    "frontend/src/features/city-delivery/data.ts": "e1c7c7ddf1cabee05e8e7d7717e01062132cba2e3483e8dd3563de02c325edf9",
+    "frontend/src/features/city-delivery/decisions.ts": "a8b341bb0fcc2b1b6c76901ebb17916f78a07d6b279f75b14dbc0858446738e9",
+    "frontend/src/features/city-delivery/fleet-workspace.tsx": "d26632e00f07ceb72ef60b974c552a1fb98a13b761118a8cef5325615ff4e7c6",
+    "frontend/src/features/city-delivery/packing-objects.ts": "8ae7eff02dfe8b2eb17d876e219654d97ac032cb157c0df9525162f2c07b10c4",
+    "frontend/src/features/city-delivery/packing-view.tsx": "e456e223304cf7ceaf2340bdda817f6d4cf6f04e2ad12d69dd21dfacd00559f7",
+    "frontend/src/features/city-delivery/product/api.ts": "483db68dfcbe339428be88ce36e3be90d73b5b67a8b5d1c599fe5353477a1bb2",
+    "frontend/src/features/city-delivery/product/app.tsx": "778ce598221578f0bcf79573020326a0e8cb2270bbe4f5fff6800160b1b97b31",
+    "frontend/src/features/city-delivery/product/components.tsx": "dcb1a1c8e568b093e55053279f25d82878b7be4f27ada330b9ef9eb3ece003f8",
+    "frontend/src/features/city-delivery/product/pages.tsx": "a8bd8826fc22bfa00dbdfa1695088e749d7719b15e62ea93287fe2559e592ea9",
+    "frontend/src/features/city-delivery/product/product.css": "7c1f2133c9a6fa5a1c32201caa697efc24ce18c5178cb0b2955255ae073b26da",
+    "frontend/src/features/city-delivery/product/state.tsx": "f394f716e2a2c0110440d2b9993491d4eaf163f594f45d0afca72e85cdf929b9",
+    "frontend/src/features/city-delivery/workbench.css": "2a5d0d506a9e7d2533a8b91251f7aeeb0bf9dcadf3924ab4f40854e7d6747a53",
+    "frontend/src/features/city-delivery/workbench.tsx": "76834ed64d6346ea3a8965de96d68a572d327df6b57bc6d956e51efce7419233",
+    "frontend/src/features/logistics/scene/create-scene.ts": "b857244e9d3e79047ffac8bb9aecf0e0a1924e6b82ed5ec3d6e327fabad05717",
+    "frontend/vite.config.ts": "3cade059fd45de41e8fd22ccdb7da482047ba592811483de05cc99c99442367e",
+    "tools/city-delivery/build_demo.py": "c58b449fb4a4d3468bcf07da448db0166d00b708eb759b7db6ef1df8a3d3f53f",
+    "tools/city-delivery-decision/build.py": "b250ace3d0357575bae6fafa0912e9eb708e4bb357067a455b4d3822e8203372",
+    "tools/city-delivery-decision/decision.py": "43c9e7d85c4fec214e61f6eb2ada53d504ce1c9252025e5031ae564076dd912c",
+    "tools/city-delivery-decision/server.py": "255b865073b2f5e4c9a6507a5ffb0df5dd2e90fcae1df5efd15ae40b344a5d73",
+    "tools/city-delivery-decision/verify.py": "20fa2df552aceb639df39c496247773809fecd3d8f168180e8c2d1bb018cbaf1"
+  }
+}

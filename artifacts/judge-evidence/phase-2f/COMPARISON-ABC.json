@@ -1,0 +1,1964 @@
+{
+  "environment": {
+    "python": "3.9.6",
+    "ortools": "9.11.4210",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "machine": "arm64"
+  },
+  "sameBudgetMs": 2000,
+  "sameSceneInputs": true,
+  "sameCostsAndHardChecks": true,
+  "alternatingRunOrder": true,
+  "methods": {
+    "route-first": "路线优先 OR-Tools 仅重量与时间窗，再检查固定主布局；不使用几何反馈。",
+    "layout-repair": "沿用同一次路线结果，仅搜索有限替代布局；不改车、不改路线。",
+    "joint-feedback": "相同预算，失败后替代布局与几何反馈路线；所有最终结果再次检查相同硬约束。"
+  },
+  "evidenceScope": "仅三个合成实例、每种方法三次运行，不作统计显著性或真实企业收益声称；API时间另见 http-verification.json。",
+  "missingWeightRejected": "scenario.cargo[0]: 缺少字段 weightKg",
+  "rows": [
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 0,
+      "strategy": "route-first",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 2.558,
+        "constraintCheckMs": 2.983,
+        "layoutGenerationMs": 0.203,
+        "overallComputeMs": 58.741,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 58.749
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 0,
+      "strategy": "layout-repair",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.639,
+        "constraintCheckMs": 2.765,
+        "layoutGenerationMs": 0.202,
+        "overallComputeMs": 5.624,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.664
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 0,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.794,
+        "constraintCheckMs": 2.964,
+        "layoutGenerationMs": 0.21,
+        "overallComputeMs": 6.019,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 6.054
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 1,
+      "strategy": "layout-repair",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.626,
+        "constraintCheckMs": 2.849,
+        "layoutGenerationMs": 0.187,
+        "overallComputeMs": 5.649,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.687
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 1,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.644,
+        "constraintCheckMs": 2.729,
+        "layoutGenerationMs": 0.191,
+        "overallComputeMs": 5.568,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.601
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 1,
+      "strategy": "route-first",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.518,
+        "constraintCheckMs": 2.657,
+        "layoutGenerationMs": 0.165,
+        "overallComputeMs": 5.25,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.281
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 2,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.513,
+        "constraintCheckMs": 2.642,
+        "layoutGenerationMs": 0.171,
+        "overallComputeMs": 5.328,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.357
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 2,
+      "strategy": "route-first",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.488,
+        "constraintCheckMs": 2.729,
+        "layoutGenerationMs": 0.185,
+        "overallComputeMs": 5.355,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.385
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "inputFingerprint": "8ef9f89f8b56",
+      "repeat": 2,
+      "strategy": "layout-repair",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 222.0,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 0,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [],
+      "timing": {
+        "solveMs": 0.462,
+        "constraintCheckMs": 2.729,
+        "layoutGenerationMs": 0.181,
+        "overallComputeMs": 5.342,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 4
+      },
+      "functionWallMs": 5.377
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 0,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V01-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-04"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.193,
+        "constraintCheckMs": 17.692,
+        "layoutGenerationMs": 1.773,
+        "overallComputeMs": 23.773,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 27
+      },
+      "functionWallMs": 23.819
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 0,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.102,
+        "constraintCheckMs": 130.487,
+        "layoutGenerationMs": 4.25,
+        "overallComputeMs": 142.028,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 142.109
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 0,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 444.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 36,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 6.136,
+        "constraintCheckMs": 133.966,
+        "layoutGenerationMs": 4.213,
+        "overallComputeMs": 149.853,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 149.95
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 1,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.007,
+        "constraintCheckMs": 129.213,
+        "layoutGenerationMs": 4.19,
+        "overallComputeMs": 140.59,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 140.721
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 1,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 444.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 36,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 6.077,
+        "constraintCheckMs": 132.738,
+        "layoutGenerationMs": 4.208,
+        "overallComputeMs": 148.427,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 148.514
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 1,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V01-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-04"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.016,
+        "constraintCheckMs": 17.509,
+        "layoutGenerationMs": 1.764,
+        "overallComputeMs": 23.347,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 27
+      },
+      "functionWallMs": 23.44
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 2,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 444.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 36,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 6.05,
+        "constraintCheckMs": 133.4,
+        "layoutGenerationMs": 4.254,
+        "overallComputeMs": 149.269,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 149.348
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 2,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V01-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-04"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [
+            "C09-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [
+                "C09-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.053,
+        "constraintCheckMs": 17.582,
+        "layoutGenerationMs": 1.797,
+        "overallComputeMs": 23.607,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 27
+      },
+      "functionWallMs": 23.697
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "inputFingerprint": "f6685c514364",
+      "repeat": 2,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 346.8,
+      "initialLoadingConflictCount": 2,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U008",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "C09-02",
+            "C09-03"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for C09-02"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S09",
+          "stepId": "STOP-CHECK-V03-U006",
+          "targetCargoIds": [
+            "C09-01",
+            "C09-02",
+            "C09-03",
+            "C09-04"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.041,
+        "constraintCheckMs": 129.152,
+        "layoutGenerationMs": 4.229,
+        "overallComputeMs": 140.54,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 214
+      },
+      "functionWallMs": 140.635
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 0,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-5-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-5-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V01-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 1.078,
+        "constraintCheckMs": 3.725,
+        "layoutGenerationMs": 0.049,
+        "overallComputeMs": 5.765,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 12
+      },
+      "functionWallMs": 5.785
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 0,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 0.974,
+        "constraintCheckMs": 18.084,
+        "layoutGenerationMs": 0.241,
+        "overallComputeMs": 21.014,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 21.034
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 0,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 194.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 12,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.458,
+        "constraintCheckMs": 19.822,
+        "layoutGenerationMs": 0.238,
+        "overallComputeMs": 24.609,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 24.642
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 1,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 1.234,
+        "constraintCheckMs": 18.892,
+        "layoutGenerationMs": 0.238,
+        "overallComputeMs": 22.289,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 22.35
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 1,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 194.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 12,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.301,
+        "constraintCheckMs": 19.542,
+        "layoutGenerationMs": 0.231,
+        "overallComputeMs": 24.039,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 24.066
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 1,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-5-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-5-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V01-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 1.073,
+        "constraintCheckMs": 3.766,
+        "layoutGenerationMs": 0.051,
+        "overallComputeMs": 5.827,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 12
+      },
+      "functionWallMs": 5.86
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 2,
+      "strategy": "joint-feedback",
+      "status": "FEASIBLE",
+      "feasible": true,
+      "actualPlanCost": 194.8,
+      "nominalFailedCost": null,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 12,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 2.093,
+        "constraintCheckMs": 19.337,
+        "layoutGenerationMs": 0.226,
+        "overallComputeMs": 23.503,
+        "budgetMs": 2000,
+        "solverCalls": 2,
+        "routeCandidates": 3,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 23.525
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 2,
+      "strategy": "route-first",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-5-2"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-5-2"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V01-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 1.048,
+        "constraintCheckMs": 3.788,
+        "layoutGenerationMs": 0.05,
+        "overallComputeMs": 5.823,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 1,
+        "layoutCandidatesChecked": 12
+      },
+      "functionWallMs": 5.856
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "inputFingerprint": "2cf16d96bfc2",
+      "repeat": 2,
+      "strategy": "layout-repair",
+      "status": "SEARCH_EXHAUSTED",
+      "feasible": false,
+      "actualPlanCost": null,
+      "nominalFailedCost": 145.2,
+      "initialLoadingConflictCount": 1,
+      "revisedCargoCount": 0,
+      "unassignedStopCount": 0,
+      "failureEvidence": [
+        {
+          "type": "unloading_blocked",
+          "stopId": "S05",
+          "stepId": "STOP-CHECK-V02-U004",
+          "targetCargoIds": [
+            "NEW-5-1",
+            "NEW-5-2"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-5-2",
+              "stopId": "S05",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        },
+        {
+          "type": "boundary",
+          "message": "装载约束未通过：boundary",
+          "cargoIds": [
+            "NEW-6-3"
+          ]
+        },
+        {
+          "type": "loading_path",
+          "message": "Unsafe loading path for NEW-6-3"
+        },
+        {
+          "type": "unloading_blocked",
+          "stopId": "S06",
+          "stepId": "STOP-CHECK-V02-U006",
+          "targetCargoIds": [
+            "NEW-6-1",
+            "NEW-6-2",
+            "NEW-6-3"
+          ],
+          "blockingCargoIds": [],
+          "conflicts": [
+            {
+              "cargoId": "NEW-6-3",
+              "stopId": "S06",
+              "blockingCargoIds": [],
+              "supportedCargoIds": [],
+              "doorClearanceValid": false,
+              "canUnload": false,
+              "reason": "后门净开口不足"
+            }
+          ],
+          "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "timing": {
+        "solveMs": 1.005,
+        "constraintCheckMs": 18.251,
+        "layoutGenerationMs": 0.223,
+        "overallComputeMs": 21.167,
+        "budgetMs": 2000,
+        "solverCalls": 1,
+        "routeCandidates": 2,
+        "layoutCandidatesChecked": 60
+      },
+      "functionWallMs": 21.184
+    }
+  ],
+  "summary": [
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "strategy": "route-first",
+      "runs": 3,
+      "feasibleRuns": 3,
+      "feasibilityRate": 1.0,
+      "actualCosts": [
+        222.0,
+        222.0,
+        222.0
+      ],
+      "medianOverallMs": 5.385,
+      "medianSolveMs": 0.518,
+      "medianCheckMs": 2.729
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "strategy": "layout-repair",
+      "runs": 3,
+      "feasibleRuns": 3,
+      "feasibilityRate": 1.0,
+      "actualCosts": [
+        222.0,
+        222.0,
+        222.0
+      ],
+      "medianOverallMs": 5.664,
+      "medianSolveMs": 0.626,
+      "medianCheckMs": 2.765
+    },
+    {
+      "scenarioId": "city-delivery-synthetic-001",
+      "strategy": "joint-feedback",
+      "runs": 3,
+      "feasibleRuns": 3,
+      "feasibilityRate": 1.0,
+      "actualCosts": [
+        222.0,
+        222.0,
+        222.0
+      ],
+      "medianOverallMs": 5.601,
+      "medianSolveMs": 0.644,
+      "medianCheckMs": 2.729
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "strategy": "route-first",
+      "runs": 3,
+      "feasibleRuns": 0,
+      "feasibilityRate": 0.0,
+      "actualCosts": [
+        null,
+        null,
+        null
+      ],
+      "medianOverallMs": 23.697,
+      "medianSolveMs": 2.053,
+      "medianCheckMs": 17.582
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "strategy": "layout-repair",
+      "runs": 3,
+      "feasibleRuns": 0,
+      "feasibilityRate": 0.0,
+      "actualCosts": [
+        null,
+        null,
+        null
+      ],
+      "medianOverallMs": 140.721,
+      "medianSolveMs": 2.041,
+      "medianCheckMs": 129.213
+    },
+    {
+      "scenarioId": "city-delivery-multivehicle-synthetic-001",
+      "strategy": "joint-feedback",
+      "runs": 3,
+      "feasibleRuns": 3,
+      "feasibilityRate": 1.0,
+      "actualCosts": [
+        444.8,
+        444.8,
+        444.8
+      ],
+      "medianOverallMs": 149.348,
+      "medianSolveMs": 6.077,
+      "medianCheckMs": 133.4
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "strategy": "route-first",
+      "runs": 3,
+      "feasibleRuns": 0,
+      "feasibilityRate": 0.0,
+      "actualCosts": [
+        null,
+        null,
+        null
+      ],
+      "medianOverallMs": 5.856,
+      "medianSolveMs": 1.073,
+      "medianCheckMs": 3.766
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "strategy": "layout-repair",
+      "runs": 3,
+      "feasibleRuns": 0,
+      "feasibilityRate": 0.0,
+      "actualCosts": [
+        null,
+        null,
+        null
+      ],
+      "medianOverallMs": 21.184,
+      "medianSolveMs": 1.005,
+      "medianCheckMs": 18.251
+    },
+    {
+      "scenarioId": "city-independent-six-stop-003",
+      "strategy": "joint-feedback",
+      "runs": 3,
+      "feasibleRuns": 3,
+      "feasibilityRate": 1.0,
+      "actualCosts": [
+        194.8,
+        194.8,
+        194.8
+      ],
+      "medianOverallMs": 24.066,
+      "medianSolveMs": 2.301,
+      "medianCheckMs": 19.542
+    }
+  ],
+  "evidenceVersion": "phase-2f-abc-1",
+  "sourceFiles": [
+    "tools/city-delivery-decision/evidence_v3.py",
+    "tools/city-delivery-decision/evidence-v3/new-scenario-request.json"
+  ],
+  "reproduction": "tools/city-delivery-decision/.venv/bin/python tools/city-delivery-decision/evidence_v3.py"
+}

@@ -1,0 +1,13 @@
+{
+  "httpStatus": 422,
+  "response": {
+    "error": "scenario.cargo[1]: 货物编号重复",
+    "solverStatus": "INPUT_INVALID",
+    "field": "scenario.cargo[1]",
+    "executionMode": "request-rejected",
+    "serviceTiming": {
+      "overallInterfaceMs": 51.739,
+      "hardTimeoutSeconds": 8
+    }
+  }
+}

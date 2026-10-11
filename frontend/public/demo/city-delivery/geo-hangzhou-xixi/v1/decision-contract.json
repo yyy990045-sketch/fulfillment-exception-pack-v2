@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "geo-1.0",
+  "scenarioId": "city-delivery-geo-hangzhou-xixi-001",
+  "geometrySource": "OpenStreetMap Overpass API snapshot",
+  "routeDistanceFields": {
+    "roadDistanceKm": "local shortest path along OSM road graph",
+    "planDistanceKm": "existing business plan metric carried for comparison"
+  },
+  "heightSource": "OSM height/building:levels/estimated marker",
+  "compatibility": "does not alter v1/v2"
+}

@@ -1,0 +1,1227 @@
+{
+  "environment": {
+    "time": "2026-10-10T22:11:48.270198+08:00",
+    "os": "macOS-27.0-arm64-arm-64bit",
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "ortools": "9.11.4210",
+    "logicalCpu": 10,
+    "memoryBytes": 25769803776,
+    "scope": "four-store and nine-store existing scenarios only; sequential local requests; not load or scale testing",
+    "requestsPerCase": 5,
+    "httpTimeoutSeconds": 15,
+    "frontendAbortTimeoutSeconds": 15,
+    "solverSearchLimitSeconds": 2,
+    "orderLayoutCandidates": 24,
+    "resourceSampling": {
+      "pid": 98791,
+      "intervalSeconds": 0.1,
+      "method": "ps RSS and lifetime-averaged CPU percent, not instantaneous per-request CPU",
+      "peakObservedRssKiB": 34992,
+      "maxObservedLifetimeCpuPercent": 52.9,
+      "samples": [
+        {
+          "atSeconds": 0.111284125,
+          "psRssKiB_cpuPercent_cumulativeCpu": "32752   0.0   0:01.71"
+        },
+        {
+          "atSeconds": 0.21917075,
+          "psRssKiB_cpuPercent_cumulativeCpu": "34192   7.2   0:01.76"
+        },
+        {
+          "atSeconds": 0.325846958,
+          "psRssKiB_cpuPercent_cumulativeCpu": "34192  30.0   0:01.84"
+        },
+        {
+          "atSeconds": 0.436128166,
+          "psRssKiB_cpuPercent_cumulativeCpu": "34192  45.3   0:01.92"
+        },
+        {
+          "atSeconds": 0.54520125,
+          "psRssKiB_cpuPercent_cumulativeCpu": "34336  52.9   0:01.99"
+        },
+        {
+          "atSeconds": 0.653539291,
+          "psRssKiB_cpuPercent_cumulativeCpu": "34992  52.9   0:02.07"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "case": "order-reuse",
+      "request": {
+        "scenarioId": "city-delivery-synthetic-001",
+        "basePlanId": "PLAN_B",
+        "stopOrder": [
+          "S02",
+          "S01",
+          "S04",
+          "S03"
+        ],
+        "allowLayoutRepair": true
+      },
+      "ms": [
+        10.478666000000011,
+        6.7032499999999935,
+        5.293500000000007,
+        5.308667000000017,
+        5.291249999999997
+      ],
+      "medianMs": 5.308667000000017,
+      "minMs": 5.291249999999997,
+      "maxMs": 10.478666000000011,
+      "p95NearestRankMs": 10.478666000000011,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": true,
+        "revision": {
+          "status": "reused",
+          "method": "whole-stop-row-relocation",
+          "attemptedLayouts": 0,
+          "objective": "fewest relocated cargo then smallest total z movement",
+          "globallyOptimal": false,
+          "changedCargoIds": [],
+          "changes": [],
+          "requiresReloadBeforeDispatch": false,
+          "enRouteRepackingSupported": false,
+          "reloadingCostIncluded": false,
+          "costBoundary": "仅调整发车前拟定布局。费用仍按场景提供的车辆、行驶和等待规则计算，不含未提供的重装工时费；不能直接用于已发车车辆。"
+        },
+        "totals": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 180,
+          "drivingCost": 56.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 236.0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "originalLayoutReusable": true,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S02",
+              "S01",
+              "S04",
+              "S03"
+            ],
+            "returnTime": "08:56",
+            "distanceKm": 16,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "order-blocked",
+      "request": {
+        "scenarioId": "city-delivery-synthetic-001",
+        "basePlanId": "PLAN_B",
+        "stopOrder": [
+          "S01",
+          "S02",
+          "S04",
+          "S03"
+        ],
+        "allowLayoutRepair": false
+      },
+      "ms": [
+        4.262292,
+        4.142500000000021,
+        4.162416000000002,
+        3.716332999999988,
+        4.279124999999995
+      ],
+      "medianMs": 4.162416000000002,
+      "minMs": 3.716332999999988,
+      "maxMs": 4.279124999999995,
+      "p95NearestRankMs": 4.279124999999995,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": false,
+        "revision": {
+          "status": "not_repaired",
+          "method": "whole-stop-row-relocation",
+          "attemptedLayouts": 0,
+          "objective": "fewest relocated cargo then smallest total z movement",
+          "globallyOptimal": false,
+          "changedCargoIds": [],
+          "changes": [],
+          "requiresReloadBeforeDispatch": false,
+          "enRouteRepackingSupported": false,
+          "reloadingCostIncluded": false,
+          "costBoundary": "仅调整发车前拟定布局。费用仍按场景提供的车辆、行驶和等待规则计算，不含未提供的重装工时费；不能直接用于已发车车辆。"
+        },
+        "totals": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 180,
+          "drivingCost": 56.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 236.0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "originalLayoutReusable": false,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "returnTime": "08:57",
+            "distanceKm": 16,
+            "executable": false,
+            "reasons": [
+              {
+                "type": "unloading_blocked",
+                "stopId": "S01",
+                "stepId": "ORDER-39f41e3f6057-V01-U002",
+                "targetCargoIds": [
+                  "C01-01",
+                  "C01-02",
+                  "C01-03",
+                  "C01-04"
+                ],
+                "blockingCargoIds": [
+                  "C02-01",
+                  "C02-02",
+                  "C02-03",
+                  "C02-04"
+                ],
+                "conflicts": [
+                  {
+                    "cargoId": "C01-03",
+                    "stopId": "S01",
+                    "blockingCargoIds": [
+                      "C02-03"
+                    ],
+                    "supportedCargoIds": [],
+                    "doorClearanceValid": true,
+                    "canUnload": false,
+                    "reason": "后方其他门店货物占据后门直线取货通道"
+                  },
+                  {
+                    "cargoId": "C01-04",
+                    "stopId": "S01",
+                    "blockingCargoIds": [
+                      "C02-04"
+                    ],
+                    "supportedCargoIds": [],
+                    "doorClearanceValid": true,
+                    "canUnload": false,
+                    "reason": "后方其他门店货物占据后门直线取货通道"
+                  },
+                  {
+                    "cargoId": "C01-01",
+                    "stopId": "S01",
+                    "blockingCargoIds": [
+                      "C02-01"
+                    ],
+                    "supportedCargoIds": [
+                      "C01-03"
+                    ],
+                    "doorClearanceValid": true,
+                    "canUnload": false,
+                    "reason": "后方其他门店货物占据后门直线取货通道"
+                  },
+                  {
+                    "cargoId": "C01-02",
+                    "stopId": "S01",
+                    "blockingCargoIds": [
+                      "C02-02"
+                    ],
+                    "supportedCargoIds": [
+                      "C01-04"
+                    ],
+                    "doorClearanceValid": true,
+                    "canUnload": false,
+                    "reason": "后方其他门店货物占据后门直线取货通道"
+                  }
+                ],
+                "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+              }
+            ],
+            "remainingCargoIds": [
+              "C01-01",
+              "C01-02",
+              "C01-03",
+              "C01-04",
+              "C02-01",
+              "C02-02",
+              "C02-03",
+              "C02-04",
+              "C03-01",
+              "C03-02",
+              "C03-03",
+              "C03-04",
+              "C04-01",
+              "C04-02",
+              "C04-03",
+              "C04-04"
+            ],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "order-repair",
+      "request": {
+        "scenarioId": "city-delivery-synthetic-001",
+        "basePlanId": "PLAN_B",
+        "stopOrder": [
+          "S01",
+          "S02",
+          "S04",
+          "S03"
+        ],
+        "allowLayoutRepair": true
+      },
+      "ms": [
+        20.789625000000004,
+        35.443541999999994,
+        29.760957999999977,
+        31.701541,
+        34.506625000000014
+      ],
+      "medianMs": 31.701541,
+      "minMs": 20.789625000000004,
+      "maxMs": 35.443541999999994,
+      "p95NearestRankMs": 35.443541999999994,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": true,
+        "revision": {
+          "status": "revised",
+          "method": "whole-stop-row-relocation",
+          "attemptedLayouts": 3,
+          "objective": "fewest relocated cargo then smallest total z movement",
+          "globallyOptimal": false,
+          "changedCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "changes": [
+            {
+              "cargoId": "C01-01",
+              "from": {
+                "x": 0.12,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.12,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-02",
+              "from": {
+                "x": 1.18,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.18,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-03",
+              "from": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-04",
+              "from": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-01",
+              "from": {
+                "x": 0.12,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.12,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-02",
+              "from": {
+                "x": 1.18,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.18,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-03",
+              "from": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-04",
+              "from": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            }
+          ],
+          "requiresReloadBeforeDispatch": true,
+          "enRouteRepackingSupported": false,
+          "reloadingCostIncluded": false,
+          "costBoundary": "仅调整发车前拟定布局。费用仍按场景提供的车辆、行驶和等待规则计算，不含未提供的重装工时费；不能直接用于已发车车辆。"
+        },
+        "totals": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 180,
+          "drivingCost": 56.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 236.0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "originalLayoutReusable": false,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "returnTime": "08:57",
+            "distanceKm": 16,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "order-time-window-failure",
+      "request": {
+        "scenarioId": "city-delivery-synthetic-001",
+        "basePlanId": "PLAN_B",
+        "stopOrder": [
+          "S01",
+          "S02",
+          "S04",
+          "S03"
+        ],
+        "allowLayoutRepair": true,
+        "departureTime": "09:00"
+      },
+      "ms": [
+        28.697083000000013,
+        28.332332999999988,
+        24.613125000000014,
+        22.294499999999996,
+        15.123583999999967
+      ],
+      "medianMs": 24.613125000000014,
+      "minMs": 15.123583999999967,
+      "maxMs": 28.697083000000013,
+      "p95NearestRankMs": 28.697083000000013,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": false,
+        "revision": {
+          "status": "revised",
+          "method": "whole-stop-row-relocation",
+          "attemptedLayouts": 3,
+          "objective": "fewest relocated cargo then smallest total z movement",
+          "globallyOptimal": false,
+          "changedCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "changes": [
+            {
+              "cargoId": "C01-01",
+              "from": {
+                "x": 0.12,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.12,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-02",
+              "from": {
+                "x": 1.18,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.18,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-03",
+              "from": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C01-04",
+              "from": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-01",
+              "from": {
+                "x": 0.12,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.12,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-02",
+              "from": {
+                "x": 1.18,
+                "y": 0,
+                "z": 4.25,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.18,
+                "y": 0,
+                "z": 2.9,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-03",
+              "from": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 0,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 0.16,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 0,
+                "vehicleId": "V01"
+              }
+            },
+            {
+              "cargoId": "C02-04",
+              "from": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 4.325,
+                "rotation": 90,
+                "vehicleId": "V01"
+              },
+              "to": {
+                "x": 1.22,
+                "y": 0.55,
+                "z": 2.975,
+                "rotation": 90,
+                "vehicleId": "V01"
+              }
+            }
+          ],
+          "requiresReloadBeforeDispatch": true,
+          "enRouteRepackingSupported": false,
+          "reloadingCostIncluded": false,
+          "costBoundary": "仅调整发车前拟定布局。费用仍按场景提供的车辆、行驶和等待规则计算，不含未提供的重装工时费；不能直接用于已发车车辆。"
+        },
+        "totals": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 180,
+          "drivingCost": 56.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 236.0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "originalLayoutReusable": false,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "returnTime": "09:56",
+            "distanceKm": 16,
+            "executable": false,
+            "reasons": [
+              {
+                "type": "time_window",
+                "stopId": "S02",
+                "arrivalTime": "09:14",
+                "serviceStartTime": "09:14",
+                "latestServiceStart": "09:00",
+                "lateMinutes": 14,
+                "message": "服务开始时间已超过门店时间窗。"
+              },
+              {
+                "type": "time_window",
+                "stopId": "S04",
+                "arrivalTime": "09:28",
+                "serviceStartTime": "09:28",
+                "latestServiceStart": "09:20",
+                "lateMinutes": 8,
+                "message": "服务开始时间已超过门店时间窗。"
+              },
+              {
+                "type": "time_window",
+                "stopId": "S03",
+                "arrivalTime": "09:38",
+                "serviceStartTime": "09:38",
+                "latestServiceStart": "09:30",
+                "lateMinutes": 8,
+                "message": "服务开始时间已超过门店时间窗。"
+              }
+            ],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "fleet-valid",
+      "request": {
+        "scenarioId": "city-delivery-multivehicle-synthetic-001",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S01",
+              "S02"
+            ]
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S05",
+              "S04",
+              "S06"
+            ]
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S09",
+              "S07",
+              "S08"
+            ]
+          }
+        ],
+        "allowReassignment": false
+      },
+      "ms": [
+        9.217167000000027,
+        8.86666700000005,
+        8.78050000000008,
+        9.087999999999985,
+        8.918709000000025
+      ],
+      "medianMs": 8.918709000000025,
+      "minMs": 8.78050000000008,
+      "maxMs": 9.217167000000027,
+      "p95NearestRankMs": 9.217167000000027,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": true,
+        "revision": {
+          "reassignmentAllowed": false,
+          "reallocated": false,
+          "method": "validated stop shelf layout for submitted routes",
+          "reason": null,
+          "requiresReloadBeforeDispatch": true,
+          "preservesSubmittedOrderWhenReallocating": false
+        },
+        "totals": {
+          "vehicleCount": 3,
+          "distanceKm": 50,
+          "drivingMinutes": 100,
+          "totalDurationMinutes": 66,
+          "currency": "CNY",
+          "vehicleFixedCost": 440,
+          "drivingCost": 152.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "totalCost": 592.0
+        },
+        "originalLayoutReusable": null,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S01",
+              "S02"
+            ],
+            "returnTime": "08:34",
+            "distanceKm": 8,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S05",
+              "S04",
+              "S06"
+            ],
+            "returnTime": "08:54",
+            "distanceKm": 18,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S09",
+              "S07",
+              "S08"
+            ],
+            "returnTime": "09:06",
+            "distanceKm": 24,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "fleet-width-failure",
+      "request": {
+        "scenarioId": "city-delivery-multivehicle-synthetic-001",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S01",
+              "S09"
+            ]
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S05",
+              "S04",
+              "S06"
+            ]
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S02",
+              "S07",
+              "S08"
+            ]
+          }
+        ],
+        "allowReassignment": false
+      },
+      "ms": [
+        6.974333000000055,
+        8.042709000000038,
+        7.153582999999908,
+        6.8885419999999975,
+        7.221000000000033
+      ],
+      "medianMs": 7.153582999999908,
+      "minMs": 6.8885419999999975,
+      "maxMs": 8.042709000000038,
+      "p95NearestRankMs": 8.042709000000038,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": false,
+        "revision": {
+          "reassignmentAllowed": false,
+          "reallocated": false,
+          "method": "validated stop shelf layout for submitted routes",
+          "reason": null,
+          "requiresReloadBeforeDispatch": true,
+          "preservesSubmittedOrderWhenReallocating": false
+        },
+        "totals": {
+          "vehicleCount": 3,
+          "distanceKm": 58,
+          "drivingMinutes": 116,
+          "totalDurationMinutes": 62,
+          "currency": "CNY",
+          "vehicleFixedCost": 440,
+          "drivingCost": 161.8,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "totalCost": 601.8
+        },
+        "originalLayoutReusable": null,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S01",
+              "S09"
+            ],
+            "returnTime": "09:02",
+            "distanceKm": 22,
+            "executable": false,
+            "reasons": [
+              {
+                "type": "stop_geometry",
+                "vehicleId": "V01",
+                "stopId": "S09",
+                "cargoIds": [
+                  "C09-01",
+                  "C09-02",
+                  "C09-03",
+                  "C09-04"
+                ],
+                "dimension": "width",
+                "minimumTwoLaneWidthM": 2.5,
+                "availableWidthM": 2.1,
+                "message": "整站两列布局至少需要 2.50 m 宽度，本车只有 2.10 m，需换车或改变分配。",
+                "proofScope": "declared-shelf-method-only"
+              }
+            ],
+            "remainingCargoIds": null,
+            "geometryChecked": false,
+            "geometryValid": false
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S05",
+              "S04",
+              "S06"
+            ],
+            "returnTime": "08:54",
+            "distanceKm": 18,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S02",
+              "S07",
+              "S08"
+            ],
+            "returnTime": "08:54",
+            "distanceKm": 18,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "fleet-reassign",
+      "request": {
+        "scenarioId": "city-delivery-multivehicle-synthetic-001",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S01",
+              "S09"
+            ]
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S05",
+              "S04",
+              "S06"
+            ]
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S02",
+              "S07",
+              "S08"
+            ]
+          }
+        ],
+        "allowReassignment": true
+      },
+      "ms": [
+        30.086999999999975,
+        30.800416999999914,
+        30.59266599999999,
+        31.71916699999999,
+        31.11462499999995
+      ],
+      "medianMs": 30.800416999999914,
+      "minMs": 30.086999999999975,
+      "maxMs": 31.71916699999999,
+      "p95NearestRankMs": 31.71916699999999,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "executable": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stableResult": true,
+      "result": {
+        "executable": true,
+        "revision": {
+          "reassignmentAllowed": true,
+          "reallocated": true,
+          "method": "OR-Tools constrained routing + explicitly validated stop shelves",
+          "reason": null,
+          "requiresReloadBeforeDispatch": true,
+          "preservesSubmittedOrderWhenReallocating": false
+        },
+        "totals": {
+          "vehicleCount": 2,
+          "distanceKm": 38,
+          "drivingMinutes": 76,
+          "totalDurationMinutes": 70,
+          "currency": "CNY",
+          "vehicleFixedCost": 330,
+          "drivingCost": 120.4,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "totalCost": 450.4
+        },
+        "originalLayoutReusable": null,
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [],
+            "returnTime": "08:00",
+            "distanceKm": 0,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": [
+              "S03",
+              "S06",
+              "S08",
+              "S07"
+            ],
+            "returnTime": "09:00",
+            "distanceKm": 18,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          },
+          {
+            "vehicleId": "V03",
+            "stopOrder": [
+              "S09",
+              "S05",
+              "S04",
+              "S02",
+              "S01"
+            ],
+            "returnTime": "09:10",
+            "distanceKm": 20,
+            "executable": true,
+            "reasons": [],
+            "remainingCargoIds": [],
+            "geometryChecked": true,
+            "geometryValid": true
+          }
+        ]
+      }
+    }
+  ],
+  "invalidInput": {
+    "request": {
+      "scenarioId": "city-delivery-synthetic-001",
+      "basePlanId": "PLAN_B",
+      "stopOrder": [
+        "S01",
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "allowLayoutRepair": true
+    },
+    "httpStatus": 422,
+    "elapsedMs": 1.7882919999999691,
+    "response": {
+      "error": "必须且只能访问每家门店一次，不能遗漏、重复或加入未知门店。",
+      "executionMode": "request-rejected"
+    }
+  }
+}

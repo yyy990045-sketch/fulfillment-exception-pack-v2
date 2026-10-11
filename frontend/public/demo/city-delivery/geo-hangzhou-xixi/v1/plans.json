@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "geo-1.0",
+  "scenarioId": "city-delivery-geo-hangzhou-xixi-001",
+  "plans": [
+    {
+      "planId": "FLEET_BASELINE",
+      "scenarioId": "city-delivery-geo-hangzhou-xixi-001",
+      "totals": {
+        "vehicleCount": 3,
+        "distanceKm": 50,
+        "drivingMinutes": 100,
+        "totalDurationMinutes": 66,
+        "currency": "CNY",
+        "vehicleFixedCost": 440,
+        "drivingCost": 152,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 592
+      },
+      "routes": [
+        {
+          "vehicleId": "V01",
+          "stopOrder": [
+            "S03",
+            "S01",
+            "S02"
+          ],
+          "routeGeometryId": "FLEET_BASELINE-V01",
+          "roadDistanceKm": 1.467,
+          "roadTravelMinutes": 176,
+          "roadSegmentIds": [
+            259812647,
+            1056558297,
+            1366664104
+          ],
+          "planDistanceKm": 8,
+          "planDrivingMinutes": 16,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 1,
+            "vehicleFixedCost": 110,
+            "drivingCost": 17.6,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 127.6,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": true
+        },
+        {
+          "vehicleId": "V02",
+          "stopOrder": [
+            "S05",
+            "S04",
+            "S06"
+          ],
+          "routeGeometryId": "FLEET_BASELINE-V02",
+          "roadDistanceKm": 2.11,
+          "roadTravelMinutes": 253,
+          "roadSegmentIds": [
+            259812647,
+            1056558297,
+            1366664104
+          ],
+          "planDistanceKm": 18,
+          "planDrivingMinutes": 36,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 1,
+            "vehicleFixedCost": 150,
+            "drivingCost": 50.4,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 200.4,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": true
+        },
+        {
+          "vehicleId": "V03",
+          "stopOrder": [
+            "S09",
+            "S07",
+            "S08"
+          ],
+          "routeGeometryId": "FLEET_BASELINE-V03",
+          "roadDistanceKm": 2.446,
+          "roadTravelMinutes": 293,
+          "roadSegmentIds": [
+            259812647,
+            1483343601,
+            1396742348,
+            1366664104
+          ],
+          "planDistanceKm": 24,
+          "planDrivingMinutes": 48,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 1,
+            "vehicleFixedCost": 180,
+            "drivingCost": 84,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 264,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": true
+        }
+      ]
+    },
+    {
+      "planId": "FLEET_ADJUSTED",
+      "scenarioId": "city-delivery-geo-hangzhou-xixi-001",
+      "totals": {
+        "vehicleCount": 2,
+        "distanceKm": 38,
+        "drivingMinutes": 76,
+        "totalDurationMinutes": 70,
+        "currency": "CNY",
+        "vehicleFixedCost": 330,
+        "drivingCost": 120.4,
+        "extraHandlingMoves": 0,
+        "extraHandlingCost": 0,
+        "totalCost": 450.4
+      },
+      "routes": [
+        {
+          "vehicleId": "V01",
+          "stopOrder": [],
+          "routeGeometryId": "FLEET_ADJUSTED-V01",
+          "roadDistanceKm": 0,
+          "roadTravelMinutes": 0,
+          "roadSegmentIds": [],
+          "planDistanceKm": 0,
+          "planDrivingMinutes": 0,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 0,
+            "vehicleFixedCost": 0,
+            "drivingCost": 0,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 0,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": false
+        },
+        {
+          "vehicleId": "V02",
+          "stopOrder": [
+            "S03",
+            "S06",
+            "S08",
+            "S07"
+          ],
+          "routeGeometryId": "FLEET_ADJUSTED-V02",
+          "roadDistanceKm": 2.193,
+          "roadTravelMinutes": 263,
+          "roadSegmentIds": [
+            259812647,
+            1056558297,
+            1366664104,
+            1396742348,
+            1483343601
+          ],
+          "planDistanceKm": 18,
+          "planDrivingMinutes": 36,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 1,
+            "vehicleFixedCost": 150,
+            "drivingCost": 50.4,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 200.4,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": true
+        },
+        {
+          "vehicleId": "V03",
+          "stopOrder": [
+            "S09",
+            "S05",
+            "S04",
+            "S02",
+            "S01"
+          ],
+          "routeGeometryId": "FLEET_ADJUSTED-V03",
+          "roadDistanceKm": 2.52,
+          "roadTravelMinutes": 302,
+          "roadSegmentIds": [
+            259812647,
+            1483343601,
+            1396742348,
+            1366664104,
+            1056558297
+          ],
+          "planDistanceKm": 20,
+          "planDrivingMinutes": 40,
+          "costs": {
+            "currency": "CNY",
+            "vehicleCount": 1,
+            "vehicleFixedCost": 180,
+            "drivingCost": 70,
+            "extraHandlingMoves": 0,
+            "extraHandlingCost": 0,
+            "waitingCost": 0,
+            "totalCost": 250,
+            "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+          },
+          "active": true
+        }
+      ]
+    }
+  ]
+}

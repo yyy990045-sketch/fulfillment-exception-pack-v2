@@ -1,0 +1,6829 @@
+{
+  "exportVersion": "2G-1.0",
+  "exportedAt": "2026-10-11T02:06:29.008Z",
+  "scenario": {
+    "scenarioId": "city-delivery-holdout-010",
+    "name": "保留验证 · 十店异构车辆场景",
+    "source": {
+      "dataType": "synthetic",
+      "name": "Phase 2G reserved holdout",
+      "description": "在算法对照生成后保留的独立合成验证输入；不是传化企业数据。",
+      "license": "project-owned-synthetic",
+      "authorization": "项目内验证授权。"
+    },
+    "warehouse": {
+      "stopId": "DEPOT",
+      "name": "城市配送中心仓",
+      "x": 0,
+      "y": 0
+    },
+    "stops": [
+      {
+        "stopId": "S01",
+        "name": "配送门店 01",
+        "x": 1,
+        "y": 1,
+        "color": "#57B8F2",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "09:20"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S02",
+        "name": "配送门店 02",
+        "x": 2,
+        "y": 1,
+        "color": "#C2A3EE",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "09:20"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S03",
+        "name": "配送门店 03",
+        "x": 1,
+        "y": 2,
+        "color": "#E7AC66",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "09:20"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S04",
+        "name": "配送门店 04",
+        "x": 4,
+        "y": 1,
+        "color": "#65CEAB",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S05",
+        "name": "配送门店 05",
+        "x": 5,
+        "y": 2,
+        "color": "#EF8197",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S06",
+        "name": "配送门店 06",
+        "x": 4,
+        "y": 3,
+        "color": "#8EC86F",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S07",
+        "name": "配送门店 07",
+        "x": 1,
+        "y": 5,
+        "color": "#7ABED0",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S08",
+        "name": "配送门店 08",
+        "x": 3,
+        "y": 5,
+        "color": "#AF99D6",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S09",
+        "name": "配送门店 09",
+        "x": 5,
+        "y": 5,
+        "color": "#E3C174",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:00"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S10",
+        "name": "保留门店 10",
+        "x": 5,
+        "y": 4,
+        "color": "#D68A78",
+        "address": "保留街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "11:30"
+        },
+        "serviceDurationMinutes": 7
+      }
+    ],
+    "cargo": [
+      {
+        "cargoId": "H-01-1",
+        "orderId": "H-ORDER-01",
+        "stopId": "S01",
+        "name": "保留验证包装件",
+        "length": 0.62,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 15.5,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#57B8F2",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "H-01-2",
+        "orderId": "H-ORDER-01",
+        "stopId": "S01",
+        "name": "保留验证包装件",
+        "length": 0.68,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 17.7,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#57B8F2",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-02-1",
+        "orderId": "H-ORDER-02",
+        "stopId": "S02",
+        "name": "保留验证包装件",
+        "length": 0.74,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 16.9,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#C2A3EE",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-02-2",
+        "orderId": "H-ORDER-02",
+        "stopId": "S02",
+        "name": "保留验证包装件",
+        "length": 0.8,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 19.1,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#C2A3EE",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-03-1",
+        "orderId": "H-ORDER-03",
+        "stopId": "S03",
+        "name": "保留验证包装件",
+        "length": 0.86,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 18.3,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E7AC66",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-03-2",
+        "orderId": "H-ORDER-03",
+        "stopId": "S03",
+        "name": "保留验证包装件",
+        "length": 0.92,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 20.5,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E7AC66",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-04-1",
+        "orderId": "H-ORDER-04",
+        "stopId": "S04",
+        "name": "保留验证包装件",
+        "length": 0.62,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 19.7,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#65CEAB",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-04-2",
+        "orderId": "H-ORDER-04",
+        "stopId": "S04",
+        "name": "保留验证包装件",
+        "length": 0.68,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 21.9,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#65CEAB",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-05-1",
+        "orderId": "H-ORDER-05",
+        "stopId": "S05",
+        "name": "保留验证包装件",
+        "length": 0.74,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 21.1,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#EF8197",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-05-2",
+        "orderId": "H-ORDER-05",
+        "stopId": "S05",
+        "name": "保留验证包装件",
+        "length": 0.8,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 23.3,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#EF8197",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "H-06-1",
+        "orderId": "H-ORDER-06",
+        "stopId": "S06",
+        "name": "保留验证包装件",
+        "length": 0.86,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 22.5,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#8EC86F",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "H-06-2",
+        "orderId": "H-ORDER-06",
+        "stopId": "S06",
+        "name": "保留验证包装件",
+        "length": 0.92,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 24.7,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#8EC86F",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-07-1",
+        "orderId": "H-ORDER-07",
+        "stopId": "S07",
+        "name": "保留验证包装件",
+        "length": 0.62,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 23.9,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#7ABED0",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-07-2",
+        "orderId": "H-ORDER-07",
+        "stopId": "S07",
+        "name": "保留验证包装件",
+        "length": 0.68,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 26.1,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#7ABED0",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-08-1",
+        "orderId": "H-ORDER-08",
+        "stopId": "S08",
+        "name": "保留验证包装件",
+        "length": 0.74,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 25.3,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#AF99D6",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-08-2",
+        "orderId": "H-ORDER-08",
+        "stopId": "S08",
+        "name": "保留验证包装件",
+        "length": 0.8,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 27.5,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#AF99D6",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-09-1",
+        "orderId": "H-ORDER-09",
+        "stopId": "S09",
+        "name": "保留验证包装件",
+        "length": 0.86,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 26.7,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E3C174",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-09-2",
+        "orderId": "H-ORDER-09",
+        "stopId": "S09",
+        "name": "保留验证包装件",
+        "length": 0.92,
+        "width": 0.5,
+        "height": 0.62,
+        "weightKg": 28.9,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E3C174",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-10-1",
+        "orderId": "H-ORDER-10",
+        "stopId": "S10",
+        "name": "保留验证包装件",
+        "length": 0.62,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 28.1,
+        "fragile": false,
+        "maxTopLoadKg": 28,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#D68A78",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 28 kg"
+        ]
+      },
+      {
+        "cargoId": "H-10-2",
+        "orderId": "H-ORDER-10",
+        "stopId": "S10",
+        "name": "保留验证包装件",
+        "length": 0.68,
+        "width": 0.58,
+        "height": 0.62,
+        "weightKg": 30.3,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#D68A78",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      }
+    ],
+    "vehicles": [
+      {
+        "vehicleId": "H-V01",
+        "name": "保留厢式车",
+        "maxPayloadKg": 300,
+        "compartment": {
+          "length": 5.2,
+          "width": 1.9,
+          "height": 2
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 5.2,
+          "xMin": 0,
+          "xMax": 1.9,
+          "yMin": 0,
+          "yMax": 2
+        },
+        "costs": {
+          "vehicleFixedCost": 70,
+          "drivingCostPerKm": 5.2
+        }
+      },
+      {
+        "vehicleId": "H-V02",
+        "name": "中型厢式车",
+        "maxPayloadKg": 420,
+        "compartment": {
+          "length": 6.6,
+          "width": 2.2,
+          "height": 2.1
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 6.6,
+          "xMin": 0,
+          "xMax": 2.2,
+          "yMin": 0,
+          "yMax": 2.1
+        },
+        "costs": {
+          "vehicleFixedCost": 92,
+          "drivingCostPerKm": 5.8
+        }
+      },
+      {
+        "vehicleId": "H-V03",
+        "name": "长厢配送车",
+        "maxPayloadKg": 560,
+        "compartment": {
+          "length": 8,
+          "width": 2.45,
+          "height": 2.3
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 8,
+          "xMin": 0,
+          "xMax": 2.45,
+          "yMin": 0,
+          "yMax": 2.3
+        },
+        "costs": {
+          "vehicleFixedCost": 118,
+          "drivingCostPerKm": 6.3
+        }
+      }
+    ],
+    "departureTime": "08:00",
+    "routing": {
+      "nodeIds": [
+        "DEPOT",
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "S10"
+      ],
+      "distanceMatrixKm": [
+        [
+          0,
+          2,
+          3,
+          3,
+          5,
+          7,
+          7,
+          6,
+          8,
+          10,
+          9
+        ],
+        [
+          2,
+          0,
+          1,
+          1,
+          3,
+          5,
+          5,
+          4,
+          6,
+          8,
+          7
+        ],
+        [
+          3,
+          1,
+          0,
+          2,
+          2,
+          4,
+          4,
+          5,
+          5,
+          7,
+          6
+        ],
+        [
+          3,
+          1,
+          2,
+          0,
+          4,
+          4,
+          4,
+          3,
+          5,
+          7,
+          6
+        ],
+        [
+          5,
+          3,
+          2,
+          4,
+          0,
+          2,
+          2,
+          7,
+          5,
+          5,
+          4
+        ],
+        [
+          7,
+          5,
+          4,
+          4,
+          2,
+          0,
+          2,
+          7,
+          5,
+          3,
+          2
+        ],
+        [
+          7,
+          5,
+          4,
+          4,
+          2,
+          2,
+          0,
+          5,
+          3,
+          3,
+          2
+        ],
+        [
+          6,
+          4,
+          5,
+          3,
+          7,
+          7,
+          5,
+          0,
+          2,
+          4,
+          5
+        ],
+        [
+          8,
+          6,
+          5,
+          5,
+          5,
+          5,
+          3,
+          2,
+          0,
+          2,
+          3
+        ],
+        [
+          10,
+          8,
+          7,
+          7,
+          5,
+          3,
+          3,
+          4,
+          2,
+          0,
+          1
+        ],
+        [
+          9,
+          7,
+          6,
+          6,
+          4,
+          2,
+          2,
+          5,
+          3,
+          1,
+          0
+        ]
+      ],
+      "travelTimeMatrixMinutes": [
+        [
+          0,
+          4,
+          6,
+          6,
+          10,
+          14,
+          14,
+          12,
+          16,
+          20,
+          18
+        ],
+        [
+          4,
+          0,
+          2,
+          2,
+          6,
+          10,
+          10,
+          8,
+          12,
+          16,
+          14
+        ],
+        [
+          6,
+          2,
+          0,
+          4,
+          4,
+          8,
+          8,
+          10,
+          10,
+          14,
+          12
+        ],
+        [
+          6,
+          2,
+          4,
+          0,
+          8,
+          8,
+          8,
+          6,
+          10,
+          14,
+          12
+        ],
+        [
+          10,
+          6,
+          4,
+          8,
+          0,
+          4,
+          4,
+          14,
+          10,
+          10,
+          8
+        ],
+        [
+          14,
+          10,
+          8,
+          8,
+          4,
+          0,
+          4,
+          14,
+          10,
+          6,
+          4
+        ],
+        [
+          14,
+          10,
+          8,
+          8,
+          4,
+          4,
+          0,
+          10,
+          6,
+          6,
+          4
+        ],
+        [
+          12,
+          8,
+          10,
+          6,
+          14,
+          14,
+          10,
+          0,
+          4,
+          8,
+          10
+        ],
+        [
+          16,
+          12,
+          10,
+          10,
+          10,
+          10,
+          6,
+          4,
+          0,
+          4,
+          6
+        ],
+        [
+          20,
+          16,
+          14,
+          14,
+          10,
+          6,
+          6,
+          8,
+          4,
+          0,
+          2
+        ],
+        [
+          18,
+          14,
+          12,
+          12,
+          8,
+          4,
+          4,
+          10,
+          6,
+          2,
+          0
+        ]
+      ],
+      "returnToDepot": true,
+      "timeWindowRule": "服务开始须处于时间窗；提前到店等待。"
+    },
+    "costs": {
+      "currency": "CNY",
+      "waitingCostPerMinute": 0,
+      "extraHandlingCostPerCargoMove": 5
+    },
+    "schemaVersion": "3.0.0",
+    "units": {
+      "dimensions": "m",
+      "weight": "kg",
+      "distance": "km",
+      "time": "minutes",
+      "currency": "CNY"
+    },
+    "rules": {
+      "extraction": "rear-door-straight-positive-z",
+      "allowExtraHandling": false,
+      "minimumSupportRatio": 1,
+      "fragileRule": "no-load-on-fragile",
+      "maxRouteDurationMinutes": 480,
+      "supportRule": "full-footprint",
+      "timeWindowRule": "service-start",
+      "loadBearingRule": "area-proportional"
+    },
+    "orders": [
+      {
+        "orderId": "H-ORDER-01",
+        "stopId": "S01",
+        "cargoIds": [
+          "H-01-1",
+          "H-01-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-02",
+        "stopId": "S02",
+        "cargoIds": [
+          "H-02-1",
+          "H-02-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-03",
+        "stopId": "S03",
+        "cargoIds": [
+          "H-03-1",
+          "H-03-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-04",
+        "stopId": "S04",
+        "cargoIds": [
+          "H-04-1",
+          "H-04-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-05",
+        "stopId": "S05",
+        "cargoIds": [
+          "H-05-1",
+          "H-05-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-06",
+        "stopId": "S06",
+        "cargoIds": [
+          "H-06-1",
+          "H-06-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-07",
+        "stopId": "S07",
+        "cargoIds": [
+          "H-07-1",
+          "H-07-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-08",
+        "stopId": "S08",
+        "cargoIds": [
+          "H-08-1",
+          "H-08-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-09",
+        "stopId": "S09",
+        "cargoIds": [
+          "H-09-1",
+          "H-09-2"
+        ]
+      },
+      {
+        "orderId": "H-ORDER-10",
+        "stopId": "S10",
+        "cargoIds": [
+          "H-10-1",
+          "H-10-2"
+        ]
+      }
+    ],
+    "uncheckedConstraints": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ]
+  },
+  "plan": {
+    "planId": "PLAN-118f80e3e819",
+    "scenarioId": "city-delivery-holdout-010",
+    "routes": [
+      {
+        "planId": "PLAN-118f80e3e819",
+        "scenarioId": "city-delivery-holdout-010",
+        "vehicleId": "H-V01",
+        "stopOrder": [
+          "S02",
+          "S01"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S02",
+          "S01",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S02",
+            "sequence": 1,
+            "arrivalTime": "08:06",
+            "serviceStartTime": "08:06",
+            "departureTime": "08:12",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "09:20"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S01",
+            "sequence": 2,
+            "arrivalTime": "08:14",
+            "serviceStartTime": "08:14",
+            "departureTime": "08:20",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "09:20"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S02",
+            "distanceKm": 3,
+            "travelMinutes": 6,
+            "departureTime": "08:00",
+            "arrivalTime": "08:06"
+          },
+          {
+            "fromStopId": "S02",
+            "toStopId": "S01",
+            "distanceKm": 1,
+            "travelMinutes": 2,
+            "departureTime": "08:12",
+            "arrivalTime": "08:14"
+          },
+          {
+            "fromStopId": "S01",
+            "toStopId": "DEPOT",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:20",
+            "arrivalTime": "08:24"
+          }
+        ],
+        "distanceKm": 6,
+        "drivingMinutes": 12,
+        "waitingMinutes": 0,
+        "serviceMinutes": 12,
+        "totalDurationMinutes": 24,
+        "returnTime": "08:24",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S02",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S01",
+              "sequence": 2,
+              "arrivalTime": "08:14",
+              "serviceStartTime": "08:14",
+              "departureTime": "08:20",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 70,
+          "drivingCost": 31.2,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 101.2,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "H-01-1",
+          "H-01-2",
+          "H-02-1",
+          "H-02-2"
+        ],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 69.2,
+          "maxPayloadKg": 300,
+          "totalCargoVolumeM3": 0.956784,
+          "compartmentVolumeM3": 19.76,
+          "cargoChecks": {
+            "H-01-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 0,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-01-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-02-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-02-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            }
+          }
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V01",
+          "positions": [
+            {
+              "cargoId": "H-01-1",
+              "stopId": "S01",
+              "vehicleId": "H-V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.5,
+              "width": 0.62,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-01-2",
+              "stopId": "S01",
+              "vehicleId": "H-V01",
+              "x": 0.82,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.5,
+              "width": 0.68,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-02-1",
+              "stopId": "S02",
+              "vehicleId": "H-V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.75,
+              "length": 0.58,
+              "width": 0.74,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-02-2",
+              "stopId": "S02",
+              "vehicleId": "H-V01",
+              "x": 0.94,
+              "y": 0,
+              "z": 0.75,
+              "length": 0.58,
+              "width": 0.8,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        "unloading": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V01",
+          "stopOrder": [
+            "S02",
+            "S01"
+          ],
+          "initialRemainingCargoIds": [
+            "H-01-1",
+            "H-01-2",
+            "H-02-1",
+            "H-02-2"
+          ],
+          "stations": [
+            {
+              "stopId": "S02",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "targetCargoIds": [
+                "H-02-1",
+                "H-02-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V01-U001",
+                "PLAN-118f80e3e819-H-V01-U002",
+                "PLAN-118f80e3e819-H-V01-U003",
+                "PLAN-118f80e3e819-H-V01-U004",
+                "PLAN-118f80e3e819-H-V01-U005",
+                "PLAN-118f80e3e819-H-V01-U006"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ]
+            },
+            {
+              "stopId": "S01",
+              "sequence": 2,
+              "arrivalTime": "08:14",
+              "serviceStartTime": "08:14",
+              "targetCargoIds": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V01-U007",
+                "PLAN-118f80e3e819-H-V01-U008",
+                "PLAN-118f80e3e819-H-V01-U009",
+                "PLAN-118f80e3e819-H-V01-U010",
+                "PLAN-118f80e3e819-H-V01-U011",
+                "PLAN-118f80e3e819-H-V01-U012"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": []
+            }
+          ],
+          "steps": [
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U001",
+              "sequence": 1,
+              "stopId": "S02",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "highlightCargoIds": [
+                "H-02-1",
+                "H-02-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U002",
+              "sequence": 2,
+              "stopId": "S02",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "cargoId": "H-02-1",
+              "highlightCargoIds": [
+                "H-02-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-02-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U003",
+              "sequence": 3,
+              "stopId": "S02",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-2"
+              ],
+              "cargoId": "H-02-1",
+              "highlightCargoIds": [
+                "H-02-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.75
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-02-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U004",
+              "sequence": 4,
+              "stopId": "S02",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-2"
+              ],
+              "cargoId": "H-02-2",
+              "highlightCargoIds": [
+                "H-02-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-02-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U005",
+              "sequence": 5,
+              "stopId": "S02",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "cargoId": "H-02-2",
+              "highlightCargoIds": [
+                "H-02-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 0.75
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-02-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U006",
+              "sequence": 6,
+              "stopId": "S02",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U007",
+              "sequence": 7,
+              "stopId": "S01",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "highlightCargoIds": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U008",
+              "sequence": 8,
+              "stopId": "S01",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "cargoId": "H-01-1",
+              "highlightCargoIds": [
+                "H-01-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-01-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U009",
+              "sequence": 9,
+              "stopId": "S01",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-2"
+              ],
+              "cargoId": "H-01-1",
+              "highlightCargoIds": [
+                "H-01-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-01-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U010",
+              "sequence": 10,
+              "stopId": "S01",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-01-2"
+              ],
+              "cargoId": "H-01-2",
+              "highlightCargoIds": [
+                "H-01-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-01-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U011",
+              "sequence": 11,
+              "stopId": "S01",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-01-2"
+              ],
+              "remainingCargoIdsAfter": [],
+              "cargoId": "H-01-2",
+              "highlightCargoIds": [
+                "H-01-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-01-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-U012",
+              "sequence": 12,
+              "stopId": "S01",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [],
+              "remainingCargoIdsAfter": [],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V01"
+            }
+          ],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "city-delivery-holdout-010",
+          "loadingSteps": [
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-L001",
+              "operation": "load",
+              "cargoId": "H-01-1",
+              "stopId": "S01",
+              "loadedCargoIdsBefore": [],
+              "loadedCargoIdsAfter": [
+                "H-01-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-L002",
+              "operation": "load",
+              "cargoId": "H-01-2",
+              "stopId": "S01",
+              "loadedCargoIdsBefore": [
+                "H-01-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-L003",
+              "operation": "load",
+              "cargoId": "H-02-1",
+              "stopId": "S02",
+              "loadedCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.75
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V01"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V01-L004",
+              "operation": "load",
+              "cargoId": "H-02-2",
+              "stopId": "S02",
+              "loadedCargoIdsBefore": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-01-1",
+                "H-01-2",
+                "H-02-1",
+                "H-02-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 5.45
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 0.75
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V01"
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": [
+            {
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S02",
+              "method": "floor-2-columns-yaw-90"
+            }
+          ]
+        },
+        "active": true,
+        "status": "scheduled"
+      },
+      {
+        "planId": "PLAN-118f80e3e819",
+        "scenarioId": "city-delivery-holdout-010",
+        "vehicleId": "H-V02",
+        "stopOrder": [
+          "S03",
+          "S07",
+          "S08",
+          "S09",
+          "S10",
+          "S06",
+          "S05",
+          "S04"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S03",
+          "S07",
+          "S08",
+          "S09",
+          "S10",
+          "S06",
+          "S05",
+          "S04",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S03",
+            "sequence": 1,
+            "arrivalTime": "08:06",
+            "serviceStartTime": "08:06",
+            "departureTime": "08:12",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "09:20"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S07",
+            "sequence": 2,
+            "arrivalTime": "08:18",
+            "serviceStartTime": "08:18",
+            "departureTime": "08:24",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S08",
+            "sequence": 3,
+            "arrivalTime": "08:28",
+            "serviceStartTime": "08:28",
+            "departureTime": "08:34",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S09",
+            "sequence": 4,
+            "arrivalTime": "08:38",
+            "serviceStartTime": "08:38",
+            "departureTime": "08:44",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S10",
+            "sequence": 5,
+            "arrivalTime": "08:46",
+            "serviceStartTime": "08:46",
+            "departureTime": "08:53",
+            "serviceDurationMinutes": 7,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "11:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S06",
+            "sequence": 6,
+            "arrivalTime": "08:57",
+            "serviceStartTime": "08:57",
+            "departureTime": "09:03",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S05",
+            "sequence": 7,
+            "arrivalTime": "09:07",
+            "serviceStartTime": "09:07",
+            "departureTime": "09:13",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S04",
+            "sequence": 8,
+            "arrivalTime": "09:17",
+            "serviceStartTime": "09:17",
+            "departureTime": "09:23",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:00"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S03",
+            "distanceKm": 3,
+            "travelMinutes": 6,
+            "departureTime": "08:00",
+            "arrivalTime": "08:06"
+          },
+          {
+            "fromStopId": "S03",
+            "toStopId": "S07",
+            "distanceKm": 3,
+            "travelMinutes": 6,
+            "departureTime": "08:12",
+            "arrivalTime": "08:18"
+          },
+          {
+            "fromStopId": "S07",
+            "toStopId": "S08",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:24",
+            "arrivalTime": "08:28"
+          },
+          {
+            "fromStopId": "S08",
+            "toStopId": "S09",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:34",
+            "arrivalTime": "08:38"
+          },
+          {
+            "fromStopId": "S09",
+            "toStopId": "S10",
+            "distanceKm": 1,
+            "travelMinutes": 2,
+            "departureTime": "08:44",
+            "arrivalTime": "08:46"
+          },
+          {
+            "fromStopId": "S10",
+            "toStopId": "S06",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:53",
+            "arrivalTime": "08:57"
+          },
+          {
+            "fromStopId": "S06",
+            "toStopId": "S05",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "09:03",
+            "arrivalTime": "09:07"
+          },
+          {
+            "fromStopId": "S05",
+            "toStopId": "S04",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "09:13",
+            "arrivalTime": "09:17"
+          },
+          {
+            "fromStopId": "S04",
+            "toStopId": "DEPOT",
+            "distanceKm": 5,
+            "travelMinutes": 10,
+            "departureTime": "09:23",
+            "arrivalTime": "09:33"
+          }
+        ],
+        "distanceKm": 22,
+        "drivingMinutes": 44,
+        "waitingMinutes": 0,
+        "serviceMinutes": 49,
+        "totalDurationMinutes": 93,
+        "returnTime": "09:33",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "09:20"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S07",
+              "sequence": 2,
+              "arrivalTime": "08:18",
+              "serviceStartTime": "08:18",
+              "departureTime": "08:24",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S08",
+              "sequence": 3,
+              "arrivalTime": "08:28",
+              "serviceStartTime": "08:28",
+              "departureTime": "08:34",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S09",
+              "sequence": 4,
+              "arrivalTime": "08:38",
+              "serviceStartTime": "08:38",
+              "departureTime": "08:44",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S10",
+              "sequence": 5,
+              "arrivalTime": "08:46",
+              "serviceStartTime": "08:46",
+              "departureTime": "08:53",
+              "serviceDurationMinutes": 7,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "11:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S06",
+              "sequence": 6,
+              "arrivalTime": "08:57",
+              "serviceStartTime": "08:57",
+              "departureTime": "09:03",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S05",
+              "sequence": 7,
+              "arrivalTime": "09:07",
+              "serviceStartTime": "09:07",
+              "departureTime": "09:13",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S04",
+              "sequence": 8,
+              "arrivalTime": "09:17",
+              "serviceStartTime": "09:17",
+              "departureTime": "09:23",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:00"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 92,
+          "drivingCost": 127.6,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 219.6,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "H-03-1",
+          "H-03-2",
+          "H-04-1",
+          "H-04-2",
+          "H-05-1",
+          "H-05-2",
+          "H-06-1",
+          "H-06-2",
+          "H-07-1",
+          "H-07-2",
+          "H-08-1",
+          "H-08-2",
+          "H-09-1",
+          "H-09-2",
+          "H-10-1",
+          "H-10-2"
+        ],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 388.8,
+          "maxPayloadKg": 420,
+          "totalCargoVolumeM3": 4.112832,
+          "compartmentVolumeM3": 30.492,
+          "cargoChecks": {
+            "H-04-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-04-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-05-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-05-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 0,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-06-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 0,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-06-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-10-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-10-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 0,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-09-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-09-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-08-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-08-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-07-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-07-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-03-1": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            },
+            "H-03-2": {
+              "boundaryValid": true,
+              "collisionFree": true,
+              "overlappingCargoIds": [],
+              "orientationValid": true,
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "fragileValid": true,
+              "supportedCargoIds": [],
+              "topLoadKg": 0,
+              "maxTopLoadKg": 28,
+              "loadBearingValid": true,
+              "valid": true
+            }
+          }
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V02",
+          "positions": [
+            {
+              "cargoId": "H-04-1",
+              "stopId": "S04",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.58,
+              "width": 0.62,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-04-2",
+              "stopId": "S04",
+              "vehicleId": "H-V02",
+              "x": 0.82,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.58,
+              "width": 0.68,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-05-1",
+              "stopId": "S05",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.83,
+              "length": 0.5,
+              "width": 0.74,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-05-2",
+              "stopId": "S05",
+              "vehicleId": "H-V02",
+              "x": 0.94,
+              "y": 0,
+              "z": 0.83,
+              "length": 0.5,
+              "width": 0.8,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-06-1",
+              "stopId": "S06",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.48,
+              "length": 0.58,
+              "width": 0.86,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "vehicleId": "H-V02",
+              "x": 1.06,
+              "y": 0,
+              "z": 1.48,
+              "length": 0.58,
+              "width": 0.92,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-10-1",
+              "stopId": "S10",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.21,
+              "length": 0.58,
+              "width": 0.62,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-10-2",
+              "stopId": "S10",
+              "vehicleId": "H-V02",
+              "x": 0.82,
+              "y": 0,
+              "z": 2.21,
+              "length": 0.58,
+              "width": 0.68,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-09-1",
+              "stopId": "S09",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.94,
+              "length": 0.5,
+              "width": 0.86,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "vehicleId": "H-V02",
+              "x": 1.06,
+              "y": 0,
+              "z": 2.94,
+              "length": 0.5,
+              "width": 0.92,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-08-1",
+              "stopId": "S08",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 3.59,
+              "length": 0.58,
+              "width": 0.74,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-08-2",
+              "stopId": "S08",
+              "vehicleId": "H-V02",
+              "x": 0.94,
+              "y": 0,
+              "z": 3.59,
+              "length": 0.58,
+              "width": 0.8,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-07-1",
+              "stopId": "S07",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 4.32,
+              "length": 0.5,
+              "width": 0.62,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-07-2",
+              "stopId": "S07",
+              "vehicleId": "H-V02",
+              "x": 0.82,
+              "y": 0,
+              "z": 4.32,
+              "length": 0.5,
+              "width": 0.68,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-03-1",
+              "stopId": "S03",
+              "vehicleId": "H-V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 4.97,
+              "length": 0.5,
+              "width": 0.86,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "H-03-2",
+              "stopId": "S03",
+              "vehicleId": "H-V02",
+              "x": 1.06,
+              "y": 0,
+              "z": 4.97,
+              "length": 0.5,
+              "width": 0.92,
+              "height": 0.62,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [],
+                "topLoadKg": 0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        "unloading": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V02",
+          "stopOrder": [
+            "S03",
+            "S07",
+            "S08",
+            "S09",
+            "S10",
+            "S06",
+            "S05",
+            "S04"
+          ],
+          "initialRemainingCargoIds": [
+            "H-03-1",
+            "H-03-2",
+            "H-04-1",
+            "H-04-2",
+            "H-05-1",
+            "H-05-2",
+            "H-06-1",
+            "H-06-2",
+            "H-07-1",
+            "H-07-2",
+            "H-08-1",
+            "H-08-2",
+            "H-09-1",
+            "H-09-2",
+            "H-10-1",
+            "H-10-2"
+          ],
+          "stations": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "targetCargoIds": [
+                "H-03-1",
+                "H-03-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U001",
+                "PLAN-118f80e3e819-H-V02-U002",
+                "PLAN-118f80e3e819-H-V02-U003",
+                "PLAN-118f80e3e819-H-V02-U004",
+                "PLAN-118f80e3e819-H-V02-U005",
+                "PLAN-118f80e3e819-H-V02-U006"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ]
+            },
+            {
+              "stopId": "S07",
+              "sequence": 2,
+              "arrivalTime": "08:18",
+              "serviceStartTime": "08:18",
+              "targetCargoIds": [
+                "H-07-1",
+                "H-07-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U007",
+                "PLAN-118f80e3e819-H-V02-U008",
+                "PLAN-118f80e3e819-H-V02-U009",
+                "PLAN-118f80e3e819-H-V02-U010",
+                "PLAN-118f80e3e819-H-V02-U011",
+                "PLAN-118f80e3e819-H-V02-U012"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ]
+            },
+            {
+              "stopId": "S08",
+              "sequence": 3,
+              "arrivalTime": "08:28",
+              "serviceStartTime": "08:28",
+              "targetCargoIds": [
+                "H-08-1",
+                "H-08-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U013",
+                "PLAN-118f80e3e819-H-V02-U014",
+                "PLAN-118f80e3e819-H-V02-U015",
+                "PLAN-118f80e3e819-H-V02-U016",
+                "PLAN-118f80e3e819-H-V02-U017",
+                "PLAN-118f80e3e819-H-V02-U018"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ]
+            },
+            {
+              "stopId": "S09",
+              "sequence": 4,
+              "arrivalTime": "08:38",
+              "serviceStartTime": "08:38",
+              "targetCargoIds": [
+                "H-09-1",
+                "H-09-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U019",
+                "PLAN-118f80e3e819-H-V02-U020",
+                "PLAN-118f80e3e819-H-V02-U021",
+                "PLAN-118f80e3e819-H-V02-U022",
+                "PLAN-118f80e3e819-H-V02-U023",
+                "PLAN-118f80e3e819-H-V02-U024"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ]
+            },
+            {
+              "stopId": "S10",
+              "sequence": 5,
+              "arrivalTime": "08:46",
+              "serviceStartTime": "08:46",
+              "targetCargoIds": [
+                "H-10-1",
+                "H-10-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U025",
+                "PLAN-118f80e3e819-H-V02-U026",
+                "PLAN-118f80e3e819-H-V02-U027",
+                "PLAN-118f80e3e819-H-V02-U028",
+                "PLAN-118f80e3e819-H-V02-U029",
+                "PLAN-118f80e3e819-H-V02-U030"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ]
+            },
+            {
+              "stopId": "S06",
+              "sequence": 6,
+              "arrivalTime": "08:57",
+              "serviceStartTime": "08:57",
+              "targetCargoIds": [
+                "H-06-1",
+                "H-06-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U031",
+                "PLAN-118f80e3e819-H-V02-U032",
+                "PLAN-118f80e3e819-H-V02-U033",
+                "PLAN-118f80e3e819-H-V02-U034",
+                "PLAN-118f80e3e819-H-V02-U035",
+                "PLAN-118f80e3e819-H-V02-U036"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ]
+            },
+            {
+              "stopId": "S05",
+              "sequence": 7,
+              "arrivalTime": "09:07",
+              "serviceStartTime": "09:07",
+              "targetCargoIds": [
+                "H-05-1",
+                "H-05-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U037",
+                "PLAN-118f80e3e819-H-V02-U038",
+                "PLAN-118f80e3e819-H-V02-U039",
+                "PLAN-118f80e3e819-H-V02-U040",
+                "PLAN-118f80e3e819-H-V02-U041",
+                "PLAN-118f80e3e819-H-V02-U042"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ]
+            },
+            {
+              "stopId": "S04",
+              "sequence": 8,
+              "arrivalTime": "09:17",
+              "serviceStartTime": "09:17",
+              "targetCargoIds": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "stepIds": [
+                "PLAN-118f80e3e819-H-V02-U043",
+                "PLAN-118f80e3e819-H-V02-U044",
+                "PLAN-118f80e3e819-H-V02-U045",
+                "PLAN-118f80e3e819-H-V02-U046",
+                "PLAN-118f80e3e819-H-V02-U047",
+                "PLAN-118f80e3e819-H-V02-U048"
+              ],
+              "conflicts": [],
+              "extraHandlingMoves": 0,
+              "extraHandlingCost": 0,
+              "remainingCargoIdsAtArrival": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "status": "completed",
+              "canUnloadDirectly": true,
+              "checked": true,
+              "remainingCargoIdsAfter": []
+            }
+          ],
+          "steps": [
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U001",
+              "sequence": 1,
+              "stopId": "S03",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [
+                "H-03-1",
+                "H-03-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U002",
+              "sequence": 2,
+              "stopId": "S03",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-03-1",
+              "highlightCargoIds": [
+                "H-03-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-03-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U003",
+              "sequence": 3,
+              "stopId": "S03",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-03-1",
+              "highlightCargoIds": [
+                "H-03-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 4.97
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-03-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U004",
+              "sequence": 4,
+              "stopId": "S03",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-03-2",
+              "highlightCargoIds": [
+                "H-03-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-03-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U005",
+              "sequence": 5,
+              "stopId": "S03",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-03-2",
+              "highlightCargoIds": [
+                "H-03-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 4.97
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-03-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U006",
+              "sequence": 6,
+              "stopId": "S03",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U007",
+              "sequence": 7,
+              "stopId": "S07",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [
+                "H-07-1",
+                "H-07-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U008",
+              "sequence": 8,
+              "stopId": "S07",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-07-1",
+              "highlightCargoIds": [
+                "H-07-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-07-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U009",
+              "sequence": 9,
+              "stopId": "S07",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-07-1",
+              "highlightCargoIds": [
+                "H-07-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 4.32
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-07-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U010",
+              "sequence": 10,
+              "stopId": "S07",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-07-2",
+              "highlightCargoIds": [
+                "H-07-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-07-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U011",
+              "sequence": 11,
+              "stopId": "S07",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-07-2",
+              "highlightCargoIds": [
+                "H-07-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 4.32
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-07-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U012",
+              "sequence": 12,
+              "stopId": "S07",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U013",
+              "sequence": 13,
+              "stopId": "S08",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [
+                "H-08-1",
+                "H-08-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U014",
+              "sequence": 14,
+              "stopId": "S08",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-08-1",
+              "highlightCargoIds": [
+                "H-08-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-08-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U015",
+              "sequence": 15,
+              "stopId": "S08",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-08-1",
+              "highlightCargoIds": [
+                "H-08-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 3.59
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-08-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U016",
+              "sequence": 16,
+              "stopId": "S08",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-08-2",
+              "highlightCargoIds": [
+                "H-08-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-08-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U017",
+              "sequence": 17,
+              "stopId": "S08",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-08-2",
+              "highlightCargoIds": [
+                "H-08-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 3.59
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-08-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U018",
+              "sequence": 18,
+              "stopId": "S08",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U019",
+              "sequence": 19,
+              "stopId": "S09",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [
+                "H-09-1",
+                "H-09-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U020",
+              "sequence": 20,
+              "stopId": "S09",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-09-1",
+              "highlightCargoIds": [
+                "H-09-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-09-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U021",
+              "sequence": 21,
+              "stopId": "S09",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-09-1",
+              "highlightCargoIds": [
+                "H-09-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.94
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-09-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U022",
+              "sequence": 22,
+              "stopId": "S09",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-09-2",
+              "highlightCargoIds": [
+                "H-09-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-09-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U023",
+              "sequence": 23,
+              "stopId": "S09",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-09-2",
+              "highlightCargoIds": [
+                "H-09-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 2.94
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-09-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U024",
+              "sequence": 24,
+              "stopId": "S09",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U025",
+              "sequence": 25,
+              "stopId": "S10",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "highlightCargoIds": [
+                "H-10-1",
+                "H-10-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U026",
+              "sequence": 26,
+              "stopId": "S10",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "cargoId": "H-10-1",
+              "highlightCargoIds": [
+                "H-10-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-10-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U027",
+              "sequence": 27,
+              "stopId": "S10",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-2"
+              ],
+              "cargoId": "H-10-1",
+              "highlightCargoIds": [
+                "H-10-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.21
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-10-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U028",
+              "sequence": 28,
+              "stopId": "S10",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-2"
+              ],
+              "cargoId": "H-10-2",
+              "highlightCargoIds": [
+                "H-10-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-10-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U029",
+              "sequence": 29,
+              "stopId": "S10",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "cargoId": "H-10-2",
+              "highlightCargoIds": [
+                "H-10-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 2.21
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-10-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U030",
+              "sequence": 30,
+              "stopId": "S10",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U031",
+              "sequence": 31,
+              "stopId": "S06",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "highlightCargoIds": [
+                "H-06-1",
+                "H-06-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U032",
+              "sequence": 32,
+              "stopId": "S06",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "cargoId": "H-06-1",
+              "highlightCargoIds": [
+                "H-06-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-06-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U033",
+              "sequence": 33,
+              "stopId": "S06",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-2"
+              ],
+              "cargoId": "H-06-1",
+              "highlightCargoIds": [
+                "H-06-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 1.48
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-06-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U034",
+              "sequence": 34,
+              "stopId": "S06",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-2"
+              ],
+              "cargoId": "H-06-2",
+              "highlightCargoIds": [
+                "H-06-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-06-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U035",
+              "sequence": 35,
+              "stopId": "S06",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "cargoId": "H-06-2",
+              "highlightCargoIds": [
+                "H-06-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 1.48
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-06-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U036",
+              "sequence": 36,
+              "stopId": "S06",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U037",
+              "sequence": 37,
+              "stopId": "S05",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "highlightCargoIds": [
+                "H-05-1",
+                "H-05-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U038",
+              "sequence": 38,
+              "stopId": "S05",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "cargoId": "H-05-1",
+              "highlightCargoIds": [
+                "H-05-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-05-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U039",
+              "sequence": 39,
+              "stopId": "S05",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-2"
+              ],
+              "cargoId": "H-05-1",
+              "highlightCargoIds": [
+                "H-05-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.83
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-05-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U040",
+              "sequence": 40,
+              "stopId": "S05",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-2"
+              ],
+              "cargoId": "H-05-2",
+              "highlightCargoIds": [
+                "H-05-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-05-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U041",
+              "sequence": 41,
+              "stopId": "S05",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "cargoId": "H-05-2",
+              "highlightCargoIds": [
+                "H-05-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 0.83
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-05-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U042",
+              "sequence": 42,
+              "stopId": "S05",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U043",
+              "sequence": 43,
+              "stopId": "S04",
+              "operation": "arrive",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "highlightCargoIds": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.7,
+              "instruction": "到店，确认本店货物与后门通道。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U044",
+              "sequence": 44,
+              "stopId": "S04",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "cargoId": "H-04-1",
+              "highlightCargoIds": [
+                "H-04-1"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-04-1，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U045",
+              "sequence": 45,
+              "stopId": "S04",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-2"
+              ],
+              "cargoId": "H-04-1",
+              "highlightCargoIds": [
+                "H-04-1"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-04-1 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U046",
+              "sequence": 46,
+              "stopId": "S04",
+              "operation": "highlight",
+              "remainingCargoIdsBefore": [
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [
+                "H-04-2"
+              ],
+              "cargoId": "H-04-2",
+              "highlightCargoIds": [
+                "H-04-2"
+              ],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.65,
+              "instruction": "确认 H-04-2，先卸上层，再卸底层。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U047",
+              "sequence": 47,
+              "stopId": "S04",
+              "operation": "unload",
+              "remainingCargoIdsBefore": [
+                "H-04-2"
+              ],
+              "remainingCargoIdsAfter": [],
+              "cargoId": "H-04-2",
+              "highlightCargoIds": [
+                "H-04-2"
+              ],
+              "blockingCargoIds": [],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "positive",
+                "positionBasis": "minimum-corner",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "rotation": 90,
+                "pathChecked": true,
+                "retireAfterAnimation": true,
+                "outsideTruckAfterStep": true
+              },
+              "durationSeconds": 1.2,
+              "instruction": "H-04-2 沿后门直线取出，完成后从车厢中移除。",
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-U048",
+              "sequence": 48,
+              "stopId": "S04",
+              "operation": "station_complete",
+              "remainingCargoIdsBefore": [],
+              "remainingCargoIdsAfter": [],
+              "highlightCargoIds": [],
+              "blockingCargoIds": [],
+              "durationSeconds": 0.5,
+              "instruction": "本店货物已全部卸下，剩余货物保持原位。",
+              "vehicleId": "H-V02"
+            }
+          ],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "city-delivery-holdout-010",
+          "loadingSteps": [
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L001",
+              "operation": "load",
+              "cargoId": "H-04-1",
+              "stopId": "S04",
+              "loadedCargoIdsBefore": [],
+              "loadedCargoIdsAfter": [
+                "H-04-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L002",
+              "operation": "load",
+              "cargoId": "H-04-2",
+              "stopId": "S04",
+              "loadedCargoIdsBefore": [
+                "H-04-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 0.1
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L003",
+              "operation": "load",
+              "cargoId": "H-05-1",
+              "stopId": "S05",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 0.83
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L004",
+              "operation": "load",
+              "cargoId": "H-05-2",
+              "stopId": "S05",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 0.83
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L005",
+              "operation": "load",
+              "cargoId": "H-06-1",
+              "stopId": "S06",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 1.48
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L006",
+              "operation": "load",
+              "cargoId": "H-06-2",
+              "stopId": "S06",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 1.48
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L007",
+              "operation": "load",
+              "cargoId": "H-10-1",
+              "stopId": "S10",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.21
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L008",
+              "operation": "load",
+              "cargoId": "H-10-2",
+              "stopId": "S10",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 2.21
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L009",
+              "operation": "load",
+              "cargoId": "H-09-1",
+              "stopId": "S09",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 2.94
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L010",
+              "operation": "load",
+              "cargoId": "H-09-2",
+              "stopId": "S09",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 2.94
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L011",
+              "operation": "load",
+              "cargoId": "H-08-1",
+              "stopId": "S08",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 3.59
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L012",
+              "operation": "load",
+              "cargoId": "H-08-2",
+              "stopId": "S08",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.94,
+                  "y": 0,
+                  "z": 3.59
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L013",
+              "operation": "load",
+              "cargoId": "H-07-1",
+              "stopId": "S07",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 4.32
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L014",
+              "operation": "load",
+              "cargoId": "H-07-2",
+              "stopId": "S07",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.82,
+                  "y": 0,
+                  "z": 4.32
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L015",
+              "operation": "load",
+              "cargoId": "H-03-1",
+              "stopId": "S03",
+              "loadedCargoIdsBefore": [
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-03-1",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 0.1,
+                  "y": 0,
+                  "z": 4.97
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            },
+            {
+              "stepId": "PLAN-118f80e3e819-H-V02-L016",
+              "operation": "load",
+              "cargoId": "H-03-2",
+              "stopId": "S03",
+              "loadedCargoIdsBefore": [
+                "H-03-1",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "loadedCargoIdsAfter": [
+                "H-03-1",
+                "H-03-2",
+                "H-04-1",
+                "H-04-2",
+                "H-05-1",
+                "H-05-2",
+                "H-06-1",
+                "H-06-2",
+                "H-07-1",
+                "H-07-2",
+                "H-08-1",
+                "H-08-2",
+                "H-09-1",
+                "H-09-2",
+                "H-10-1",
+                "H-10-2"
+              ],
+              "movement": {
+                "kind": "translation",
+                "axis": "z",
+                "direction": "negative",
+                "from": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 6.85
+                },
+                "to": {
+                  "x": 1.06,
+                  "y": 0,
+                  "z": 4.97
+                },
+                "rotation": 90,
+                "pathChecked": true
+              },
+              "durationSeconds": 1.2,
+              "vehicleId": "H-V02"
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": [
+            {
+              "stopId": "S04",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S05",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S06",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S10",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S09",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S08",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S07",
+              "method": "floor-2-columns-yaw-90"
+            },
+            {
+              "stopId": "S03",
+              "method": "floor-2-columns-yaw-90"
+            }
+          ]
+        },
+        "active": true,
+        "status": "scheduled"
+      },
+      {
+        "planId": "PLAN-118f80e3e819",
+        "scenarioId": "city-delivery-holdout-010",
+        "vehicleId": "H-V03",
+        "stopOrder": [],
+        "routeNodeIds": [
+          "DEPOT"
+        ],
+        "arrivals": [],
+        "legs": [],
+        "distanceKm": 0,
+        "drivingMinutes": 0,
+        "waitingMinutes": 0,
+        "serviceMinutes": 0,
+        "totalDurationMinutes": 0,
+        "returnTime": "08:00",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": []
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 0,
+          "vehicleFixedCost": 0,
+          "drivingCost": 0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 0,
+          "maxPayloadKg": 560,
+          "totalCargoVolumeM3": 0,
+          "compartmentVolumeM3": 45.08,
+          "cargoChecks": {}
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V03",
+          "positions": []
+        },
+        "unloading": {
+          "planId": "PLAN-118f80e3e819",
+          "vehicleId": "H-V03",
+          "stopOrder": [],
+          "initialRemainingCargoIds": [],
+          "stations": [],
+          "steps": [],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "city-delivery-holdout-010",
+          "loadingSteps": []
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": []
+        },
+        "active": false,
+        "status": "idle"
+      }
+    ],
+    "assignments": [
+      {
+        "stopId": "S02",
+        "vehicleId": "H-V01",
+        "cargoIds": [
+          "H-02-1",
+          "H-02-2"
+        ]
+      },
+      {
+        "stopId": "S01",
+        "vehicleId": "H-V01",
+        "cargoIds": [
+          "H-01-1",
+          "H-01-2"
+        ]
+      },
+      {
+        "stopId": "S03",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-03-1",
+          "H-03-2"
+        ]
+      },
+      {
+        "stopId": "S07",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-07-1",
+          "H-07-2"
+        ]
+      },
+      {
+        "stopId": "S08",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-08-1",
+          "H-08-2"
+        ]
+      },
+      {
+        "stopId": "S09",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-09-1",
+          "H-09-2"
+        ]
+      },
+      {
+        "stopId": "S10",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-10-1",
+          "H-10-2"
+        ]
+      },
+      {
+        "stopId": "S06",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-06-1",
+          "H-06-2"
+        ]
+      },
+      {
+        "stopId": "S05",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-05-1",
+          "H-05-2"
+        ]
+      },
+      {
+        "stopId": "S04",
+        "vehicleId": "H-V02",
+        "cargoIds": [
+          "H-04-1",
+          "H-04-2"
+        ]
+      }
+    ],
+    "totals": {
+      "vehicleCount": 2,
+      "distanceKm": 28,
+      "drivingMinutes": 56,
+      "totalDurationMinutes": 93,
+      "currency": "CNY",
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "vehicleFixedCost": 162,
+      "drivingCost": 158.8,
+      "totalCost": 320.8
+    },
+    "feasibility": {
+      "executable": true,
+      "reasons": [],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    }
+  },
+  "identity": {
+    "scenarioId": "city-delivery-holdout-010",
+    "planId": "PLAN-118f80e3e819",
+    "revisionId": "REV-118f80e3e819",
+    "constraintVersion": "city-rear-door-3d-1.0"
+  },
+  "status": {
+    "solverStatus": "FEASIBLE",
+    "confirmed": true,
+    "strategy": "joint-feedback"
+  },
+  "checkedConstraints": [
+    "车厢边界",
+    "货物重叠",
+    "载重",
+    "允许朝向",
+    "易碎与承重",
+    "支撑",
+    "后门直线装卸",
+    "时间窗",
+    "唯一分配"
+  ],
+  "capabilityBoundary": [
+    "整站分区，不拆分同店到不同车",
+    "底层直立箱或已有两层承托模式",
+    "后门沿 z 轴直线装卸，不允许额外搬运",
+    "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+    "有限搜索失败不代表全局无解",
+    "不证明全局最优，不支持在途自动重装"
+  ]
+}

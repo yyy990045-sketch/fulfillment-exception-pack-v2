@@ -1,0 +1,15 @@
+{
+  "browserScreenshot": {
+    "status": "capture-timeout",
+    "stage": "after live fleet reassignment and explicit confirmation",
+    "errorType": "CdpRequestTimeoutError: Page.captureScreenshot",
+    "impact": "No newly captured review screenshot is claimed. Continuous browser observations were rerun successfully in the same task space.",
+    "priorScreenshots": "artifacts/city-delivery-phase2c/ are earlier evidence, not current-run screenshots."
+  },
+  "serviceOffline": "Simulated only in ephemeral browser health fetch; real server was not stopped or altered.",
+  "responseReordering": "Source guard inspected; no dedicated out-of-order injection experiment in this review.",
+  "comparison": "No independent route-only A or independent repair B implemented; no three-algorithm ranking claimed.",
+  "scale": "Only existing four-store and nine-store scenarios; no medium/large or concurrency workload.",
+  "resource": "Calculation service ps samples only, not browser or true instantaneous CPU peak.",
+  "realWorld": "No formal competition input, enterprise order, GPS telemetry, physical truck loading or operational ROI."
+}

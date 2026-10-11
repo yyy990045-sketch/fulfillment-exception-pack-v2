@@ -1,0 +1,3928 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenarioId": "city-delivery-synthetic-001",
+  "rules": {
+    "extraction": "rear-door-straight-positive-z",
+    "allowExtraHandling": false,
+    "extractionDescription": "货物保持 x、y 和朝向，沿 +z 平移到后门外；不得穿过任何剩余货物。先卸去上方承托的货物。",
+    "minimumSupportRatio": 1.0,
+    "supportRule": "放在地板上，或底面得到同高货物 100% 支撑。",
+    "fragileRule": "易碎货物上方不得承托任何货物。",
+    "loadBearingRule": "上方传递重量按接触面积分配，不超过 maxTopLoadKg。",
+    "loadingRule": "从后门沿 -z 直线进入最终位置；底层先装，同一门店前排先装。",
+    "unloadingSelection": "当前门店中先选择无阻挡的货物；同层按 cargoId 排序，上层优先。"
+  },
+  "plans": [
+    {
+      "planId": "PLAN_A",
+      "vehicleId": "V01",
+      "stopOrder": [
+        "S01",
+        "S02",
+        "S03",
+        "S04"
+      ],
+      "initialRemainingCargoIds": [
+        "C01-01",
+        "C01-02",
+        "C01-03",
+        "C01-04",
+        "C02-01",
+        "C02-02",
+        "C02-03",
+        "C02-04",
+        "C03-01",
+        "C03-02",
+        "C03-03",
+        "C03-04",
+        "C04-01",
+        "C04-02",
+        "C04-03",
+        "C04-04"
+      ],
+      "stations": [
+        {
+          "stopId": "S01",
+          "sequence": 1,
+          "arrivalTime": "08:04",
+          "serviceStartTime": "08:05",
+          "targetCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "stepIds": [
+            "PLAN_A-U001",
+            "PLAN_A-U002"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C01-03",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-03",
+                "C03-03",
+                "C04-03"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-04",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-04",
+                "C03-04",
+                "C04-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-01",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-01",
+                "C03-01",
+                "C04-01"
+              ],
+              "supportedCargoIds": [
+                "C01-03"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-02",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-02",
+                "C03-02",
+                "C04-02"
+              ],
+              "supportedCargoIds": [
+                "C01-04"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            }
+          ],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "status": "blocked",
+          "canUnloadDirectly": false,
+          "checked": true,
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ]
+        },
+        {
+          "stopId": "S02",
+          "sequence": 2,
+          "arrivalTime": "08:15",
+          "serviceStartTime": "08:15",
+          "targetCargoIds": [
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "stepIds": [],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "status": "not_reached",
+          "canUnloadDirectly": null,
+          "checked": false,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "reason": "前一站卸货已停止，后续站点未执行。"
+        },
+        {
+          "stopId": "S03",
+          "sequence": 3,
+          "arrivalTime": "08:25",
+          "serviceStartTime": "08:25",
+          "targetCargoIds": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "stepIds": [],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "status": "not_reached",
+          "canUnloadDirectly": null,
+          "checked": false,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "reason": "前一站卸货已停止，后续站点未执行。"
+        },
+        {
+          "stopId": "S04",
+          "sequence": 4,
+          "arrivalTime": "08:35",
+          "serviceStartTime": "08:35",
+          "targetCargoIds": [
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "stepIds": [],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "status": "not_reached",
+          "canUnloadDirectly": null,
+          "checked": false,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "reason": "前一站卸货已停止，后续站点未执行。"
+        }
+      ],
+      "steps": [
+        {
+          "stepId": "PLAN_A-U001",
+          "sequence": 1,
+          "stopId": "S01",
+          "operation": "arrive",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.7,
+          "instruction": "到店，确认本店货物与后门通道。"
+        },
+        {
+          "stepId": "PLAN_A-U002",
+          "sequence": 2,
+          "stopId": "S01",
+          "operation": "blocked",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [
+            "C01-03",
+            "C01-04",
+            "C01-01",
+            "C01-02"
+          ],
+          "blockingCargoIds": [
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "conflicts": [
+            {
+              "cargoId": "C01-03",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-03",
+                "C03-03",
+                "C04-03"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-04",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-04",
+                "C03-04",
+                "C04-04"
+              ],
+              "supportedCargoIds": [],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-01",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-01",
+                "C03-01",
+                "C04-01"
+              ],
+              "supportedCargoIds": [
+                "C01-03"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            },
+            {
+              "cargoId": "C01-02",
+              "stopId": "S01",
+              "blockingCargoIds": [
+                "C02-02",
+                "C03-02",
+                "C04-02"
+              ],
+              "supportedCargoIds": [
+                "C01-04"
+              ],
+              "doorClearanceValid": true,
+              "canUnload": false,
+              "reason": "后方其他门店货物占据后门直线取货通道"
+            }
+          ],
+          "durationSeconds": 0,
+          "instruction": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+        }
+      ],
+      "finalRemainingCargoIds": [
+        "C01-01",
+        "C01-02",
+        "C01-03",
+        "C01-04",
+        "C02-01",
+        "C02-02",
+        "C02-03",
+        "C02-04",
+        "C03-01",
+        "C03-02",
+        "C03-03",
+        "C03-04",
+        "C04-01",
+        "C04-02",
+        "C04-03",
+        "C04-04"
+      ],
+      "valid": false,
+      "firstFailure": {
+        "stopId": "S01",
+        "stepId": "PLAN_A-U002",
+        "targetCargoIds": [
+          "C01-01",
+          "C01-02",
+          "C01-03",
+          "C01-04"
+        ],
+        "blockingCargoIds": [
+          "C02-01",
+          "C02-02",
+          "C02-03",
+          "C02-04",
+          "C03-01",
+          "C03-02",
+          "C03-03",
+          "C03-04",
+          "C04-01",
+          "C04-02",
+          "C04-03",
+          "C04-04"
+        ],
+        "conflicts": [
+          {
+            "cargoId": "C01-03",
+            "stopId": "S01",
+            "blockingCargoIds": [
+              "C02-03",
+              "C03-03",
+              "C04-03"
+            ],
+            "supportedCargoIds": [],
+            "doorClearanceValid": true,
+            "canUnload": false,
+            "reason": "后方其他门店货物占据后门直线取货通道"
+          },
+          {
+            "cargoId": "C01-04",
+            "stopId": "S01",
+            "blockingCargoIds": [
+              "C02-04",
+              "C03-04",
+              "C04-04"
+            ],
+            "supportedCargoIds": [],
+            "doorClearanceValid": true,
+            "canUnload": false,
+            "reason": "后方其他门店货物占据后门直线取货通道"
+          },
+          {
+            "cargoId": "C01-01",
+            "stopId": "S01",
+            "blockingCargoIds": [
+              "C02-01",
+              "C03-01",
+              "C04-01"
+            ],
+            "supportedCargoIds": [
+              "C01-03"
+            ],
+            "doorClearanceValid": true,
+            "canUnload": false,
+            "reason": "后方其他门店货物占据后门直线取货通道"
+          },
+          {
+            "cargoId": "C01-02",
+            "stopId": "S01",
+            "blockingCargoIds": [
+              "C02-02",
+              "C03-02",
+              "C04-02"
+            ],
+            "supportedCargoIds": [
+              "C01-04"
+            ],
+            "doorClearanceValid": true,
+            "canUnload": false,
+            "reason": "后方其他门店货物占据后门直线取货通道"
+          }
+        ],
+        "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+      },
+      "stopAtStepId": "PLAN_A-U002",
+      "extraHandling": {
+        "supported": false,
+        "allowed": false,
+        "moves": 0,
+        "cost": 0
+      },
+      "playback": {
+        "timing": "illustrative-seconds-not-real-service-duration",
+        "realTelemetry": false,
+        "advanceStationAfter": "station_complete",
+        "stopImmediatelyOn": "blocked",
+        "remainingStateField": "remainingCargoIdsAfter"
+      },
+      "loadingSteps": [
+        {
+          "stepId": "PLAN_A-L001",
+          "operation": "load",
+          "cargoId": "C01-01",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [],
+          "loadedCargoIdsAfter": [
+            "C01-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 0.2
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L002",
+          "operation": "load",
+          "cargoId": "C01-02",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 0.2
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L003",
+          "operation": "load",
+          "cargoId": "C01-03",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L004",
+          "operation": "load",
+          "cargoId": "C01-04",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L005",
+          "operation": "load",
+          "cargoId": "C02-01",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 1.55
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L006",
+          "operation": "load",
+          "cargoId": "C02-02",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 1.55
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L007",
+          "operation": "load",
+          "cargoId": "C02-03",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L008",
+          "operation": "load",
+          "cargoId": "C02-04",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L009",
+          "operation": "load",
+          "cargoId": "C03-01",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 2.9
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L010",
+          "operation": "load",
+          "cargoId": "C03-02",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 2.9
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L011",
+          "operation": "load",
+          "cargoId": "C03-03",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L012",
+          "operation": "load",
+          "cargoId": "C03-04",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L013",
+          "operation": "load",
+          "cargoId": "C04-01",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 4.25
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L014",
+          "operation": "load",
+          "cargoId": "C04-02",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 4.25
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L015",
+          "operation": "load",
+          "cargoId": "C04-03",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_A-L016",
+          "operation": "load",
+          "cargoId": "C04-04",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        }
+      ]
+    },
+    {
+      "planId": "PLAN_B",
+      "vehicleId": "V01",
+      "stopOrder": [
+        "S02",
+        "S01",
+        "S04",
+        "S03"
+      ],
+      "initialRemainingCargoIds": [
+        "C01-01",
+        "C01-02",
+        "C01-03",
+        "C01-04",
+        "C02-01",
+        "C02-02",
+        "C02-03",
+        "C02-04",
+        "C03-01",
+        "C03-02",
+        "C03-03",
+        "C03-04",
+        "C04-01",
+        "C04-02",
+        "C04-03",
+        "C04-04"
+      ],
+      "stations": [
+        {
+          "stopId": "S02",
+          "sequence": 1,
+          "arrivalTime": "08:08",
+          "serviceStartTime": "08:08",
+          "targetCargoIds": [
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "stepIds": [
+            "PLAN_B-U001",
+            "PLAN_B-U002",
+            "PLAN_B-U003",
+            "PLAN_B-U004",
+            "PLAN_B-U005",
+            "PLAN_B-U006",
+            "PLAN_B-U007",
+            "PLAN_B-U008",
+            "PLAN_B-U009",
+            "PLAN_B-U010"
+          ],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "status": "completed",
+          "canUnloadDirectly": true,
+          "checked": true,
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ]
+        },
+        {
+          "stopId": "S01",
+          "sequence": 2,
+          "arrivalTime": "08:18",
+          "serviceStartTime": "08:18",
+          "targetCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "stepIds": [
+            "PLAN_B-U011",
+            "PLAN_B-U012",
+            "PLAN_B-U013",
+            "PLAN_B-U014",
+            "PLAN_B-U015",
+            "PLAN_B-U016",
+            "PLAN_B-U017",
+            "PLAN_B-U018",
+            "PLAN_B-U019",
+            "PLAN_B-U020"
+          ],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "remainingCargoIdsAtArrival": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "status": "completed",
+          "canUnloadDirectly": true,
+          "checked": true,
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ]
+        },
+        {
+          "stopId": "S04",
+          "sequence": 3,
+          "arrivalTime": "08:28",
+          "serviceStartTime": "08:28",
+          "targetCargoIds": [
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "stepIds": [
+            "PLAN_B-U021",
+            "PLAN_B-U022",
+            "PLAN_B-U023",
+            "PLAN_B-U024",
+            "PLAN_B-U025",
+            "PLAN_B-U026",
+            "PLAN_B-U027",
+            "PLAN_B-U028",
+            "PLAN_B-U029",
+            "PLAN_B-U030"
+          ],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "remainingCargoIdsAtArrival": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "status": "completed",
+          "canUnloadDirectly": true,
+          "checked": true,
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ]
+        },
+        {
+          "stopId": "S03",
+          "sequence": 4,
+          "arrivalTime": "08:38",
+          "serviceStartTime": "08:38",
+          "targetCargoIds": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "stepIds": [
+            "PLAN_B-U031",
+            "PLAN_B-U032",
+            "PLAN_B-U033",
+            "PLAN_B-U034",
+            "PLAN_B-U035",
+            "PLAN_B-U036",
+            "PLAN_B-U037",
+            "PLAN_B-U038",
+            "PLAN_B-U039",
+            "PLAN_B-U040"
+          ],
+          "conflicts": [],
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "remainingCargoIdsAtArrival": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "status": "completed",
+          "canUnloadDirectly": true,
+          "checked": true,
+          "remainingCargoIdsAfter": []
+        }
+      ],
+      "steps": [
+        {
+          "stepId": "PLAN_B-U001",
+          "sequence": 1,
+          "stopId": "S02",
+          "operation": "arrive",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.7,
+          "instruction": "到店，确认本店货物与后门通道。"
+        },
+        {
+          "stepId": "PLAN_B-U002",
+          "sequence": 2,
+          "stopId": "S02",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-03",
+          "highlightCargoIds": [
+            "C02-03"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C02-03，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U003",
+          "sequence": 3,
+          "stopId": "S02",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-03",
+          "highlightCargoIds": [
+            "C02-03"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C02-03 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U004",
+          "sequence": 4,
+          "stopId": "S02",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-04",
+          "highlightCargoIds": [
+            "C02-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C02-04，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U005",
+          "sequence": 5,
+          "stopId": "S02",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-04",
+          "highlightCargoIds": [
+            "C02-04"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C02-04 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U006",
+          "sequence": 6,
+          "stopId": "S02",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-01",
+          "highlightCargoIds": [
+            "C02-01"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C02-01，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U007",
+          "sequence": 7,
+          "stopId": "S02",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-01",
+          "highlightCargoIds": [
+            "C02-01"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 4.25
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C02-01 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U008",
+          "sequence": 8,
+          "stopId": "S02",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-02",
+          "highlightCargoIds": [
+            "C02-02"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C02-02，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U009",
+          "sequence": 9,
+          "stopId": "S02",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C02-02",
+          "highlightCargoIds": [
+            "C02-02"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 4.25
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C02-02 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U010",
+          "sequence": 10,
+          "stopId": "S02",
+          "operation": "station_complete",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.5,
+          "instruction": "本店货物已全部卸下，剩余货物保持原位。"
+        },
+        {
+          "stepId": "PLAN_B-U011",
+          "sequence": 11,
+          "stopId": "S01",
+          "operation": "arrive",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.7,
+          "instruction": "到店，确认本店货物与后门通道。"
+        },
+        {
+          "stepId": "PLAN_B-U012",
+          "sequence": 12,
+          "stopId": "S01",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-03",
+          "highlightCargoIds": [
+            "C01-03"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C01-03，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U013",
+          "sequence": 13,
+          "stopId": "S01",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-03",
+          "highlightCargoIds": [
+            "C01-03"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C01-03 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U014",
+          "sequence": 14,
+          "stopId": "S01",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-04",
+          "highlightCargoIds": [
+            "C01-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C01-04，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U015",
+          "sequence": 15,
+          "stopId": "S01",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-04",
+          "highlightCargoIds": [
+            "C01-04"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C01-04 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U016",
+          "sequence": 16,
+          "stopId": "S01",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-01",
+          "highlightCargoIds": [
+            "C01-01"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C01-01，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U017",
+          "sequence": 17,
+          "stopId": "S01",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-01",
+          "highlightCargoIds": [
+            "C01-01"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 2.9
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C01-01 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U018",
+          "sequence": 18,
+          "stopId": "S01",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-02",
+          "highlightCargoIds": [
+            "C01-02"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C01-02，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U019",
+          "sequence": 19,
+          "stopId": "S01",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C01-02",
+          "highlightCargoIds": [
+            "C01-02"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 2.9
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C01-02 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U020",
+          "sequence": 20,
+          "stopId": "S01",
+          "operation": "station_complete",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.5,
+          "instruction": "本店货物已全部卸下，剩余货物保持原位。"
+        },
+        {
+          "stepId": "PLAN_B-U021",
+          "sequence": 21,
+          "stopId": "S04",
+          "operation": "arrive",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "highlightCargoIds": [
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.7,
+          "instruction": "到店，确认本店货物与后门通道。"
+        },
+        {
+          "stepId": "PLAN_B-U022",
+          "sequence": 22,
+          "stopId": "S04",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "cargoId": "C04-03",
+          "highlightCargoIds": [
+            "C04-03"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C04-03，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U023",
+          "sequence": 23,
+          "stopId": "S04",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-04"
+          ],
+          "cargoId": "C04-03",
+          "highlightCargoIds": [
+            "C04-03"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C04-03 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U024",
+          "sequence": 24,
+          "stopId": "S04",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-04"
+          ],
+          "cargoId": "C04-04",
+          "highlightCargoIds": [
+            "C04-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C04-04，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U025",
+          "sequence": 25,
+          "stopId": "S04",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "cargoId": "C04-04",
+          "highlightCargoIds": [
+            "C04-04"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C04-04 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U026",
+          "sequence": 26,
+          "stopId": "S04",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "cargoId": "C04-01",
+          "highlightCargoIds": [
+            "C04-01"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C04-01，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U027",
+          "sequence": 27,
+          "stopId": "S04",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-02"
+          ],
+          "cargoId": "C04-01",
+          "highlightCargoIds": [
+            "C04-01"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 1.55
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C04-01 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U028",
+          "sequence": 28,
+          "stopId": "S04",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-02"
+          ],
+          "cargoId": "C04-02",
+          "highlightCargoIds": [
+            "C04-02"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C04-02，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U029",
+          "sequence": 29,
+          "stopId": "S04",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "cargoId": "C04-02",
+          "highlightCargoIds": [
+            "C04-02"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 1.55
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C04-02 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U030",
+          "sequence": 30,
+          "stopId": "S04",
+          "operation": "station_complete",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "highlightCargoIds": [],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.5,
+          "instruction": "本店货物已全部卸下，剩余货物保持原位。"
+        },
+        {
+          "stepId": "PLAN_B-U031",
+          "sequence": 31,
+          "stopId": "S03",
+          "operation": "arrive",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "highlightCargoIds": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.7,
+          "instruction": "到店，确认本店货物与后门通道。"
+        },
+        {
+          "stepId": "PLAN_B-U032",
+          "sequence": 32,
+          "stopId": "S03",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "cargoId": "C03-03",
+          "highlightCargoIds": [
+            "C03-03"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C03-03，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U033",
+          "sequence": 33,
+          "stopId": "S03",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-04"
+          ],
+          "cargoId": "C03-03",
+          "highlightCargoIds": [
+            "C03-03"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C03-03 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U034",
+          "sequence": 34,
+          "stopId": "S03",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-04"
+          ],
+          "cargoId": "C03-04",
+          "highlightCargoIds": [
+            "C03-04"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C03-04，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U035",
+          "sequence": 35,
+          "stopId": "S03",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-04"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02"
+          ],
+          "cargoId": "C03-04",
+          "highlightCargoIds": [
+            "C03-04"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C03-04 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U036",
+          "sequence": 36,
+          "stopId": "S03",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-01",
+            "C03-02"
+          ],
+          "cargoId": "C03-01",
+          "highlightCargoIds": [
+            "C03-01"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C03-01，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U037",
+          "sequence": 37,
+          "stopId": "S03",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-01",
+            "C03-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-02"
+          ],
+          "cargoId": "C03-01",
+          "highlightCargoIds": [
+            "C03-01"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 0.2
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 0,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C03-01 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U038",
+          "sequence": 38,
+          "stopId": "S03",
+          "operation": "highlight",
+          "remainingCargoIdsBefore": [
+            "C03-02"
+          ],
+          "remainingCargoIdsAfter": [
+            "C03-02"
+          ],
+          "cargoId": "C03-02",
+          "highlightCargoIds": [
+            "C03-02"
+          ],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.65,
+          "instruction": "确认 C03-02，先卸上层，再卸底层。"
+        },
+        {
+          "stepId": "PLAN_B-U039",
+          "sequence": 39,
+          "stopId": "S03",
+          "operation": "unload",
+          "remainingCargoIdsBefore": [
+            "C03-02"
+          ],
+          "remainingCargoIdsAfter": [],
+          "cargoId": "C03-02",
+          "highlightCargoIds": [
+            "C03-02"
+          ],
+          "blockingCargoIds": [],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "positive",
+            "positionBasis": "minimum-corner",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 0.2
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "rotation": 90,
+            "pathChecked": true,
+            "retireAfterAnimation": true,
+            "outsideTruckAfterStep": true
+          },
+          "durationSeconds": 1.2,
+          "instruction": "C03-02 沿后门直线取出，完成后从车厢中移除。"
+        },
+        {
+          "stepId": "PLAN_B-U040",
+          "sequence": 40,
+          "stopId": "S03",
+          "operation": "station_complete",
+          "remainingCargoIdsBefore": [],
+          "remainingCargoIdsAfter": [],
+          "highlightCargoIds": [],
+          "blockingCargoIds": [],
+          "durationSeconds": 0.5,
+          "instruction": "本店货物已全部卸下，剩余货物保持原位。"
+        }
+      ],
+      "finalRemainingCargoIds": [],
+      "valid": true,
+      "firstFailure": null,
+      "stopAtStepId": null,
+      "extraHandling": {
+        "supported": false,
+        "allowed": false,
+        "moves": 0,
+        "cost": 0
+      },
+      "playback": {
+        "timing": "illustrative-seconds-not-real-service-duration",
+        "realTelemetry": false,
+        "advanceStationAfter": "station_complete",
+        "stopImmediatelyOn": "blocked",
+        "remainingStateField": "remainingCargoIdsAfter"
+      },
+      "loadingSteps": [
+        {
+          "stepId": "PLAN_B-L001",
+          "operation": "load",
+          "cargoId": "C03-01",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [],
+          "loadedCargoIdsAfter": [
+            "C03-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 0.2
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L002",
+          "operation": "load",
+          "cargoId": "C03-02",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C03-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 0.2
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L003",
+          "operation": "load",
+          "cargoId": "C03-03",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L004",
+          "operation": "load",
+          "cargoId": "C03-04",
+          "stopId": "S03",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 0.275
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L005",
+          "operation": "load",
+          "cargoId": "C04-01",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 1.55
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L006",
+          "operation": "load",
+          "cargoId": "C04-02",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 1.55
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L007",
+          "operation": "load",
+          "cargoId": "C04-03",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L008",
+          "operation": "load",
+          "cargoId": "C04-04",
+          "stopId": "S04",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03"
+          ],
+          "loadedCargoIdsAfter": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 1.625
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L009",
+          "operation": "load",
+          "cargoId": "C01-01",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 2.9
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L010",
+          "operation": "load",
+          "cargoId": "C01-02",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 2.9
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L011",
+          "operation": "load",
+          "cargoId": "C01-03",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L012",
+          "operation": "load",
+          "cargoId": "C01-04",
+          "stopId": "S01",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 2.975
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L013",
+          "operation": "load",
+          "cargoId": "C02-01",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.12,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.12,
+              "y": 0,
+              "z": 4.25
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L014",
+          "operation": "load",
+          "cargoId": "C02-02",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.18,
+              "y": 0,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.18,
+              "y": 0,
+              "z": 4.25
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L015",
+          "operation": "load",
+          "cargoId": "C02-03",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 0.16,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "rotation": 0,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        },
+        {
+          "stepId": "PLAN_B-L016",
+          "operation": "load",
+          "cargoId": "C02-04",
+          "stopId": "S02",
+          "loadedCargoIdsBefore": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "loadedCargoIdsAfter": [
+            "C01-01",
+            "C01-02",
+            "C01-03",
+            "C01-04",
+            "C02-01",
+            "C02-02",
+            "C02-03",
+            "C02-04",
+            "C03-01",
+            "C03-02",
+            "C03-03",
+            "C03-04",
+            "C04-01",
+            "C04-02",
+            "C04-03",
+            "C04-04"
+          ],
+          "movement": {
+            "kind": "translation",
+            "axis": "z",
+            "direction": "negative",
+            "from": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 6.05
+            },
+            "to": {
+              "x": 1.22,
+              "y": 0.55,
+              "z": 4.325
+            },
+            "rotation": 90,
+            "pathChecked": true
+          },
+          "durationSeconds": 1.2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1929 @@
+{
+  "schemaVersion": "3.0.0",
+  "scenarioId": "city-independent-six-stop-003",
+  "planId": "PLAN-4e56ffbba014",
+  "revisionId": "REV-4e56ffbba014",
+  "constraintVersion": "city-rear-door-3d-1.0",
+  "executionMode": "computed-per-request",
+  "solverStatus": "SEARCH_EXHAUSTED",
+  "executable": false,
+  "source": {
+    "dataType": "synthetic",
+    "name": "独立生成六店案例",
+    "description": "本轮独立生成，非传化订单或公开基准。每店货件数量为 1–3，与四店/九店样例不同。",
+    "license": "project-owned-synthetic",
+    "authorization": "本次任务授权构造并在项目内使用；不含第三方数据，外部分发由项目 Owner 决定。"
+  },
+  "scenario": {
+    "scenarioId": "city-independent-six-stop-003",
+    "name": "独立六店混合包装件机制实例",
+    "source": {
+      "dataType": "synthetic",
+      "name": "独立生成六店案例",
+      "description": "本轮独立生成，非传化订单或公开基准。每店货件数量为 1–3，与四店/九店样例不同。",
+      "license": "project-owned-synthetic",
+      "authorization": "本次任务授权构造并在项目内使用；不含第三方数据，外部分发由项目 Owner 决定。"
+    },
+    "warehouse": {
+      "stopId": "DEPOT",
+      "name": "城市配送中心仓",
+      "x": 0,
+      "y": 0
+    },
+    "stops": [
+      {
+        "stopId": "S01",
+        "name": "配送门店 01",
+        "x": 1,
+        "y": 1,
+        "color": "#57B8F2",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S02",
+        "name": "配送门店 02",
+        "x": 2,
+        "y": 1,
+        "color": "#C2A3EE",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S03",
+        "name": "配送门店 03",
+        "x": 1,
+        "y": 2,
+        "color": "#E7AC66",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S04",
+        "name": "配送门店 04",
+        "x": 4,
+        "y": 1,
+        "color": "#65CEAB",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S05",
+        "name": "配送门店 05",
+        "x": 5,
+        "y": 2,
+        "color": "#EF8197",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      },
+      {
+        "stopId": "S06",
+        "name": "配送门店 06",
+        "x": 4,
+        "y": 3,
+        "color": "#8EC86F",
+        "address": "合成街区位置",
+        "timeWindow": {
+          "start": "08:00",
+          "end": "10:30"
+        },
+        "serviceDurationMinutes": 6
+      }
+    ],
+    "cargo": [
+      {
+        "cargoId": "NEW-1-1",
+        "orderId": "ORDER-S01",
+        "stopId": "S01",
+        "name": "独立包装件",
+        "length": 0.65,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 18.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#57B8F2",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-2-1",
+        "orderId": "ORDER-S02",
+        "stopId": "S02",
+        "name": "独立包装件",
+        "length": 0.65,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 18.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#C2A3EE",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-2-2",
+        "orderId": "ORDER-S02",
+        "stopId": "S02",
+        "name": "独立包装件",
+        "length": 0.77,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 19.25,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#C2A3EE",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "NEW-3-1",
+        "orderId": "ORDER-S03",
+        "stopId": "S03",
+        "name": "独立包装件",
+        "length": 0.65,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 18.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E7AC66",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-3-2",
+        "orderId": "ORDER-S03",
+        "stopId": "S03",
+        "name": "独立包装件",
+        "length": 0.77,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 19.25,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E7AC66",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "NEW-3-3",
+        "orderId": "ORDER-S03",
+        "stopId": "S03",
+        "name": "独立包装件",
+        "length": 0.89,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 20.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#E7AC66",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-4-1",
+        "orderId": "ORDER-S04",
+        "stopId": "S04",
+        "name": "独立包装件",
+        "length": 0.65,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 18.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#65CEAB",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-5-1",
+        "orderId": "ORDER-S05",
+        "stopId": "S05",
+        "name": "独立包装件",
+        "length": 1.65,
+        "width": 1.05,
+        "height": 0.65,
+        "weightKg": 65.5,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#EF8197",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-5-2",
+        "orderId": "ORDER-S05",
+        "stopId": "S05",
+        "name": "独立包装件",
+        "length": 1.65,
+        "width": 1.05,
+        "height": 0.65,
+        "weightKg": 65.5,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#EF8197",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "NEW-6-1",
+        "orderId": "ORDER-S06",
+        "stopId": "S06",
+        "name": "独立包装件",
+        "length": 0.65,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 18.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#8EC86F",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      },
+      {
+        "cargoId": "NEW-6-2",
+        "orderId": "ORDER-S06",
+        "stopId": "S06",
+        "name": "独立包装件",
+        "length": 0.77,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 19.25,
+        "fragile": true,
+        "maxTopLoadKg": 0,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#8EC86F",
+        "handlingRequirements": [
+          "保持直立",
+          "上方禁堆"
+        ]
+      },
+      {
+        "cargoId": "NEW-6-3",
+        "orderId": "ORDER-S06",
+        "stopId": "S06",
+        "name": "独立包装件",
+        "length": 0.89,
+        "width": 0.55,
+        "height": 0.65,
+        "weightKg": 20.25,
+        "fragile": false,
+        "maxTopLoadKg": 30,
+        "orientation": {
+          "uprightOnly": true,
+          "allowedYawDegrees": [
+            0,
+            90
+          ]
+        },
+        "color": "#8EC86F",
+        "handlingRequirements": [
+          "保持直立",
+          "上方承重不超过 30 kg"
+        ]
+      }
+    ],
+    "vehicles": [
+      {
+        "vehicleId": "V01",
+        "name": "小型厢式配送车",
+        "maxPayloadKg": 400,
+        "compartment": {
+          "length": 4.2,
+          "width": 1.85,
+          "height": 1.9
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 4.2,
+          "xMin": 0,
+          "xMax": 1.85,
+          "yMin": 0,
+          "yMax": 1.9
+        },
+        "costs": {
+          "vehicleFixedCost": 110,
+          "drivingCostPerKm": 2.2
+        }
+      },
+      {
+        "vehicleId": "V02",
+        "name": "中型厢式配送车",
+        "maxPayloadKg": 650,
+        "compartment": {
+          "length": 7.0,
+          "width": 2.5,
+          "height": 2.2
+        },
+        "rearDoor": {
+          "axis": "z",
+          "position": 7.0,
+          "xMin": 0,
+          "xMax": 2.5,
+          "yMin": 0,
+          "yMax": 2.2
+        },
+        "costs": {
+          "vehicleFixedCost": 150,
+          "drivingCostPerKm": 2.8
+        }
+      }
+    ],
+    "departureTime": "08:00",
+    "routing": {
+      "nodeIds": [
+        "DEPOT",
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06"
+      ],
+      "distanceMatrixKm": [
+        [
+          0,
+          2,
+          3,
+          3,
+          5,
+          7,
+          7
+        ],
+        [
+          2,
+          0,
+          1,
+          1,
+          3,
+          5,
+          5
+        ],
+        [
+          3,
+          1,
+          0,
+          2,
+          2,
+          4,
+          4
+        ],
+        [
+          3,
+          1,
+          2,
+          0,
+          4,
+          4,
+          4
+        ],
+        [
+          5,
+          3,
+          2,
+          4,
+          0,
+          2,
+          2
+        ],
+        [
+          7,
+          5,
+          4,
+          4,
+          2,
+          0,
+          2
+        ],
+        [
+          7,
+          5,
+          4,
+          4,
+          2,
+          2,
+          0
+        ]
+      ],
+      "travelTimeMatrixMinutes": [
+        [
+          0,
+          4,
+          6,
+          6,
+          10,
+          14,
+          14
+        ],
+        [
+          4,
+          0,
+          2,
+          2,
+          6,
+          10,
+          10
+        ],
+        [
+          6,
+          2,
+          0,
+          4,
+          4,
+          8,
+          8
+        ],
+        [
+          6,
+          2,
+          4,
+          0,
+          8,
+          8,
+          8
+        ],
+        [
+          10,
+          6,
+          4,
+          8,
+          0,
+          4,
+          4
+        ],
+        [
+          14,
+          10,
+          8,
+          8,
+          4,
+          0,
+          4
+        ],
+        [
+          14,
+          10,
+          8,
+          8,
+          4,
+          4,
+          0
+        ]
+      ],
+      "returnToDepot": true,
+      "timeWindowRule": "服务开始须处于时间窗；提前到店等待。"
+    },
+    "costs": {
+      "currency": "CNY",
+      "waitingCostPerMinute": 0,
+      "extraHandlingCostPerCargoMove": 5
+    },
+    "schemaVersion": "3.0.0",
+    "units": {
+      "dimensions": "m",
+      "weight": "kg",
+      "distance": "km",
+      "time": "minutes",
+      "currency": "CNY"
+    },
+    "rules": {
+      "extraction": "rear-door-straight-positive-z",
+      "allowExtraHandling": false,
+      "minimumSupportRatio": 1,
+      "fragileRule": "no-load-on-fragile",
+      "maxRouteDurationMinutes": 480,
+      "supportRule": "full-footprint",
+      "timeWindowRule": "service-start",
+      "loadBearingRule": "area-proportional"
+    },
+    "orders": [
+      {
+        "orderId": "ORDER-S01",
+        "stopId": "S01",
+        "cargoIds": [
+          "NEW-1-1"
+        ]
+      },
+      {
+        "orderId": "ORDER-S02",
+        "stopId": "S02",
+        "cargoIds": [
+          "NEW-2-1",
+          "NEW-2-2"
+        ]
+      },
+      {
+        "orderId": "ORDER-S03",
+        "stopId": "S03",
+        "cargoIds": [
+          "NEW-3-1",
+          "NEW-3-2",
+          "NEW-3-3"
+        ]
+      },
+      {
+        "orderId": "ORDER-S04",
+        "stopId": "S04",
+        "cargoIds": [
+          "NEW-4-1"
+        ]
+      },
+      {
+        "orderId": "ORDER-S05",
+        "stopId": "S05",
+        "cargoIds": [
+          "NEW-5-1",
+          "NEW-5-2"
+        ]
+      },
+      {
+        "orderId": "ORDER-S06",
+        "stopId": "S06",
+        "cargoIds": [
+          "NEW-6-1",
+          "NEW-6-2",
+          "NEW-6-3"
+        ]
+      }
+    ],
+    "uncheckedConstraints": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ]
+  },
+  "result": {
+    "planId": "PLAN-4e56ffbba014",
+    "scenarioId": "city-independent-six-stop-003",
+    "routes": [
+      {
+        "planId": "PLAN-4e56ffbba014",
+        "scenarioId": "city-independent-six-stop-003",
+        "vehicleId": "V01",
+        "stopOrder": [
+          "S03",
+          "S06",
+          "S05",
+          "S04",
+          "S02",
+          "S01"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S03",
+          "S06",
+          "S05",
+          "S04",
+          "S02",
+          "S01",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S03",
+            "sequence": 1,
+            "arrivalTime": "08:06",
+            "serviceStartTime": "08:06",
+            "departureTime": "08:12",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S06",
+            "sequence": 2,
+            "arrivalTime": "08:20",
+            "serviceStartTime": "08:20",
+            "departureTime": "08:26",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S05",
+            "sequence": 3,
+            "arrivalTime": "08:30",
+            "serviceStartTime": "08:30",
+            "departureTime": "08:36",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S04",
+            "sequence": 4,
+            "arrivalTime": "08:40",
+            "serviceStartTime": "08:40",
+            "departureTime": "08:46",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S02",
+            "sequence": 5,
+            "arrivalTime": "08:50",
+            "serviceStartTime": "08:50",
+            "departureTime": "08:56",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S01",
+            "sequence": 6,
+            "arrivalTime": "08:58",
+            "serviceStartTime": "08:58",
+            "departureTime": "09:04",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S03",
+            "distanceKm": 3,
+            "travelMinutes": 6,
+            "departureTime": "08:00",
+            "arrivalTime": "08:06"
+          },
+          {
+            "fromStopId": "S03",
+            "toStopId": "S06",
+            "distanceKm": 4,
+            "travelMinutes": 8,
+            "departureTime": "08:12",
+            "arrivalTime": "08:20"
+          },
+          {
+            "fromStopId": "S06",
+            "toStopId": "S05",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:26",
+            "arrivalTime": "08:30"
+          },
+          {
+            "fromStopId": "S05",
+            "toStopId": "S04",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:36",
+            "arrivalTime": "08:40"
+          },
+          {
+            "fromStopId": "S04",
+            "toStopId": "S02",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:46",
+            "arrivalTime": "08:50"
+          },
+          {
+            "fromStopId": "S02",
+            "toStopId": "S01",
+            "distanceKm": 1,
+            "travelMinutes": 2,
+            "departureTime": "08:56",
+            "arrivalTime": "08:58"
+          },
+          {
+            "fromStopId": "S01",
+            "toStopId": "DEPOT",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "09:04",
+            "arrivalTime": "09:08"
+          }
+        ],
+        "distanceKm": 16,
+        "drivingMinutes": 32,
+        "waitingMinutes": 0,
+        "serviceMinutes": 36,
+        "totalDurationMinutes": 68,
+        "returnTime": "09:08",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S06",
+              "sequence": 2,
+              "arrivalTime": "08:20",
+              "serviceStartTime": "08:20",
+              "departureTime": "08:26",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S05",
+              "sequence": 3,
+              "arrivalTime": "08:30",
+              "serviceStartTime": "08:30",
+              "departureTime": "08:36",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S04",
+              "sequence": 4,
+              "arrivalTime": "08:40",
+              "serviceStartTime": "08:40",
+              "departureTime": "08:46",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S02",
+              "sequence": 5,
+              "arrivalTime": "08:50",
+              "serviceStartTime": "08:50",
+              "departureTime": "08:56",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S01",
+              "sequence": 6,
+              "arrivalTime": "08:58",
+              "serviceStartTime": "08:58",
+              "departureTime": "09:04",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 110,
+          "drivingCost": 35.2,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 145.2,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "NEW-1-1",
+          "NEW-2-1",
+          "NEW-2-2",
+          "NEW-3-1",
+          "NEW-3-2",
+          "NEW-3-3",
+          "NEW-4-1",
+          "NEW-5-1",
+          "NEW-5-2",
+          "NEW-6-1",
+          "NEW-6-2",
+          "NEW-6-3"
+        ],
+        "placements": null,
+        "unloading": null,
+        "loadingCheck": {
+          "checked": false,
+          "valid": false
+        },
+        "unloadingCheck": {
+          "checked": false,
+          "valid": false,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": false,
+          "reasons": [
+            {
+              "type": "layout_search_failed",
+              "stopId": "S05",
+              "vehicleId": "V01",
+              "message": "当前有限布局集合未找到可装、可卸的门店分区",
+              "notGlobalInfeasibility": true
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": false,
+          "reason": {
+            "type": "layout_search_failed",
+            "stopId": "S05",
+            "vehicleId": "V01",
+            "message": "当前有限布局集合未找到可装、可卸的门店分区",
+            "notGlobalInfeasibility": true
+          }
+        },
+        "active": true,
+        "status": "search_failed"
+      },
+      {
+        "planId": "PLAN-4e56ffbba014",
+        "scenarioId": "city-independent-six-stop-003",
+        "vehicleId": "V02",
+        "stopOrder": [],
+        "routeNodeIds": [
+          "DEPOT"
+        ],
+        "arrivals": [],
+        "legs": [],
+        "distanceKm": 0,
+        "drivingMinutes": 0,
+        "waitingMinutes": 0,
+        "serviceMinutes": 0,
+        "totalDurationMinutes": 0,
+        "returnTime": "08:00",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": []
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 0,
+          "vehicleFixedCost": 0,
+          "drivingCost": 0.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 0,
+          "maxPayloadKg": 650,
+          "totalCargoVolumeM3": 0,
+          "compartmentVolumeM3": 38.5,
+          "cargoChecks": {}
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-4e56ffbba014",
+          "vehicleId": "V02",
+          "positions": []
+        },
+        "unloading": {
+          "planId": "PLAN-4e56ffbba014",
+          "vehicleId": "V02",
+          "stopOrder": [],
+          "initialRemainingCargoIds": [],
+          "stations": [],
+          "steps": [],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "city-independent-six-stop-003",
+          "loadingSteps": []
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": []
+        },
+        "active": false,
+        "status": "idle"
+      }
+    ],
+    "assignments": [
+      {
+        "stopId": "S03",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-3-1",
+          "NEW-3-2",
+          "NEW-3-3"
+        ]
+      },
+      {
+        "stopId": "S06",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-6-1",
+          "NEW-6-2",
+          "NEW-6-3"
+        ]
+      },
+      {
+        "stopId": "S05",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-5-1",
+          "NEW-5-2"
+        ]
+      },
+      {
+        "stopId": "S04",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-4-1"
+        ]
+      },
+      {
+        "stopId": "S02",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-2-1",
+          "NEW-2-2"
+        ]
+      },
+      {
+        "stopId": "S01",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-1-1"
+        ]
+      }
+    ],
+    "totals": {
+      "vehicleCount": 1,
+      "distanceKm": 16,
+      "drivingMinutes": 32,
+      "totalDurationMinutes": 68,
+      "currency": "CNY",
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "vehicleFixedCost": 110,
+      "drivingCost": 35.2,
+      "totalCost": 145.2
+    },
+    "assignmentCheck": {
+      "checked": true,
+      "everyStopServedOnce": true,
+      "everyCargoAssignedOnce": true
+    },
+    "feasibility": {
+      "executable": false,
+      "reasons": [
+        {
+          "type": "layout_search_failed",
+          "stopId": "S05",
+          "vehicleId": "V01",
+          "message": "当前有限布局集合未找到可装、可卸的门店分区",
+          "notGlobalInfeasibility": true
+        }
+      ],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    },
+    "globallyOptimal": false
+  },
+  "initialCheck": {
+    "planId": "PLAN-4e56ffbba014",
+    "scenarioId": "city-independent-six-stop-003",
+    "routes": [
+      {
+        "planId": "PLAN-4e56ffbba014",
+        "scenarioId": "city-independent-six-stop-003",
+        "vehicleId": "V01",
+        "stopOrder": [
+          "S03",
+          "S06",
+          "S05",
+          "S04",
+          "S02",
+          "S01"
+        ],
+        "routeNodeIds": [
+          "DEPOT",
+          "S03",
+          "S06",
+          "S05",
+          "S04",
+          "S02",
+          "S01",
+          "DEPOT"
+        ],
+        "arrivals": [
+          {
+            "stopId": "S03",
+            "sequence": 1,
+            "arrivalTime": "08:06",
+            "serviceStartTime": "08:06",
+            "departureTime": "08:12",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S06",
+            "sequence": 2,
+            "arrivalTime": "08:20",
+            "serviceStartTime": "08:20",
+            "departureTime": "08:26",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S05",
+            "sequence": 3,
+            "arrivalTime": "08:30",
+            "serviceStartTime": "08:30",
+            "departureTime": "08:36",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S04",
+            "sequence": 4,
+            "arrivalTime": "08:40",
+            "serviceStartTime": "08:40",
+            "departureTime": "08:46",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S02",
+            "sequence": 5,
+            "arrivalTime": "08:50",
+            "serviceStartTime": "08:50",
+            "departureTime": "08:56",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          },
+          {
+            "stopId": "S01",
+            "sequence": 6,
+            "arrivalTime": "08:58",
+            "serviceStartTime": "08:58",
+            "departureTime": "09:04",
+            "serviceDurationMinutes": 6,
+            "waitingMinutes": 0,
+            "timeWindow": {
+              "start": "08:00",
+              "end": "10:30"
+            },
+            "timeWindowValid": true,
+            "timingBasis": "proposed-route-assuming-service-can-complete"
+          }
+        ],
+        "legs": [
+          {
+            "fromStopId": "DEPOT",
+            "toStopId": "S03",
+            "distanceKm": 3,
+            "travelMinutes": 6,
+            "departureTime": "08:00",
+            "arrivalTime": "08:06"
+          },
+          {
+            "fromStopId": "S03",
+            "toStopId": "S06",
+            "distanceKm": 4,
+            "travelMinutes": 8,
+            "departureTime": "08:12",
+            "arrivalTime": "08:20"
+          },
+          {
+            "fromStopId": "S06",
+            "toStopId": "S05",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:26",
+            "arrivalTime": "08:30"
+          },
+          {
+            "fromStopId": "S05",
+            "toStopId": "S04",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:36",
+            "arrivalTime": "08:40"
+          },
+          {
+            "fromStopId": "S04",
+            "toStopId": "S02",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "08:46",
+            "arrivalTime": "08:50"
+          },
+          {
+            "fromStopId": "S02",
+            "toStopId": "S01",
+            "distanceKm": 1,
+            "travelMinutes": 2,
+            "departureTime": "08:56",
+            "arrivalTime": "08:58"
+          },
+          {
+            "fromStopId": "S01",
+            "toStopId": "DEPOT",
+            "distanceKm": 2,
+            "travelMinutes": 4,
+            "departureTime": "09:04",
+            "arrivalTime": "09:08"
+          }
+        ],
+        "distanceKm": 16,
+        "drivingMinutes": 32,
+        "waitingMinutes": 0,
+        "serviceMinutes": 36,
+        "totalDurationMinutes": 68,
+        "returnTime": "09:08",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": [
+            {
+              "stopId": "S03",
+              "sequence": 1,
+              "arrivalTime": "08:06",
+              "serviceStartTime": "08:06",
+              "departureTime": "08:12",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S06",
+              "sequence": 2,
+              "arrivalTime": "08:20",
+              "serviceStartTime": "08:20",
+              "departureTime": "08:26",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S05",
+              "sequence": 3,
+              "arrivalTime": "08:30",
+              "serviceStartTime": "08:30",
+              "departureTime": "08:36",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S04",
+              "sequence": 4,
+              "arrivalTime": "08:40",
+              "serviceStartTime": "08:40",
+              "departureTime": "08:46",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S02",
+              "sequence": 5,
+              "arrivalTime": "08:50",
+              "serviceStartTime": "08:50",
+              "departureTime": "08:56",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            },
+            {
+              "stopId": "S01",
+              "sequence": 6,
+              "arrivalTime": "08:58",
+              "serviceStartTime": "08:58",
+              "departureTime": "09:04",
+              "serviceDurationMinutes": 6,
+              "waitingMinutes": 0,
+              "timeWindow": {
+                "start": "08:00",
+                "end": "10:30"
+              },
+              "timeWindowValid": true,
+              "timingBasis": "proposed-route-assuming-service-can-complete"
+            }
+          ]
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 1,
+          "vehicleFixedCost": 110,
+          "drivingCost": 35.2,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 145.2,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [
+          "NEW-1-1",
+          "NEW-2-1",
+          "NEW-2-2",
+          "NEW-3-1",
+          "NEW-3-2",
+          "NEW-3-3",
+          "NEW-4-1",
+          "NEW-5-1",
+          "NEW-5-2",
+          "NEW-6-1",
+          "NEW-6-2",
+          "NEW-6-3"
+        ],
+        "placements": null,
+        "unloading": null,
+        "loadingCheck": {
+          "checked": false,
+          "valid": false
+        },
+        "unloadingCheck": {
+          "checked": false,
+          "valid": false,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": false,
+          "reasons": [
+            {
+              "type": "layout_search_failed",
+              "stopId": "S05",
+              "vehicleId": "V01",
+              "message": "当前有限布局集合未找到可装、可卸的门店分区",
+              "notGlobalInfeasibility": true
+            }
+          ]
+        },
+        "layoutSearch": {
+          "found": false,
+          "reason": {
+            "type": "layout_search_failed",
+            "stopId": "S05",
+            "vehicleId": "V01",
+            "message": "当前有限布局集合未找到可装、可卸的门店分区",
+            "notGlobalInfeasibility": true
+          }
+        },
+        "active": true,
+        "status": "search_failed"
+      },
+      {
+        "planId": "PLAN-4e56ffbba014",
+        "scenarioId": "city-independent-six-stop-003",
+        "vehicleId": "V02",
+        "stopOrder": [],
+        "routeNodeIds": [
+          "DEPOT"
+        ],
+        "arrivals": [],
+        "legs": [],
+        "distanceKm": 0,
+        "drivingMinutes": 0,
+        "waitingMinutes": 0,
+        "serviceMinutes": 0,
+        "totalDurationMinutes": 0,
+        "returnTime": "08:00",
+        "timeWindowCheck": {
+          "checked": true,
+          "valid": true,
+          "rule": "服务开始须处于时间窗；提前到店等待。",
+          "arrivals": []
+        },
+        "costs": {
+          "currency": "CNY",
+          "vehicleCount": 0,
+          "vehicleFixedCost": 0,
+          "drivingCost": 0.0,
+          "extraHandlingMoves": 0,
+          "extraHandlingCost": 0,
+          "waitingCost": 0,
+          "totalCost": 0,
+          "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。"
+        },
+        "cargoIds": [],
+        "loadingCheck": {
+          "checked": true,
+          "valid": true,
+          "checks": {
+            "boundary": {
+              "checked": true,
+              "valid": true
+            },
+            "collision": {
+              "checked": true,
+              "valid": true
+            },
+            "weight": {
+              "checked": true,
+              "valid": true
+            },
+            "orientation": {
+              "checked": true,
+              "valid": true
+            },
+            "fragile": {
+              "checked": true,
+              "valid": true
+            },
+            "support": {
+              "checked": true,
+              "valid": true
+            },
+            "loadBearing": {
+              "checked": true,
+              "valid": true
+            }
+          },
+          "totalWeightKg": 0,
+          "maxPayloadKg": 650,
+          "totalCargoVolumeM3": 0,
+          "compartmentVolumeM3": 38.5,
+          "cargoChecks": {}
+        },
+        "loadingPathCheck": {
+          "checked": true,
+          "valid": true,
+          "reason": null
+        },
+        "unloadingCheck": {
+          "checked": true,
+          "valid": true,
+          "firstFailure": null
+        },
+        "feasibility": {
+          "executable": true,
+          "scope": "仅限场景声明的几何、支撑、重量、时间窗和后门直线装卸规则。",
+          "reasons": [],
+          "uncheckedConstraints": [
+            "整站分区，不拆分同店到不同车",
+            "底层直立箱或已有两层承托模式",
+            "后门沿 z 轴直线装卸，不允许额外搬运",
+            "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+            "有限搜索失败不代表全局无解",
+            "不证明全局最优，不支持在途自动重装"
+          ]
+        },
+        "placements": {
+          "planId": "PLAN-4e56ffbba014",
+          "vehicleId": "V02",
+          "positions": []
+        },
+        "unloading": {
+          "planId": "PLAN-4e56ffbba014",
+          "vehicleId": "V02",
+          "stopOrder": [],
+          "initialRemainingCargoIds": [],
+          "stations": [],
+          "steps": [],
+          "finalRemainingCargoIds": [],
+          "valid": true,
+          "firstFailure": null,
+          "stopAtStepId": null,
+          "extraHandling": {
+            "supported": false,
+            "allowed": false,
+            "moves": 0,
+            "cost": 0
+          },
+          "playback": {
+            "timing": "illustrative-seconds-not-real-service-duration",
+            "realTelemetry": false,
+            "advanceStationAfter": "station_complete",
+            "stopImmediatelyOn": "blocked",
+            "remainingStateField": "remainingCargoIdsAfter"
+          },
+          "scenarioId": "city-independent-six-stop-003",
+          "loadingSteps": []
+        },
+        "layoutSearch": {
+          "found": true,
+          "methods": []
+        },
+        "active": false,
+        "status": "idle"
+      }
+    ],
+    "assignments": [
+      {
+        "stopId": "S03",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-3-1",
+          "NEW-3-2",
+          "NEW-3-3"
+        ]
+      },
+      {
+        "stopId": "S06",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-6-1",
+          "NEW-6-2",
+          "NEW-6-3"
+        ]
+      },
+      {
+        "stopId": "S05",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-5-1",
+          "NEW-5-2"
+        ]
+      },
+      {
+        "stopId": "S04",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-4-1"
+        ]
+      },
+      {
+        "stopId": "S02",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-2-1",
+          "NEW-2-2"
+        ]
+      },
+      {
+        "stopId": "S01",
+        "vehicleId": "V01",
+        "cargoIds": [
+          "NEW-1-1"
+        ]
+      }
+    ],
+    "totals": {
+      "vehicleCount": 1,
+      "distanceKm": 16,
+      "drivingMinutes": 32,
+      "totalDurationMinutes": 68,
+      "currency": "CNY",
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "vehicleFixedCost": 110,
+      "drivingCost": 35.2,
+      "totalCost": 145.2
+    },
+    "assignmentCheck": {
+      "checked": true,
+      "everyStopServedOnce": true,
+      "everyCargoAssignedOnce": true
+    },
+    "feasibility": {
+      "executable": false,
+      "reasons": [
+        {
+          "type": "layout_search_failed",
+          "stopId": "S05",
+          "vehicleId": "V01",
+          "message": "当前有限布局集合未找到可装、可卸的门店分区",
+          "notGlobalInfeasibility": true
+        }
+      ],
+      "uncheckedConstraints": [
+        "整站分区，不拆分同店到不同车",
+        "底层直立箱或已有两层承托模式",
+        "后门沿 z 轴直线装卸，不允许额外搬运",
+        "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+        "有限搜索失败不代表全局无解",
+        "不证明全局最优，不支持在途自动重装"
+      ]
+    },
+    "globallyOptimal": false
+  },
+  "confirmed": false,
+  "authorization": {
+    "allowLayoutRepair": false,
+    "allowReassignment": false,
+    "initialPlanning": true,
+    "automaticConfirmation": false
+  },
+  "strategy": "route-first",
+  "timing": {
+    "solveMs": 1.078,
+    "constraintCheckMs": 3.725,
+    "layoutGenerationMs": 0.049,
+    "overallComputeMs": 5.765,
+    "budgetMs": 2000,
+    "solverCalls": 1,
+    "routeCandidates": 1,
+    "layoutCandidatesChecked": 12
+  },
+  "search": {
+    "trace": [
+      {
+        "phase": "route-first-check",
+        "routes": [
+          {
+            "vehicleId": "V01",
+            "stopOrder": [
+              "S03",
+              "S06",
+              "S05",
+              "S04",
+              "S02",
+              "S01"
+            ]
+          },
+          {
+            "vehicleId": "V02",
+            "stopOrder": []
+          }
+        ],
+        "executable": false,
+        "failures": [
+          {
+            "type": "layout_search_failed",
+            "stopId": "S05",
+            "vehicleId": "V01",
+            "message": "当前有限布局集合未找到可装、可卸的门店分区",
+            "notGlobalInfeasibility": true
+          }
+        ]
+      }
+    ],
+    "exhausted": true,
+    "limits": {
+      "stops": 16,
+      "vehicles": 6,
+      "cargo": 96,
+      "cargoPerStop": 16,
+      "budgetMs": 5000,
+      "routeCandidates": 6,
+      "layoutCandidatesPerStop": 8
+    },
+    "notGlobalInfeasibility": true,
+    "failureEvidence": [
+      {
+        "type": "boundary",
+        "message": "装载约束未通过：boundary",
+        "cargoIds": [
+          "NEW-5-2"
+        ]
+      },
+      {
+        "type": "loading_path",
+        "message": "Unsafe loading path for NEW-5-2"
+      },
+      {
+        "type": "unloading_blocked",
+        "stopId": "S05",
+        "stepId": "STOP-CHECK-V01-U004",
+        "targetCargoIds": [
+          "NEW-5-1",
+          "NEW-5-2"
+        ],
+        "blockingCargoIds": [],
+        "conflicts": [
+          {
+            "cargoId": "NEW-5-2",
+            "stopId": "S05",
+            "blockingCargoIds": [],
+            "supportedCargoIds": [],
+            "doorClearanceValid": false,
+            "canUnload": false,
+            "reason": "后门净开口不足"
+          }
+        ],
+        "reason": "当前门店货物被挡住。停止卸货，请选择调整方案。"
+      }
+    ],
+    "scope": [
+      "整站分区，不拆分同店到不同车",
+      "底层直立箱或已有两层承托模式",
+      "后门沿 z 轴直线装卸，不允许额外搬运",
+      "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+      "有限搜索失败不代表全局无解",
+      "不证明全局最优，不支持在途自动重装"
+    ]
+  },
+  "revision": {
+    "changedCargoIds": [],
+    "changes": [],
+    "requiresReloadBeforeDispatch": false,
+    "reassigned": false,
+    "reloadingCostIncluded": false,
+    "confirmed": false
+  },
+  "unassignedStopIds": [],
+  "actualExecutablePlanCost": null,
+  "capabilityBoundary": [
+    "整站分区，不拆分同店到不同车",
+    "底层直立箱或已有两层承托模式",
+    "后门沿 z 轴直线装卸，不允许额外搬运",
+    "无轴荷、重心、绑扎、冷链、真实交通或司机工时检查",
+    "有限搜索失败不代表全局无解",
+    "不证明全局最优，不支持在途自动重装"
+  ]
+}

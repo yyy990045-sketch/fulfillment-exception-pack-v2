@@ -1,0 +1,13 @@
+{
+  "httpStatus": 422,
+  "response": {
+    "error": "scenario.cargo[0].length: 数值超出受支持范围 (0, 15)",
+    "solverStatus": "INPUT_INVALID",
+    "field": "scenario.cargo[0].length",
+    "executionMode": "request-rejected",
+    "serviceTiming": {
+      "overallInterfaceMs": 53.235,
+      "hardTimeoutSeconds": 8
+    }
+  }
+}

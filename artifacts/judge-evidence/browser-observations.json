@@ -1,0 +1,1316 @@
+{
+  "time": "2026-10-10T14:15:35.513Z",
+  "scope": "ephemeral browser state only; health failure is simulated in page, not real server shutdown",
+  "observations": [
+    {
+      "name": "saved-plan-switch-no-compute",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/dispatch",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "FLEET_ADJUSTED",
+      "vehicle": "V02",
+      "version": "已保存方案\nFLEET_ADJUSTED · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [],
+      "calls": [],
+      "unexpectedError": false
+    },
+    {
+      "name": "fleet-wrong-width",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/dispatch",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "SUBMITTED-83485cbf6f88",
+      "vehicle": "V01",
+      "version": "提交草案 · 检查未通过\nSUBMITTED-83485cbf6f88 · 3 辆 / 58 km / ¥601.8\n保留计划：FLEET_ADJUSTED · ¥450.4",
+      "feedback": "提交草案未通过，原计划未改变\n\n车辆归属与路线已按实际约束检查。\n\n允许重新分配\n保留原计划\n约束检查详情\n\n配送门店 09：整站两列布局至少需要 2.50 m 宽度，本车只有 2.10 m，需换车或改变分配。",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "candidate-pending-confirmation",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/dispatch",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已校验修订 · 待确认\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4\n保留计划：FLEET_ADJUSTED · ¥450.4",
+      "feedback": "修订已校验，等待确认采用\n\n车辆归属与路线已按实际约束检查。\n\n查看原提交影响\n确认采用修订方案\n保留原计划\n配送门店 03 V01 → V02\n配送门店 08 V03 → V02\n配送门店 07 V03 → V02\n配送门店 09 V01 → V03\n配送门店 05 V02 → V03\n配送门店 04 V02 → V03\n配送门店 01 V01 → V03\n相对原提交分配（不可执行时为名义值）\n-20 km · -151.4 元 · +8 分钟",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "candidate-execution-disabled",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/execution",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已校验修订 · 待确认\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4\n保留计划：FLEET_ADJUSTED · ¥450.4",
+      "executionButton": [
+        {
+          "label": " 确认并开始演示",
+          "disabled": true
+        }
+      ],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "candidate-explicitly-confirmed",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/execution",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [
+        {
+          "label": " 确认并开始演示",
+          "disabled": false
+        }
+      ],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-overview",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/overview",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "feedback": "已确认的修订方案\n\n车辆归属与路线已按实际约束检查。\n\n查看原提交影响\n配送门店 03 V01 → V02\n配送门店 08 V03 → V02\n配送门店 07 V03 → V02\n配送门店 09 V01 → V03\n配送门店 05 V02 → V03\n配送门店 04 V02 → V03\n配送门店 01 V01 → V03\n相对原提交分配（不可执行时为名义值）\n-20 km · -151.4 元 · +8 分钟",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-orders",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/orders",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-dispatch",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/dispatch",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-packing",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/packing",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "feedback": "已确认的修订方案\n\n车辆归属与路线已按实际约束检查。\n\n查看原提交影响\n配送门店 03 V01 → V02\n配送门店 08 V03 → V02\n配送门店 07 V03 → V02\n配送门店 09 V01 → V03\n配送门店 05 V02 → V03\n配送门店 04 V02 → V03\n配送门店 01 V01 → V03\n相对原提交分配（不可执行时为名义值）\n-20 km · -151.4 元 · +8 分钟",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-execution",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/execution",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [
+        {
+          "label": " 确认并开始演示",
+          "disabled": false
+        }
+      ],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "six-pages-effects",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/effects",
+      "scenario": "city-delivery-multivehicle-synthetic-001",
+      "plan": "REVISED-a49f0137fefd",
+      "vehicle": "V02",
+      "version": "已确认修订方案\nREVISED-a49f0137fefd · 2 辆 / 38 km / ¥450.4",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "unexpectedError": false
+    },
+    {
+      "name": "order-live-repair",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/packing",
+      "scenario": "city-delivery-synthetic-001",
+      "plan": "ORDER-45a5f7dd82e4",
+      "vehicle": "V01",
+      "version": "已校验修订 · 待确认\nORDER-45a5f7dd82e4 · 1 辆 / 16 km / ¥236\n保留计划：PLAN_B · ¥236",
+      "feedback": "修订已校验，等待确认采用\n\n移动 8 件货物；须在发车前按新布局重新准备装车。\n\n查看原提交影响\n确认采用修订方案\n保留原计划\n相对原已保存方案\n+0 km · +0 元 · +1 分钟",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "08:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        }
+      ],
+      "remaining": "16",
+      "unexpectedError": false
+    },
+    {
+      "name": "late-departure-infeasible",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/packing",
+      "scenario": "city-delivery-synthetic-001",
+      "plan": "ORDER-6b840edc0f9b",
+      "vehicle": "V01",
+      "version": "提交草案 · 检查未通过\nORDER-6b840edc0f9b · 1 辆 / 16 km / ¥236\n保留计划：ORDER-45a5f7dd82e4 · ¥236",
+      "feedback": "提交草案未通过，原计划未改变\n\n移动 8 件货物；须在发车前按新布局重新准备装车。\n\n允许修订装载布局\n保留原计划\n约束检查详情\n\n河畔店：服务开始时间已超过门店时间窗。\n\n西桥店：服务开始时间已超过门店时间窗。\n\n南苑店：服务开始时间已超过门店时间窗。\n\n东城店：当前门店货物被挡住。停止卸货，请选择调整方案。",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "08:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "09:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        }
+      ],
+      "remaining": "16",
+      "unexpectedError": false
+    },
+    {
+      "name": "failure-preserves-confirmed",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/packing",
+      "scenario": "city-delivery-synthetic-001",
+      "plan": "ORDER-45a5f7dd82e4",
+      "vehicle": "V01",
+      "version": "已保存方案\nORDER-45a5f7dd82e4 · 1 辆 / 16 km / ¥236",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "08:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "09:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        }
+      ],
+      "remaining": "16",
+      "unexpectedError": false
+    },
+    {
+      "name": "page-local-service-offline-simulation",
+      "url": "http://127.0.0.1:8111/frontend/city-delivery/packing",
+      "scenario": "city-delivery-synthetic-001",
+      "plan": "ORDER-45a5f7dd82e4",
+      "vehicle": "V01",
+      "version": "已保存方案\nORDER-45a5f7dd82e4 · 1 辆 / 16 km / ¥236",
+      "service": "调整服务不可用 · 已保存场景可继续查看，实时提交已禁用。",
+      "executionButton": [],
+      "calls": [
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": false
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-fleet",
+          "body": {
+            "scenarioId": "city-delivery-multivehicle-synthetic-001",
+            "routes": [
+              {
+                "vehicleId": "V01",
+                "stopOrder": [
+                  "S03",
+                  "S01",
+                  "S09"
+                ]
+              },
+              {
+                "vehicleId": "V02",
+                "stopOrder": [
+                  "S05",
+                  "S04",
+                  "S06"
+                ]
+              },
+              {
+                "vehicleId": "V03",
+                "stopOrder": [
+                  "S02",
+                  "S07",
+                  "S08"
+                ]
+              }
+            ],
+            "allowReassignment": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "08:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": true,
+          "mode": "computed-per-request"
+        },
+        {
+          "url": "/api/city-delivery/revise-order",
+          "body": {
+            "scenarioId": "city-delivery-synthetic-001",
+            "basePlanId": "PLAN_B",
+            "stopOrder": [
+              "S01",
+              "S02",
+              "S04",
+              "S03"
+            ],
+            "departureTime": "09:00",
+            "allowLayoutRepair": true
+          },
+          "status": 200,
+          "executable": false,
+          "mode": "computed-per-request"
+        }
+      ],
+      "remaining": "16",
+      "unexpectedError": false
+    },
+    {
+      "name": "offline-controls",
+      "state": {
+        "adjustDisabled": true,
+        "playDisabled": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "2.0.0",
+  "scenarioId": "city-delivery-multivehicle-synthetic-001",
+  "source": {
+    "dataType": "synthetic",
+    "name": "Synthetic Mechanism Case · 九店三种车厢",
+    "description": "独立构造的多车辆机制演示，不是传化企业数据，不改变 v1。",
+    "license": "project-owned-synthetic",
+    "authorization": "本次任务授权构造并在项目内使用；不含第三方数据，外部分发由项目 Owner 决定。",
+    "publicBenchmarkUsed": false,
+    "enterpriseDataUsed": false
+  },
+  "dataType": "synthetic",
+  "files": {
+    "scenario": "scenario.json",
+    "plans": "plans.json",
+    "placements": "placements.json",
+    "unloadingSteps": "unloading-steps.json",
+    "comparison": "comparison.json",
+    "decisionContract": "decision-contract.json",
+    "orderExamples": "order-adjustment-examples.json",
+    "fleetExample": "fleet-adjustment-example.json"
+  },
+  "capabilities": {
+    "liveOrderRecheck": true,
+    "wholeStopLayoutRepair": true,
+    "multiVehicleRoutes": true,
+    "liveFleetRecheck": true,
+    "allowExplicitReassignment": true,
+    "extraHandling": false,
+    "arbitraryDragSolve": false,
+    "globallyOptimal": false
+  },
+  "frontend": {
+    "basePath": "/demo/city-delivery/v2/",
+    "placements": "plans[].vehicles[].positions[]",
+    "unloading": "plans[].vehicles[].stations[] / steps[] / loadingSteps[]",
+    "routes": "plans[].routes[]",
+    "assignments": "plans[].assignments[]",
+    "singleVehicleBridge": "选中车辆后用 routes[] 中的 vehicleId、stopOrder、placements、unloading。不能再只取 vehicles[0]。",
+    "rendering": "尺寸已包含朝向，最小角点坐标使用米；x宽/y高/z长、前壁0、后门最大z。"
+  },
+  "validation": {
+    "geometryActuallyChecked": true,
+    "routesActuallyChecked": true,
+    "unloadingActuallyReplayed": true,
+    "uncheckedConstraints": [
+      "轴荷与车辆重心",
+      "车辆行驶稳定性及货物绑扎",
+      "装卸工具及人员活动空间",
+      "冷链与品类隔离",
+      "真实交通和司机工时",
+      "任意旋转或侧门取货",
+      "全局最优性"
+    ]
+  },
+  "v1Protection": {
+    "unchanged": true,
+    "sha256": {
+      "comparison.json": "47c425cf43e45d524f242866a70b15bc2fbe7d3de6a125165698a8d4813d6897",
+      "manifest.json": "a98a2437df751eaf81a5d38435cb5058014eb60a6124a0d0d8ebf5ead802e300",
+      "placements.json": "6734f969266743995889e798716c1ce9dd0aeb8cacc473bc3ab276a69794027f",
+      "plans.json": "2dc29ccd973a3c60c90429b16c72fb20075bda23b540d1bbe80de4239318d5a5",
+      "scenario.json": "2ab085f8d20863baa0cb861f9ec44ef9a4fe3dfaf5aa7b316099ceb7b640aa3f",
+      "unloading-steps.json": "51f7b6cd97bef9d43a6b0cf575b14b745f47634ccdfdf9a68217d02911795878"
+    }
+  }
+}

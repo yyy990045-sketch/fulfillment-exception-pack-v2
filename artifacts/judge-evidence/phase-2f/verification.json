@@ -1,0 +1,30 @@
+{
+  "baseUrl": "http://127.0.0.1:8114",
+  "checks": [
+    {
+      "name": "validate-scene",
+      "status": 200,
+      "solverStatus": "VALID",
+      "valid": true
+    },
+    {
+      "name": "plan-scene",
+      "status": 200,
+      "solverStatus": "FEASIBLE",
+      "executable": true,
+      "planId": "PLAN-9971fa0b4f03",
+      "revisionId": "REV-9971fa0b4f03"
+    },
+    {
+      "name": "legacy-revise-order",
+      "status": 200,
+      "executable": true
+    },
+    {
+      "name": "legacy-revise-fleet",
+      "status": 200,
+      "executable": true
+    }
+  ],
+  "note": "legacy compatibility was checked on the existing 8112 service"
+}

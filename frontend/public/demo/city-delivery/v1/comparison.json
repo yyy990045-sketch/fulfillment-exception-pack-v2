@@ -1,0 +1,454 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenarioId": "city-delivery-synthetic-001",
+  "baselinePlanId": "PLAN_A",
+  "adjustedPlanId": "PLAN_B",
+  "sameOrders": true,
+  "sameVehicle": true,
+  "sameCostRules": true,
+  "plans": [
+    {
+      "planId": "PLAN_A",
+      "name": "方案 A · 基础配送",
+      "distanceKm": 12,
+      "currency": "CNY",
+      "vehicleCount": 1,
+      "vehicleFixedCost": 180,
+      "drivingCost": 42.0,
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "waitingCost": 0,
+      "totalCost": 222.0,
+      "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。",
+      "drivingMinutes": 24,
+      "totalDurationMinutes": 49,
+      "returnTime": "08:49",
+      "arrivals": [
+        {
+          "stopId": "S01",
+          "sequence": 1,
+          "arrivalTime": "08:04",
+          "serviceStartTime": "08:05",
+          "departureTime": "08:11",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 1,
+          "timeWindow": {
+            "start": "08:05",
+            "end": "09:05"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S02",
+          "sequence": 2,
+          "arrivalTime": "08:15",
+          "serviceStartTime": "08:15",
+          "departureTime": "08:21",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:00",
+            "end": "09:00"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S03",
+          "sequence": 3,
+          "arrivalTime": "08:25",
+          "serviceStartTime": "08:25",
+          "departureTime": "08:31",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:10",
+            "end": "09:30"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S04",
+          "sequence": 4,
+          "arrivalTime": "08:35",
+          "serviceStartTime": "08:35",
+          "departureTime": "08:41",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:15",
+            "end": "09:20"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        }
+      ],
+      "timeWindowsSatisfied": true,
+      "loadingFeasible": true,
+      "unloadingFeasible": false,
+      "executable": false,
+      "costInterpretation": "不可执行计划的名义费用，不能据此认定更优"
+    },
+    {
+      "planId": "PLAN_B",
+      "name": "方案 B · 顺序与布局调整",
+      "distanceKm": 16,
+      "currency": "CNY",
+      "vehicleCount": 1,
+      "vehicleFixedCost": 180,
+      "drivingCost": 56.0,
+      "extraHandlingMoves": 0,
+      "extraHandlingCost": 0,
+      "waitingCost": 0,
+      "totalCost": 236.0,
+      "basis": "同一车辆、货物、费用规则下的计划费用；不可执行方案不代表实际完成配送的费用。",
+      "drivingMinutes": 32,
+      "totalDurationMinutes": 56,
+      "returnTime": "08:56",
+      "arrivals": [
+        {
+          "stopId": "S02",
+          "sequence": 1,
+          "arrivalTime": "08:08",
+          "serviceStartTime": "08:08",
+          "departureTime": "08:14",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:00",
+            "end": "09:00"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S01",
+          "sequence": 2,
+          "arrivalTime": "08:18",
+          "serviceStartTime": "08:18",
+          "departureTime": "08:24",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:05",
+            "end": "09:05"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S04",
+          "sequence": 3,
+          "arrivalTime": "08:28",
+          "serviceStartTime": "08:28",
+          "departureTime": "08:34",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:15",
+            "end": "09:20"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        },
+        {
+          "stopId": "S03",
+          "sequence": 4,
+          "arrivalTime": "08:38",
+          "serviceStartTime": "08:38",
+          "departureTime": "08:44",
+          "serviceDurationMinutes": 6,
+          "waitingMinutes": 0,
+          "timeWindow": {
+            "start": "08:10",
+            "end": "09:30"
+          },
+          "timeWindowValid": true,
+          "timingBasis": "proposed-route-assuming-service-can-complete"
+        }
+      ],
+      "timeWindowsSatisfied": true,
+      "loadingFeasible": true,
+      "unloadingFeasible": true,
+      "executable": true,
+      "costInterpretation": "可执行计划的预计费用"
+    }
+  ],
+  "delta": {
+    "direction": "PLAN_B-minus-PLAN_A",
+    "distanceKm": 4,
+    "vehicleCount": 0,
+    "vehicleFixedCost": 0,
+    "drivingCost": 14.0,
+    "extraHandlingMoves": 0,
+    "extraHandlingCost": 0,
+    "totalCost": 14.0,
+    "drivingMinutes": 8,
+    "totalDurationMinutes": 7
+  },
+  "changes": {
+    "stopOrderBefore": [
+      "S01",
+      "S02",
+      "S03",
+      "S04"
+    ],
+    "stopOrderAfter": [
+      "S02",
+      "S01",
+      "S04",
+      "S03"
+    ],
+    "placements": [
+      {
+        "cargoId": "C01-01",
+        "from": {
+          "x": 0.12,
+          "y": 0,
+          "z": 0.2,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.12,
+          "y": 0,
+          "z": 2.9,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C01-02",
+        "from": {
+          "x": 1.18,
+          "y": 0,
+          "z": 0.2,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.18,
+          "y": 0,
+          "z": 2.9,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C01-03",
+        "from": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 0.275,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 2.975,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C01-04",
+        "from": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 0.275,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 2.975,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C02-01",
+        "from": {
+          "x": 0.12,
+          "y": 0,
+          "z": 1.55,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.12,
+          "y": 0,
+          "z": 4.25,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C02-02",
+        "from": {
+          "x": 1.18,
+          "y": 0,
+          "z": 1.55,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.18,
+          "y": 0,
+          "z": 4.25,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C02-03",
+        "from": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 1.625,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 4.325,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C02-04",
+        "from": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 1.625,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 4.325,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C03-01",
+        "from": {
+          "x": 0.12,
+          "y": 0,
+          "z": 2.9,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.12,
+          "y": 0,
+          "z": 0.2,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C03-02",
+        "from": {
+          "x": 1.18,
+          "y": 0,
+          "z": 2.9,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.18,
+          "y": 0,
+          "z": 0.2,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C03-03",
+        "from": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 2.975,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 0.275,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C03-04",
+        "from": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 2.975,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 0.275,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C04-01",
+        "from": {
+          "x": 0.12,
+          "y": 0,
+          "z": 4.25,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.12,
+          "y": 0,
+          "z": 1.55,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C04-02",
+        "from": {
+          "x": 1.18,
+          "y": 0,
+          "z": 4.25,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.18,
+          "y": 0,
+          "z": 1.55,
+          "rotation": 90
+        }
+      },
+      {
+        "cargoId": "C04-03",
+        "from": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 4.325,
+          "rotation": 0
+        },
+        "to": {
+          "x": 0.16,
+          "y": 0.55,
+          "z": 1.625,
+          "rotation": 0
+        }
+      },
+      {
+        "cargoId": "C04-04",
+        "from": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 4.325,
+          "rotation": 90
+        },
+        "to": {
+          "x": 1.22,
+          "y": 0.55,
+          "z": 1.625,
+          "rotation": 90
+        }
+      }
+    ]
+  },
+  "decision": {
+    "recommendedPlanId": "PLAN_B",
+    "reason": "方案 A 虽然名义路线较短，但首站无法卸货；方案 B 增加 4 km，调整顺序和布局后能逐站直接卸货。",
+    "costSavingClaim": false,
+    "optimizedGlobally": false,
+    "comparisonBoundary": "比较的是不可执行基础计划与已校验调整计划，不证明联合优化一般优于其他方法。"
+  }
+}

@@ -1,0 +1,2727 @@
+{
+  "schemaVersion": "2.0.0",
+  "scenarioId": "city-delivery-multivehicle-synthetic-001",
+  "coordinateSystem": {
+    "units": "m",
+    "origin": "车厢前壁左下角",
+    "position": "minimum-corner",
+    "x": "车厢宽度方向",
+    "y": "竖直向上",
+    "z": "前壁到后门方向",
+    "lengthAxis": "z",
+    "widthAxis": "x",
+    "heightAxis": "y",
+    "rotation": "rotation 为绕 y 轴的角度，单位 degrees；禁止俯仰或侧翻。"
+  },
+  "plans": [
+    {
+      "planId": "FLEET_BASELINE",
+      "vehicles": [
+        {
+          "planId": "FLEET_BASELINE",
+          "vehicleId": "V01",
+          "positions": [
+            {
+              "cargoId": "C01-01",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.05,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C01-03"
+                ],
+                "topLoadKg": 10.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-02",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 1.0,
+              "y": 0,
+              "z": 1.05,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C01-04"
+                ],
+                "topLoadKg": 10.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-03",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 1.09,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C01-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-04",
+              "stopId": "S01",
+              "vehicleId": "V01",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 1.09,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C01-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-01",
+              "stopId": "S02",
+              "vehicleId": "V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C02-03"
+                ],
+                "topLoadKg": 11.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-02",
+              "stopId": "S02",
+              "vehicleId": "V01",
+              "x": 1.0,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C02-04"
+                ],
+                "topLoadKg": 11.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-03",
+              "stopId": "S02",
+              "vehicleId": "V01",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C02-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-04",
+              "stopId": "S02",
+              "vehicleId": "V01",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C02-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-01",
+              "stopId": "S03",
+              "vehicleId": "V01",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.0,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C03-03"
+                ],
+                "topLoadKg": 12.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-02",
+              "stopId": "S03",
+              "vehicleId": "V01",
+              "x": 1.0,
+              "y": 0,
+              "z": 2.0,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C03-04"
+                ],
+                "topLoadKg": 12.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-03",
+              "stopId": "S03",
+              "vehicleId": "V01",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 2.04,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C03-01"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-04",
+              "stopId": "S03",
+              "vehicleId": "V01",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 2.04,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C03-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        {
+          "planId": "FLEET_BASELINE",
+          "vehicleId": "V02",
+          "positions": [
+            {
+              "cargoId": "C04-01",
+              "stopId": "S04",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.3,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C04-03"
+                ],
+                "topLoadKg": 13.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-02",
+              "stopId": "S04",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 1.3,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C04-04"
+                ],
+                "topLoadKg": 13.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-03",
+              "stopId": "S04",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 1.34,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C04-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-04",
+              "stopId": "S04",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 1.34,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C04-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-01",
+              "stopId": "S05",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.5,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C05-03"
+                ],
+                "topLoadKg": 14.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-02",
+              "stopId": "S05",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 2.5,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C05-04"
+                ],
+                "topLoadKg": 14.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-03",
+              "stopId": "S05",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 2.54,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C05-01"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-04",
+              "stopId": "S05",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 2.54,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C05-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-01",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C06-03"
+                ],
+                "topLoadKg": 15.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-02",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 0.1,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C06-04"
+                ],
+                "topLoadKg": 15.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-03",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C06-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-04",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C06-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        {
+          "planId": "FLEET_BASELINE",
+          "vehicleId": "V03",
+          "positions": [
+            {
+              "cargoId": "C07-01",
+              "stopId": "S07",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.1,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C07-03"
+                ],
+                "topLoadKg": 16.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-02",
+              "stopId": "S07",
+              "vehicleId": "V03",
+              "x": 1.25,
+              "y": 0,
+              "z": 1.1,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C07-04"
+                ],
+                "topLoadKg": 16.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-03",
+              "stopId": "S07",
+              "vehicleId": "V03",
+              "x": 0.14,
+              "y": 0.5,
+              "z": 1.13,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C07-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-04",
+              "stopId": "S07",
+              "vehicleId": "V03",
+              "x": 1.29,
+              "y": 0.5,
+              "z": 1.13,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C07-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-01",
+              "stopId": "S08",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C08-03"
+                ],
+                "topLoadKg": 17.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-02",
+              "stopId": "S08",
+              "vehicleId": "V03",
+              "x": 1.25,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C08-04"
+                ],
+                "topLoadKg": 17.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-03",
+              "stopId": "S08",
+              "vehicleId": "V03",
+              "x": 0.14,
+              "y": 0.5,
+              "z": 0.13,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C08-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-04",
+              "stopId": "S08",
+              "vehicleId": "V03",
+              "x": 1.29,
+              "y": 0.5,
+              "z": 0.13,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C08-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-01",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.1,
+              "length": 1.4,
+              "width": 1.1,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C09-03"
+                ],
+                "topLoadKg": 18.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 1.3,
+              "y": 0,
+              "z": 2.1,
+              "length": 1.4,
+              "width": 1.1,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C09-04"
+                ],
+                "topLoadKg": 18.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 2.14,
+              "length": 1.32,
+              "width": 1.04,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C09-01"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 1.33,
+              "y": 0.5,
+              "z": 2.14,
+              "length": 1.32,
+              "width": 1.04,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C09-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "planId": "FLEET_ADJUSTED",
+      "vehicles": [
+        {
+          "planId": "FLEET_ADJUSTED",
+          "vehicleId": "V01",
+          "positions": []
+        },
+        {
+          "planId": "FLEET_ADJUSTED",
+          "vehicleId": "V02",
+          "positions": [
+            {
+              "cargoId": "C03-01",
+              "stopId": "S03",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 3.7,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C03-03"
+                ],
+                "topLoadKg": 12.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-02",
+              "stopId": "S03",
+              "vehicleId": "V02",
+              "x": 1.0,
+              "y": 0,
+              "z": 3.7,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C03-04"
+                ],
+                "topLoadKg": 12.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-03",
+              "stopId": "S03",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 3.74,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C03-01"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C03-04",
+              "stopId": "S03",
+              "vehicleId": "V02",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 3.74,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C03-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-01",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.5,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C06-03"
+                ],
+                "topLoadKg": 15.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-02",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 2.5,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C06-04"
+                ],
+                "topLoadKg": 15.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-03",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 2.54,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C06-01"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C06-04",
+              "stopId": "S06",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 2.54,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C06-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-01",
+              "stopId": "S07",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C07-03"
+                ],
+                "topLoadKg": 16.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-02",
+              "stopId": "S07",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 0.1,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C07-04"
+                ],
+                "topLoadKg": 16.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-03",
+              "stopId": "S07",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C07-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C07-04",
+              "stopId": "S07",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C07-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-01",
+              "stopId": "S08",
+              "vehicleId": "V02",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.3,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C08-03"
+                ],
+                "topLoadKg": 17.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-02",
+              "stopId": "S08",
+              "vehicleId": "V02",
+              "x": 1.05,
+              "y": 0,
+              "z": 1.3,
+              "length": 1.05,
+              "width": 0.85,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C08-04"
+                ],
+                "topLoadKg": 17.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-03",
+              "stopId": "S08",
+              "vehicleId": "V02",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 1.34,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C08-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C08-04",
+              "stopId": "S08",
+              "vehicleId": "V02",
+              "x": 1.08,
+              "y": 0.5,
+              "z": 1.34,
+              "length": 0.97,
+              "width": 0.79,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C08-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        },
+        {
+          "planId": "FLEET_ADJUSTED",
+          "vehicleId": "V03",
+          "positions": [
+            {
+              "cargoId": "C01-01",
+              "stopId": "S01",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C01-03"
+                ],
+                "topLoadKg": 10.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-02",
+              "stopId": "S01",
+              "vehicleId": "V03",
+              "x": 1.0,
+              "y": 0,
+              "z": 0.1,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C01-04"
+                ],
+                "topLoadKg": 10.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-03",
+              "stopId": "S01",
+              "vehicleId": "V03",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C01-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C01-04",
+              "stopId": "S01",
+              "vehicleId": "V03",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 0.14,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C01-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-01",
+              "stopId": "S02",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 1.05,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C02-03"
+                ],
+                "topLoadKg": 11.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-02",
+              "stopId": "S02",
+              "vehicleId": "V03",
+              "x": 1.0,
+              "y": 0,
+              "z": 1.05,
+              "length": 0.8,
+              "width": 0.8,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C02-04"
+                ],
+                "topLoadKg": 11.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-03",
+              "stopId": "S02",
+              "vehicleId": "V03",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 1.09,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C02-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C02-04",
+              "stopId": "S02",
+              "vehicleId": "V03",
+              "x": 1.03,
+              "y": 0.5,
+              "z": 1.09,
+              "length": 0.72,
+              "width": 0.74,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C02-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-01",
+              "stopId": "S04",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 2.0,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C04-03"
+                ],
+                "topLoadKg": 13.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-02",
+              "stopId": "S04",
+              "vehicleId": "V03",
+              "x": 1.25,
+              "y": 0,
+              "z": 2.0,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C04-04"
+                ],
+                "topLoadKg": 13.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-03",
+              "stopId": "S04",
+              "vehicleId": "V03",
+              "x": 0.14,
+              "y": 0.5,
+              "z": 2.03,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C04-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C04-04",
+              "stopId": "S04",
+              "vehicleId": "V03",
+              "x": 1.29,
+              "y": 0.5,
+              "z": 2.03,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C04-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-01",
+              "stopId": "S05",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 3.0,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C05-03"
+                ],
+                "topLoadKg": 14.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-02",
+              "stopId": "S05",
+              "vehicleId": "V03",
+              "x": 1.25,
+              "y": 0,
+              "z": 3.0,
+              "length": 0.85,
+              "width": 1.05,
+              "height": 0.5,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C05-04"
+                ],
+                "topLoadKg": 14.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-03",
+              "stopId": "S05",
+              "vehicleId": "V03",
+              "x": 0.14,
+              "y": 0.5,
+              "z": 3.03,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C05-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C05-04",
+              "stopId": "S05",
+              "vehicleId": "V03",
+              "x": 1.29,
+              "y": 0.5,
+              "z": 3.03,
+              "length": 0.79,
+              "width": 0.97,
+              "height": 0.4,
+              "rotation": 90,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C05-02"
+                ],
+                "supportRatio": 1.0,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-01",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 0.1,
+              "y": 0,
+              "z": 4.0,
+              "length": 1.4,
+              "width": 1.1,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C09-03"
+                ],
+                "topLoadKg": 18.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-02",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 1.3,
+              "y": 0,
+              "z": 4.0,
+              "length": 1.4,
+              "width": 1.1,
+              "height": 0.5,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "floor",
+                "supportingCargoIds": [],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 1,
+                "supportedCargoIds": [
+                  "C09-04"
+                ],
+                "topLoadKg": 18.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-03",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 0.13,
+              "y": 0.5,
+              "z": 4.04,
+              "length": 1.32,
+              "width": 1.04,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C09-01"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            },
+            {
+              "cargoId": "C09-04",
+              "stopId": "S09",
+              "vehicleId": "V03",
+              "x": 1.33,
+              "y": 0.5,
+              "z": 4.04,
+              "length": 1.32,
+              "width": 1.04,
+              "height": 0.4,
+              "rotation": 0,
+              "rotationUnit": "degrees",
+              "dimensionsBasis": "oriented-axis-aligned",
+              "support": {
+                "type": "cargo",
+                "supportingCargoIds": [
+                  "C09-02"
+                ],
+                "supportRatio": 1,
+                "minimumSupportRatio": 1.0,
+                "valid": true
+              },
+              "stacking": {
+                "layer": 2,
+                "supportedCargoIds": [],
+                "topLoadKg": 0.0
+              },
+              "spaceCheck": {
+                "boundaryValid": true,
+                "collisionFree": true,
+                "overlappingCargoIds": [],
+                "orientationValid": true,
+                "fragileValid": true,
+                "loadBearingValid": true,
+                "valid": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,11 +8,14 @@ import { OperationsPage } from "../features/operations/pages/operations-page.js"
 import { JudgePage } from "../features/judge/pages/judge-page.js";
 import { GenericContextWorkspacePage } from "../features/workspace/pages/generic-context-workspace-page.js";
 import { SolutionPackPage } from "../features/workspace/pages/solution-pack-page.js";
-
-export const appRoutes: RouteObject[] = [{
+import { logisticsRoute } from './logistics-routes.js';
+import CityDeliveryWorkbench from '../features/city-delivery/workbench';
+import CityDeliveryProduct from '../features/city-delivery/product/app';
+const directLogistics = import.meta.env.VITE_LOGISTICS_DIRECT === "true";
+export const appRoutes: RouteObject[] = [{ path: '/frontend/city-delivery/legacy', element: <CityDeliveryWorkbench /> }, { path: '/frontend/city-delivery/*', element: <CityDeliveryProduct /> }, logisticsRoute, {
   element: <AppShell><Outlet /></AppShell>,
   children: [
-    { path: "/", element: <Navigate to="/manufacturing/ctx-so-mfg-001" replace /> },
+    { path: "/", element: directLogistics ? <Navigate to="/frontend/city-delivery" replace /> : <Navigate to="/manufacturing/ctx-so-mfg-001" replace /> },
     { path: "/manufacturing/:contextId", element: <ManufacturingContextPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId", element: <ExceptionRecordPage /> },
     { path: "/manufacturing/:contextId/exceptions/:exceptionId/overview", element: <ExceptionRecordPage /> },

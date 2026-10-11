@@ -1,0 +1,13 @@
+{
+  "httpStatus": 422,
+  "response": {
+    "error": "scenario.cargo[0]: 缺少字段 weightKg",
+    "solverStatus": "INPUT_INVALID",
+    "field": "scenario.cargo[0]",
+    "executionMode": "request-rejected",
+    "serviceTiming": {
+      "overallInterfaceMs": 51.705,
+      "hardTimeoutSeconds": 8
+    }
+  }
+}

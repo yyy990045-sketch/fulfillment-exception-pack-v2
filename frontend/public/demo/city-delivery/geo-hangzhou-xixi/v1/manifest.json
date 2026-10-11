@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "geo-1.0",
+  "scenarioId": "city-delivery-geo-hangzhou-xixi-001",
+  "region": "杭州城西固定区域",
+  "files": {
+    "scenario": "scenario.json",
+    "roads": "roads.geojson",
+    "buildings": "buildings.geojson",
+    "stores": "stores.geojson",
+    "plans": "plans.json",
+    "routeGeometries": "route-geometries.json",
+    "contract": "decision-contract.json"
+  },
+  "source": {
+    "dataType": "synthetic",
+    "name": "OSM-derived spatial demo",
+    "description": "真实 OSM 道路与建筑轮廓叠加合成配送订单；不是企业订单。",
+    "license": "ODbL 1.0 for OpenStreetMap-derived data; project-owned synthetic orders",
+    "authorization": "用于本项目本地演示；保留 OSM attribution。"
+  },
+  "capabilities": [
+    "real-osm-road-geometry",
+    "osm-building-footprints",
+    "building-height-source",
+    "route-plan-overlay"
+  ],
+  "boundary": [
+    "orders and plan costs remain synthetic",
+    "no live traffic",
+    "no online routing service",
+    "road geometry is local OSM snapshot"
+  ]
+}
