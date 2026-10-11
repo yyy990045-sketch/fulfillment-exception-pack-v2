@@ -1,0 +1,12 @@
+{
+  "id": "phase-2g-integration",
+  "title": "统一城市配送服务并接入新场景规划",
+  "status": "completed",
+  "complexity": "L+",
+  "risk": "medium",
+  "domain": "fullstack",
+  "currentPhase": "completed",
+  "nextAction": "归档任务并交付 Phase 2G",
+  "createdAt": "2026-10-11T00:00:00Z",
+  "branch": "working-tree"
+}
