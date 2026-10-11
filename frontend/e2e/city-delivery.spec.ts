@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const fixture=JSON.parse(await readFile(path.resolve('tools/city-delivery-decision/examples-2f/legal-request.json'),'utf8'));
-async function go(page:Page,name:string){await page.getByRole('navigation',{name:'城市配送导航'}).getByRole('link',{name:new RegExp(name)}).click();}
+async function go(page:Page,name:string){const link=page.getByRole('navigation',{name:'城市配送导航'}).getByRole('link',{name:new RegExp(name)});await link.click();await expect(link).toHaveAttribute('aria-current','page');}
 async function importAndPlan(page:Page){
  await page.goto('/frontend/city-delivery/orders');
  await page.getByRole('button',{name:'导入配送任务',exact:true}).click();
@@ -25,8 +25,15 @@ test('六店完整主线：同一计划、确认、装卸、JSON 与可打印作
   await go(page,name);await expect(page.locator('.city-product')).toHaveAttribute('data-plan',result.planId);
   await expect(page.locator('.city-product')).toHaveAttribute('data-scenario',result.scenarioId);
  }
+ await go(page,'智能调度');
+ await expect(page.locator('.p-spatial-map')).toBeVisible();
+ await expect(page.locator('.p-geo-city-map')).toHaveCount(0);
+ for(const stop of fixture.scenario.stops)await expect(page.getByRole('img',{name:'等距城市配送空间场景'})).toContainText(stop.name);
  await go(page,'执行与调整');await expect(page.getByRole('button',{name:'开始执行演示',exact:true})).toBeDisabled();
  await confirm(page);await expect(page.locator('.p-result-version')).toContainText('已确认配送计划');
+ const scene=await page.locator('.p-packing-layout').boundingBox();
+ const controls=await page.locator('.p-playback').boundingBox();
+ expect(scene!.y+scene!.height).toBeLessThanOrEqual(controls!.y);
  await page.getByRole('button',{name:'装车指导',exact:true}).click();
  await page.getByLabel('装卸播放速度').selectOption('4');
  await page.getByRole('button',{name:'播放',exact:true}).click();

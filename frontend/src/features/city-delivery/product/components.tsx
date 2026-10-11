@@ -25,6 +25,7 @@ export function PlanBar(){
 
 export function FleetMap({overview=false,simulation=false}:{overview?:boolean;simulation?:boolean}){
  const p=useCityProduct();
+ if(p.mode!=='fleet'||!['FLEET_BASELINE','FLEET_ADJUSTED'].includes(p.current.planId))return <SpatialFleetMap overview={overview} simulation={simulation}/>;
  return <GeoCityMap overview={overview} simulation={simulation} key={`${p.mode}:${p.current.planId}:${p.vehicleId}:${p.startedPlan?'running':'idle'}`}/>;
 }
 
