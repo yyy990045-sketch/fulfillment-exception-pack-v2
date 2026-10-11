@@ -1,0 +1,12 @@
+{
+  "id": "phase-2h-3d",
+  "title": "三维配载场景专项重构",
+  "status": "completed",
+  "complexity": "M",
+  "risk": "medium",
+  "domain": "frontend",
+  "currentPhase": "completed",
+  "nextAction": "归档三维专项并交付截图",
+  "createdAt": "2026-10-11T00:00:00Z",
+  "branch": "working-tree"
+}
