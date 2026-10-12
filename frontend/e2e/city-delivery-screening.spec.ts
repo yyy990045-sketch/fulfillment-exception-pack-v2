@@ -1,6 +1,6 @@
 import {expect,test,type Page} from '@playwright/test';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
-const evidence='artifacts/phase8a-screening';
+const evidence=process.env.CITY_DELIVERY_SCREENING_EVIDENCE??'artifacts/phase8a-screening';
 const pages=['overview','orders','dispatch','packing','execution','effects'];
 const names=['配送驾驶舱','订单与货物','智能调度','三维配载','执行与调整','优化效果'];
 async function go(page:Page,id:string){await page.getByRole('navigation',{name:'城市配送导航'}).getByRole('link',{name:new RegExp(names[pages.indexOf(id)])}).click();}
