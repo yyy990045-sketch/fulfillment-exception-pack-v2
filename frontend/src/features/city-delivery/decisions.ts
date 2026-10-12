@@ -1,9 +1,10 @@
 import type { DeliveryData, Operations, Placement, Plan, Scenario } from './data';
 export type { Scenario } from './data';
 
-export interface Reason { type?:string; message?:string; reason?:string; stopId?:string; cargoIds?:string[]; targetCargoIds?:string[]; blockingCargoIds?:string[]; arrivalTime?:string; serviceStartTime?:string }
+export interface Reason { type?:string; message?:string; reason?:string; stopId?:string; vehicleId?:string; cargoIds?:string[]; targetCargoIds?:string[]; blockingCargoIds?:string[]; arrivalTime?:string; serviceStartTime?:string }
 export interface DecisionRoute extends Omit<Plan,'loadingCheck'|'feasibility'|'unloadingCheck'|'loadingSequenceCargoIds'|'name'|'kind'|'computedBy'|'globalOptimalityClaim'> {
  loadingCheck:Plan['loadingCheck']|null;
+ loadingPathCheck?:{checked:boolean;valid:boolean;reason?:string|null};
  unloadingCheck:{checked:boolean;valid:boolean;firstFailure:Plan['unloadingCheck']['firstFailure']};
  feasibility:{executable:boolean;reasons:Reason[];scope?:string;uncheckedConstraints?:string[]};
  placements:{planId:string;vehicleId:string;positions:Placement[]}|null;

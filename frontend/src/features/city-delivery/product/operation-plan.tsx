@@ -27,6 +27,7 @@ export function buildOperationManifest(scenario:Scenario,plan:FleetPlan){
 const printStyles=`body{font:14px/1.4 sans-serif;color:#111;padding:24px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #aaa;padding:8px;text-align:left}section{margin-bottom:24px}h2,h3,summary{break-after:avoid}tr,li{break-inside:avoid}li>strong,li>span{display:block;margin:4px 0}summary{font-weight:bold;margin:12px 0}small{display:block}button{padding:8px 16px}@media print{button{display:none}body{padding:0}}`;
 export function OperationPlan(){
  const p=useCityProduct(),report=useRef<HTMLElement>(null);
+ const noPlan=p.mode==='standard'&&(p.standardNeedsPlanning||!p.standardResponse?.executable||!p.standardResponse.result);
  const vehicles=buildOperationManifest(p.scenario,p.current);
  function exportReadable(){
   if(!p.canExecute||!report.current)return;
@@ -44,8 +45,8 @@ export function OperationPlan(){
   <ol>{item.steps.map(step=><li key={step.stepId}>{step.instruction||'沿后门直线送入已检查货位，保持指定朝向。'}</li>)}</ol>
  </>;
  return <section className="p-standard-operation p-operation-delivery">
-  <header><div><h2>装车与逐站卸货作业单</h2><p>{p.canExecute?'当前已确认计划，可交付作业清单。':'当前为检查预览；重新规划并确认后才能交付。'}</p></div><div><Button disabled={!p.canExecute} onClick={p.exportCurrentPlan}>导出已确认计划 JSON</Button><Button disabled={!p.canExecute} onClick={exportReadable}>导出可打印作业单</Button></div></header>
-  <article ref={report} data-operation-plan={p.current.planId}>
+  <header><div><h2>{noPlan?'尚无可导出的装卸作业单':'装车与逐站卸货作业单'}</h2><p>{noPlan?'当前输入没有可执行计划；重新规划通过检查并确认后生成作业单。':p.canExecute?'当前已确认计划，可交付作业清单。':'当前为检查预览；重新规划并确认后才能交付。'}</p></div><div><Button disabled={!p.canExecute||noPlan} onClick={p.exportCurrentPlan}>导出已确认计划 JSON</Button><Button disabled={!p.canExecute||noPlan} onClick={exportReadable}>导出可打印作业单</Button></div></header>
+  {!noPlan&&<article ref={report} data-operation-plan={p.current.planId}>
    <h2>配送装卸作业清单</h2><p>{p.scenario.stops.length} 家门店 · {p.scenario.cargo.length} 件 · {vehicles.length} 辆启用车辆</p>
    <p>位置以车厢坐标记录，后门沿 z 轴直线装卸；按核验顺序操作，禁止自行绕障或额外搬货。本清单用于合成场景演示。</p>
    {vehicles.map(vehicle=><section key={vehicle.vehicleId} data-operation-vehicle={vehicle.vehicleId}><h3>{vehicle.vehicleId} · {vehicle.loading.length} 件装车</h3>
@@ -58,6 +59,6 @@ export function OperationPlan(){
     </>}
    </section>)}
    <details><summary>作业来源核对</summary><p>计划：{p.current.planId}；场景：{p.current.scenarioId}；修订：{p.standardResponse?.revisionId}；约束：{p.standardResponse?.constraintVersion}</p><p>输入指纹：{p.standardResponse?.scenarioFingerprint}；来源：{p.standardResponse?.resultSource?.kind}；确认状态：{p.standardPlanConfirmed?'已确认':p.standardNeedsPlanning?'条件需要重新规划':p.standardResponse?.executable?'等待确认':'本次未找到可执行方案'}</p></details>
-  </article>
+  </article>}
  </section>;
 }
