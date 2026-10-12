@@ -2426,10 +2426,10 @@
         },
         "strategy": "route-first",
         "timing": {
-          "solveMs": 2.747,
-          "constraintCheckMs": 3.981,
-          "layoutGenerationMs": 0.059,
-          "overallComputeMs": 56.063,
+          "solveMs": 15.087,
+          "constraintCheckMs": 4.19,
+          "layoutGenerationMs": 0.063,
+          "overallComputeMs": 107.618,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 1,
@@ -2488,10 +2488,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.293,
+              "checkedMs": 0.308,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 7,
+              "rank": 8,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2502,7 +2502,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.294,
+              "checkedMs": 0.304,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 4,
@@ -2516,10 +2516,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.34,
+              "checkedMs": 0.323,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 2,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2530,10 +2530,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.314,
+              "checkedMs": 0.264,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 8,
+              "rank": 7,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2544,7 +2544,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.302,
+              "checkedMs": 0.284,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -2562,10 +2562,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.314,
+              "checkedMs": 0.414,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 2,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2576,7 +2576,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.238,
+              "checkedMs": 0.265,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 10,
@@ -2590,7 +2590,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.275,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 9,
@@ -2604,7 +2604,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.315,
+              "checkedMs": 0.35,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -2618,7 +2618,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.247,
+              "checkedMs": 0.278,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 11,
@@ -2632,7 +2632,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.269,
+              "checkedMs": 0.293,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -2646,7 +2646,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.31,
+              "checkedMs": 0.326,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -2722,7 +2722,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 111.647,
+          "overallInterfaceMs": 172.25,
           "hardTimeoutSeconds": 8
         }
       }
@@ -5174,10 +5174,10 @@
         },
         "strategy": "layout-repair",
         "timing": {
-          "solveMs": 2.601,
-          "constraintCheckMs": 19.039,
-          "layoutGenerationMs": 0.243,
-          "overallComputeMs": 70.836,
+          "solveMs": 2.792,
+          "constraintCheckMs": 20.942,
+          "layoutGenerationMs": 0.283,
+          "overallComputeMs": 80.601,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 2,
@@ -5273,7 +5273,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.287,
+              "checkedMs": 0.316,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 39,
@@ -5287,7 +5287,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.297,
+              "checkedMs": 0.623,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 19,
@@ -5301,10 +5301,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.325,
+              "checkedMs": 0.798,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 11,
+              "rank": 12,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5315,7 +5315,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.256,
+              "checkedMs": 0.297,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 37,
@@ -5329,7 +5329,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.288,
+              "checkedMs": 0.301,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5347,10 +5347,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.314,
+              "checkedMs": 0.407,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 10,
+              "rank": 11,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5361,7 +5361,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.271,
+              "checkedMs": 0.277,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 50,
@@ -5375,10 +5375,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.274,
+              "checkedMs": 0.301,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 41,
+              "rank": 42,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5389,10 +5389,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.313,
+              "checkedMs": 0.364,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 28,
+              "rank": 29,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5403,10 +5403,598 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.252,
+              "checkedMs": 0.27,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 49,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S05",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.65,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.0585,
+              "spaceUtilizationPercent": 5.85,
+              "checkedMs": 0.286,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 4,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S06",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.76,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.319,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 27,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.65,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.01574,
+              "spaceUtilizationPercent": 1.57,
+              "checkedMs": 0.284,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 36,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.01574,
+              "spaceUtilizationPercent": 1.57,
+              "checkedMs": 0.265,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 34,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S02",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.77,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.034387,
+              "spaceUtilizationPercent": 3.44,
+              "checkedMs": 0.29,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 18,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S02",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.034387,
+              "spaceUtilizationPercent": 3.44,
+              "checkedMs": 0.289,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 17,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S02",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 1.52,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.034387,
+              "spaceUtilizationPercent": 3.44,
+              "checkedMs": 0.288,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 21,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S02",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 1.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.034387,
+              "spaceUtilizationPercent": 3.44,
+              "checkedMs": 0.285,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 20,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.76,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.322,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 9,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 1.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.321,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 7,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 2.51,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.329,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 16,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 1.85,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.32,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 13,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-3-columns-yaw-0",
+              "spanM": 0.89,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.315,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 57,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S03",
+              "method": "floor-3-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.31,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 55,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S04",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.65,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.01574,
+              "spaceUtilizationPercent": 1.57,
+              "checkedMs": 0.303,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 38,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S04",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.01574,
+              "spaceUtilizationPercent": 1.57,
+              "checkedMs": 0.275,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 35,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S05",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.65,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.15256,
+              "spaceUtilizationPercent": 15.26,
+              "checkedMs": 0.294,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 52,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S05",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 1.05,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.15256,
+              "spaceUtilizationPercent": 15.26,
+              "checkedMs": 0.649,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 51,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S05",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 3.4,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.15256,
+              "spaceUtilizationPercent": 15.26,
+              "checkedMs": 0.557,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 2,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S05",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 2.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.15256,
+              "spaceUtilizationPercent": 15.26,
+              "checkedMs": 0.313,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 1,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.76,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.333,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 10,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 1.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.747,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 8,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 2.51,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.327,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 15,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 1.85,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.328,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 14,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-3-columns-yaw-0",
+              "spanM": 0.89,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.321,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 58,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V01",
+              "stopId": "S06",
+              "method": "floor-3-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.055939,
+              "spaceUtilizationPercent": 5.59,
+              "checkedMs": 0.312,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 56,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.65,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.006036,
+              "spaceUtilizationPercent": 0.6,
+              "checkedMs": 0.256,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 48,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S01",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.006036,
+              "spaceUtilizationPercent": 0.6,
+              "checkedMs": 0.26,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 46,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S02",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.77,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.013186,
+              "spaceUtilizationPercent": 1.32,
+              "checkedMs": 0.284,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 41,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S02",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.013186,
+              "spaceUtilizationPercent": 1.32,
+              "checkedMs": 0.288,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 40,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S02",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 1.52,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.013186,
+              "spaceUtilizationPercent": 1.32,
+              "checkedMs": 0.29,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 44,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S02",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 1.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.013186,
+              "spaceUtilizationPercent": 1.32,
+              "checkedMs": 0.29,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 43,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 1.76,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.342,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 28,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 1.2,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.356,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 25,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-1-columns-yaw-0",
+              "spanM": 2.51,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.326,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 33,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-1-columns-yaw-90",
+              "spanM": 1.85,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.321,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 31,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-3-columns-yaw-0",
+              "spanM": 0.89,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.314,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 23,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S03",
+              "method": "floor-3-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": false,
+              "spaceUtilizationRatio": 0.02145,
+              "spaceUtilizationPercent": 2.15,
+              "checkedMs": 0.317,
+              "failureTypes": [
+                "boundary",
+                "loading_path",
+                "unloading_blocked"
+              ],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 60,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S04",
+              "method": "floor-2-columns-yaw-0",
+              "spanM": 0.65,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.006036,
+              "spaceUtilizationPercent": 0.6,
+              "checkedMs": 0.253,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 47,
+              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
+            },
+            {
+              "vehicleId": "V02",
+              "stopId": "S04",
+              "method": "floor-2-columns-yaw-90",
+              "spanM": 0.55,
+              "feasible": true,
+              "spaceUtilizationRatio": 0.006036,
+              "spaceUtilizationPercent": 0.6,
+              "checkedMs": 0.25,
+              "failureTypes": [],
+              "movementCountBasis": "not-computed-per-stop-candidate",
+              "rank": 45,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5425,601 +6013,13 @@
             },
             {
               "vehicleId": "V02",
-              "stopId": "S06",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.76,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.312,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 27,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S01",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.65,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.01574,
-              "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.28,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 38,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S01",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.01574,
-              "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.264,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 35,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S02",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.77,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.034387,
-              "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.282,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 18,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S02",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.034387,
-              "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.317,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 17,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S02",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 1.52,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.034387,
-              "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.287,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 21,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S02",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 1.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.034387,
-              "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.283,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 20,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.76,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.311,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 9,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 1.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.379,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 7,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 2.51,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.385,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 16,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 1.85,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.328,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 13,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-3-columns-yaw-0",
-              "spanM": 0.89,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.345,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 58,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S03",
-              "method": "floor-3-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.291,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 55,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S04",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.65,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.01574,
-              "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.244,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 36,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S04",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.01574,
-              "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.242,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 34,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S05",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.65,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.15256,
-              "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.262,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 52,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
               "stopId": "S05",
               "method": "floor-2-columns-yaw-90",
               "spanM": 1.05,
               "feasible": false,
-              "spaceUtilizationRatio": 0.15256,
-              "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.289,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 51,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S05",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 3.4,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.15256,
-              "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.291,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 2,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S05",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 2.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.15256,
-              "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.287,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 1,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.76,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.369,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 12,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 1.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.655,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 8,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 2.51,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.319,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 15,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 1.85,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.392,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 14,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-3-columns-yaw-0",
-              "spanM": 0.89,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.308,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 57,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V01",
-              "stopId": "S06",
-              "method": "floor-3-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.055939,
-              "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.31,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 56,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S01",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.65,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.006036,
-              "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.248,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 47,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S01",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.006036,
-              "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.25,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 46,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S02",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.77,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.013186,
-              "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.292,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 42,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S02",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.013186,
-              "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.283,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 40,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S02",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 1.52,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.013186,
-              "spaceUtilizationPercent": 1.32,
+              "spaceUtilizationRatio": 0.0585,
+              "spaceUtilizationPercent": 5.85,
               "checkedMs": 0.277,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 44,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S02",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 1.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.013186,
-              "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.279,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 43,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.76,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.31,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 26,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 1.2,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.316,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 24,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-1-columns-yaw-0",
-              "spanM": 2.51,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.315,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 32,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-1-columns-yaw-90",
-              "spanM": 1.85,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.315,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 30,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-3-columns-yaw-0",
-              "spanM": 0.89,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.305,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 22,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S03",
-              "method": "floor-3-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.02145,
-              "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.303,
-              "failureTypes": [
-                "boundary",
-                "loading_path",
-                "unloading_blocked"
-              ],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 60,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S04",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 0.65,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.006036,
-              "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.248,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 48,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S04",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 0.55,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.006036,
-              "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.249,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 45,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S05",
-              "method": "floor-2-columns-yaw-0",
-              "spanM": 1.65,
-              "feasible": true,
-              "spaceUtilizationRatio": 0.0585,
-              "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.282,
-              "failureTypes": [],
-              "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 4,
-              "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
-            },
-            {
-              "vehicleId": "V02",
-              "stopId": "S05",
-              "method": "floor-2-columns-yaw-90",
-              "spanM": 1.05,
-              "feasible": false,
-              "spaceUtilizationRatio": 0.0585,
-              "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.274,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -6037,7 +6037,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.283,
+              "checkedMs": 0.284,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -6051,7 +6051,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.279,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -6065,10 +6065,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.319,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 29,
+              "rank": 26,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6079,10 +6079,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.318,
+              "checkedMs": 0.316,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 25,
+              "rank": 24,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6093,10 +6093,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.317,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 33,
+              "rank": 32,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6107,10 +6107,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.318,
+              "checkedMs": 0.314,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 31,
+              "rank": 30,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6121,10 +6121,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.307,
+              "checkedMs": 0.308,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 23,
+              "rank": 22,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6135,7 +6135,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.302,
+              "checkedMs": 0.309,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -6451,7 +6451,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 124.692,
+          "overallInterfaceMs": 141.003,
           "hardTimeoutSeconds": 8
         }
       }
@@ -11729,10 +11729,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 4.099,
-          "constraintCheckMs": 20.895,
-          "layoutGenerationMs": 0.245,
-          "overallComputeMs": 75.335,
+          "solveMs": 5.313,
+          "constraintCheckMs": 20.962,
+          "layoutGenerationMs": 0.257,
+          "overallComputeMs": 85.061,
           "budgetMs": 2000,
           "solverCalls": 2,
           "routeCandidates": 3,
@@ -11850,7 +11850,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.278,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 38,
@@ -11864,10 +11864,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.291,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 19,
+              "rank": 18,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11878,10 +11878,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.317,
+              "checkedMs": 0.331,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 9,
+              "rank": 12,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11892,7 +11892,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.254,
+              "checkedMs": 0.265,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 37,
@@ -11906,7 +11906,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.282,
+              "checkedMs": 0.293,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -11924,10 +11924,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.327,
+              "checkedMs": 0.32,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 11,
+              "rank": 9,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11938,10 +11938,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.254,
+              "checkedMs": 0.26,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 49,
+              "rank": 50,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11952,10 +11952,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.277,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 41,
+              "rank": 42,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11966,7 +11966,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.318,
+              "checkedMs": 0.317,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 28,
@@ -11980,10 +11980,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.253,
+              "checkedMs": 0.255,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 48,
+              "rank": 49,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11994,10 +11994,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.276,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 4,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12008,7 +12008,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.32,
+              "checkedMs": 0.38,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 29,
@@ -12022,7 +12022,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.278,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 39,
@@ -12036,7 +12036,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.26,
+              "checkedMs": 0.487,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 35,
@@ -12050,10 +12050,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.281,
+              "checkedMs": 0.611,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 18,
+              "rank": 19,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12064,7 +12064,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.281,
+              "checkedMs": 0.296,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 17,
@@ -12078,7 +12078,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.277,
+              "checkedMs": 0.289,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 21,
@@ -12092,7 +12092,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.275,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 20,
@@ -12106,10 +12106,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.752,
+              "checkedMs": 0.323,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 12,
+              "rank": 10,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12120,7 +12120,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.379,
+              "checkedMs": 0.322,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 7,
@@ -12134,10 +12134,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.321,
+              "checkedMs": 0.318,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 16,
+              "rank": 15,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12162,14 +12162,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.297,
+              "checkedMs": 0.312,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 57,
+              "rank": 58,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12180,7 +12180,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.296,
+              "checkedMs": 0.309,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12212,7 +12212,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.241,
+              "checkedMs": 0.254,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 34,
@@ -12226,7 +12226,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.267,
+              "checkedMs": 0.273,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12244,7 +12244,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.29,
+              "checkedMs": 0.28,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12262,7 +12262,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.289,
+              "checkedMs": 0.356,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 2,
@@ -12276,7 +12276,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.277,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -12290,10 +12290,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.324,
+              "checkedMs": 0.323,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 10,
+              "rank": 11,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12304,7 +12304,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.79,
+              "checkedMs": 0.826,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 8,
@@ -12318,10 +12318,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.31,
+              "checkedMs": 0.349,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 15,
+              "rank": 16,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12332,7 +12332,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.328,
+              "checkedMs": 0.323,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 14,
@@ -12346,14 +12346,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.444,
+              "checkedMs": 0.309,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 58,
+              "rank": 57,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12364,7 +12364,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.317,
+              "checkedMs": 0.309,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12382,10 +12382,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.244,
+              "checkedMs": 0.254,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 47,
+              "rank": 48,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12396,7 +12396,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.258,
+              "checkedMs": 0.25,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 46,
@@ -12410,10 +12410,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.341,
+              "checkedMs": 0.275,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 42,
+              "rank": 41,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12424,7 +12424,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.326,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 40,
@@ -12438,7 +12438,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.273,
+              "checkedMs": 0.283,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 44,
@@ -12452,7 +12452,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.255,
+              "checkedMs": 0.285,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 43,
@@ -12466,7 +12466,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.313,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 27,
@@ -12480,10 +12480,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.314,
+              "checkedMs": 0.321,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 24,
+              "rank": 25,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12494,10 +12494,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.316,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 32,
+              "rank": 33,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12508,10 +12508,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.303,
+              "checkedMs": 0.319,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 30,
+              "rank": 31,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12522,10 +12522,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.307,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 22,
+              "rank": 23,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12536,7 +12536,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.315,
+              "checkedMs": 0.309,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12554,10 +12554,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.256,
+              "checkedMs": 0.253,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 50,
+              "rank": 47,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12568,7 +12568,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.254,
+              "checkedMs": 0.249,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 45,
@@ -12585,7 +12585,7 @@
               "checkedMs": 0.277,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 4,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12614,7 +12614,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.279,
+              "checkedMs": 0.28,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -12628,7 +12628,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.28,
+              "checkedMs": 0.278,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -12656,10 +12656,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.322,
+              "checkedMs": 0.319,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 25,
+              "rank": 24,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12670,10 +12670,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.317,
+              "checkedMs": 0.314,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 33,
+              "rank": 32,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12684,10 +12684,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.314,
+              "checkedMs": 0.316,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 31,
+              "rank": 30,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12698,10 +12698,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.317,
+              "checkedMs": 0.306,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 23,
+              "rank": 22,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12712,7 +12712,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.303,
+              "checkedMs": 0.307,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -13174,7 +13174,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 130.942,
+          "overallInterfaceMs": 148.927,
           "hardTimeoutSeconds": 8
         }
       }
@@ -13183,7 +13183,7 @@
       "request": {
         "scenario": {
           "schemaVersion": "3.0.0",
-          "scenarioId": "sku-batch-1791778182813",
+          "scenarioId": "sku-batch-1791781359002",
           "name": "SKU 包装规则配送批次",
           "units": {
             "dimensions": "m",
@@ -13351,10 +13351,10 @@
       },
       "result": {
         "schemaVersion": "3.0.0",
-        "scenarioId": "sku-batch-1791778182813",
-        "scenarioFingerprint": "a50536af201d",
-        "planId": "PLAN-3c468acb2b69",
-        "revisionId": "REV-3c468acb2b69",
+        "scenarioId": "sku-batch-1791781359002",
+        "scenarioFingerprint": "a35aaee814c2",
+        "planId": "PLAN-13c728e3e15d",
+        "revisionId": "REV-13c728e3e15d",
         "constraintVersion": "city-rear-door-3d-1.0",
         "executionMode": "computed-per-request",
         "solverStatus": "FEASIBLE",
@@ -13368,7 +13368,7 @@
         },
         "scenario": {
           "schemaVersion": "3.0.0",
-          "scenarioId": "sku-batch-1791778182813",
+          "scenarioId": "sku-batch-1791781359002",
           "name": "SKU 包装规则配送批次",
           "units": {
             "dimensions": "m",
@@ -13540,12 +13540,12 @@
           ]
         },
         "result": {
-          "planId": "PLAN-3c468acb2b69",
-          "scenarioId": "sku-batch-1791778182813",
+          "planId": "PLAN-13c728e3e15d",
+          "scenarioId": "sku-batch-1791781359002",
           "routes": [
             {
-              "planId": "PLAN-3c468acb2b69",
-              "scenarioId": "sku-batch-1791778182813",
+              "planId": "PLAN-13c728e3e15d",
+              "scenarioId": "sku-batch-1791781359002",
               "vehicleId": "V01",
               "stopOrder": [
                 "S01"
@@ -13717,7 +13717,7 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V01",
                 "positions": [
                   {
@@ -13758,7 +13758,7 @@
                 ]
               },
               "unloading": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V01",
                 "stopOrder": [
                   "S01"
@@ -13776,10 +13776,10 @@
                       "SKU-001-S01-CASE-1"
                     ],
                     "stepIds": [
-                      "PLAN-3c468acb2b69-V01-U001",
-                      "PLAN-3c468acb2b69-V01-U002",
-                      "PLAN-3c468acb2b69-V01-U003",
-                      "PLAN-3c468acb2b69-V01-U004"
+                      "PLAN-13c728e3e15d-V01-U001",
+                      "PLAN-13c728e3e15d-V01-U002",
+                      "PLAN-13c728e3e15d-V01-U003",
+                      "PLAN-13c728e3e15d-V01-U004"
                     ],
                     "conflicts": [],
                     "extraHandlingMoves": 0,
@@ -13795,7 +13795,7 @@
                 ],
                 "steps": [
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U001",
+                    "stepId": "PLAN-13c728e3e15d-V01-U001",
                     "sequence": 1,
                     "stopId": "S01",
                     "operation": "arrive",
@@ -13814,7 +13814,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U002",
+                    "stepId": "PLAN-13c728e3e15d-V01-U002",
                     "sequence": 2,
                     "stopId": "S01",
                     "operation": "highlight",
@@ -13834,7 +13834,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U003",
+                    "stepId": "PLAN-13c728e3e15d-V01-U003",
                     "sequence": 3,
                     "stopId": "S01",
                     "operation": "unload",
@@ -13872,7 +13872,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U004",
+                    "stepId": "PLAN-13c728e3e15d-V01-U004",
                     "sequence": 4,
                     "stopId": "S01",
                     "operation": "station_complete",
@@ -13902,10 +13902,10 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791778182813",
+                "scenarioId": "sku-batch-1791781359002",
                 "loadingSteps": [
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-L001",
+                    "stepId": "PLAN-13c728e3e15d-V01-L001",
                     "operation": "load",
                     "cargoId": "SKU-001-S01-CASE-1",
                     "stopId": "S01",
@@ -13948,8 +13948,8 @@
               "status": "scheduled"
             },
             {
-              "planId": "PLAN-3c468acb2b69",
-              "scenarioId": "sku-batch-1791778182813",
+              "planId": "PLAN-13c728e3e15d",
+              "scenarioId": "sku-batch-1791781359002",
               "vehicleId": "V02",
               "stopOrder": [],
               "routeNodeIds": [
@@ -14046,12 +14046,12 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V02",
                 "positions": []
               },
               "unloading": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V02",
                 "stopOrder": [],
                 "initialRemainingCargoIds": [],
@@ -14074,7 +14074,7 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791778182813",
+                "scenarioId": "sku-batch-1791781359002",
                 "loadingSteps": []
               },
               "layoutSearch": {
@@ -14139,12 +14139,12 @@
           }
         },
         "initialCheck": {
-          "planId": "PLAN-3c468acb2b69",
-          "scenarioId": "sku-batch-1791778182813",
+          "planId": "PLAN-13c728e3e15d",
+          "scenarioId": "sku-batch-1791781359002",
           "routes": [
             {
-              "planId": "PLAN-3c468acb2b69",
-              "scenarioId": "sku-batch-1791778182813",
+              "planId": "PLAN-13c728e3e15d",
+              "scenarioId": "sku-batch-1791781359002",
               "vehicleId": "V01",
               "stopOrder": [
                 "S01"
@@ -14316,7 +14316,7 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V01",
                 "positions": [
                   {
@@ -14357,7 +14357,7 @@
                 ]
               },
               "unloading": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V01",
                 "stopOrder": [
                   "S01"
@@ -14375,10 +14375,10 @@
                       "SKU-001-S01-CASE-1"
                     ],
                     "stepIds": [
-                      "PLAN-3c468acb2b69-V01-U001",
-                      "PLAN-3c468acb2b69-V01-U002",
-                      "PLAN-3c468acb2b69-V01-U003",
-                      "PLAN-3c468acb2b69-V01-U004"
+                      "PLAN-13c728e3e15d-V01-U001",
+                      "PLAN-13c728e3e15d-V01-U002",
+                      "PLAN-13c728e3e15d-V01-U003",
+                      "PLAN-13c728e3e15d-V01-U004"
                     ],
                     "conflicts": [],
                     "extraHandlingMoves": 0,
@@ -14394,7 +14394,7 @@
                 ],
                 "steps": [
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U001",
+                    "stepId": "PLAN-13c728e3e15d-V01-U001",
                     "sequence": 1,
                     "stopId": "S01",
                     "operation": "arrive",
@@ -14413,7 +14413,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U002",
+                    "stepId": "PLAN-13c728e3e15d-V01-U002",
                     "sequence": 2,
                     "stopId": "S01",
                     "operation": "highlight",
@@ -14433,7 +14433,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U003",
+                    "stepId": "PLAN-13c728e3e15d-V01-U003",
                     "sequence": 3,
                     "stopId": "S01",
                     "operation": "unload",
@@ -14471,7 +14471,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-U004",
+                    "stepId": "PLAN-13c728e3e15d-V01-U004",
                     "sequence": 4,
                     "stopId": "S01",
                     "operation": "station_complete",
@@ -14501,10 +14501,10 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791778182813",
+                "scenarioId": "sku-batch-1791781359002",
                 "loadingSteps": [
                   {
-                    "stepId": "PLAN-3c468acb2b69-V01-L001",
+                    "stepId": "PLAN-13c728e3e15d-V01-L001",
                     "operation": "load",
                     "cargoId": "SKU-001-S01-CASE-1",
                     "stopId": "S01",
@@ -14547,8 +14547,8 @@
               "status": "scheduled"
             },
             {
-              "planId": "PLAN-3c468acb2b69",
-              "scenarioId": "sku-batch-1791778182813",
+              "planId": "PLAN-13c728e3e15d",
+              "scenarioId": "sku-batch-1791781359002",
               "vehicleId": "V02",
               "stopOrder": [],
               "routeNodeIds": [
@@ -14645,12 +14645,12 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V02",
                 "positions": []
               },
               "unloading": {
-                "planId": "PLAN-3c468acb2b69",
+                "planId": "PLAN-13c728e3e15d",
                 "vehicleId": "V02",
                 "stopOrder": [],
                 "initialRemainingCargoIds": [],
@@ -14673,7 +14673,7 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791778182813",
+                "scenarioId": "sku-batch-1791781359002",
                 "loadingSteps": []
               },
               "layoutSearch": {
@@ -14733,10 +14733,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 1.909,
-          "constraintCheckMs": 0.524,
-          "layoutGenerationMs": 0.009,
-          "overallComputeMs": 49.589,
+          "solveMs": 2.03,
+          "constraintCheckMs": 0.529,
+          "layoutGenerationMs": 0.01,
+          "overallComputeMs": 52.157,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 1,
@@ -14782,7 +14782,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.016257,
               "spaceUtilizationPercent": 1.63,
-              "checkedMs": 0.149,
+              "checkedMs": 0.166,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -14834,11 +14834,11 @@
         "resultSource": {
           "kind": "computed-per-request",
           "service": "city-delivery-decision",
-          "inputFingerprint": "a50536af201d",
+          "inputFingerprint": "a35aaee814c2",
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 101.838,
+          "overallInterfaceMs": 120.396,
           "hardTimeoutSeconds": 8
         }
       }
@@ -15163,10 +15163,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 2.432,
+          "solveMs": 2.54,
           "constraintCheckMs": 0.376,
-          "layoutGenerationMs": 0.025,
-          "overallComputeMs": 51.075,
+          "layoutGenerationMs": 0.021,
+          "overallComputeMs": 50.467,
           "budgetMs": 2000,
           "solverCalls": 4,
           "routeCandidates": 0,
@@ -15219,10 +15219,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.133,
+              "checkedMs": 0.137,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 2,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -15233,10 +15233,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.138,
+              "checkedMs": 0.135,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 2,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -15312,7 +15312,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 106.441,
+          "overallInterfaceMs": 105.156,
           "hardTimeoutSeconds": 8
         }
       }
@@ -15637,10 +15637,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 0.356,
-          "constraintCheckMs": 0.395,
-          "layoutGenerationMs": 0.021,
-          "overallComputeMs": 48.048,
+          "solveMs": 0.409,
+          "constraintCheckMs": 0.385,
+          "layoutGenerationMs": 0.024,
+          "overallComputeMs": 47.724,
           "budgetMs": 2000,
           "solverCalls": 4,
           "routeCandidates": 0,
@@ -15693,7 +15693,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.138,
+              "checkedMs": 0.14,
               "failureTypes": [
                 "time_window"
               ],
@@ -15709,7 +15709,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.137,
+              "checkedMs": 0.135,
               "failureTypes": [
                 "time_window"
               ],
@@ -15725,7 +15725,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.124,
+              "checkedMs": 0.113,
               "failureTypes": [
                 "time_window"
               ],
@@ -15819,7 +15819,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 104.323,
+          "overallInterfaceMs": 103.189,
           "hardTimeoutSeconds": 8
         }
       }

@@ -9,8 +9,21 @@ export function DecisionProcess(){
  const p=useCityProduct(),response=p.standardResponse;
  if(p.mode!=='standard'||!response)return null;
  const trace=decisionTrace(response),initialPassed=response.initialCheck?.feasibility.executable===true;
+ const entryFor=(phase:string)=>trace.find(entry=>entry.phase===phase);
+ const statusFor=(phase:string)=>{const entry=entryFor(phase);return !entry?'未提供':entry.executable===true?'通过':entry.executable===false?'未通过':'已记录';};
+ const changes=[...new Set(trace.flatMap((entry,i)=>traceChanges(trace[i-1]?.routes,entry.routes)))];
+ const finalStatus=response.executable?'可执行候选':'未找到可执行方案';
  return <section className="p-decision-process" data-decision-process={response.planId} aria-label="本次联合反馈过程">
   <header><strong>{p.standardNeedsPlanning?'旧条件计算记录':initialPassed?'初始方案已通过，无需反馈':'本次路线—装载反馈'}</strong><Link to="/frontend/city-delivery/effects">历史策略证据</Link></header>
+  <div className="p-decision-summary" data-feedback-summary>
+   <div><span>初始检查</span><strong>{initialPassed?'通过':statusFor('route-first-check')}</strong></div>
+   <div><span>替代布局</span><strong>{statusFor('alternative-layout-check')}</strong></div>
+   <div><span>联合反馈</span><strong>{statusFor('layout-feedback-routing')}</strong></div>
+   <div><span>最终结果</span><strong>{finalStatus}</strong></div>
+  </div>
+  <div className={`p-decision-change-summary ${changes.length?'has-changes':''}`} data-feedback-changes>
+   <strong>{changes.length?'实际车辆 / 顺序变化':'实际变化'}</strong><span>{changes.length?changes.slice(0,4).join('；'):'未发生车辆改派或门店顺序变化。'}</span>{changes.length>4&&<small>另有 {changes.length-4} 项变化，见下方 trace。</small>}
+  </div>
   <ol>{trace.map((entry,i)=>{
    const reasons=entry.failures??(entry.failure?[entry.failure]:[]),changes=traceChanges(trace[i-1]?.routes,entry.routes);
    return <li key={i} data-feedback-phase={entry.phase}>

@@ -55,11 +55,13 @@ for(const width of [1440,1920])test(`Phase9 real feedback, constraints and truth
  for(const strategy of ['route-first','layout-repair','joint-feedback']){
   const record=await importTask(page,six,strategy);records.push(record);await go(page,'智能调度');
   await expect(page.locator('[data-decision-process]')).toHaveAttribute('data-decision-process',record.result.planId);
+  await expect(page.locator('[data-feedback-summary]')).toBeVisible();await expect(page.locator('[data-feedback-changes]')).toBeVisible();
   await expect(page.locator('[data-feedback-phase]')).toHaveCount(record.result.search.trace.length);
   if(strategy==='joint-feedback'){
    expect(record.result.executable).toBe(true);expect(record.result.actualExecutablePlanCost).toBe(194.8);
    await expect(page.locator('[data-feedback-phase=route-first-check]')).toContainText('V01');
    await expect(page.locator('[data-feedback-phase=layout-feedback-routing]')).toContainText('整套检查通过');
+   await expect(page.locator('[data-feedback-changes]')).toContainText('V01');await expect(page.locator('[data-feedback-changes]')).toContainText('V02');
    await shot('03-six-default-process');await page.locator('[data-feedback-phase=layout-feedback-routing] summary').click();await expect(page.locator('[data-decision-process]')).toContainText('V01 → V02');
    await expect(page.locator('.p-feedback')).toContainText('新生成 12 件货位');await expect(page.locator('.p-feedback')).not.toContainText('移动 12');await shot('03-six-feedback');
   }else expect(record.result.executable).toBe(false);
