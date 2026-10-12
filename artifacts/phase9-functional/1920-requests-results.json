@@ -2426,10 +2426,10 @@
         },
         "strategy": "route-first",
         "timing": {
-          "solveMs": 2.898,
-          "constraintCheckMs": 3.913,
-          "layoutGenerationMs": 0.054,
-          "overallComputeMs": 55.823,
+          "solveMs": 2.703,
+          "constraintCheckMs": 3.887,
+          "layoutGenerationMs": 0.055,
+          "overallComputeMs": 55.985,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 1,
@@ -2488,7 +2488,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.283,
+              "checkedMs": 0.292,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 8,
@@ -2502,7 +2502,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.294,
+              "checkedMs": 0.285,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 4,
@@ -2516,10 +2516,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.316,
+              "checkedMs": 0.324,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 2,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2530,7 +2530,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.255,
+              "checkedMs": 0.258,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 7,
@@ -2544,7 +2544,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.28,
+              "checkedMs": 0.277,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -2562,10 +2562,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.317,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 2,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2576,10 +2576,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.258,
+              "checkedMs": 0.249,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 11,
+              "rank": 10,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2590,7 +2590,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.274,
+              "checkedMs": 0.272,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 9,
@@ -2604,7 +2604,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.321,
+              "checkedMs": 0.308,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -2618,10 +2618,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.252,
+              "checkedMs": 0.271,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 10,
+              "rank": 11,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -2632,7 +2632,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.274,
+              "checkedMs": 0.268,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -2646,7 +2646,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.308,
+              "checkedMs": 0.304,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -2722,7 +2722,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 110.876,
+          "overallInterfaceMs": 110.579,
           "hardTimeoutSeconds": 8
         }
       }
@@ -5174,10 +5174,10 @@
         },
         "strategy": "layout-repair",
         "timing": {
-          "solveMs": 2.673,
-          "constraintCheckMs": 19.486,
-          "layoutGenerationMs": 0.245,
-          "overallComputeMs": 72.288,
+          "solveMs": 2.712,
+          "constraintCheckMs": 18.94,
+          "layoutGenerationMs": 0.246,
+          "overallComputeMs": 71.341,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 2,
@@ -5273,7 +5273,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.282,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 39,
@@ -5287,7 +5287,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.293,
+              "checkedMs": 0.291,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 19,
@@ -5301,10 +5301,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.321,
+              "checkedMs": 0.331,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 12,
+              "rank": 11,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5315,10 +5315,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.258,
+              "checkedMs": 0.254,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 37,
+              "rank": 36,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5347,10 +5347,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.313,
+              "checkedMs": 0.338,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 10,
+              "rank": 12,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5361,10 +5361,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.255,
+              "checkedMs": 0.254,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 47,
+              "rank": 48,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5375,10 +5375,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.279,
+              "checkedMs": 0.274,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 42,
+              "rank": 41,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5389,10 +5389,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.314,
+              "checkedMs": 0.309,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 27,
+              "rank": 28,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5403,10 +5403,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.259,
+              "checkedMs": 0.256,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 50,
+              "rank": 49,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5420,7 +5420,7 @@
               "checkedMs": 0.273,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 4,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5431,7 +5431,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.335,
+              "checkedMs": 0.314,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 29,
@@ -5445,7 +5445,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.271,
+              "checkedMs": 0.273,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 38,
@@ -5459,10 +5459,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.256,
+              "checkedMs": 0.265,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 34,
+              "rank": 35,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5473,7 +5473,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.281,
+              "checkedMs": 0.286,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 18,
@@ -5487,7 +5487,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.303,
+              "checkedMs": 0.281,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 17,
@@ -5501,7 +5501,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.286,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 21,
@@ -5515,7 +5515,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.279,
+              "checkedMs": 0.276,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 20,
@@ -5529,7 +5529,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.309,
+              "checkedMs": 0.313,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 9,
@@ -5543,7 +5543,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.368,
+              "checkedMs": 0.481,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 7,
@@ -5557,7 +5557,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.694,
+              "checkedMs": 0.439,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 16,
@@ -5571,7 +5571,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.391,
+              "checkedMs": 0.327,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 14,
@@ -5585,7 +5585,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.332,
+              "checkedMs": 0.317,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5603,7 +5603,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.324,
+              "checkedMs": 0.312,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5621,10 +5621,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.252,
+              "checkedMs": 0.256,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 36,
+              "rank": 37,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5635,10 +5635,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.259,
+              "checkedMs": 0.247,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 35,
+              "rank": 34,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5649,7 +5649,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.277,
+              "checkedMs": 0.269,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5667,7 +5667,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.281,
+              "checkedMs": 0.279,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5699,7 +5699,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.283,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -5713,10 +5713,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.313,
+              "checkedMs": 0.324,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 11,
+              "rank": 10,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5727,7 +5727,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.699,
+              "checkedMs": 0.67,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 8,
@@ -5741,7 +5741,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.315,
+              "checkedMs": 0.314,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 15,
@@ -5755,7 +5755,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.34,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 13,
@@ -5769,7 +5769,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.304,
+              "checkedMs": 0.3,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5787,7 +5787,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.311,
+              "checkedMs": 0.308,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -5805,10 +5805,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.256,
+              "checkedMs": 0.281,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 48,
+              "rank": 50,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5819,10 +5819,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.245,
+              "checkedMs": 0.253,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 45,
+              "rank": 46,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5833,10 +5833,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.273,
+              "checkedMs": 0.275,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 41,
+              "rank": 42,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5847,7 +5847,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.276,
+              "checkedMs": 0.281,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 40,
@@ -5861,7 +5861,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.29,
+              "checkedMs": 0.281,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 44,
@@ -5875,7 +5875,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.311,
+              "checkedMs": 0.281,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 43,
@@ -5889,10 +5889,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.321,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 28,
+              "rank": 26,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5903,10 +5903,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.328,
+              "checkedMs": 0.313,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 25,
+              "rank": 24,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5917,7 +5917,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.337,
+              "checkedMs": 0.311,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 33,
@@ -5931,7 +5931,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.336,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 31,
@@ -5945,10 +5945,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.31,
+              "checkedMs": 0.3,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 23,
+              "rank": 22,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5959,14 +5959,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.312,
+              "checkedMs": 0.3,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 60,
+              "rank": 59,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5977,10 +5977,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.256,
+              "checkedMs": 0.245,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 49,
+              "rank": 47,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -5991,10 +5991,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.252,
+              "checkedMs": 0.245,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 46,
+              "rank": 45,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6005,10 +6005,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.276,
+              "checkedMs": 0.272,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 4,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6019,7 +6019,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.278,
+              "checkedMs": 0.276,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -6037,7 +6037,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.28,
+              "checkedMs": 0.274,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -6051,7 +6051,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.28,
+              "checkedMs": 0.273,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -6065,10 +6065,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.313,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 26,
+              "rank": 27,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6079,10 +6079,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.326,
+              "checkedMs": 0.342,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 24,
+              "rank": 25,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6093,7 +6093,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.332,
+              "checkedMs": 0.309,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 32,
@@ -6107,7 +6107,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.318,
+              "checkedMs": 0.308,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 30,
@@ -6121,10 +6121,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.309,
+              "checkedMs": 0.301,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 22,
+              "rank": 23,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -6135,14 +6135,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.31,
+              "checkedMs": 0.3,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 59,
+              "rank": 60,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             }
           ],
@@ -6451,7 +6451,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 127.373,
+          "overallInterfaceMs": 126.324,
           "hardTimeoutSeconds": 8
         }
       }
@@ -11729,10 +11729,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 4.106,
-          "constraintCheckMs": 20.412,
-          "layoutGenerationMs": 0.246,
-          "overallComputeMs": 75.094,
+          "solveMs": 3.987,
+          "constraintCheckMs": 20.951,
+          "layoutGenerationMs": 0.245,
+          "overallComputeMs": 75.158,
           "budgetMs": 2000,
           "solverCalls": 2,
           "routeCandidates": 3,
@@ -11850,10 +11850,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.285,
+              "checkedMs": 0.284,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 39,
+              "rank": 38,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11864,7 +11864,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.287,
+              "checkedMs": 0.29,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 19,
@@ -11878,10 +11878,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.327,
+              "checkedMs": 0.322,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 12,
+              "rank": 11,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11895,7 +11895,7 @@
               "checkedMs": 0.254,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 37,
+              "rank": 36,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11906,7 +11906,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.273,
+              "checkedMs": 0.287,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -11924,10 +11924,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.307,
+              "checkedMs": 0.32,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 9,
+              "rank": 10,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11938,10 +11938,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.248,
+              "checkedMs": 0.251,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 49,
+              "rank": 48,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11952,7 +11952,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.271,
+              "checkedMs": 0.273,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 41,
@@ -11966,10 +11966,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.306,
+              "checkedMs": 0.31,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 27,
+              "rank": 26,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -11980,7 +11980,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.246,
+              "checkedMs": 0.249,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 47,
@@ -11994,7 +11994,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.27,
+              "checkedMs": 0.28,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 3,
@@ -12008,10 +12008,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.494,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 29,
+              "rank": 28,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12022,10 +12022,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.275,
+              "checkedMs": 0.286,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 38,
+              "rank": 39,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12036,7 +12036,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.263,
+              "checkedMs": 0.262,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 35,
@@ -12050,7 +12050,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.28,
+              "checkedMs": 0.288,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 18,
@@ -12064,7 +12064,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.291,
+              "checkedMs": 0.287,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 17,
@@ -12078,7 +12078,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.285,
+              "checkedMs": 0.286,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 21,
@@ -12092,7 +12092,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.034387,
               "spaceUtilizationPercent": 3.44,
-              "checkedMs": 0.277,
+              "checkedMs": 0.284,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 20,
@@ -12106,10 +12106,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.311,
+              "checkedMs": 0.643,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 10,
+              "rank": 12,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12120,7 +12120,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.315,
+              "checkedMs": 0.398,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 7,
@@ -12134,7 +12134,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.319,
+              "checkedMs": 0.335,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 16,
@@ -12148,7 +12148,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.31,
+              "checkedMs": 0.329,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 13,
@@ -12162,7 +12162,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.314,
+              "checkedMs": 0.336,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12180,14 +12180,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.302,
+              "checkedMs": 0.322,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 55,
+              "rank": 56,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12198,10 +12198,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.248,
+              "checkedMs": 0.257,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 36,
+              "rank": 37,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12212,7 +12212,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.01574,
               "spaceUtilizationPercent": 1.57,
-              "checkedMs": 0.247,
+              "checkedMs": 0.255,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 34,
@@ -12226,7 +12226,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.271,
+              "checkedMs": 0.282,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12244,7 +12244,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.27,
+              "checkedMs": 0.315,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12262,7 +12262,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.283,
+              "checkedMs": 0.298,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 2,
@@ -12276,7 +12276,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.15256,
               "spaceUtilizationPercent": 15.26,
-              "checkedMs": 0.316,
+              "checkedMs": 0.29,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -12293,7 +12293,7 @@
               "checkedMs": 0.316,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 11,
+              "rank": 9,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12304,7 +12304,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.657,
+              "checkedMs": 0.679,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 8,
@@ -12318,7 +12318,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.313,
+              "checkedMs": 0.321,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 15,
@@ -12332,7 +12332,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.313,
+              "checkedMs": 0.33,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 14,
@@ -12346,7 +12346,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.302,
+              "checkedMs": 0.31,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12364,14 +12364,14 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.055939,
               "spaceUtilizationPercent": 5.59,
-              "checkedMs": 0.308,
+              "checkedMs": 0.321,
               "failureTypes": [
                 "boundary",
                 "loading_path",
                 "unloading_blocked"
               ],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 56,
+              "rank": 55,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12382,10 +12382,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.247,
+              "checkedMs": 0.26,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 48,
+              "rank": 50,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12396,7 +12396,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.246,
+              "checkedMs": 0.252,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 45,
@@ -12410,7 +12410,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.272,
+              "checkedMs": 0.277,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 42,
@@ -12424,7 +12424,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.273,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 40,
@@ -12438,7 +12438,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.272,
+              "checkedMs": 0.279,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 44,
@@ -12452,7 +12452,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.013186,
               "spaceUtilizationPercent": 1.32,
-              "checkedMs": 0.273,
+              "checkedMs": 0.291,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 43,
@@ -12466,10 +12466,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.302,
+              "checkedMs": 0.313,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 26,
+              "rank": 27,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12480,10 +12480,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.332,
+              "checkedMs": 0.322,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 25,
+              "rank": 24,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12494,10 +12494,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.363,
+              "checkedMs": 0.317,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 33,
+              "rank": 32,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12508,10 +12508,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.338,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 31,
+              "rank": 30,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12522,7 +12522,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.322,
+              "checkedMs": 0.307,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 22,
@@ -12536,7 +12536,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.322,
+              "checkedMs": 0.308,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12554,10 +12554,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.262,
+              "checkedMs": 0.253,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 50,
+              "rank": 49,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12568,7 +12568,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006036,
               "spaceUtilizationPercent": 0.6,
-              "checkedMs": 0.248,
+              "checkedMs": 0.273,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 46,
@@ -12582,7 +12582,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.275,
+              "checkedMs": 0.315,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 4,
@@ -12596,7 +12596,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.276,
+              "checkedMs": 0.293,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -12614,7 +12614,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.275,
+              "checkedMs": 0.292,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 6,
@@ -12628,7 +12628,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.0585,
               "spaceUtilizationPercent": 5.85,
-              "checkedMs": 0.278,
+              "checkedMs": 0.295,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 5,
@@ -12642,10 +12642,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.313,
+              "checkedMs": 0.342,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 28,
+              "rank": 29,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12656,10 +12656,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.315,
+              "checkedMs": 0.338,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 24,
+              "rank": 25,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12670,10 +12670,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.313,
+              "checkedMs": 0.319,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 32,
+              "rank": 33,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12684,10 +12684,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.314,
+              "checkedMs": 0.318,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 30,
+              "rank": 31,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -12698,7 +12698,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.78,
+              "checkedMs": 0.329,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 23,
@@ -12712,7 +12712,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.02145,
               "spaceUtilizationPercent": 2.15,
-              "checkedMs": 0.357,
+              "checkedMs": 0.308,
               "failureTypes": [
                 "boundary",
                 "loading_path",
@@ -13174,7 +13174,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 133.835,
+          "overallInterfaceMs": 130.764,
           "hardTimeoutSeconds": 8
         }
       }
@@ -13183,7 +13183,7 @@
       "request": {
         "scenario": {
           "schemaVersion": "3.0.0",
-          "scenarioId": "sku-batch-1791777060954",
+          "scenarioId": "sku-batch-1791778193112",
           "name": "SKU 包装规则配送批次",
           "units": {
             "dimensions": "m",
@@ -13351,10 +13351,10 @@
       },
       "result": {
         "schemaVersion": "3.0.0",
-        "scenarioId": "sku-batch-1791777060954",
-        "scenarioFingerprint": "b3ee4ec3f195",
-        "planId": "PLAN-d119e1085dad",
-        "revisionId": "REV-d119e1085dad",
+        "scenarioId": "sku-batch-1791778193112",
+        "scenarioFingerprint": "d1302a412262",
+        "planId": "PLAN-b6fb5f630b15",
+        "revisionId": "REV-b6fb5f630b15",
         "constraintVersion": "city-rear-door-3d-1.0",
         "executionMode": "computed-per-request",
         "solverStatus": "FEASIBLE",
@@ -13368,7 +13368,7 @@
         },
         "scenario": {
           "schemaVersion": "3.0.0",
-          "scenarioId": "sku-batch-1791777060954",
+          "scenarioId": "sku-batch-1791778193112",
           "name": "SKU 包装规则配送批次",
           "units": {
             "dimensions": "m",
@@ -13540,12 +13540,12 @@
           ]
         },
         "result": {
-          "planId": "PLAN-d119e1085dad",
-          "scenarioId": "sku-batch-1791777060954",
+          "planId": "PLAN-b6fb5f630b15",
+          "scenarioId": "sku-batch-1791778193112",
           "routes": [
             {
-              "planId": "PLAN-d119e1085dad",
-              "scenarioId": "sku-batch-1791777060954",
+              "planId": "PLAN-b6fb5f630b15",
+              "scenarioId": "sku-batch-1791778193112",
               "vehicleId": "V01",
               "stopOrder": [
                 "S01"
@@ -13717,7 +13717,7 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V01",
                 "positions": [
                   {
@@ -13758,7 +13758,7 @@
                 ]
               },
               "unloading": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V01",
                 "stopOrder": [
                   "S01"
@@ -13776,10 +13776,10 @@
                       "SKU-001-S01-CASE-1"
                     ],
                     "stepIds": [
-                      "PLAN-d119e1085dad-V01-U001",
-                      "PLAN-d119e1085dad-V01-U002",
-                      "PLAN-d119e1085dad-V01-U003",
-                      "PLAN-d119e1085dad-V01-U004"
+                      "PLAN-b6fb5f630b15-V01-U001",
+                      "PLAN-b6fb5f630b15-V01-U002",
+                      "PLAN-b6fb5f630b15-V01-U003",
+                      "PLAN-b6fb5f630b15-V01-U004"
                     ],
                     "conflicts": [],
                     "extraHandlingMoves": 0,
@@ -13795,7 +13795,7 @@
                 ],
                 "steps": [
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U001",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U001",
                     "sequence": 1,
                     "stopId": "S01",
                     "operation": "arrive",
@@ -13814,7 +13814,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U002",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U002",
                     "sequence": 2,
                     "stopId": "S01",
                     "operation": "highlight",
@@ -13834,7 +13834,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U003",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U003",
                     "sequence": 3,
                     "stopId": "S01",
                     "operation": "unload",
@@ -13872,7 +13872,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U004",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U004",
                     "sequence": 4,
                     "stopId": "S01",
                     "operation": "station_complete",
@@ -13902,10 +13902,10 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791777060954",
+                "scenarioId": "sku-batch-1791778193112",
                 "loadingSteps": [
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-L001",
+                    "stepId": "PLAN-b6fb5f630b15-V01-L001",
                     "operation": "load",
                     "cargoId": "SKU-001-S01-CASE-1",
                     "stopId": "S01",
@@ -13948,8 +13948,8 @@
               "status": "scheduled"
             },
             {
-              "planId": "PLAN-d119e1085dad",
-              "scenarioId": "sku-batch-1791777060954",
+              "planId": "PLAN-b6fb5f630b15",
+              "scenarioId": "sku-batch-1791778193112",
               "vehicleId": "V02",
               "stopOrder": [],
               "routeNodeIds": [
@@ -14046,12 +14046,12 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V02",
                 "positions": []
               },
               "unloading": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V02",
                 "stopOrder": [],
                 "initialRemainingCargoIds": [],
@@ -14074,7 +14074,7 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791777060954",
+                "scenarioId": "sku-batch-1791778193112",
                 "loadingSteps": []
               },
               "layoutSearch": {
@@ -14139,12 +14139,12 @@
           }
         },
         "initialCheck": {
-          "planId": "PLAN-d119e1085dad",
-          "scenarioId": "sku-batch-1791777060954",
+          "planId": "PLAN-b6fb5f630b15",
+          "scenarioId": "sku-batch-1791778193112",
           "routes": [
             {
-              "planId": "PLAN-d119e1085dad",
-              "scenarioId": "sku-batch-1791777060954",
+              "planId": "PLAN-b6fb5f630b15",
+              "scenarioId": "sku-batch-1791778193112",
               "vehicleId": "V01",
               "stopOrder": [
                 "S01"
@@ -14316,7 +14316,7 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V01",
                 "positions": [
                   {
@@ -14357,7 +14357,7 @@
                 ]
               },
               "unloading": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V01",
                 "stopOrder": [
                   "S01"
@@ -14375,10 +14375,10 @@
                       "SKU-001-S01-CASE-1"
                     ],
                     "stepIds": [
-                      "PLAN-d119e1085dad-V01-U001",
-                      "PLAN-d119e1085dad-V01-U002",
-                      "PLAN-d119e1085dad-V01-U003",
-                      "PLAN-d119e1085dad-V01-U004"
+                      "PLAN-b6fb5f630b15-V01-U001",
+                      "PLAN-b6fb5f630b15-V01-U002",
+                      "PLAN-b6fb5f630b15-V01-U003",
+                      "PLAN-b6fb5f630b15-V01-U004"
                     ],
                     "conflicts": [],
                     "extraHandlingMoves": 0,
@@ -14394,7 +14394,7 @@
                 ],
                 "steps": [
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U001",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U001",
                     "sequence": 1,
                     "stopId": "S01",
                     "operation": "arrive",
@@ -14413,7 +14413,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U002",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U002",
                     "sequence": 2,
                     "stopId": "S01",
                     "operation": "highlight",
@@ -14433,7 +14433,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U003",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U003",
                     "sequence": 3,
                     "stopId": "S01",
                     "operation": "unload",
@@ -14471,7 +14471,7 @@
                     "vehicleId": "V01"
                   },
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-U004",
+                    "stepId": "PLAN-b6fb5f630b15-V01-U004",
                     "sequence": 4,
                     "stopId": "S01",
                     "operation": "station_complete",
@@ -14501,10 +14501,10 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791777060954",
+                "scenarioId": "sku-batch-1791778193112",
                 "loadingSteps": [
                   {
-                    "stepId": "PLAN-d119e1085dad-V01-L001",
+                    "stepId": "PLAN-b6fb5f630b15-V01-L001",
                     "operation": "load",
                     "cargoId": "SKU-001-S01-CASE-1",
                     "stopId": "S01",
@@ -14547,8 +14547,8 @@
               "status": "scheduled"
             },
             {
-              "planId": "PLAN-d119e1085dad",
-              "scenarioId": "sku-batch-1791777060954",
+              "planId": "PLAN-b6fb5f630b15",
+              "scenarioId": "sku-batch-1791778193112",
               "vehicleId": "V02",
               "stopOrder": [],
               "routeNodeIds": [
@@ -14645,12 +14645,12 @@
                 ]
               },
               "placements": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V02",
                 "positions": []
               },
               "unloading": {
-                "planId": "PLAN-d119e1085dad",
+                "planId": "PLAN-b6fb5f630b15",
                 "vehicleId": "V02",
                 "stopOrder": [],
                 "initialRemainingCargoIds": [],
@@ -14673,7 +14673,7 @@
                   "stopImmediatelyOn": "blocked",
                   "remainingStateField": "remainingCargoIdsAfter"
                 },
-                "scenarioId": "sku-batch-1791777060954",
+                "scenarioId": "sku-batch-1791778193112",
                 "loadingSteps": []
               },
               "layoutSearch": {
@@ -14733,10 +14733,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 1.948,
-          "constraintCheckMs": 0.512,
-          "layoutGenerationMs": 0.009,
-          "overallComputeMs": 50.417,
+          "solveMs": 2.224,
+          "constraintCheckMs": 0.532,
+          "layoutGenerationMs": 0.011,
+          "overallComputeMs": 52.482,
           "budgetMs": 2000,
           "solverCalls": 1,
           "routeCandidates": 1,
@@ -14782,7 +14782,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.016257,
               "spaceUtilizationPercent": 1.63,
-              "checkedMs": 0.149,
+              "checkedMs": 0.158,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -14796,7 +14796,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.006234,
               "spaceUtilizationPercent": 0.62,
-              "checkedMs": 0.124,
+              "checkedMs": 0.126,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 2,
@@ -14834,11 +14834,11 @@
         "resultSource": {
           "kind": "computed-per-request",
           "service": "city-delivery-decision",
-          "inputFingerprint": "b3ee4ec3f195",
+          "inputFingerprint": "d1302a412262",
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 103.996,
+          "overallInterfaceMs": 109.671,
           "hardTimeoutSeconds": 8
         }
       }
@@ -15163,10 +15163,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 2.188,
-          "constraintCheckMs": 0.393,
-          "layoutGenerationMs": 0.021,
-          "overallComputeMs": 50.805,
+          "solveMs": 2.222,
+          "constraintCheckMs": 0.399,
+          "layoutGenerationMs": 0.029,
+          "overallComputeMs": 50.455,
           "budgetMs": 2000,
           "solverCalls": 4,
           "routeCandidates": 0,
@@ -15219,10 +15219,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.144,
+              "checkedMs": 0.129,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 3,
+              "rank": 2,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -15233,10 +15233,10 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.135,
+              "checkedMs": 0.153,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
-              "rank": 2,
+              "rank": 3,
               "rankingBasis": "feasible-first, then space-utilization-desc, then span-asc"
             },
             {
@@ -15247,7 +15247,7 @@
               "feasible": true,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.118,
+              "checkedMs": 0.122,
               "failureTypes": [],
               "movementCountBasis": "not-computed-per-stop-candidate",
               "rank": 1,
@@ -15312,7 +15312,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 107.38,
+          "overallInterfaceMs": 106.554,
           "hardTimeoutSeconds": 8
         }
       }
@@ -15637,10 +15637,10 @@
         },
         "strategy": "joint-feedback",
         "timing": {
-          "solveMs": 0.415,
-          "constraintCheckMs": 0.416,
-          "layoutGenerationMs": 0.022,
-          "overallComputeMs": 48.986,
+          "solveMs": 0.408,
+          "constraintCheckMs": 0.411,
+          "layoutGenerationMs": 0.023,
+          "overallComputeMs": 48.33,
           "budgetMs": 2000,
           "solverCalls": 4,
           "routeCandidates": 0,
@@ -15693,7 +15693,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.139,
+              "checkedMs": 0.14,
               "failureTypes": [
                 "time_window"
               ],
@@ -15709,7 +15709,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.154,
+              "checkedMs": 0.15,
               "failureTypes": [
                 "time_window"
               ],
@@ -15725,7 +15725,7 @@
               "feasible": false,
               "spaceUtilizationRatio": 0.011111,
               "spaceUtilizationPercent": 1.11,
-              "checkedMs": 0.127,
+              "checkedMs": 0.125,
               "failureTypes": [
                 "time_window"
               ],
@@ -15819,7 +15819,7 @@
           "historicalStaticComparison": false
         },
         "serviceTiming": {
-          "overallInterfaceMs": 105.451,
+          "overallInterfaceMs": 102.829,
           "hardTimeoutSeconds": 8
         }
       }
